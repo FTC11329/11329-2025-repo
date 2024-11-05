@@ -51,7 +51,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Config
-public final class MecanumDrive {
+public class MecanumDrive {
     public static class Params {
         // IMU orientation
         // TODO: fill in these values based on
@@ -205,8 +205,8 @@ public final class MecanumDrive {
         }
     }
 
-    public MecanumDrive(HardwareMap hardwareMap, Pose2d pose) {
-        this.pose = pose;
+    public MecanumDrive(HardwareMap hardwareMap, Pose2d initialPose) {
+        this.pose = initialPose;
 
         LynxFirmware.throwIfModulesAreOutdated(hardwareMap);
 
