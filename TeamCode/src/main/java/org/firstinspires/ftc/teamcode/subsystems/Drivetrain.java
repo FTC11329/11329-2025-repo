@@ -25,6 +25,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.MyOpticalLocalizer;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class Drivetrain extends MecanumDrive {
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
     public static double OMEGA_WEIGHT = 1;
-    SparkFunOTOS myOtos;
+    MyOpticalLocalizer myOtos;
     public final DcMotorEx leftFront;
     public final DcMotorEx leftRear;
     public final DcMotorEx rightRear;
@@ -58,6 +59,8 @@ public class Drivetrain extends MecanumDrive {
 
     public Drivetrain(HardwareMap hardwareMap) {
         super(hardwareMap, new Pose2d(0,0,0));
+        myOtos = new MyOpticalLocalizer(hardwareMap);
+
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -81,10 +84,6 @@ public class Drivetrain extends MecanumDrive {
 
         List<Integer> lastTrackingEncoderPositions = new ArrayList<>();
         List<Integer> lastTrackingEncoderVelocities = new ArrayList<>();
-
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
-
-        configureOtos();
 
     }
 
@@ -146,44 +145,15 @@ public class Drivetrain extends MecanumDrive {
         setDrivePowers(new PoseVelocity2d(vel.position, vel.heading.toDouble()));
     }
 
-    public Pose2d getPoseEstimateOpticalRegular() {
+    public Pose2d getPoseEstimateOptical() {
         return new Pose2d(myOtos.getPosition().x, myOtos.getPosition().y, myOtos.getPosition().h);
-    }
-    public SparkFunOTOS.Pose2D getPoseEstimateOptical(){
-        return myOtos.getPosition();
-    }
-    public void setPoseEstimateOptical(Pose2d newPose){
-        SparkFunOTOS.Pose2D fancyPose = new SparkFunOTOS.Pose2D(newPose.position.x, newPose.position.y, newPose.heading.toDouble());
-        myOtos.setPosition(fancyPose);
-    }
-    //  This is an artifact that we don't use due to 3 wheel odometry
-
-    // TODO: Refactor this out
-    public void stopDrive() {
-        drive(0, 0, 0, DriveSpeedEnum.Slow);
-    }
-
-    private void configureOtos() {
-        myOtos.setLinearUnit(DistanceUnit.INCH);
-        myOtos.setAngularUnit(AngleUnit.RADIANS);
-
-        myOtos.calibrateImu();
-        myOtos.resetTracking();
-
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(4.09705, 3.1539, Math.toRadians(-90)); //x = -8.1941 y = -6.3078
-        myOtos.setOffset(offset);
-
-        myOtos.setLinearScalar(1.00908);
-        myOtos.setAngularScalar(0.99319);
-
-        // Get the hardware and firmware version
-        SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
-        SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
-        myOtos.getVersionInfo(hwVersion, fwVersion);
     }
 
     public void setOtosPosition(double x, double y, double h) {
-        SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(x, y, h);
-        myOtos.setPosition(currentPosition);
+        myOtos.setPosition(x, y, h);
+    }
+
+    public void stopDrive() {
+        drive(0, 0, 0, DriveSpeedEnum.Slow);
     }
 }
