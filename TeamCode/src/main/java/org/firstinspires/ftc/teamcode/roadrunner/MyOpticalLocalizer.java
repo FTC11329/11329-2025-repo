@@ -1,71 +1,68 @@
 package org.firstinspires.ftc.teamcode.roadrunner;
-
 import com.acmerobotics.roadrunner.DualNum;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.acmerobotics.roadrunner.Time;
 import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.Vector2dDual;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.acmerobotics.roadrunner.Pose2d;
+
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class MyOpticalLocalizer {
-    SparkFunOTOS myOtos;
+    private SparkFunOTOS otos;
 
     public MyOpticalLocalizer(HardwareMap hardwareMap) {
-        myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
+        otos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
         configureOtos();
     }
 
-    public Twist2dDual<Time> update() {
-        Twist2dDual<Time> twist = new Twist2dDual<>(
-                new Vector2dDual<>(
-                        new DualNum<Time>(new double[] {
-                                1,
-                                2,
-                        }),
-                        new DualNum<Time>(new double[] {
-                                3,
-                                4,
-                        })
-                ),
-                new DualNum<>(new double[] {
-                        5,
-                        6,
-                })
-        );
-        return twist;
-    }
-
     private void configureOtos() {
-        myOtos.setLinearUnit(DistanceUnit.INCH);
-        myOtos.setAngularUnit(AngleUnit.RADIANS);
+        otos.setLinearUnit(DistanceUnit.INCH);
+        otos.setAngularUnit(AngleUnit.RADIANS);
 
-        myOtos.calibrateImu();
-        myOtos.resetTracking();
+        otos.calibrateImu();
+        otos.resetTracking();
 
         SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(4.09705, 3.1539, Math.toRadians(-90)); //x = -8.1941 y = -6.3078
-        myOtos.setOffset(offset);
+        otos.setOffset(offset);
 
-        myOtos.setLinearScalar(1.00908);
-        myOtos.setAngularScalar(0.99319);
+        otos.setLinearScalar(1.00908);
+        otos.setAngularScalar(0.99319);
 
         // Get the hardware and firmware version
         SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
         SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
-        myOtos.getVersionInfo(hwVersion, fwVersion);
+        otos.getVersionInfo(hwVersion, fwVersion);
+    }
+
+    public PoseVelocity2d getVelocity() {
+        SparkFunOTOS.Pose2D OTOSVelocity = otos.getVelocity();
+
+        return new PoseVelocity2d(new Vector2d(OTOSVelocity.x, OTOSVelocity.y), OTOSVelocity.h);
     }
 
     public SparkFunOTOS.Pose2D getPosition() {
-        return myOtos.getPosition();
+        return otos.getPosition();
     }
+
+    public Pose2d getPositionACM() {
+        return new Pose2d(otos.getPosition().x, otos.getPosition().y, otos.getPosition().h);
+    }
+
 
     public void setPosition(double x, double y, double h) {
         SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(x, y, h);
-        myOtos.setPosition(currentPosition);
+        otos.setPosition(currentPosition);
     }
     public void setPosition(SparkFunOTOS.Pose2D currentPosition) {
-        myOtos.setPosition(currentPosition);
+        otos.setPosition(currentPosition);
+    }
+    public void setPosition(Pose2d currentPosition) {
+        otos.setPosition(new SparkFunOTOS.Pose2D(currentPosition.position.x, currentPosition.position.y, currentPosition.heading.toDouble()));
     }
 }

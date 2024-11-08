@@ -111,7 +111,8 @@ public class MecanumDrive {
 
     public final LazyImu lazyImu;
 
-    public final Localizer localizer;
+//    public final Localizer localizer;
+    private MyOpticalLocalizer otos;
     public Pose2d pose;
 
     private final LinkedList<Pose2d> poseHistory = new LinkedList<>();
@@ -236,9 +237,9 @@ public class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
-
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
+
+         otos = new MyOpticalLocalizer(hardwareMap);
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {
@@ -440,8 +441,7 @@ public class MecanumDrive {
     }
 
     public PoseVelocity2d updatePoseEstimate() {
-        Twist2dDual<Time> twist = localizer.update();
-        pose = pose.plus(twist.value());
+        pose = otos.getPositionACM();
 
         poseHistory.add(pose);
         while (poseHistory.size() > 100) {
@@ -450,7 +450,7 @@ public class MecanumDrive {
 
         estimatedPoseWriter.write(new PoseMessage(pose));
 
-        return twist.velocity().value();
+        return otos.getVelocity();
     }
 
     private void drawPoseHistory(Canvas c) {
