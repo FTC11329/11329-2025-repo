@@ -40,6 +40,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.DriveCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumCommandMessage;
 import org.firstinspires.ftc.teamcode.roadrunner.messages.MecanumLocalizerInputsMessage;
@@ -57,19 +58,19 @@ public class MecanumDrive {
         // TODO: fill in these values based on
         //   see https://ftc-docs.firstinspires.org/en/latest/programming_resources/imu/imu.html?highlight=imu#physical-hub-mounting
         public RevHubOrientationOnRobot.LogoFacingDirection logoFacingDirection =
-                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT;
         public RevHubOrientationOnRobot.UsbFacingDirection usbFacingDirection =
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+                RevHubOrientationOnRobot.UsbFacingDirection.UP;
 
         // drive model parameters
-        public double inPerTick = 1;
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double inPerTick = Constants.RoadRunner.inPerTick;
+        public double lateralInPerTick = 0.00030531911012706043;
+        public double trackWidthTicks = 20846.185113581167;
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kS = Constants.RoadRunner.kS;
+        public double kV = Constants.RoadRunner.kV;
+        public double kA = Constants.RoadRunner.kA;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -81,9 +82,9 @@ public class MecanumDrive {
         public double maxAngAccel = Math.PI;
 
         // path controller gains
-        public double axialGain = 0.0;
-        public double lateralGain = 0.0;
-        public double headingGain = 0.0; // shared with turn
+        public double axialGain = 5.25;
+        public double lateralGain = 6;
+        public double headingGain = 4; // shared with turn
 
         public double axialVelGain = 0.0;
         public double lateralVelGain = 0.0;
@@ -216,10 +217,15 @@ public class MecanumDrive {
 
         // TODO: make sure your config has motors with these names (or change them)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+//        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+//        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+//        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+//        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+
+        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
+        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -227,7 +233,8 @@ public class MecanumDrive {
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // TODO: reverse motor directions if needed
-        //   leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftBack.setDirection(DcMotorEx.Direction.REVERSE);
 
         // TODO: make sure your config has an IMU with this name (can be BNO or BHI)
         //   see https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/index.html
@@ -236,7 +243,7 @@ public class MecanumDrive {
 
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        localizer = new DriveLocalizer();
+        localizer = new ThreeDeadWheelLocalizer(hardwareMap, Constants.RoadRunner.inPerTick);
 
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
     }
