@@ -2,12 +2,32 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import java.util.List;
+
 public class Constants {
 
     @Config
     public static class Drivetrain {
         public static double fastSpeed = 0.7;
         public static double slowSpeed = 0.3;
+    }
+
+    @Config
+    public static class Intake {
+        public static int minSlidePos = 0; //Todo: set
+        public static int minWhileDownPos = 0; //Todo: set
+        public static int maxSlidePos = 0; //Todo: set
+
+        public static double wristUp = 0; //Todo: set
+        public static double wristDown = 0; //Todo: set
+
+        public static double intakeSpeed = 0; //Todo: set
+    }
+    @Config
+    public static class Color {
+        public static double[] blue = {0, 0, 0, 0} ; //Todo: set
+        public static double[] red = {0, 0, 0, 0} ; //Todo: set
+        public static double[] yellow = {0, 0, 0, 0} ; //Todo: set
     }
 
     @Config
