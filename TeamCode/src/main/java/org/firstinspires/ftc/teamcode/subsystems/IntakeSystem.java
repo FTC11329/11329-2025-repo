@@ -33,24 +33,24 @@ public class IntakeSystem {
     }
 
 
-    public void setSlidePos(int newPos) {
+    public void setHSlidePos(int newPos) {
         hSlides.setPos(newPos);
     }
-    public int getSlideTargetPos() {
+    public int getHSlideTargetPos() {
         return hSlides.getTargetPos();
     }
-    public int getPos() {
+    public int getHSlidePos() {
         return hSlides.getPos();
     }
 
 
     public void pickupPos(int hSlidePos) {
-        setSlidePos(hSlidePos);
+        setHSlidePos(hSlidePos);
         setIntakeServoPos(Constants.Intake.wristDown);
     }
 
     public void storePos() {
-        setSlidePos(Constants.Intake.minSlidePos);
+        setHSlidePos(Constants.Intake.minSlidePos);
         setIntakeServoPos(Constants.Intake.wristUp);
         setIntakePower(0);
     }

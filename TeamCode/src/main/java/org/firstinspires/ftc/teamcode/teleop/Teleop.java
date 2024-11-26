@@ -45,16 +45,16 @@ public class Teleop {
 
     public void init() {
         driveTrain = new Drivetrain(hardwareMap);
-        blockVision = new BlockVision(hardwareMap, robotSide);
-        intakeSystem = new IntakeSystem(hardwareMap, robotSide);
+//        blockVision = new BlockVision(hardwareMap, robotSide);
+//        intakeSystem = new IntakeSystem(hardwareMap, robotSide);
     }
 
 
     public void loop() {
         //INPUTS
-        driveForward = gamepad1.left_stick_y;
-        driveStrafe = gamepad1.left_stick_x;
-        driveRotation = gamepad1.right_stick_x;
+        driveForward = -gamepad1.left_stick_y;
+        driveStrafe = -gamepad1.left_stick_x;
+        driveRotation = -gamepad1.right_stick_x;
         driveFast = gamepad1.right_bumper;
 
         slidePower = gamepad1.right_trigger - gamepad1.left_trigger;

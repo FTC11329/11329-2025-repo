@@ -9,18 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.PIDCoefficients;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.MyOpticalLocalizer;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,39 +24,28 @@ import java.util.List;
  */
 @Config
 public class Drivetrain extends MecanumDrive {
-    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(9, 5.5, 2); //D3
-    public static PIDCoefficients HEADING_PID = new PIDCoefficients(9, 0, 0);
-    public static double LATERAL_MULTIPLIER = 1;
-    public static double VX_WEIGHT = 1;
-    public static double VY_WEIGHT = 1;
-    public static double OMEGA_WEIGHT = 1;
-    MyOpticalLocalizer myOtos;
     public final DcMotorEx leftFront;
-    public final DcMotorEx leftRear;
-    public final DcMotorEx rightRear;
+    public final DcMotorEx leftBack;
+    public final DcMotorEx rightBack;
     public final DcMotorEx rightFront;
     private final List<DcMotorEx> motors;
-
-    private final VoltageSensor batteryVoltageSensor;
-
-    private final List<Integer> lastEncoderPositions = new ArrayList<>();
-    private final List<Integer> lastEncoderVelocities = new ArrayList<>();
 
     private Telemetry telemetry;
 
     public Drivetrain(HardwareMap hardwareMap) {
         super(hardwareMap, new Pose2d(0,0,0));
-        myOtos = new MyOpticalLocalizer(hardwareMap);
 
 
-        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+//        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+//        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+//        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+//        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
+        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
+        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
+        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
 
-        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        leftRear = hardwareMap.get(DcMotorEx.class, "leftBack");
-        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        rightRear = hardwareMap.get(DcMotorEx.class, "rightBack");
-
-        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
+        motors = Arrays.asList(leftFront, leftBack, rightBack, rightFront);
 
         for (DcMotorEx motor : motors) {
             MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
@@ -72,11 +56,7 @@ public class Drivetrain extends MecanumDrive {
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        List<Integer> lastTrackingEncoderPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncoderVelocities = new ArrayList<>();
-
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void drive(double forward, double strafe, double turn, DriveSpeedEnum driveSpeed) {
@@ -94,26 +74,9 @@ public class Drivetrain extends MecanumDrive {
         setWeightedDrivePower(new Pose2d(forward * speed, strafe * speed, turn * speed));
     }
 
-    public void setMode(DcMotor.RunMode runMode) {
-        for (DcMotorEx motor : motors) {
-            motor.setMode(runMode);
-        }
-    }
-
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(zeroPowerBehavior);
-        }
-    }
-
-    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
-        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
-                coefficients.p, coefficients.i, coefficients.d,
-                coefficients.f * 12 / batteryVoltageSensor.getVoltage()
-        );
-
-        for (DcMotorEx motor : motors) {
-            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
         }
     }
 
@@ -123,26 +86,18 @@ public class Drivetrain extends MecanumDrive {
         if (Math.abs(drivePower.position.x) + Math.abs(drivePower.position.y)
                 + Math.abs(drivePower.heading.toDouble()) > 1) {
             // re-normalize the powers according to the weights
-            double denom = VX_WEIGHT * Math.abs(drivePower.position.x)
-                    + VY_WEIGHT * Math.abs(drivePower.position.y)
-                    + OMEGA_WEIGHT * Math.abs(drivePower.heading.toDouble());
+            double denom = Math.abs(drivePower.position.x)
+                    + Math.abs(drivePower.position.y)
+                    + Math.abs(drivePower.heading.toDouble());
 
             vel = new Pose2d(
-                    VX_WEIGHT * drivePower.position.x / denom,
-                    VY_WEIGHT * drivePower.position.y / denom,
-                    OMEGA_WEIGHT * drivePower.heading.toDouble() / denom
+                    drivePower.position.x / denom,
+                    drivePower.position.y / denom,
+                    drivePower.heading.toDouble() / denom
             );
         }
 
         setDrivePowers(new PoseVelocity2d(vel.position, vel.heading.toDouble()));
-    }
-
-    public Pose2d getPoseEstimateOptical() {
-        return new Pose2d(myOtos.getPosition().x, myOtos.getPosition().y, myOtos.getPosition().h);
-    }
-
-    public void setOtosPosition(double x, double y, double h) {
-        myOtos.setPosition(x, y, h);
     }
 
     public void stopDrive() {

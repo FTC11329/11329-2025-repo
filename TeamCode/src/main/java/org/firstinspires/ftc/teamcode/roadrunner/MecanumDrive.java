@@ -246,6 +246,7 @@ public class MecanumDrive {
         FlightRecorder.write("MECANUM_PARAMS", PARAMS);
 
          otos = new MyOpticalLocalizer(hardwareMap);
+         otos.setPosition(initialPose);
     }
 
     public void setDrivePowers(PoseVelocity2d powers) {

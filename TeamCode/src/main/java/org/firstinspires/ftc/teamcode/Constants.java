@@ -23,6 +23,19 @@ public class Constants {
 
         public static double intakeSpeed = 0; //Todo: set
     }
+
+    public static class Outtake {
+        public static double grabClaw = 0; //Todo: set
+        public static double dropClaw = 0; //Todo: set
+
+        public static double specimenArm = 0; //Todo: set
+        public static double basketArm = 0; //Todo: set
+
+        public static int lowSpecimenSlides = 0; //Todo: set
+        public static int highSpecimenSlides = 0; //Todo: set
+        public static int lowBasketSlides = 0; //Todo: set
+        public static int highBasketSlides = 0; //Todo: set
+    }
     @Config
     public static class Color {
         public static double[] blue = {0, 0, 0, 0} ; //Todo: set
