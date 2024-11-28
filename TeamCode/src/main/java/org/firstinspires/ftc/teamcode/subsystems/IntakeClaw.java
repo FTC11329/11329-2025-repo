@@ -12,10 +12,10 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class IntakeClaw {
     DcMotor intakeMotor;
-    double lastIntakePower;
+    double lastIntakePower = 0;
 
     Servo wristServo;
-    double lastWristPos;
+    double lastWristPos = 0;
 
     public IntakeClaw(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");

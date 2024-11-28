@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.ColorEnum;
 import org.firstinspires.ftc.teamcode.utility.ColorFunctions;
@@ -58,41 +60,59 @@ public class IntakeSystem {
 
     public boolean intakeUntilColor() {
         setIntakePower(Constants.Intake.intakeSpeed);
-        if (robotSide == RobotSideEnum.Blue) {
-            if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.blue) {
-                setIntakePower(0);
-                return true;
+        if (clawSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
+            if (robotSide == RobotSideEnum.Blue) {
+                if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.blue) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.red) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } else {
-            if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.red) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
     public boolean intakeUntil() {
         setIntakePower(Constants.Intake.intakeSpeed);
-        if (robotSide == RobotSideEnum.Blue) {
-            if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                setIntakePower(0);
-                return true;
+        if (clawSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
+            if (robotSide == RobotSideEnum.Blue) {
+                if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } else {
-            if (ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(clawSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
-            }
+            return false;
         }
 
+    }
+    public NormalizedRGBA directColor() {
+        return clawSensor.getNormalizedColors();
+    }
+    public ColorEnum color() {
+        return ColorFunctions.toColor(clawSensor.getNormalizedColors());
+    }
+
+    public double distance() {
+        return clawSensor.getDistance(DistanceUnit.INCH);
     }
 
     public void stop() {

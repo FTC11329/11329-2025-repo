@@ -12,11 +12,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class OuttakeArm {
     Servo clawServo;
-    double lastClawPos;
+    double lastClawPos = 0;
 
     Servo armServo1;
     Servo armServo2;
-    double lastArmPos;
+    double lastArmPos = 0;
 
     public OuttakeArm(HardwareMap hardwareMap) {
         clawServo = hardwareMap.get(Servo.class, "clawServo");

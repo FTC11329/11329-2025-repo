@@ -11,10 +11,10 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
+import org.firstinspires.ftc.teamcode.utility.SimplePIDControl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -30,20 +30,19 @@ public class Drivetrain extends MecanumDrive {
     public final DcMotorEx rightFront;
     private final List<DcMotorEx> motors;
 
-    private Telemetry telemetry;
+    public SimplePIDControl pidControl;
 
     public Drivetrain(HardwareMap hardwareMap) {
         super(hardwareMap, new Pose2d(0,0,0));
 
-
-//        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-//        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
-//        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-//        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
-        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
-        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
-        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
-        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightBack");
+//        leftFront = hardwareMap.get(DcMotorEx.class, "frontLeft");
+//        leftBack = hardwareMap.get(DcMotorEx.class, "backLeft");
+//        rightFront = hardwareMap.get(DcMotorEx.class, "frontRight");
+//        rightBack = hardwareMap.get(DcMotorEx.class, "backRight");
 
         motors = Arrays.asList(leftFront, leftBack, rightBack, rightFront);
 
@@ -57,6 +56,8 @@ public class Drivetrain extends MecanumDrive {
 
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        pidControl = new SimplePIDControl();
     }
 
     public void drive(double forward, double strafe, double turn, DriveSpeedEnum driveSpeed) {
@@ -67,11 +68,39 @@ public class Drivetrain extends MecanumDrive {
             speed = Constants.Drivetrain.slowSpeed;
         } else if (driveSpeed == DriveSpeedEnum.Auto) {
             speed = 1;
-        } else if (driveSpeed == DriveSpeedEnum.SuperFast) {
-            speed = 0.3;
+        } else if (driveSpeed == DriveSpeedEnum.PTOSpeed) {
+            speed = Constants.PTO.speed;
         }
 
         setWeightedDrivePower(new Pose2d(forward * speed, strafe * speed, turn * speed));
+    }
+
+    public void PTOLoop() {
+        rightFront.setPower(pidControl.update(rightFront.getCurrentPosition()));
+        rightBack.setPower(pidControl.update(rightFront.getCurrentPosition()));
+        leftFront.setPower(pidControl.update(leftFront.getCurrentPosition()));
+        leftBack.setPower(pidControl.update(leftFront.getCurrentPosition()));
+    }
+
+    public void setRunToPos() {
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+
+    public void setPTOPos(int ptoPos) {
+        pidControl.setTargetValue(ptoPos);
+        pidControl.setTargetValue(ptoPos);
+    }
+    public int getPTOTPos() {
+        return (int) pidControl.getTargetValue();
+    }
+    public int getPTOPos() {
+        return leftFront.getCurrentPosition();
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
