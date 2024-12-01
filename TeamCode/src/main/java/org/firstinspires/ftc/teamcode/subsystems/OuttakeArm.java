@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 
 
 public class OuttakeArm {
@@ -26,6 +27,11 @@ public class OuttakeArm {
         clawServo.setDirection(Servo.Direction.FORWARD);
         armServo1.setDirection(Servo.Direction.FORWARD);
         armServo2.setDirection(Servo.Direction.FORWARD);
+
+        clawServo.setPosition(Constants.Outtake.grabClaw);
+        armServo1.setPosition(Constants.Outtake.initArm);
+        armServo2.setPosition(Constants.Outtake.initArm);
+
     }
 
     public void setArmPos(double newArmPos) {

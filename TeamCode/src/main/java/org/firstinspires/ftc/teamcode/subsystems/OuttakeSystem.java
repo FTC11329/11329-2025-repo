@@ -1,9 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
+import org.jetbrains.annotations.NotNull;
 
 public class OuttakeSystem {
     OuttakeArm outtakeArm;
@@ -31,6 +37,11 @@ public class OuttakeSystem {
         return vSlides.getPos();
     }
 
+    public void storePos() {
+        setClawPos(Constants.Outtake.dropClaw);
+        setVSlidePos(Constants.Outtake.intakeSlides);
+        setArmPos(Constants.Outtake.intakeArm);
+    }
     public void placePos(PlacePosEnum posEnum) {
         setClawPos(Constants.Outtake.grabClaw);
         if (posEnum == PlacePosEnum.lowSpecimen) {
@@ -46,5 +57,48 @@ public class OuttakeSystem {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.highBasketSlides);
         }
+    }
+    //Actions***************************************************************************************
+    public class ToSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            placePos(PlacePosEnum.highSpecimen);
+            return false;
+        }
+    }
+    public class PastSpecimen implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            setVSlidePos(Constants.Outtake.highSpecimenSlides + 50);
+            setArmPos(Constants.Outtake.specimenArmEnd);
+            return false;
+        }
+    }
+    public class Drop implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            setClawPos(Constants.Outtake.dropClaw);
+            return false;
+        }
+    }
+    public class ToWallSpecimen implements Action {
+        @Override
+        public boolean run(@NotNull TelemetryPacket packet) {
+            setArmPos(Constants.Outtake.intakeWallArm);
+            setVSlidePos(Constants.Outtake.intakeWallSlides);
+            return false;
+        }
+    }
+    public Action toSpecimen(){
+        return new ToSpecimen();
+    }
+    public Action pastSpecimen(){
+        return new PastSpecimen();
+    }
+    public Action drop(){
+        return new Drop();
+    }
+    public Action toWallSpecimen() {
+        return new ToWallSpecimen();
     }
 }

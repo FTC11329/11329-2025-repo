@@ -31,6 +31,11 @@ public class PowerTakeOff {
         setLeftPos(Constants.PTO.servoClimb);
         enabled = true;
     }
+    public void disable() {
+        setRightPos(0);
+        setLeftPos(0);
+        enabled = false;
+    }
 
     public boolean isEnabled() {
         return enabled;

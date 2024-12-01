@@ -28,7 +28,7 @@ public class MyOpticalLocalizer {
         otos.calibrateImu();
         otos.resetTracking();
 
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(4.09705, 3.1539, Math.toRadians(-90)); //x = -8.1941 y = -6.3078
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, Math.toRadians(-90)); //x = -8.1941 y = -6.3078
         otos.setOffset(offset);
 
         otos.setLinearScalar(1.00908);

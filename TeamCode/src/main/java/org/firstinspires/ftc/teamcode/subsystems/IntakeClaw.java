@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 
 
 public class IntakeClaw {
@@ -21,18 +22,32 @@ public class IntakeClaw {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         wristServo = hardwareMap.get(Servo.class, "intakeServo");
 
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        wristServo.setDirection(Servo.Direction.FORWARD);
+        wristServo.setDirection(Servo.Direction.REVERSE);
+
+        wristServo.setPosition(0);
     }
 
     public void setIntakePower(double newIntakePower) {
         if (lastIntakePower != newIntakePower) {
+            intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             lastIntakePower  = newIntakePower;
             intakeMotor.setPower(newIntakePower);
         }
     }
+
+    public void bitMore() {
+        intakeMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeMotor.setTargetPosition(0);
+        intakeMotor.setPower(1);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        intakeMotor.setTargetPosition(Constants.Intake.bitMore);
+    }
+
 
     public void setIntakeServoPos(double newPos) {
         if (lastWristPos != newPos) {

@@ -8,16 +8,17 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 public class VerticalSlides {
 
     DcMotorEx slideMotor;
-    int lastSlidePos = 0;
+    int lastSlidePos;
 
     public VerticalSlides(HardwareMap hardwareMap) {
         slideMotor = hardwareMap.get(DcMotorEx.class, "vSlides");
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setTargetPosition(0);
+        slideMotor.setPower(1);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void setPos(int newPos) {
