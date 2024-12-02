@@ -50,12 +50,6 @@ public class SimplePIDControl {
         this.i = iValue;
     }
 
-    public SimplePIDControl() {
-        this.p = Constants.PTO.p;
-        this.i = Constants.PTO.i;
-        this.d = Constants.PTO.d;
-    }
-
     /**
      * Clamp a float value between upper and lower bounds.
      *

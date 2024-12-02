@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.Constants;
+
 public class HorizontalSlides {
 
     DcMotorEx slideMotor;
@@ -19,6 +21,10 @@ public class HorizontalSlides {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
+    public void manualPos(double power) {
+        lastSlidePos += (int)(power * Constants.Intake.manualSlideSpeed);
     }
 
     public void setPos(int newPos) {

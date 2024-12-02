@@ -26,37 +26,51 @@ public class Constants {
 
     @Config
     public static class Intake {
-        public static int minSlidePos = 0; //Todo: set
-        public static int minWhileDownPos = 310;
+        public static int minSlidePos = 0;
+        public static int safeTransferSlide = 333;
+        public static int minWhileDownPos = 477;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1850;
+        public static double manualSlideSpeed = 3;
 
         public static double wristUp = 0;
+        public static double wristClear = 0.2;
         public static double wristDown = 0.3737;
 
         public static double intakeSpeed = 1;
+        public static double transferSpeed = 0.75;
+        public static double unjamSpeed = -0.25;
+        public static double spitSpeed = -0.75;
         public static int bitMore = 80;
     }
 
     @Config
     public static class Outtake {
-        public static double grabClaw = 0.46; //Todo: set
-        public static double dropClaw = 0.25; //Todo: set
+        public static double grabClaw = 0.46;
+        public static double halfClaw = 0.4;
+        public static double dropClaw = 0.25;
 
-        public static double intakeArm = 0.333; //TODO
+        public static double intakeArm = 0.9928;
         public static double initArm = 0.33333333;
         public static double intakeWallArm = 0.027;
 
-        public static double specimenArm = 0.57;
+        public static double specimenArm = 0.50;
         public static double specimenArmEnd = 0.40;
-        public static double basketArm = 0; //Todo: set
+        public static double basketArm = 0.165;
 
-        public static int intakeSlides = 10; //Todo: set
-        public static int intakeWallSlides = 33;
-        public static int lowSpecimenSlides = 0; //Todo: set
-        public static int highSpecimenSlides = 217;
-        public static int lowBasketSlides = 0; //Todo: set
-        public static int highBasketSlides = 637;
+        public static int intakeSlides = 378;
+        public static int intakeWallSlides = 80;
+        public static int safeFromWallSlides = 100;
+        public static int highSpecimenSlides = 180;
+        public static int lowBasketSlides = 424;
+        public static int highBasketSlides = 948;
+        public static int maxSlides = 1050;
+
+        public static double p = 0.03;
+        public static double i = 0;
+        public static double d = 0.00001;
+        public static double f = 0;
+
     }
     @Config
     public static class Color {

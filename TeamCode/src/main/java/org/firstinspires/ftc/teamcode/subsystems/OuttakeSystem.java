@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -12,7 +11,7 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.jetbrains.annotations.NotNull;
 
 public class OuttakeSystem {
-    OuttakeArm outtakeArm;
+    public OuttakeArm outtakeArm;
     VerticalSlides vSlides;
 
     public OuttakeSystem(HardwareMap hardwareMap) {
@@ -27,6 +26,9 @@ public class OuttakeSystem {
         outtakeArm.setClawPos(newPos);
     }
 
+    public void manualVSlide(double power) {
+        vSlides.manualPos(power);
+    }
     public void setVSlidePos(int newPos) {
         vSlides.setPos(newPos);
     }
@@ -44,10 +46,7 @@ public class OuttakeSystem {
     }
     public void placePos(PlacePosEnum posEnum) {
         setClawPos(Constants.Outtake.grabClaw);
-        if (posEnum == PlacePosEnum.lowSpecimen) {
-            setArmPos(Constants.Outtake.specimenArm);
-            setVSlidePos(Constants.Outtake.lowSpecimenSlides);
-        } else if (posEnum == PlacePosEnum.highSpecimen) {
+        if (posEnum == PlacePosEnum.highSpecimen) {
             setArmPos(Constants.Outtake.specimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
         } else if (posEnum == PlacePosEnum.lowBasket) {
@@ -81,6 +80,14 @@ public class OuttakeSystem {
             return false;
         }
     }
+    public class Grab implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            setClawPos(Constants.Outtake.grabClaw);
+            return false;
+        }
+    }
+
     public class ToWallSpecimen implements Action {
         @Override
         public boolean run(@NotNull TelemetryPacket packet) {
@@ -98,7 +105,14 @@ public class OuttakeSystem {
     public Action drop(){
         return new Drop();
     }
+    public Action grab(){
+        return new Grab();
+    }
     public Action toWallSpecimen() {
         return new ToWallSpecimen();
+    }
+
+    public void update() {
+        vSlides.update();
     }
 }

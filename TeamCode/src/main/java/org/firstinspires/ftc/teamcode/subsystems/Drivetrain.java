@@ -57,7 +57,7 @@ public class Drivetrain extends MecanumDrive {
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        pidControl = new SimplePIDControl();
+        pidControl = new SimplePIDControl(Constants.PTO.p, Constants.PTO.i, Constants.PTO.d);
     }
 
     public void drive(double forward, double strafe, double turn, DriveSpeedEnum driveSpeed) {

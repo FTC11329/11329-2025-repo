@@ -48,4 +48,7 @@ public class OuttakeArm {
             clawServo.setPosition(newClawPos);
         }
     }
+    public double getClawPos () {
+        return clawServo.getPosition();
+    }
 }

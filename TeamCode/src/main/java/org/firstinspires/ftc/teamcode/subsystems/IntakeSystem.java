@@ -19,14 +19,13 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 public class IntakeSystem {
     ElapsedTime time = new ElapsedTime();
 
-    IntakeClaw intakeClaw;
-    HorizontalSlides hSlides;
-    RevColorSensorV3 intakeSensor;
+    private IntakeClaw intakeClaw;
+    private HorizontalSlides hSlides;
+    private RevColorSensorV3 intakeSensor;
 
-    RobotSideEnum robotSide;
+    private RobotSideEnum robotSide;
 
-    boolean intakeMore = false;
-    double intakeTime = 0;
+    public boolean unjamP2 = false;
 
     public IntakeSystem(HardwareMap hardwareMap, RobotSideEnum robotSide) {
         intakeClaw = new IntakeClaw(hardwareMap);
@@ -45,6 +44,9 @@ public class IntakeSystem {
     }
 
 
+    public void manualHSlide(double power) {
+        hSlides.manualPos(power);
+    }
     public void setHSlidePos(int newPos) {
         hSlides.setPos(newPos);
     }
@@ -70,11 +72,17 @@ public class IntakeSystem {
         setIntakeServoPos(Constants.Intake.wristUp);
         setIntakePower(0);
     }
+    public void storeOutPos() {
+        setHSlidePos(Constants.Intake.minWhileDownPos);
+        setIntakeServoPos(Constants.Intake.wristUp);
+        setIntakePower(0);
+    }
 
 
     public void intakeBitMore() {
         intakeClaw.bitMore();
     }
+
     public boolean intakeUntilColor() {
         setIntakePower(Constants.Intake.intakeSpeed);
         if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
@@ -124,6 +132,24 @@ public class IntakeSystem {
             return false;
         }
 
+    }
+    public boolean unjam() {
+        setIntakePower(Constants.Intake.unjamSpeed);
+        if (intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance && !unjamP2) {
+            unjamP2 = true;
+        }
+        if (unjamP2) {
+            if (intakeUntil()) {
+                unjamP2 = false;
+                setIntakePower(0);
+                intakeBitMore();
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean readyToTranfer() {
+        return getHSlidePos() < Constants.Intake.safeTransferSlide;
     }
     public NormalizedRGBA directColor() {
         return intakeSensor.getNormalizedColors();
