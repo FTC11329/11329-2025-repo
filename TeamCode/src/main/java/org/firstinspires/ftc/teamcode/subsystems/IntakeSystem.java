@@ -19,12 +19,16 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 public class IntakeSystem {
     ElapsedTime time = new ElapsedTime();
 
+    boolean intakeOnce = false;
+    double intakeTime = 2000000000;
+
     private IntakeClaw intakeClaw;
     private HorizontalSlides hSlides;
     private RevColorSensorV3 intakeSensor;
 
     private RobotSideEnum robotSide;
 
+    public boolean unjamP0 = false;
     public boolean unjamP2 = false;
 
     public IntakeSystem(HardwareMap hardwareMap, RobotSideEnum robotSide) {
@@ -58,23 +62,37 @@ public class IntakeSystem {
     }
 
 
+    public void pickupPosWithTime(int hSlidePos) {
+        if (!intakeOnce) {
+            intakeTime = time.milliseconds();
+            intakeOnce = true;
+        }
+        setHSlidePos(hSlidePos);
+        if (time.milliseconds() > intakeTime + 250 && time.milliseconds() < intakeTime + 300) {
+            setIntakeServoPos(Constants.Intake.wristDown);
+            intakeOnce = false;
+        }
+    }
+    public void pickupPosWithTime() {
+        pickupPosWithTime(Constants.Intake.intakeSlidePos);
+    }
+
     public void pickupPos(int hSlidePos) {
         setHSlidePos(hSlidePos);
         setIntakeServoPos(Constants.Intake.wristDown);
     }
     public void pickupPos() {
-        setHSlidePos(Constants.Intake.intakeSlidePos);
-        setIntakeServoPos(Constants.Intake.wristDown);
+        pickupPos(Constants.Intake.intakeSlidePos);
     }
 
     public void storePos() {
         setHSlidePos(Constants.Intake.minSlidePos);
-        setIntakeServoPos(Constants.Intake.wristUp);
+        setIntakeServoPos(Constants.Intake.wristStore);
         setIntakePower(0);
     }
     public void storeOutPos() {
         setHSlidePos(Constants.Intake.minWhileDownPos);
-        setIntakeServoPos(Constants.Intake.wristUp);
+        setIntakeServoPos(Constants.Intake.wristStore);
         setIntakePower(0);
     }
 
@@ -89,7 +107,6 @@ public class IntakeSystem {
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
                     setIntakePower(0);
-                    intakeBitMore();
                     return true;
                 } else {
                     return false;
@@ -97,7 +114,6 @@ public class IntakeSystem {
             } else {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red) {
                     setIntakePower(0);
-                    intakeBitMore();
                     return true;
                 } else {
                     return false;
@@ -114,7 +130,6 @@ public class IntakeSystem {
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
                     setIntakePower(0);
-                    intakeBitMore();
                     return true;
                 } else {
                     return false;
@@ -122,7 +137,6 @@ public class IntakeSystem {
             } else {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
                     setIntakePower(0);
-                    intakeBitMore();
                     return true;
                 } else {
                     return false;

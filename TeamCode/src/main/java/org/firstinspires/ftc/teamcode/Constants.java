@@ -14,7 +14,7 @@ public class Constants {
     public static class PTO {
         public static double servoRelease = 0.267;
         public static double servoClimb = 0.427;
-        public static double speed = 1; //Todo: set
+        public static double speed = 1;
 
         public static int motorClimb = 1020;
         public static int motorDrop = 0;
@@ -33,14 +33,14 @@ public class Constants {
         public static int maxSlidePos = 1850;
         public static double manualSlideSpeed = 3;
 
-        public static double wristUp = 0;
-        public static double wristClear = 0.2;
+        public static double wristStore = 0;
+        public static double wristClear = 0.37;
         public static double wristDown = 0.3737;
 
         public static double intakeSpeed = 1;
-        public static double transferSpeed = 0.75;
-        public static double unjamSpeed = -0.25;
-        public static double spitSpeed = -0.75;
+        public static double transferSpeed = 0.5;
+        public static double unjamSpeed = -0.5; //Todo: set
+        public static double spitSpeed = -0.75; //Todo: set
         public static int bitMore = 80;
     }
 
@@ -52,16 +52,18 @@ public class Constants {
 
         public static double intakeArm = 0.9928;
         public static double initArm = 0.33333333;
-        public static double intakeWallArm = 0.027;
+        public static double upArm = 0.33333333;
+        public static double intakeWallArm = 0.001;
 
         public static double specimenArm = 0.50;
         public static double specimenArmEnd = 0.40;
         public static double basketArm = 0.165;
 
-        public static int intakeSlides = 378;
-        public static int intakeWallSlides = 80;
+        public static int intakeSlides = 247;
+        public static int intakeWallSlides = 0;
         public static int safeFromWallSlides = 100;
-        public static int highSpecimenSlides = 180;
+        public static int safeFromHSlides = 400; //Todo: set
+        public static int highSpecimenSlides = 258;
         public static int lowBasketSlides = 424;
         public static int highBasketSlides = 948;
         public static int maxSlides = 1050;
@@ -74,11 +76,11 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0012, 0.0027, 0.0085, 0.5291} ;
-        public static double[] red = {0.0072, 0.0038, 0.0022, 0.5737} ;
-        public static double[] yellow = {0.011, 0.0165, 0.0042, 0.8804} ;
+        public static double[] blue = {0.0005, 0.0013, 0.0033, 0.16} ;
+        public static double[] red = {0.0023, 0.0015, 0.001, 0.144} ;
+        public static double[] yellow = {0.0036, 0.0054, 0.0016, 0.449} ;
 
-        public static double hasDistance = 1; //0.61 0.47 0.51 1.45
+        public static double hasDistance = 1.5; //2 .95 .94 1.1
     }
 
     @Config

@@ -32,7 +32,7 @@ public class TeleopTesting {
 
 
     //Various Variables
-    double testValue = Constants.Intake.wristUp;
+    double testValue = Constants.Intake.wristStore;
     double testValue2 = 0.33333;
     boolean intakeingColor = false;
     boolean intakeing = false;
@@ -137,14 +137,14 @@ public class TeleopTesting {
 
         //intaking loop
         if (intakeing) {
-            intakeSystem.pickupPos();
+            intakeSystem.pickupPosWithTime();
             if (intakeSystem.intakeUntil()) {
                 intakeSystem.storePos();
                 intakeing = false;
             }
         }
         if (intakeingColor) {
-            intakeSystem.pickupPos();
+            intakeSystem.pickupPosWithTime();
             if (intakeSystem.intakeUntilColor()) {
                 intakeSystem.storePos();
                 intakeingColor = false;
@@ -153,8 +153,8 @@ public class TeleopTesting {
 
 
         //HSlides
-//        testValue += 4 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+        testValue += 4 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
         testValue2 += 0.003 * (gamepad1.right_stick_y);
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
@@ -193,14 +193,15 @@ public class TeleopTesting {
         */
 
         //intake color
+        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
 //        intakeSystem.setIntakePower(testValue);
-//        telemetry.addData("power", testValue);
-//        telemetry.addData("Claw r", intakeSystem.directColor().red);
-//        telemetry.addData("Claw g", intakeSystem.directColor().green);
-//        telemetry.addData("Claw b", intakeSystem.directColor().blue);
-//        telemetry.addData("Claw a", intakeSystem.directColor().alpha);
-//        telemetry.addData("Claw distance", intakeSystem.distance());
-//        telemetry.addData("color", intakeSystem.color());
+        telemetry.addData("power", testValue);
+        telemetry.addData("Claw r", intakeSystem.directColor().red);
+        telemetry.addData("Claw g", intakeSystem.directColor().green);
+        telemetry.addData("Claw b", intakeSystem.directColor().blue);
+        telemetry.addData("Claw a", intakeSystem.directColor().alpha);
+        telemetry.addData("Claw distance", intakeSystem.distance());
+        telemetry.addData("color", intakeSystem.color());
 
         telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
 

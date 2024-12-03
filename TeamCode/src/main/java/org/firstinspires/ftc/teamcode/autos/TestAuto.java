@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @Config
-@Autonomous(name = "testAuto", group = "Autonomous")
+@Autonomous(name = "testAuto", group = "ZAutonomous")
 public class TestAuto extends LinearOpMode {
     Pose2d initialPose = new Pose2d(16.5,-63,Math.toRadians(90));
     MecanumDrive drive;
