@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @Config
-@Autonomous(name = "Red Specimen", group = "Autonomous")
+@Autonomous(name = "Red Specimen (no worky)", group = "Autonomous")
 public class RedSpecimenAuto extends LinearOpMode {
-    Pose2d initialPose = new Pose2d(16.5,-63,Math.toRadians(90));
+    Pose2d initialPose = new Pose2d(8.5,-63,Math.toRadians(90));
     Vector2d pos1 = new Vector2d(4, -30.5);
     Pose2d pos2p1 = new Pose2d(30, -47, Math.toRadians(43));
     Pose2d pos2p2 = new Pose2d(40, -47, Math.toRadians(43));

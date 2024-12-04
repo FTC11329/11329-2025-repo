@@ -492,4 +492,13 @@ public class MecanumDrive {
                 defaultVelConstraint, defaultAccelConstraint
         );
     }
+    public TrajectoryActionBuilder actionBuilder(Vector2d beginVector) {
+        return actionBuilder(new Pose2d(beginVector.x, beginVector.y, pose.heading.toDouble()));
+    }
+
+    public Action waitSecondsAction(double seconds) {
+        return actionBuilder(new Pose2d(0,0,0))
+                .waitSeconds(seconds)
+                .build();
+    }
 }

@@ -38,6 +38,9 @@ public class OuttakeSystem {
     public int getVSlidePos() {
         return vSlides.getPos();
     }
+    public void resetVSlidePower(double power) {
+        vSlides.resetPower(power);
+    }
 
     public void storePos() {
         setClawPos(Constants.Outtake.dropClaw);
@@ -68,7 +71,7 @@ public class OuttakeSystem {
     public class PastSpecimen implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            setVSlidePos(Constants.Outtake.highSpecimenSlides + 50);
+            setVSlidePos(Constants.Outtake.highSpecimenSlides);
             setArmPos(Constants.Outtake.specimenArmEnd);
             return false;
         }
@@ -87,6 +90,13 @@ public class OuttakeSystem {
             return false;
         }
     }
+    public class AboveWall implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            setVSlidePos(Constants.Outtake.safeFromWallSlides);
+            return false;
+        }
+    }
 
     public class ToWallSpecimen implements Action {
         @Override
@@ -94,6 +104,13 @@ public class OuttakeSystem {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallSlides);
             return false;
+        }
+    }
+    public class UpdateAction implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            update();
+            return true;
         }
     }
     public Action toSpecimen(){
@@ -108,8 +125,14 @@ public class OuttakeSystem {
     public Action grab(){
         return new Grab();
     }
+    public Action aboveWall(){
+        return new AboveWall();
+    }
     public Action toWallSpecimen() {
         return new ToWallSpecimen();
+    }
+    public Action updateAction() {
+        return new UpdateAction();
     }
 
     public void update() {

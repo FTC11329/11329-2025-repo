@@ -30,7 +30,7 @@ public class VerticalSlides {
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         encoderSlave.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void manualPos(double power) {
@@ -46,6 +46,9 @@ public class VerticalSlides {
             lastSlidePos  = newPos;
             pidControl.setTargetValue(lastSlidePos);
         }
+    }
+    public void resetPower(double power) {
+        slideMotor.setPower(power);
     }
 
     public int getTargetPos() {

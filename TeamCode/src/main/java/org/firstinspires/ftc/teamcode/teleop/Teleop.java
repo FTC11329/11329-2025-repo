@@ -83,6 +83,7 @@ public class Teleop {
     double goingToWallTime = 2000000000;
     double transferTime = 2000000000;
     double unjamTime = 2000000000;
+    double intakeTime = 2000000000;
 
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
@@ -208,10 +209,12 @@ public class Teleop {
         if (autoIntakeColor) {
             intakeing = false;
             intakeingColor = true;
+            intakeTime = elapsedTime.milliseconds();
         }
         if (autoIntake) {
             intakeingColor = false;
             intakeing = true;
+            intakeTime = elapsedTime.milliseconds();
         }
         //unjam
         if (unjamIntake && !unjamIntakeDebounce)  {
@@ -225,16 +228,25 @@ public class Teleop {
 
         //intaking loop
         if (intakeing && !unjammingIntake) {
-            intakeSystem.pickupPosWithTime();
+            intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+            if (elapsedTime.milliseconds() > intakeTime + 250 && elapsedTime.milliseconds() < intakeTime + 300) {
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                intakeTime = 2000000000;
+            }
             if (intakeSystem.intakeUntil()) {
                 intakeSystem.storePos();
                 transferring = true;
+                transferTime = elapsedTime.milliseconds();
                 hasSample = true;
                 intakeing = false;
             }
         }
         if (intakeingColor && !unjammingIntake) {
-            intakeSystem.pickupPosWithTime();
+            intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+            if (elapsedTime.milliseconds() > intakeTime + 250 && elapsedTime.milliseconds() < intakeTime + 300) {
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                intakeTime = 2000000000;
+            }
             if (intakeSystem.intakeUntilColor()) {
                 intakeSystem.storePos();
                 hasSample = true;
@@ -278,7 +290,7 @@ public class Teleop {
             if (elapsedTime.milliseconds() < transferTime + 50) {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides + 100);
-                intakeSystem.storeOutPos();
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
             }
             if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 550) {

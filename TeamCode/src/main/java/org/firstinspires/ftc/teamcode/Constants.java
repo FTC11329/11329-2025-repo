@@ -34,8 +34,8 @@ public class Constants {
         public static double manualSlideSpeed = 3;
 
         public static double wristStore = 0;
-        public static double wristClear = 0.37;
-        public static double wristDown = 0.3737;
+        public static double wristClear = 0.469;
+        public static double wristDown = 0.491;
 
         public static double intakeSpeed = 1;
         public static double transferSpeed = 0.5;
@@ -51,7 +51,7 @@ public class Constants {
         public static double dropClaw = 0.25;
 
         public static double intakeArm = 0.9928;
-        public static double initArm = 0.33333333;
+        public static double initArm = 0.5;
         public static double upArm = 0.33333333;
         public static double intakeWallArm = 0.001;
 
@@ -59,6 +59,18 @@ public class Constants {
         public static double specimenArmEnd = 0.40;
         public static double basketArm = 0.165;
 
+        //435
+        public static int intakeSlides = 594;
+        public static int intakeWallSlides = 0;
+        public static int safeFromWallSlides = 166;
+        public static int safeFromHSlides = 947;
+        public static int highSpecimenSlides = 622;
+        public static int lowBasketSlides = 1236;
+        public static int highBasketSlides = 2522;
+        public static int maxSlides = 2696;
+
+        /*
+        1150
         public static int intakeSlides = 247;
         public static int intakeWallSlides = 0;
         public static int safeFromWallSlides = 100;
@@ -67,6 +79,8 @@ public class Constants {
         public static int lowBasketSlides = 424;
         public static int highBasketSlides = 948;
         public static int maxSlides = 1050;
+         */
+
 
         public static double p = 0.03;
         public static double i = 0;

@@ -71,6 +71,7 @@ public class IntakeSystem {
         if (time.milliseconds() > intakeTime + 250 && time.milliseconds() < intakeTime + 300) {
             setIntakeServoPos(Constants.Intake.wristDown);
             intakeOnce = false;
+            intakeTime = 2000000000;
         }
     }
     public void pickupPosWithTime() {
