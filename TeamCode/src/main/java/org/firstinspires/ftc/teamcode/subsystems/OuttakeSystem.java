@@ -19,6 +19,9 @@ public class OuttakeSystem {
         vSlides = new VerticalSlides(hardwareMap);
     }
 
+    public void manualArm(double power) {
+        outtakeArm.manualArmPos(power);
+    }
     public void setArmPos(double newPos) {
         outtakeArm.setArmPos(newPos);
     }

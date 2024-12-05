@@ -22,7 +22,7 @@ public class IntakeSystem {
     boolean intakeOnce = false;
     double intakeTime = 2000000000;
 
-    private IntakeClaw intakeClaw;
+    public IntakeClaw intakeClaw;
     private HorizontalSlides hSlides;
     private RevColorSensorV3 intakeSensor;
 

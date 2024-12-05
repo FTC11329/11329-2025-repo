@@ -54,6 +54,9 @@ public class IntakeClaw {
             intakeServo.setPosition(newPos);
         }
     }
+    public double getIntakeServoPos() {
+        return intakeServo.getPosition();
+    }
 
     public void stopIntake() {
         intakeMotor.setPower(0);

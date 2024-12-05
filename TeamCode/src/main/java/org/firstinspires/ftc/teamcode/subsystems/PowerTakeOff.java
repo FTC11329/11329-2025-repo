@@ -32,8 +32,8 @@ public class PowerTakeOff {
         enabled = true;
     }
     public void disable() {
-        setRightPos(0);
-        setLeftPos(0);
+        setRightPos(Constants.PTO.servoRelease);
+        setLeftPos(Constants.PTO.servoRelease);
         enabled = false;
     }
 

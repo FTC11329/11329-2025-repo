@@ -34,6 +34,10 @@ public class OuttakeArm {
 
     }
 
+    public void manualArmPos(double power) {
+        double temp = lastArmPos + (power * Constants.Outtake.manualArmSpeed);
+        setArmPos(temp);
+    }
     public void setArmPos(double newArmPos) {
         if (lastArmPos != newArmPos) {
             lastArmPos  = newArmPos;

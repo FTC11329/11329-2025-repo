@@ -16,7 +16,7 @@ public class Constants {
         public static double servoClimb = 0.427;
         public static double speed = 1;
 
-        public static int motorClimb = 1020;
+        public static int motorClimb = 1070;
         public static int motorDrop = 0;
 
         public static double p = 0.03;
@@ -31,7 +31,7 @@ public class Constants {
         public static int minWhileDownPos = 477;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1850;
-        public static double manualSlideSpeed = 3;
+        public static double manualSlideSpeed = 30;
 
         public static double wristStore = 0;
         public static double wristClear = 0.469;
@@ -54,6 +54,7 @@ public class Constants {
         public static double initArm = 0.5;
         public static double upArm = 0.33333333;
         public static double intakeWallArm = 0.001;
+        public static double manualArmSpeed = 0.02;
 
         public static double specimenArm = 0.50;
         public static double specimenArmEnd = 0.40;
@@ -67,7 +68,8 @@ public class Constants {
         public static int highSpecimenSlides = 622;
         public static int lowBasketSlides = 1236;
         public static int highBasketSlides = 2522;
-        public static int maxSlides = 2696;
+        public static int maxSlides = 2670;
+        public static double manualSlideSpeed = 20;
 
         /*
         1150

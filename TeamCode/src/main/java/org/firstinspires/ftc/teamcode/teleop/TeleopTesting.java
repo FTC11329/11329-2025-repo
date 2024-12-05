@@ -153,12 +153,12 @@ public class TeleopTesting {
 
 
         //HSlides
-//        testValue += 4 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+        testValue += 4 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
         testValue2 += 0.003 * (gamepad1.right_stick_y);
-//        outtakeSystem.setVSlidePos((int)testValue);
+        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
-        intakeSystem.setIntakeServoPos(testValue);
+//        intakeSystem.setIntakeServoPos(testValue);
         outtakeSystem.setArmPos(testValue2);
         telemetry.addData("testValue", testValue);
         telemetry.addData("testValue2", testValue2);

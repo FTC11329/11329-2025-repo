@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.SimplePIDControl;
 
@@ -34,10 +35,9 @@ public class VerticalSlides {
     }
 
     public void manualPos(double power) {
-        int temp = (int)(power * Constants.Intake.manualSlideSpeed);
-        if (temp == 0) {
-            lastSlidePos += temp;
-            pidControl.setTargetValue(lastSlidePos);
+        int temp = lastSlidePos + (int)(power * Constants.Outtake.manualSlideSpeed);
+        if (0 < temp && temp < Constants.Outtake.maxSlides) {
+            setPos(temp);
         }
     }
 

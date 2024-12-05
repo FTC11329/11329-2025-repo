@@ -10,6 +10,7 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.roadrunner.FailoverAction;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
@@ -83,9 +84,10 @@ public class RedSpecimenPushAuto extends LinearOpMode {
         if (isStopRequested()) return;
 
         Actions.runBlocking(
-                new ParallelAction(
-                    outtakeSystem.updateAction(),
-                    new SequentialAction(
+                new SequentialAction(
+                    new ParallelAction(
+                        outtakeSystem.updateAction(),
+                        new SequentialAction(
                             new ParallelAction(
                                     new SequentialAction(
                                             drive.waitSecondsAction(0.5),
@@ -103,8 +105,8 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                                     ),
                                     barToPushBlock2
                             ),
-                            //2nd cycle
                             pushBlock2ToPickupWall,
+                                //2nd cycle
                             outtakeSystem.grab(),
                             drive.waitSecondsAction(0.4),
                             outtakeSystem.toSpecimen(),
@@ -118,7 +120,13 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                                             outtakeSystem.toWallSpecimen()
                                     ),
                                     barToPickupWall
-                            ),
+                            )
+                        )
+                    ),
+                    new ParallelAction(
+                        outtakeSystem.updateAction(),
+                        new SequentialAction(
+                            //3rd cycle
                             outtakeSystem.grab(),
                             drive.waitSecondsAction(0.4),
                             outtakeSystem.toSpecimen(),
@@ -126,6 +134,7 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                             outtakeSystem.pastSpecimen(),
                             drive.waitSecondsAction(0.25),
                             outtakeSystem.drop()
+                        )
                     )
                 )
         );
