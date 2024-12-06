@@ -1,16 +1,21 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.Arclength;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Pose2dDual;
+import com.acmerobotics.roadrunner.PosePath;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.VelConstraint;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.roadrunner.FailoverAction;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
@@ -26,13 +31,14 @@ public class RedSpecimenPushAuto extends LinearOpMode {
 
     Vector2d block1     = new Vector2d(50, -13);
     Vector2d pushBlock1 = new Vector2d(50, -56);
-    Vector2d block2     = new Vector2d(60, -13);
-    Vector2d pushBlock2 = new Vector2d(60, -56);
-    Vector2d block3     = new Vector2d(65, -13);
-    Vector2d pushBlock3 = new Vector2d(49, -56);
+    Vector2d block2     = new Vector2d(55, -13);
+    Vector2d medBlock2  = new Vector2d(61, -35);
+    Vector2d pushBlock2 = new Vector2d(61, -56);
+    Vector2d block3     = new Vector2d(63, -13);
+    Vector2d pushBlock3 = new Vector2d(63, -56);
 
-    Vector2d pickupWall = new Vector2d(50, -60.5);
-    Vector2d pickupWallBlock2 = new Vector2d(60, -60.5);
+    Vector2d pickupWall = new Vector2d(48, -60.5);
+    Vector2d pickupWallBlock2 = new Vector2d(61, -60.5);
     //only do 2
     MecanumDrive drive;
     IntakeSystem intakeSystem;
@@ -59,26 +65,45 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                 .setTangent(Math.toRadians(0))
                 .splineToConstantHeading(block1, Math.toRadians(0))
                 .setTangent(Math.toRadians(-90))
-                .splineToConstantHeading(pushBlock1, Math.toRadians(-90))
+                .splineToConstantHeading(pushBlock1, Math.toRadians(-90), new VelConstraint() {
+                    @Override
+                    public double maxRobotVel(@NonNull Pose2dDual<Arclength> pose2dDual, @NonNull PosePath posePath, double v) {
+                        return 50;
+                    }
+                })
                 .setTangent(Math.toRadians(90))
                 .splineToConstantHeading(block1, Math.toRadians(90))
                 .setTangent(Math.toRadians(0))
                 .splineToConstantHeading(block2, Math.toRadians(0))
                 .setTangent(Math.toRadians(-90))
+                .splineToConstantHeading(medBlock2, Math.toRadians(-90))
                 .splineToConstantHeading(pushBlock2, Math.toRadians(-90))
                 .build();
         Action pushBlock2ToPickupWall = drive.actionBuilder(pushBlock2)
                 .setTangent(Math.toRadians(-90))
                 .splineToConstantHeading(pickupWallBlock2, Math.toRadians(-90))
                 .build();
-        Action pickupWallToBar = drive.actionBuilder(pickupWallBlock2)
+        Action pickupWallToBar1 = drive.actionBuilder(pickupWallBlock2)
                 .setTangent(Math.toRadians(135))
                 .splineToConstantHeading(bar, Math.toRadians(90))
                 .build();
-        Action barToPickupWall = drive.actionBuilder(bar)
-                .setTangent(Math.toRadians(135))
-                .splineToConstantHeading(pickupWall, Math.toRadians(90))
+        Action barToPickupWall1 = drive.actionBuilder(bar)
+                .setTangent(Math.toRadians(-45))
+                .splineToConstantHeading(pickupWall.plus(new Vector2d(0,10)), Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .splineToConstantHeading(pickupWall, Math.toRadians(-90))
                 .build();
+        Action pickupWallToBar2 = drive.actionBuilder(pickupWallBlock2)
+                .setTangent(Math.toRadians(135))
+                .splineToConstantHeading(bar, Math.toRadians(90))
+                .build();
+        Action barToPickupWall2 = drive.actionBuilder(bar)
+                .setTangent(Math.toRadians(-45))
+                .splineToConstantHeading(pickupWall.plus(new Vector2d(0,10)), Math.toRadians(-90))
+                .waitSeconds(0.5)
+                .splineToConstantHeading(pickupWall, Math.toRadians(-90))
+                .build();
+
 
         waitForStart();
         if (isStopRequested()) return;
@@ -106,11 +131,11 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                                     barToPushBlock2
                             ),
                             pushBlock2ToPickupWall,
-                                //2nd cycle
+                            //2nd cycle
                             outtakeSystem.grab(),
                             drive.waitSecondsAction(0.4),
                             outtakeSystem.toSpecimen(),
-                            pickupWallToBar,
+                            pickupWallToBar1,
                             outtakeSystem.pastSpecimen(),
                             new ParallelAction(
                                     new SequentialAction(
@@ -119,21 +144,27 @@ public class RedSpecimenPushAuto extends LinearOpMode {
                                             drive.waitSecondsAction(0.3),
                                             outtakeSystem.toWallSpecimen()
                                     ),
-                                    barToPickupWall
-                            )
-                        )
-                    ),
-                    new ParallelAction(
-                        outtakeSystem.updateAction(),
-                        new SequentialAction(
+                                    barToPickupWall1
+                            ),
                             //3rd cycle
                             outtakeSystem.grab(),
                             drive.waitSecondsAction(0.4),
                             outtakeSystem.toSpecimen(),
-                            pickupWallToBar,
+                            pickupWallToBar2,
                             outtakeSystem.pastSpecimen(),
-                            drive.waitSecondsAction(0.25),
-                            outtakeSystem.drop()
+                            new ParallelAction(
+                                    new SequentialAction(
+                                            drive.waitSecondsAction(0.25),
+                                            outtakeSystem.drop(),
+                                            drive.waitSecondsAction(0.3),
+                                            outtakeSystem.toWallSpecimen()
+                                    ),
+                                    barToPickupWall2
+                            ),
+                            outtakeSystem.grab(),
+                            drive.waitSecondsAction(0.4),
+                            outtakeSystem.endAutoAction(),
+                            drive.waitSecondsAction(2)
                         )
                     )
                 )

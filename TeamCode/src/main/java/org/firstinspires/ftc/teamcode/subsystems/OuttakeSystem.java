@@ -109,6 +109,14 @@ public class OuttakeSystem {
             return false;
         }
     }
+    public class EndAutoAction implements Action {
+        @Override
+        public boolean run(@NonNull TelemetryPacket packet) {
+            setArmPos(Constants.Outtake.initArm);
+            setVSlidePos(0);
+            return false;
+        }
+    }
     public class UpdateAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
@@ -133,6 +141,9 @@ public class OuttakeSystem {
     }
     public Action toWallSpecimen() {
         return new ToWallSpecimen();
+    }
+    public Action endAutoAction() {
+        return new EndAutoAction();
     }
     public Action updateAction() {
         return new UpdateAction();

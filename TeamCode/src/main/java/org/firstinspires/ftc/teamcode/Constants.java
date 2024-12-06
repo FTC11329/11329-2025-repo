@@ -23,6 +23,11 @@ public class Constants {
         public static double i = 0;
         public static double d = 0.00001;
     }
+    @Config
+    public static class Climber {
+        public static final int inPos = 0;
+        public static final int outPos  = 0; //todo
+    }
 
     @Config
     public static class Intake {
@@ -61,11 +66,11 @@ public class Constants {
         public static double basketArm = 0.165;
 
         //435
-        public static int intakeSlides = 594;
+        public static int intakeSlides = 574;
         public static int intakeWallSlides = 0;
         public static int safeFromWallSlides = 166;
         public static int safeFromHSlides = 947;
-        public static int highSpecimenSlides = 622;
+        public static int highSpecimenSlides = 650;
         public static int lowBasketSlides = 1236;
         public static int highBasketSlides = 2522;
         public static int maxSlides = 2670;

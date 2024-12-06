@@ -32,6 +32,8 @@ public class Drivetrain extends MecanumDrive {
 
     public SimplePIDControl pidControl;
 
+    public boolean isAtPTOPosition = false;
+
     public Drivetrain(HardwareMap hardwareMap) {
         super(hardwareMap, new Pose2d(0,0,0));
 
@@ -80,6 +82,7 @@ public class Drivetrain extends MecanumDrive {
         rightBack.setPower(pidControl.update(rightFront.getCurrentPosition()));
         leftFront.setPower(pidControl.update(leftFront.getCurrentPosition()));
         leftBack.setPower(pidControl.update(leftFront.getCurrentPosition()));
+
     }
 
     public void setRunToPos() {

@@ -36,7 +36,7 @@ public class VerticalSlides {
 
     public void manualPos(double power) {
         int temp = lastSlidePos + (int)(power * Constants.Outtake.manualSlideSpeed);
-        if (0 < temp && temp < Constants.Outtake.maxSlides) {
+        if (temp < Constants.Outtake.maxSlides) {
             setPos(temp);
         }
     }

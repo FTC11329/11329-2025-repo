@@ -27,7 +27,10 @@ public class Climber {
             climberMotor.setTargetPosition(newPos);
         }
     }
-
+    public void setPower(double pow) {
+        climberMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        climberMotor.setPower(pow);
+    }
     public int getTargetPos() {
         return lastClimberPos;
     }
