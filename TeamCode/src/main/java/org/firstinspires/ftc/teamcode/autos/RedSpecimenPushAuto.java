@@ -37,8 +37,8 @@ public class RedSpecimenPushAuto extends LinearOpMode {
     Vector2d block3     = new Vector2d(63, -13);
     Vector2d pushBlock3 = new Vector2d(63, -56);
 
-    Vector2d pickupWall = new Vector2d(48, -60.5);
-    Vector2d pickupWallBlock2 = new Vector2d(61, -60.5);
+    Vector2d pickupWall = new Vector2d(48, -61.5);
+    Vector2d pickupWallBlock2 = new Vector2d(61, -61.5);
     //only do 2
     MecanumDrive drive;
     IntakeSystem intakeSystem;
@@ -90,17 +90,19 @@ public class RedSpecimenPushAuto extends LinearOpMode {
         Action barToPickupWall1 = drive.actionBuilder(bar)
                 .setTangent(Math.toRadians(-45))
                 .splineToConstantHeading(pickupWall.plus(new Vector2d(0,10)), Math.toRadians(-90))
-                .waitSeconds(0.5)
+                .waitSeconds(0.1)
+                .setTangent(Math.toRadians(-90))
                 .splineToConstantHeading(pickupWall, Math.toRadians(-90))
                 .build();
-        Action pickupWallToBar2 = drive.actionBuilder(pickupWallBlock2)
+        Action pickupWallToBar2 = drive.actionBuilder(pickupWall)
                 .setTangent(Math.toRadians(135))
                 .splineToConstantHeading(bar, Math.toRadians(90))
                 .build();
         Action barToPickupWall2 = drive.actionBuilder(bar)
-                .setTangent(Math.toRadians(-45))
+                .setTangent(Math.toRadians(-90))
                 .splineToConstantHeading(pickupWall.plus(new Vector2d(0,10)), Math.toRadians(-90))
-                .waitSeconds(0.5)
+                .waitSeconds(0.1)
+                .setTangent(Math.toRadians(-90))
                 .splineToConstantHeading(pickupWall, Math.toRadians(-90))
                 .build();
 

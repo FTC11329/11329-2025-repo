@@ -104,7 +104,7 @@ public class IntakeSystem {
 
     public boolean intakeUntilColor() {
         setIntakePower(Constants.Intake.intakeSpeed);
-        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
+//        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
                     setIntakePower(0);
@@ -120,14 +120,14 @@ public class IntakeSystem {
                     return false;
                 }
             }
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
     }
 
     public boolean intakeUntil() {
         setIntakePower(Constants.Intake.intakeSpeed);
-        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
+//        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
                     setIntakePower(0);
@@ -143,9 +143,9 @@ public class IntakeSystem {
                     return false;
                 }
             }
-        } else {
-            return false;
-        }
+//        } else {
+//            return false;
+//        }
 
     }
     public boolean unjam() {

@@ -25,7 +25,7 @@ public class HorizontalSlides {
 
     public void manualPos(double power) {
         int temp = lastSlidePos + (int)(power * Constants.Intake.manualSlideSpeed);
-        if (0 < temp && temp < Constants.Intake.maxSlidePos) {
+        if (temp < Constants.Intake.maxSlidePos) {
             setPos(temp);
         }
     }

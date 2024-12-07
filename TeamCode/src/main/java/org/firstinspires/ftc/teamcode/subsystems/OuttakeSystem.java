@@ -5,6 +5,7 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
@@ -102,11 +103,28 @@ public class OuttakeSystem {
     }
 
     public class ToWallSpecimen implements Action {
+        ElapsedTime time = new ElapsedTime();
+        boolean initialized = false;
+        double startTime = 0;
+
         @Override
         public boolean run(@NotNull TelemetryPacket packet) {
-            setArmPos(Constants.Outtake.intakeWallArm);
-            setVSlidePos(Constants.Outtake.intakeWallSlides);
-            return false;
+            if (!initialized) {
+                startTime = time.milliseconds();
+                initialized = true;
+            }
+            if (time.milliseconds() < startTime + 50) {
+                setClawPos(Constants.Outtake.grabClaw);
+                setVSlidePos(Constants.Outtake.intakeWallSlides);
+            }
+            if (time.milliseconds() > startTime + 200 && time.milliseconds() < startTime + 250) {
+                setArmPos(Constants.Outtake.intakeWallArm);
+            }
+            if (time.milliseconds() > startTime + 400 && time.milliseconds() < startTime + 450) {
+                setClawPos(Constants.Outtake.dropClaw);
+                return false;
+            }
+            return true;
         }
     }
     public class EndAutoAction implements Action {

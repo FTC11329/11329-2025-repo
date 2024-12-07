@@ -12,13 +12,16 @@ public class ColorFunctions {
         double blueDistance = Math.sqrt(Math.pow(colorList[0] - Constants.Color.blue[0], 2) + Math.pow(colorList[1] - Constants.Color.blue[1], 2) + Math.pow(colorList[2] - Constants.Color.blue[2], 2));
         double redDistance = Math.sqrt(Math.pow(colorList[0] - Constants.Color.red[0], 2) + Math.pow(colorList[1] - Constants.Color.red[1], 2) + Math.pow(colorList[2] - Constants.Color.red[2], 2));
         double yellowDistance = Math.sqrt(Math.pow(colorList[0] - Constants.Color.yellow[0], 2) + Math.pow(colorList[1] - Constants.Color.yellow[1], 2) + Math.pow(colorList[2] - Constants.Color.yellow[2], 2));
+        double emptyDistance = Math.sqrt(Math.pow(colorList[0] - Constants.Color.empty[0], 2) + Math.pow(colorList[1] - Constants.Color.empty[1], 2) + Math.pow(colorList[2] - Constants.Color.empty[2], 2));
 
-        if (redDistance >= blueDistance && yellowDistance >= blueDistance) {
+        if (redDistance >= blueDistance && yellowDistance >= blueDistance && emptyDistance >= blueDistance) {
             return ColorEnum.blue;
-        } else if (yellowDistance >= redDistance && blueDistance >= redDistance) {
+        } else if (yellowDistance >= redDistance && blueDistance >= redDistance && emptyDistance >= redDistance) {
             return ColorEnum.red;
-        } else {
+        } else if (redDistance >= yellowDistance && blueDistance >= yellowDistance && emptyDistance >= yellowDistance){
             return ColorEnum.yellow;
+        } else {
+            return ColorEnum.empty;
         }
 
     }

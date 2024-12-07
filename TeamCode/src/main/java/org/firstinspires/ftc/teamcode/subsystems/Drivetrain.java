@@ -78,11 +78,16 @@ public class Drivetrain extends MecanumDrive {
     }
 
     public void PTOLoop() {
+        rightFront.setPower(pidControl.update(rightFront.getCurrentPosition(), 0.5));
+        rightBack.setPower(pidControl.update(rightFront.getCurrentPosition(), 0.5));
+        leftFront.setPower(pidControl.update(leftFront.getCurrentPosition(), 0.5));
+        leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), 0.5));
+    }
+    public void PTOLoopLight() {
         rightFront.setPower(pidControl.update(rightFront.getCurrentPosition()));
         rightBack.setPower(pidControl.update(rightFront.getCurrentPosition()));
         leftFront.setPower(pidControl.update(leftFront.getCurrentPosition()));
         leftBack.setPower(pidControl.update(leftFront.getCurrentPosition()));
-
     }
 
     public void setRunToPos() {
@@ -99,6 +104,12 @@ public class Drivetrain extends MecanumDrive {
     public void setPTOPos(int ptoPos) {
         pidControl.setTargetValue(ptoPos);
         pidControl.setTargetValue(ptoPos);
+    }
+    public void setPTOPower(double power) {
+        rightFront.setPower(power);
+        rightBack.setPower(power);
+        leftFront.setPower(power);
+        leftBack.setPower(power);
     }
     public int getPTOTPos() {
         return (int) pidControl.getTargetValue();
