@@ -84,6 +84,7 @@ public class Teleop2Drivers {
     boolean unjamIntakeDebounce = false;
     boolean goingToWall = false;
 
+    int PTOError;
     double goingToWallTime = 2000000000;
     double transferTime = 2000000000;
     double unjamTime = 2000000000;
@@ -169,7 +170,8 @@ public class Teleop2Drivers {
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
             //PTO Time
-            driveTrain.PTOLoop();
+            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
+            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
 
             if (PTOClimb) {
                 driveTrain.setPTOPos(Constants.PTO.motorClimb);

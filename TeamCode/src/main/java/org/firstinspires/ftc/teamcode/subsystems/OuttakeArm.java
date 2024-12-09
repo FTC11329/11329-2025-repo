@@ -45,6 +45,9 @@ public class OuttakeArm {
             armServo2.setPosition(newArmPos);
         }
     }
+    public double getArmPos() {
+        return lastArmPos;
+    }
 
     public void setClawPos(double newClawPos) {
         if (lastClawPos != newClawPos) {

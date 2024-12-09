@@ -12,6 +12,8 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.jetbrains.annotations.NotNull;
 
 public class OuttakeSystem {
+    ElapsedTime time = new ElapsedTime();
+
     public OuttakeArm outtakeArm;
     VerticalSlides vSlides;
 
@@ -26,6 +28,10 @@ public class OuttakeSystem {
     public void setArmPos(double newPos) {
         outtakeArm.setArmPos(newPos);
     }
+    public double getArmPos() {
+        return outtakeArm.getArmPos();
+    }
+
     public void setClawPos(double newPos) {
         outtakeArm.setClawPos(newPos);
     }
@@ -73,11 +79,21 @@ public class OuttakeSystem {
         }
     }
     public class PastSpecimen implements Action {
+        boolean init = false;
+
+        double slideTime = 2000000000;
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            setVSlidePos(Constants.Outtake.highSpecimenSlides);
-            setArmPos(Constants.Outtake.specimenArmEnd);
-            return false;
+            if (!init) {
+                slideTime = time.milliseconds();
+                init = true;
+                setArmPos(Constants.Outtake.specimenArmEnd);
+            }
+            if (time.milliseconds() > slideTime + 200) {
+                setVSlidePos(Constants.Outtake.endSpecimenSlides);
+                return false;
+            }
+            return true;
         }
     }
     public class Drop implements Action {
@@ -103,7 +119,6 @@ public class OuttakeSystem {
     }
 
     public class ToWallSpecimen implements Action {
-        ElapsedTime time = new ElapsedTime();
         boolean initialized = false;
         double startTime = 0;
 

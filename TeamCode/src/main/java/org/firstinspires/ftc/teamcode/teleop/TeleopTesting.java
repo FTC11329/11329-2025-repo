@@ -37,6 +37,7 @@ public class TeleopTesting {
     boolean intakeingColor = false;
     boolean intakeing = false;
 
+    int PTOError = 0;
 
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
@@ -83,7 +84,10 @@ public class TeleopTesting {
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
             //PTO Time
-            driveTrain.PTOLoop();
+            //fancy math for PTO feedforward
+            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
+            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+
 //            driveTrain.setPTOPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
             if (gamepad1.dpad_up) {
@@ -159,7 +163,7 @@ public class TeleopTesting {
         testValue2 += 0.003 * (gamepad1.right_stick_y);
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
-        intakeSystem.setIntakeServoPos(testValue);
+//        intakeSystem.setIntakeServoPos(testValue);
         outtakeSystem.setArmPos(testValue2);
         telemetry.addData("testValue", testValue);
         telemetry.addData("testValue2", testValue2);
@@ -195,7 +199,7 @@ public class TeleopTesting {
         */
         //Climber
         telemetry.addData("Pos", climber.getPos());
-//        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("Current Position", climber.getPos());
         //intake color
 //        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);

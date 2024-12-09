@@ -77,17 +77,11 @@ public class Drivetrain extends MecanumDrive {
         setWeightedDrivePower(new Pose2d(forward * speed, strafe * speed, turn * speed));
     }
 
-    public void PTOLoop() {
-        rightFront.setPower(pidControl.update(rightFront.getCurrentPosition(), 0.5));
-        rightBack.setPower(pidControl.update(rightFront.getCurrentPosition(), 0.5));
-        leftFront.setPower(pidControl.update(leftFront.getCurrentPosition(), 0.5));
-        leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), 0.5));
-    }
-    public void PTOLoopLight() {
-        rightFront.setPower(pidControl.update(rightFront.getCurrentPosition()));
-        rightBack.setPower(pidControl.update(rightFront.getCurrentPosition()));
-        leftFront.setPower(pidControl.update(leftFront.getCurrentPosition()));
-        leftBack.setPower(pidControl.update(leftFront.getCurrentPosition()));
+    public void PTOLoop(double feedForward) {
+        rightFront.setPower(pidControl.update(rightFront.getCurrentPosition(), feedForward));
+        rightBack.setPower(pidControl.update(rightFront.getCurrentPosition(), feedForward));
+        leftFront.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
+        leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
     }
 
     public void setRunToPos() {

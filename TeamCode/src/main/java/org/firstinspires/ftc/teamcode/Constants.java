@@ -25,8 +25,8 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -100;
-        public static final int outPos  = 8116; //todo
+        public static final int inPos = -1000;
+        public static final int outPos  = 15222; //todo
     }
 
     @Config
@@ -35,7 +35,7 @@ public class Constants {
         public static int safeTransferSlide = 333;
         public static int minWhileDownPos = 477;
         public static int intakeSlidePos = 1325;
-        public static int maxSlidePos = 1669;
+        public static int maxSlidePos = 1600;
         public static double manualSlideSpeed = 30;
 
         public static double wristStore = 0;
@@ -59,8 +59,9 @@ public class Constants {
         public static double intakeArm = 0.9928;
         public static double initArm = 0.5;
         public static double upArm = 0.33333333;
+        public static double preTransferArm = 0.666666;
         public static double intakeWallArm = 0.001;
-        public static double manualArmSpeed = 0.015;
+        public static double manualArmSpeed = 0.005;
 
         public static double specimenArm = 0.50;
         public static double specimenArmEnd = 0.40;
@@ -71,7 +72,8 @@ public class Constants {
         public static int intakeWallSlides = 0;
         public static int safeFromWallSlides = 166;
         public static int safeFromHSlides = 947;
-        public static int highSpecimenSlides = 660;
+        public static int highSpecimenSlides = 680;
+        public static int endSpecimenSlides = 750;
         public static int lowBasketSlides = 1236;
         public static int highBasketSlides = 2522;
         public static int maxSlides = 2670;
