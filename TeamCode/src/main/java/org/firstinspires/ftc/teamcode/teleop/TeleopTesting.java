@@ -33,7 +33,7 @@ public class TeleopTesting {
 
     //Various Variables
     double testValue = Constants.Intake.wristStore;
-    double testValue2 = 0.33333;
+    double testValue2 = Constants.Outtake.intakeWallArm;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
@@ -86,7 +86,8 @@ public class TeleopTesting {
             //PTO Time
             //fancy math for PTO feedforward
             PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+            driveTrain.PTOLoop(0);
 
 //            driveTrain.setPTOPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
@@ -158,8 +159,8 @@ public class TeleopTesting {
 
 
         //HSlides
-//        testValue += 4 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+        testValue += 5 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
         testValue2 += 0.003 * (gamepad1.right_stick_y);
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);

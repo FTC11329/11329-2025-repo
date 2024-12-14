@@ -204,27 +204,36 @@ public class Teleop {
                 climberPos = Constants.Climber.outPos;
                 climbL1P1 = true;
             }
-            if (climbL1P1 && climber.getPos() > climberPos - 500) {
+            if (climbL1P1 && climber.getPos() > climberPos - 100 && gamepad1.a) {
                 climbL1P1 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorClimb);
                 climbL2P1 = true;
             }
-            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 60) {
+            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 50) {
                 climbL2P1 = false;
                 climberPos = Constants.Climber.inPos;
                 climbL2P2 = true;
             }
-            if (climbL2P2 && climber.getPos() < climberPos + 2000) {
+            if (climbL2P2 && climber.getPos() < climberPos + 5000) {
                 climbL2P2 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorDrop);
             }
 
             //fancy math for PTO feedforward
             PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+            if (PTOError > 50) {
+                driveTrain.PTOLoop(0.5);
+            } else {
+                driveTrain.PTOLoop(0);
+            }
+//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
 
             climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));
+            climber.setPos(climberPos);
 
+        }
+        if (gamepad1.a) {
+            climberPos = Constants.Climber.outPos;
             climber.setPos(climberPos);
         }
 
@@ -473,6 +482,11 @@ public class Teleop {
         telemetry.addData("sample", hasSample);
         telemetry.addData("specimen", hasSpecimen);
         telemetry.addData("transferred", transferred);
+        telemetry.addData("0", climbInit);
+        telemetry.addData("1", climbL1P1);
+        telemetry.addData("2", climbL2P1);
+        telemetry.addData("3", climbL2P2);
+        telemetry.addData("pos", climberPos);
         /*
         telemetry.addData("","");
         telemetry.addData("Vslidepos", outtakeSystem.getVSlidePos());
