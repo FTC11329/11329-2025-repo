@@ -25,14 +25,14 @@ public class MyOpticalLocalizer {
         otos.setLinearUnit(DistanceUnit.INCH);
         otos.setAngularUnit(AngleUnit.RADIANS);
 
-        otos.calibrateImu();
-        otos.resetTracking();
-
         SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, Math.toRadians(-90)); //x = -8.1941 y = -6.3078
         otos.setOffset(offset);
 
         otos.setLinearScalar(1.00908);
         otos.setAngularScalar(0.99319);
+
+        otos.calibrateImu();
+        otos.resetTracking();
 
         // Get the hardware and firmware version
         SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
