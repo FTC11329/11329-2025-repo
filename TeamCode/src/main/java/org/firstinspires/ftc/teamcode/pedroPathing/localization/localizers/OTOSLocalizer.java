@@ -155,9 +155,9 @@ public class OTOSLocalizer extends Localizer {
      */
     @Override
     public void setPose(Pose setPose) {
-        resetOTOS();
-        Pose setOTOSPose = MathFunctions.subtractPoses(setPose, startPose);
-        otos.setPosition(new SparkFunOTOS.Pose2D(setOTOSPose.getX(), setOTOSPose.getY(), setOTOSPose.getHeading()));
+//        resetOTOS();
+//        Pose setOTOSPose = MathFunctions.subtractPoses(setPose, startPose);
+        otos.setPosition(new SparkFunOTOS.Pose2D(setPose.getY(), setPose.getX(), setPose.getHeading()));
     }
 
     /**

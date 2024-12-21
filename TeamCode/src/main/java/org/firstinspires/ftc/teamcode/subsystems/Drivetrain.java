@@ -137,6 +137,13 @@ public class Drivetrain extends MecanumDrive {
 
         setDrivePowers(new PoseVelocity2d(vel.position, vel.heading.toDouble()));
     }
+    public double[] getDrivePowers() {
+        return new double[]{leftFront.getPower(),
+                           rightFront.getPower(),
+                           leftBack.getPower(),
+                           rightBack.getPower()
+                          };
+    }
 
     public void stopDrive() {
         drive(0, 0, 0, DriveSpeedEnum.Slow);

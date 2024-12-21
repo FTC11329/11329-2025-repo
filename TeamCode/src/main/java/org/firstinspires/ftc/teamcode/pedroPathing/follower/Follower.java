@@ -21,6 +21,8 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstan
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -28,6 +30,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.PoseUpdater;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierPoint;
@@ -44,6 +47,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
+import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
@@ -61,6 +66,8 @@ import java.util.List;
  */
 @Config
 public class Follower {
+    private RobotSideEnum robotSide;
+
     private HardwareMap hardwareMap;
 
     private DcMotorEx leftFront;
@@ -143,12 +150,19 @@ public class Follower {
     public static boolean useHeading = true;
     public static boolean useDrive = true;
 
+
+    public Follower(HardwareMap hardwareMap, RobotSideEnum robotSide) {
+        this.robotSide = robotSide;
+        this.hardwareMap = hardwareMap;
+        initialize();
+    }
     /**
      * This creates a new Follower given a HardwareMap.
      *
      * @param hardwareMap HardwareMap required
      */
     public Follower(HardwareMap hardwareMap) {
+        robotSide = RobotSideEnum.Blue;
         this.hardwareMap = hardwareMap;
         initialize();
     }
@@ -548,6 +562,41 @@ public class Follower {
         setTeleOpMovementVectors(forwardDrive, lateralDrive, heading, true);
     }
 
+
+    public void TeleopDrive(double forward, double strafe, double turn, DriveSpeedEnum driveSpeed) {
+        double speed = 0;
+        if (driveSpeed == DriveSpeedEnum.Fast) {
+            speed = Constants.Drivetrain.fastSpeed;
+        } else if (driveSpeed == DriveSpeedEnum.Slow) {
+            speed = Constants.Drivetrain.slowSpeed;
+        } else if (driveSpeed == DriveSpeedEnum.Auto) {
+            speed = 1;
+        } else if (driveSpeed == DriveSpeedEnum.PTOSpeed) {
+            speed = Constants.PTO.speed;
+        }
+
+        setWeightedDrivePower(new Pose2d(forward * speed, strafe * speed, turn * speed));
+    }
+    public void setWeightedDrivePower(Pose2d drivePower) {
+        Pose2d vel = drivePower;
+
+        if (Math.abs(drivePower.position.x) + Math.abs(drivePower.position.y)
+                + Math.abs(drivePower.heading.toDouble()) > 1) {
+            // re-normalize the powers according to the weights
+            double denom = Math.abs(drivePower.position.x)
+                    + Math.abs(drivePower.position.y)
+                    + Math.abs(drivePower.heading.toDouble());
+
+            vel = new Pose2d(
+                    drivePower.position.x / denom,
+                    drivePower.position.y / denom,
+                    drivePower.heading.toDouble() / denom
+            );
+        }
+
+        setTeleOpMovementVectors(vel.position.x, vel.position.y, vel.heading.toDouble(), false);
+    }
+
     /**
      * This sets the teleop drive vectors.
      *
@@ -558,6 +607,7 @@ public class Follower {
      * @param heading      determines the heading vector for the robot in teleop.
      * @param robotCentric sets if the movement will be field or robot centric
      */
+
     public void setTeleOpMovementVectors(double forwardDrive, double lateralDrive, double heading, boolean robotCentric) {
         teleopDriveValues[0] = MathFunctions.clamp(forwardDrive, -1, 1);
         teleopDriveValues[1] = MathFunctions.clamp(lateralDrive, -1, 1);
@@ -566,9 +616,9 @@ public class Follower {
         teleopDriveVector.setMagnitude(MathFunctions.clamp(teleopDriveVector.getMagnitude(), 0, 1));
 
         if (robotCentric) {
-            teleopDriveVector.rotateVector(getPose().getHeading());
+            teleopDriveVector.rotateVector(getPose().getHeading() - Math.toRadians(90));
         }
-
+        teleopDriveVector.rotateVector(Math.toRadians(90));
         teleopHeadingVector.setComponents(teleopDriveValues[2], getPose().getHeading());
     }
 
