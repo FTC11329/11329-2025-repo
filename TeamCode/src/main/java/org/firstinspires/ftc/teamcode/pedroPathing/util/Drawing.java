@@ -53,7 +53,7 @@ public class Drawing {
         if (packet == null) packet = new TelemetryPacket();
 
         packet.fieldOverlay().setStroke(color);
-        Drawing.drawRobotOnCanvas(packet.fieldOverlay().setTranslation(-72, -72), pose.copy()); //TODO
+        Drawing.drawRobotOnCanvas(packet.fieldOverlay()/*.setTranslation(-72, -72)*/, pose.copy()); //TODO
     }
 
     /**
@@ -67,7 +67,7 @@ public class Drawing {
         if (packet == null) packet = new TelemetryPacket();
 
         packet.fieldOverlay().setStroke(color);
-        Drawing.drawPath(packet.fieldOverlay().setTranslation(-72, -72) , path.getDashboardDrawingPoints()); //TODO
+        Drawing.drawPath(packet.fieldOverlay()/*.setTranslation(-72, -72)*/, path.getDashboardDrawingPoints()); //TODO
     }
 
     /**

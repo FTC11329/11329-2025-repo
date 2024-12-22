@@ -33,6 +33,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.PoseUpdater;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierPoint;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
@@ -48,6 +49,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
+import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.lang.annotation.Documented;
@@ -420,7 +422,7 @@ public class Follower {
      * @param path the Path to follow.
      */
     public void followPath(Path path) {
-        followPath(path, false);
+        followPath(path, true);
     }
 
     /**
@@ -1072,5 +1074,21 @@ public class Follower {
      */
     public void resetIMU() {
         poseUpdater.resetIMU();
+    }
+
+    //Builds a very simple path
+    public Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path tempPath = new Path(new BezierLine(new Point(startPose), new Point(endPose)));
+        tempPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return tempPath;
+    }
+
+    //returns the distance from targetPose
+    public Pose getError(Pose targetPose) {
+        Pose tempPose = new Pose();
+        tempPose.setX(Math.abs(getPose().getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(getPose().getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
+        return tempPose;
     }
 }
