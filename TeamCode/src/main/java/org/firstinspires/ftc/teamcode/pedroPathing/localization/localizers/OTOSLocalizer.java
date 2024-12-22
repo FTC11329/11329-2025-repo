@@ -83,7 +83,7 @@ public class OTOSLocalizer extends Localizer {
         // positive y and forward being positive x. PI/2 radians is facing forward, and clockwise
         // rotation is negative rotation.
 //        otos.setOffset(new SparkFunOTOS.Pose2D(0, 0, Math.toRadians(-90)));
-        otos.setOffset(new SparkFunOTOS.Pose2D(4.09705, 3.1539, Math.toRadians(-90))); //avalanche offset
+        otos.setOffset(new SparkFunOTOS.Pose2D(4.375, 2.875, Math.toRadians(-90))); //avalanche offset
 
 
         // TODO: replace these with your tuned multipliers

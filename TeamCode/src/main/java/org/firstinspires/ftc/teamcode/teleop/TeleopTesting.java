@@ -215,6 +215,25 @@ public class TeleopTesting {
 //
 //        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
 
+        /*
+        PS5
+        telemetry.addData("1", gamepad2.touchpad_finger_1);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_1_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_1_y*100.0)/100.0);
+        telemetry.addData("2", gamepad2.touchpad_finger_2);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_2_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_2_y*100.0)/100.0);
+        telemetry.addData("touchpad", gamepad2.touchpad);
+        telemetry.addData("options", gamepad2.options);
+        telemetry.addData("ps", gamepad2.ps);
+        telemetry.addData("guide", gamepad2.guide);
+        telemetry.addData("id", gamepad2.id);
+        telemetry.addData("share", gamepad2.share);
+        telemetry.addData("timestamp", gamepad2.timestamp);
+        telemetry.addData("type", gamepad2.type);
+        telemetry.addData("atRest", gamepad2.atRest());
+         */
+
         outtakeSystem.update();
         telemetry.update();
     }

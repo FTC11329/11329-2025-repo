@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
+import org.firstinspires.ftc.teamcode.utility.PadButton;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
@@ -31,6 +32,8 @@ public class TestingEnhancedTeleop extends OpMode {
     Drivetrain driveTrain;
 
     PIDFController headingPIDF = new PIDFController(FollowerConstants.headingPIDFCoefficients);
+    PIDFController xPIDF = new PIDFController(FollowerConstants.translationalPIDFCoefficients);
+    PIDFController yPIDF = new PIDFController(FollowerConstants.translationalPIDFCoefficients);
 
     //INPUTS
     double rotError;
@@ -38,14 +41,18 @@ public class TestingEnhancedTeleop extends OpMode {
     double driveStrafe;
     double driveRotation;
     double targetHeading = Math.toRadians(-90); //in radians
-    double lastTime = 0; //in radians
+    double targetX = 24;
+    double targetY = -48;
 
     //Various Variables
     DriveSpeedEnum driveSpeed;
     boolean manualRotation = false;
     boolean manualRotationDebounce = false;
+    boolean manualDrive = true;
+    boolean manualDriveDebounce = false;
     boolean hasSample = false;
     boolean sampleDebounce = false;
+    PadButton padButton = PadButton.None;
 
     Pose currentPose = new Pose(0,0,0);
 
@@ -62,16 +69,6 @@ public class TestingEnhancedTeleop extends OpMode {
 
     public void loop() {
         //INPUTS
-        driveForward = -gamepad1.left_stick_y; //1
-        driveStrafe = -gamepad1.left_stick_x; //1
-
-        if (gamepad1.a && !sampleDebounce) {
-            hasSample = !hasSample;
-            sampleDebounce = true;
-        }
-        if (!gamepad1.a) {
-            sampleDebounce = false;
-        }
         currentPose = follower.getPose();
         switch (PoseFunctions.getLocation(currentPose)) {
             case leftSideSub:
@@ -109,6 +106,30 @@ public class TestingEnhancedTeleop extends OpMode {
         }
         headingPIDF.updateError(rotError);
 
+        if (gamepad1.touchpad_finger_1) {
+            targetY = (gamepad1.touchpad_finger_1_y * 39.5) - 24;
+            targetX = gamepad1.touchpad_finger_1_x * 60;
+        }
+
+        yPIDF.updateError(currentPose.getY() - targetY);
+        xPIDF.updateError(currentPose.getX() - targetX);
+
+        if (gamepad1.left_stick_button && !manualDriveDebounce) {
+            manualDrive = !manualDrive;
+            manualDriveDebounce = true;
+        }
+        if (!gamepad1.left_stick_button) {
+            manualDriveDebounce = false;
+        }
+        if (manualDrive) {
+            driveForward = -gamepad1.left_stick_y; //1
+            driveStrafe = -gamepad1.left_stick_x; //1
+        } else {
+            driveForward = -yPIDF.runPIDF(); //1
+            driveStrafe = xPIDF.runPIDF(); //1
+        }
+
+
         if (gamepad1.b) {
             //relocalize
             follower.setPose(new Pose(0,18,Math.toRadians(0)));
@@ -133,9 +154,51 @@ public class TestingEnhancedTeleop extends OpMode {
         } else {
             driveSpeed = DriveSpeedEnum.Slow;
         }
+        if (gamepad1.a && !sampleDebounce) {
+            hasSample = !hasSample;
+            sampleDebounce = true;
+        }
+        if (!gamepad1.a) {
+            sampleDebounce = false;
+        }
 
         follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
         follower.update();
+
+        if (gamepad2.ps) {
+            gamepad2.runRumbleEffect(Gamepad.RumbleEffect.deserialize("Allen is"));
+        }
+        if (gamepad2.touchpad && gamepad2.touchpad_finger_1) {
+            if (gamepad2.touchpad_finger_1_x > 0) {
+                if (gamepad2.touchpad_finger_1_y > 0) {
+                    padButton = PadButton.TopR;
+                } else {
+                    padButton = PadButton.BotR;
+                }
+            } else if (gamepad2.touchpad_finger_1_x < 0) {
+                if (gamepad2.touchpad_finger_1_y > 0) {
+                    padButton = PadButton.TopL;
+                } else {
+                    padButton = PadButton.BotL;
+                }
+            }
+        } else {
+            padButton = PadButton.None;
+        }
+
+        telemetry.addData("padButton", padButton);
+
+        telemetry.addData("1", gamepad2.touchpad_finger_1);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_1_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_1_y*100.0)/100.0);
+        telemetry.addData("2", gamepad2.touchpad_finger_2);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_2_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_2_y*100.0)/100.0);
+        telemetry.addLine();
+        telemetry.addData("x", targetX);
+        telemetry.addData("y", targetY);
+        telemetry.addData("x", yPIDF.runPIDF());
+        telemetry.addData("y", yPIDF.runPIDF());
     }
 
     public void stop() {
