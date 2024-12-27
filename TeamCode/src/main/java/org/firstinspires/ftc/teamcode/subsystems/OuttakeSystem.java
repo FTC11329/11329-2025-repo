@@ -48,9 +48,6 @@ public class OuttakeSystem {
     public int getVSlidePos() {
         return vSlides.getPos();
     }
-    public void resetVSlidePower(double power) {
-        vSlides.resetPower(power);
-    }
 
     public void storePos() {
         setClawPos(Constants.Outtake.dropClaw);
@@ -150,13 +147,7 @@ public class OuttakeSystem {
             return false;
         }
     }
-    public class UpdateAction implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            update();
-            return true;
-        }
-    }
+
     public Action toSpecimen(){
         return new ToSpecimen();
     }
@@ -177,12 +168,5 @@ public class OuttakeSystem {
     }
     public Action endAutoAction() {
         return new EndAutoAction();
-    }
-    public Action updateAction() {
-        return new UpdateAction();
-    }
-
-    public void update() {
-        vSlides.update();
     }
 }

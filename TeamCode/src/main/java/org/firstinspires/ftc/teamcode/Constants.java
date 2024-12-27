@@ -60,7 +60,7 @@ public class Constants {
         public static double initArm = 0.5;
         public static double upArm = 0.33333333;
         public static double preTransferArm = 0.666666;
-        public static double intakeWallArm = 0.001;
+        public static double intakeWallArm = 0;
         public static double manualArmSpeed = 0.005;
 
         public static double specimenArm = 0.50;

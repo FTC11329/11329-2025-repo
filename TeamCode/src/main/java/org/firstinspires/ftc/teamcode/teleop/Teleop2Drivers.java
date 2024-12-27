@@ -372,7 +372,6 @@ public class Teleop2Drivers {
             hasSpecimen = false;
         }
 
-        outtakeSystem.update();
         telemetry.addData("sample", hasSample);
         telemetry.addData("specimen", hasSpecimen);
         telemetry.addData("transferred", transferred);

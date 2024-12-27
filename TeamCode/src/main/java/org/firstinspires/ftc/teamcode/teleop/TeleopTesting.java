@@ -32,8 +32,9 @@ public class TeleopTesting {
 
 
     //Various Variables
-    double testValue = Constants.Intake.wristStore;
+    double testValue = 0;
     double testValue2 = Constants.Outtake.intakeWallArm;
+    double testValue3 = Constants.Outtake.intakeWallArm;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
@@ -58,7 +59,7 @@ public class TeleopTesting {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        powerTakeOff = new PowerTakeOff(hardwareMap);
+//        powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
     }
@@ -79,7 +80,7 @@ public class TeleopTesting {
             driveSpeed = DriveSpeedEnum.Slow;
         }
 
-        if (!powerTakeOff.isEnabled()) {
+        if (true || !powerTakeOff.isEnabled()) {
             //Regular time
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
@@ -156,37 +157,36 @@ public class TeleopTesting {
                 intakeingColor = false;
             }
         }
-
+        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
+//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+        testValue2 += 5 * (gamepad2.left_stick_y);
+        testValue3 += 0.003 * (gamepad2.right_stick_y);
 
         //HSlides
-        testValue += 5 * (gamepad1.right_trigger - gamepad1.left_trigger);
-//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        testValue2 += 0.003 * (gamepad1.right_stick_y);
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
-        outtakeSystem.setArmPos(testValue2);
-        telemetry.addData("testValue", testValue);
-        telemetry.addData("testValue2", testValue2);
-        telemetry.addData("HSlidepos", intakeSystem.getHSlidePos());
-        telemetry.addData("VSlidepos", outtakeSystem.getVSlidePos());
+        outtakeSystem.setArmPos(testValue3);
+        telemetry.addData("testValue H", testValue);
+        telemetry.addData("testValue2V", testValue2);
+        telemetry.addData("testValue3A", testValue3);
+        telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
+        telemetry.addData("VSlidepos  ", outtakeSystem.getVSlidePos());
         telemetry.addData("power", driveTrain.pidControl.update(driveTrain.leftFront.getCurrentPosition()));
 
-        /*
+
         //HSlide
         testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
         intakeSystem.setHSlidePos((int) testValue);
-        telemetry.addData("targetPos1", (int) testValue);
-        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
-        telemetry.addData(" Pos", intakeSystem.getHSlidePos());
-        */
-        /*
+//        telemetry.addData("targetPos1", (int) testValue);
+//        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
+//        telemetry.addData("H Pos", intakeSystem.getHSlidePos());
+
+
         //VSlide
-        testValue2 += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
         outtakeSystem.setVSlidePos((int) testValue2);
-        telemetry.addData("targetPos", (int) testValue2);
-        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
-        */
+//        telemetry.addData("targetPos", (int) testValue2);
+//        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
         /*
         //PTO
         telemetry.addData("Tpos", driveTrain.getPTOTPos());
@@ -198,23 +198,24 @@ public class TeleopTesting {
         telemetry.addData("l", powerTakeOff.PTOLeft.getPosition());
         telemetry.addData("r", powerTakeOff.PTORight.getPosition());
         */
+        /*
         //Climber
         telemetry.addData("Pos", climber.getPos());
         climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("Current Position", climber.getPos());
         //intake color
-//        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
-//        intakeSystem.setIntakePower(testValue);
-//        telemetry.addData("power", testValue);
+        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+        intakeSystem.setIntakePower(testValue);
+        telemetry.addData("power", testValue);
         telemetry.addData("Claw r", intakeSystem.directColor().red);
         telemetry.addData("Claw g", intakeSystem.directColor().green);
         telemetry.addData("Claw b", intakeSystem.directColor().blue);
         telemetry.addData("Claw a", intakeSystem.directColor().alpha);
         telemetry.addData("Claw distance", intakeSystem.distance());
         telemetry.addData("color", intakeSystem.color());
-//
-//        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
 
+        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
+        */
         /*
         PS5
         telemetry.addData("1", gamepad2.touchpad_finger_1);
@@ -234,7 +235,6 @@ public class TeleopTesting {
         telemetry.addData("atRest", gamepad2.atRest());
          */
 
-        outtakeSystem.update();
         telemetry.update();
     }
 

@@ -478,7 +478,6 @@ public class Teleop {
             intakeSystem.setIntakePower(0);
         }
 
-        outtakeSystem.update();
         telemetry.addData("sample", hasSample);
         telemetry.addData("specimen", hasSpecimen);
         telemetry.addData("transferred", transferred);

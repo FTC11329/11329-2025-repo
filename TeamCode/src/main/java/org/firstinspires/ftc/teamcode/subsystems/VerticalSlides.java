@@ -5,37 +5,26 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.Const;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.utility.SimplePIDControl;
 
 public class VerticalSlides {
 
     DcMotorEx slideMotor;
     int lastSlidePos;
 
-    DcMotorEx encoderSlave;
-
-    SimplePIDControl pidControl;
-
     public VerticalSlides(HardwareMap hardwareMap) {
         slideMotor = hardwareMap.get(DcMotorEx.class, "vSlides");
-        encoderSlave = hardwareMap.get(DcMotorEx.class, "rightBack");
-
-        pidControl = new SimplePIDControl(Constants.Outtake.p, Constants.Outtake.i, Constants.Outtake.d);
-
-        pidControl.setTargetValue(0);
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        encoderSlave.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        encoderSlave.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor.setTargetPosition(0);
+        slideMotor.setPower(1);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void manualPos(double power) {
-        int temp = lastSlidePos + (int)(power * Constants.Outtake.manualSlideSpeed);
+        int temp = lastSlidePos + (int)(power * Constants.Intake.manualSlideSpeed);
         if (temp < Constants.Outtake.maxSlides) {
             setPos(temp);
         }
@@ -44,22 +33,15 @@ public class VerticalSlides {
     public void setPos(int newPos) {
         if (lastSlidePos != newPos) {
             lastSlidePos  = newPos;
-            pidControl.setTargetValue(lastSlidePos);
+            slideMotor.setTargetPosition(newPos);
         }
-    }
-    public void resetPower(double power) {
-        slideMotor.setPower(power);
     }
 
     public int getTargetPos() {
         return lastSlidePos;
     }
     public int getPos() {
-        return -encoderSlave.getCurrentPosition();
-    }
-
-    public void update() {
-        slideMotor.setPower(pidControl.update(-encoderSlave.getCurrentPosition(), Constants.Outtake.f));
+        return slideMotor.getCurrentPosition();
     }
 
 }
