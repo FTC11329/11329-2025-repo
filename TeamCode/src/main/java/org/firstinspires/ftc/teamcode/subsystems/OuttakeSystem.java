@@ -55,17 +55,27 @@ public class OuttakeSystem {
         setArmPos(Constants.Outtake.intakeArm);
     }
     public void placePos(PlacePosEnum posEnum) {
-        setClawPos(Constants.Outtake.grabClaw);
         if (posEnum == PlacePosEnum.highSpecimen) {
             setArmPos(Constants.Outtake.specimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+
         } else if (posEnum == PlacePosEnum.lowBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.lowBasketSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+
         } else if (posEnum == PlacePosEnum.highBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.highBasketSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+
+        } else if (posEnum == PlacePosEnum.wall) {
+            setArmPos(Constants.Outtake.intakeWallArm);
+            setVSlidePos(Constants.Outtake.intakeWallSlides);
+            setClawPos(Constants.Outtake.dropClaw);
         }
+
     }
     //Actions***************************************************************************************
     public class ToSpecimen implements Action {

@@ -60,8 +60,9 @@ public class Teleop {
     boolean highSpecimen;
 
     boolean dropSpecimen;
-    boolean dropClaw;
-    boolean grabClaw;
+    boolean dropClawBasket;
+    boolean dropClawWall;
+    boolean grabClawWall;
 
     boolean resetState;
 
@@ -72,10 +73,13 @@ public class Teleop {
     boolean intakeingColor = false;
     boolean intakeing = false;
     boolean extended = false;
-    boolean transferred = false;
+    boolean atHighBasket = false;
+    boolean atPickupWall = false;
     boolean storing = false;
+    boolean transferring = false;
     boolean unjammingIntake;
     boolean hasSample = false;
+    boolean hasColor = false;
     boolean hasSpecimen = false;
     boolean spitDebounce = false;
     boolean dropDebounce = false;
@@ -83,9 +87,10 @@ public class Teleop {
     boolean endArmDebounce = false;
     boolean unjamIntakeDebounce = false;
     boolean spitHardDebounce = false;
-    boolean goingToWall = false;
     boolean autoIntakeDebounce = false;
+    boolean dropClawWallDebounce = false;
     boolean climbInit = false;
+    boolean climbInitLoop = false;
     boolean climbL1P1 = false;
     boolean climbL2P1 = false;
     boolean climbL2P2 = false;
@@ -94,7 +99,7 @@ public class Teleop {
     int climberPos = 0;
     int PTOError = 0;
 
-    double goingToWallTime = 2000000000;
+    double climbSlidesTime = 2000000000;
     double storeTime = 2000000000;
     double transferTime = 2000000000;
     double unjamTime = 2000000000;
@@ -143,10 +148,7 @@ public class Teleop {
         PTOClimb = powerTakeOff.isEnabled() && gamepad2.dpad_up; //2
         PTODrop = powerTakeOff.isEnabled() && gamepad2.dpad_down; //2
 
-//        intakeExtendMin = !hasSpecimen && !hasSample && gamepad2.dpad_left; //2
-//        intakeExtend = !hasSpecimen && !hasSample && !powerTakeOff.isEnabled() && gamepad2.dpad_down; //2
-//        intakeExtendMax = !hasSpecimen && !hasSample && gamepad2.dpad_right; //2
-        intakeSpit = (hasSample && !transferred && gamepad1.left_bumper) || gamepad2.left_bumper; //1
+        intakeSpit = hasSample && !atHighBasket && !atPickupWall && gamepad2.left_bumper; //1
         unjamIntake = gamepad2.b; //1 2
 //        spitHard = gamepad1.left_stick_button;
 
@@ -159,7 +161,8 @@ public class Teleop {
         manualVSlidePower = -gamepad2.left_stick_y; //2
         manualArmPower = -gamepad2.right_stick_y; //2
 
-        store = !hasSpecimen && !powerTakeOff.isEnabled() && gamepad2.dpad_up; //1 2
+        store = !hasSpecimen && gamepad2.dpad_left; //1
+        transfer = hasSample && gamepad2.dpad_right;
 
         specimenOffWall = !hasSpecimen && !hasSample && !powerTakeOff.isEnabled() && (gamepad1.dpad_up); //1 2
         highBasket = hasSample && !powerTakeOff.isEnabled() && (gamepad1.dpad_up); //1 2
@@ -168,15 +171,17 @@ public class Teleop {
         highSpecimen = hasSpecimen && !powerTakeOff.isEnabled() && (gamepad1.dpad_up || gamepad2.dpad_up); //1 2
 
         dropSpecimen = hasSpecimen && gamepad2.right_bumper; //1
-        dropClaw = transferred && gamepad2.right_bumper; //1
-        grabClaw = !hasSpecimen && !hasSample && !transferred && (gamepad2.right_bumper); //1
+        dropClawBasket = atHighBasket && gamepad2.right_bumper; //1
+        dropClawWall = atPickupWall && gamepad2.left_bumper; //1
+        grabClawWall = !hasSpecimen && !hasSample && !atHighBasket && (gamepad2.right_bumper); //1
 
         resetState = gamepad1.b;
 
         if (resetState) {
             hasSample = false;
             hasSpecimen = false;
-            transferred = false;
+            atHighBasket = false;
+            atPickupWall = false;
         }
 
         //DRIVING
@@ -191,15 +196,23 @@ public class Teleop {
                 climbL1P1 = false;
                 climbL2P1 = false;
                 climbL2P2 = false;
+                climbInitLoop = false;
             }
             //big auto movement
             if (!climbInit) {
                 climbInit = true;
                 climberPos = Constants.Climber.outPos;
                 outtakeSystem.setVSlidePos(Constants.Outtake.climbSlides);
-                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                if (!atPickupWall) {
+                    climbInitLoop = true;
+                    climbSlidesTime = elapsedTime.milliseconds();
+                }
                 climber.setPos(climberPos);
                 climbL1P1 = true;
+            }
+            if (climbInitLoop && elapsedTime.milliseconds() > climbSlidesTime + 150) {
+                climbInitLoop = false;
+                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
             }
             if (climbL1P1 && climber.getPos() > climberPos - 25) {
                 climbL1P1 = false;
@@ -214,15 +227,16 @@ public class Teleop {
             if (climbL2P2 && climber.getPos() < climberPos + 1000) {
                 climbL2P2 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorDrop);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
             }
 
             //fancy math for PTO feedforward
             PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-            if (PTOError > 250) {
-                driveTrain.PTOLoop(0.5);
-            } else {
+//            if (PTOError > 500) {
+//                driveTrain.PTOLoop(0.5);
+//            } else {
                 driveTrain.PTOLoop(0);
-            }
+//            }
 //            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
 
             climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));
@@ -290,6 +304,7 @@ public class Teleop {
                 if (intakeSystem.intakeUntil()) {
                     intakeSystem.storePos();
                     hasSample = true;
+                    hasColor = false;
                     intakeing = false;
                 }
             }
@@ -299,6 +314,7 @@ public class Teleop {
                 if (intakeSystem.intakeUntilColor()) {
                     intakeSystem.storePos();
                     hasSample = true;
+                    hasColor = true;
                     intakeingColor = false;
                 }
             }
@@ -341,8 +357,7 @@ public class Teleop {
             intakeSystem.setIntakePower(0);
             intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             intakeSystem.setHSlidePos(0);
-            goingToWallTime = elapsedTime.milliseconds();
-            goingToWall = true;
+            outtakeSystem.placePos(PlacePosEnum.wall);
             hasSample = false;
             hasSpecimen = false;
             spitDebounce = false;
@@ -351,6 +366,8 @@ public class Teleop {
         //Presets
         if (store) {
             storeTime = elapsedTime.milliseconds();
+            atHighBasket = false;
+            atPickupWall = false;
             storing = true;
         }
         //Store
@@ -365,17 +382,58 @@ public class Teleop {
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
             }
             if (elapsedTime.milliseconds() > storeTime + 700 && elapsedTime.milliseconds() < storeTime + 750) {
-                outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                storing = false;
             }
         }
 
-        if (transfer) {
+        if (transfer && !storing) {
+            transferring = true;
             transferTime = elapsedTime.milliseconds();
+        } if (transfer) {
+            transferring = true;
+            transferTime = elapsedTime.milliseconds() + 300;
         }
 
-        if (specimenOffWall && storing) {
-            goingToWallTime = elapsedTime.milliseconds();
-            goingToWall = true;
+        if (transferring) {
+            if (elapsedTime.milliseconds() > transferTime + 0 && elapsedTime.milliseconds() < transferTime + 50) {
+                intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 550) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 800 && elapsedTime.milliseconds() < transferTime + 850) {
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                intakeSystem.setIntakePower(0);
+                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 1000 && elapsedTime.milliseconds() < transferTime + 1050) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 1500 && elapsedTime.milliseconds() < transferTime + 1550) {
+                if (!hasColor) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    atHighBasket = true;
+                } else {
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
+                }
+            }
+            if (elapsedTime.milliseconds() > transferTime + 2000 && elapsedTime.milliseconds() < transferTime + 2050) {
+                if (hasColor) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallSlides);
+                    atPickupWall = true;
+                }
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                transferring = false;
+            }
+        }
+
+
+        if (specimenOffWall) {
+            outtakeSystem.placePos(PlacePosEnum.wall);
+            atPickupWall = true;
+            atHighBasket = false;
             hasSpecimen = false;
         }
         if (highSpecimen) {
@@ -383,66 +441,63 @@ public class Teleop {
         }
         if (highBasket) {
             outtakeSystem.placePos(PlacePosEnum.highBasket);
+            atPickupWall = false;
+            atHighBasket = true;
         }
-        if (goingToWall) {
-            if (elapsedTime.milliseconds() < goingToWallTime + 50) {
-                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallSlides);
-            }
-            if (elapsedTime.milliseconds() > goingToWallTime + 200 && elapsedTime.milliseconds() < goingToWallTime + 300) {
-                outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-            }
-            if (elapsedTime.milliseconds() > goingToWallTime + 500 && elapsedTime.milliseconds() < goingToWallTime + 550) {
-                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                goingToWallTime = 2000000000;
-                goingToWall = false;
-            }
-        }
+
         //Manual
         intakeSystem.manualHSlide(manualHSlidePower);
         outtakeSystem.manualVSlide(manualVSlidePower);
-        if (true || gamepad1.right_stick_button) {
+        if (gamepad1.right_stick_button) {
             outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             outtakeSystem.manualArm(manualArmPower);
         }
 
         //drop into basket
-        if (dropClaw && !dropDebounce) {
+        if (dropClawBasket && !dropDebounce) {
             outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             dropDebounce = true;
         }
-        if (dropDebounce && !dropClaw) {
-            outtakeSystem.setArmPos(Constants.Outtake.upArm);
-            outtakeSystem.setVSlidePos(0);
+        if (dropDebounce && !dropClawBasket) {
+            storing = true;
+            storeTime = elapsedTime.milliseconds();
             hasSample = false;
-            transferred = false;
+            atHighBasket = false;
             dropDebounce = false;
         }
 
         //grab from wall
-        if (grabClaw && !grabDebounce) {
+        if (grabClawWall && !grabDebounce) {
             outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
             grabDebounce = true;
         }
-        if (grabDebounce && !grabClaw) {
+        if (grabDebounce && !grabClawWall) {
             outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
             hasSpecimen = true;
             grabDebounce = false;
         }
+        //drop at wall
+        if (dropClawWall && !dropClawWallDebounce) {
+            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+            dropClawWallDebounce = true;
+        }
+        if (!dropClawWall && dropClawWallDebounce) {
+            hasSample = false;
+            dropClawWallDebounce = false;
+        }
         //drop specimen
         if (dropSpecimen && !endArmDebounce) {
             outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+            hasSpecimen = false;
             endArmDebounce = true;
         }
 
         if (endArmDebounce && !dropSpecimen) {
-            //TODO go to tray pos
-            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-            outtakeSystem.setArmPos(Constants.Outtake.upArm);
+            storing = true;
+            storeTime = elapsedTime.milliseconds();
             endArmDebounce = false;
             hasSpecimen = false;
         }
-
 
 
         if (spitHard && !spitHardDebounce) {
@@ -453,10 +508,13 @@ public class Teleop {
         }
 
         telemetry.addData("sample", hasSample);
+        telemetry.addData("hasColor", hasColor);
         telemetry.addData("specimen", hasSpecimen);
-        telemetry.addData("transferred", transferred);
+        telemetry.addData("atHighBasket", atHighBasket);
+        telemetry.addData("atPickupWall", atPickupWall);
         telemetry.addData("","");
         telemetry.addData("0", climbInit);
+        telemetry.addData("0.5", climbInitLoop);
         telemetry.addData("1", climbL1P1);
         telemetry.addData("2", climbL2P1);
         telemetry.addData("3", climbL2P2);
@@ -467,11 +525,13 @@ public class Teleop {
         telemetry.addData("Hslidepos", intakeSystem.getHSlidePos());
         telemetry.addData("HslideTpos", intakeSystem.getHSlideTargetPos());
         telemetry.addData("ArmTPos", outtakeSystem.getArmPos());
+        telemetry.addData("IntakeServo", intakeSystem.intakeClaw.getIntakeServoPos());
         telemetry.addData("","");
         telemetry.addData("intakeing", intakeing);
         telemetry.addData("unjammingIntake", unjammingIntake);
         telemetry.addData("intakeingColor", intakeingColor);
-        telemetry.addData("goingToWall", goingToWall);
+        telemetry.addData("storing", storing);
+        telemetry.addData("transferring", transferring);
         telemetry.addData("","");
         telemetry.addData("color", intakeSystem.color());
         telemetry.addData("distance", intakeSystem.distance() < 1.5);

@@ -13,7 +13,7 @@ public class Constants {
     @Config
     public static class PTO {
         public static double servoRelease = 0.28;
-        public static double servoClimb = 0.45;
+        public static double servoClimb = 0.475;
         public static double speed = 1;
 
         public static int motorClimb = 1100;
@@ -38,8 +38,8 @@ public class Constants {
         public static int maxSlidePos = 1600;
         public static double manualSlideSpeed = 15;
 
-        public static double wristStore = 0.15;
-        public static double wristClear = 0.374;
+        public static double wristStore = 0;
+        public static double wristClear = 0.25;
         public static double wristDown = 0.425;
 
         public static double intakeSpeed = 1;
@@ -66,15 +66,16 @@ public class Constants {
         public static double basketArm = 0.22;
 
         //435
-        public static int intakeSlides = 95;
+        public static int intakeSlides = 90;
+        public static int intakeWaitSlides = 130;
         public static int intakeWallSlides = 39;
         public static int safeFromWallSlides = 180;
-        public static int safeFromHSlides = 180;
+        public static int safeFromHSlides = 200;
         public static int highSpecimenSlides = 408;
         public static int lowBasketSlides = 267;
         public static int highBasketSlides = 750;
         public static int maxSlides = 754;
-        public static int climbSlides = 600;
+        public static int climbSlides = 725;
         public static double manualSlideSpeed = 20;
 
         /*

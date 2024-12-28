@@ -36,9 +36,9 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.Outtake.initTeleopArm;
+    double testValue = 0;
     double testValue2 = Constants.Outtake.intakeWallArm;
-    double testValue3 = Constants.Outtake.intakeWallArm;
+    double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
@@ -92,41 +92,22 @@ public class TeleopTesting {
             //Climbing
             if (gamepad1.b) {
                 powerTakeOff.disable();
-                climbInit = false;
-                climbL1P1 = false;
-                climbL2P1 = false;
-                climbL2P2 = false;
-            }
-            //big auto movement
-            if (!climbInit) {
-                climbInit = true;
-                climberPos = Constants.Climber.outPos;
-                outtakeSystem.setVSlidePos(Constants.Outtake.climbSlides);
-                climbL1P1 = true;
-            }
-            if (climbL1P1 && climber.getPos() > climberPos - 100 && gamepad1.a) {
-                climbL1P1 = false;
-                driveTrain.setPTOPos(Constants.PTO.motorClimb);
-                climbL2P1 = true;
-            }
-            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 50) {
-                climbL2P1 = false;
-                climberPos = Constants.Climber.inPos;
-                climbL2P2 = true;
-            }
-            if (climbL2P2 && climber.getPos() < climberPos + 5000) {
-                climbL2P2 = false;
-                driveTrain.setPTOPos(Constants.PTO.motorDrop);
             }
 
             //fancy math for PTO feedforward
             PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-            if (PTOError > 50) {
+            if (PTOError > 250) {
                 driveTrain.PTOLoop(0.5);
             } else {
                 driveTrain.PTOLoop(0);
             }
-//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+
+            if (gamepad2.dpad_up) {
+                driveTrain.setPTOPos(Constants.PTO.motorClimb);
+            }
+            if (gamepad2.dpad_down) {
+                driveTrain.setPTOPos(Constants.PTO.motorDrop);
+            }
 
             climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));
             climber.setPos(climberPos);
