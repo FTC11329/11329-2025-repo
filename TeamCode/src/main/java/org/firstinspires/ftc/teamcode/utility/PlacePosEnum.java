@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.utility;
 
 public enum PlacePosEnum {
-    lowSpecimen, highSpecimen, lowBasket, highBasket
+    lowSpecimen, highSpecimen, lowBasket, highBasket, none
 }

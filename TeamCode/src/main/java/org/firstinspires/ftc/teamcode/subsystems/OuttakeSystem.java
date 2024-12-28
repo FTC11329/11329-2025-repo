@@ -84,10 +84,8 @@ public class OuttakeSystem {
             if (!init) {
                 slideTime = time.milliseconds();
                 init = true;
-                setArmPos(Constants.Outtake.specimenArmEnd);
             }
             if (time.milliseconds() > slideTime + 200) {
-                setVSlidePos(Constants.Outtake.endSpecimenSlides);
                 return false;
             }
             return true;
@@ -142,7 +140,7 @@ public class OuttakeSystem {
     public class EndAutoAction implements Action {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
-            setArmPos(Constants.Outtake.initArm);
+            setArmPos(Constants.Outtake.initTeleopArm);
             setVSlidePos(0);
             return false;
         }

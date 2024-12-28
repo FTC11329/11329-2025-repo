@@ -20,11 +20,11 @@ public class VerticalSlides {
         slideMotor.setPower(1);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void manualPos(double power) {
-        int temp = lastSlidePos + (int)(power * Constants.Intake.manualSlideSpeed);
+        int temp = lastSlidePos + (int)(power * Constants.Outtake.manualSlideSpeed);
         if (temp < Constants.Outtake.maxSlides) {
             setPos(temp);
         }

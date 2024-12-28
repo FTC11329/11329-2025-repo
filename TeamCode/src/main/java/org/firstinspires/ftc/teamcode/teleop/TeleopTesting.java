@@ -30,14 +30,19 @@ public class TeleopTesting {
     boolean driveFast;
     DriveSpeedEnum driveSpeed;
 
+    boolean climbInit = false;
+    boolean climbL1P1 = false;
+    boolean climbL2P1 = false;
+    boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = 0;
+    double testValue = Constants.Outtake.initTeleopArm;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.intakeWallArm;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
+    int climberPos = 0;
     int PTOError = 0;
 
     //this is here because I have to have a teleop blue and teleop red
@@ -59,7 +64,7 @@ public class TeleopTesting {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-//        powerTakeOff = new PowerTakeOff(hardwareMap);
+        powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
     }
@@ -80,26 +85,51 @@ public class TeleopTesting {
             driveSpeed = DriveSpeedEnum.Slow;
         }
 
-        if (true || !powerTakeOff.isEnabled()) {
+        if (!powerTakeOff.isEnabled()) {
             //Regular time
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
-            //PTO Time
-            //fancy math for PTO feedforward
-            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
-            driveTrain.PTOLoop(0);
-
-//            driveTrain.setPTOPower(gamepad1.right_trigger - gamepad1.left_trigger);
-
-            if (gamepad1.dpad_up) {
+            //Climbing
+            if (gamepad1.b) {
+                powerTakeOff.disable();
+                climbInit = false;
+                climbL1P1 = false;
+                climbL2P1 = false;
+                climbL2P2 = false;
+            }
+            //big auto movement
+            if (!climbInit) {
+                climbInit = true;
+                climberPos = Constants.Climber.outPos;
+                outtakeSystem.setVSlidePos(Constants.Outtake.climbSlides);
+                climbL1P1 = true;
+            }
+            if (climbL1P1 && climber.getPos() > climberPos - 100 && gamepad1.a) {
+                climbL1P1 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorClimb);
-            } else if (gamepad1.dpad_down) {
+                climbL2P1 = true;
+            }
+            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 50) {
+                climbL2P1 = false;
+                climberPos = Constants.Climber.inPos;
+                climbL2P2 = true;
+            }
+            if (climbL2P2 && climber.getPos() < climberPos + 5000) {
+                climbL2P2 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorDrop);
             }
-            if (gamepad1.a) {
-                powerTakeOff.disable();
+
+            //fancy math for PTO feedforward
+            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
+            if (PTOError > 50) {
+                driveTrain.PTOLoop(0.5);
+            } else {
+                driveTrain.PTOLoop(0);
             }
+//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
+
+            climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));
+            climber.setPos(climberPos);
         }
 
         //PTO Enabling
@@ -111,9 +141,9 @@ public class TeleopTesting {
         if (gamepad1.a) {
             intakeingColor = false;
         }
-        if (gamepad1.b) {
-            intakeSystem.storePos();
-        }
+//        if (gamepad1.b) {
+//            intakeSystem.storePos();
+//        }
         if (gamepad1.x) {
             intakeingColor = true;
         }
@@ -176,15 +206,15 @@ public class TeleopTesting {
 
 
         //HSlide
-        testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        intakeSystem.setHSlidePos((int) testValue);
-//        telemetry.addData("targetPos1", (int) testValue);
+//        testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        intakeSystem.setHSlidePos((int) testValue);
+        telemetry.addData("targetPos1", (int) testValue);
 //        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
 //        telemetry.addData("H Pos", intakeSystem.getHSlidePos());
 
 
         //VSlide
-        outtakeSystem.setVSlidePos((int) testValue2);
+//        outtakeSystem.setVSlidePos((int) testValue2);
 //        telemetry.addData("targetPos", (int) testValue2);
 //        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
         /*
@@ -198,24 +228,24 @@ public class TeleopTesting {
         telemetry.addData("l", powerTakeOff.PTOLeft.getPosition());
         telemetry.addData("r", powerTakeOff.PTORight.getPosition());
         */
-        /*
+
         //Climber
-        telemetry.addData("Pos", climber.getPos());
         climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("Current Position", climber.getPos());
+
+
         //intake color
-        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
-        intakeSystem.setIntakePower(testValue);
-        telemetry.addData("power", testValue);
+//        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
+//        intakeSystem.setIntakePower(testValue);
+//        telemetry.addData("power", testValue);
         telemetry.addData("Claw r", intakeSystem.directColor().red);
         telemetry.addData("Claw g", intakeSystem.directColor().green);
         telemetry.addData("Claw b", intakeSystem.directColor().blue);
         telemetry.addData("Claw a", intakeSystem.directColor().alpha);
         telemetry.addData("Claw distance", intakeSystem.distance());
         telemetry.addData("color", intakeSystem.color());
+//        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
 
-        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
-        */
         /*
         PS5
         telemetry.addData("1", gamepad2.touchpad_finger_1);

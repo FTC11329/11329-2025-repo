@@ -12,8 +12,8 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double servoRelease = 0.267;
-        public static double servoClimb = 0.427;
+        public static double servoRelease = 0.28;
+        public static double servoClimb = 0.45;
         public static double speed = 1;
 
         public static int motorClimb = 1100;
@@ -25,8 +25,8 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -8000; //-1000;
-        public static final int outPos  = 22000; //todo
+        public static final int inPos = -1500;
+        public static final int outPos  = 6000;
     }
 
     @Config
@@ -36,12 +36,11 @@ public class Constants {
         public static int minWhileDownPos = 477;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1600;
-        public static double manualSlideSpeed = 30;
+        public static double manualSlideSpeed = 15;
 
-        public static double wristStore = 0;
-        public static double wristSpit = 0.30;
-        public static double wristClear = 0.35;
-        public static double wristDown = 0.403;
+        public static double wristStore = 0.15;
+        public static double wristClear = 0.374;
+        public static double wristDown = 0.425;
 
         public static double intakeSpeed = 1;
         public static double transferSpeed = 0.5;
@@ -52,31 +51,30 @@ public class Constants {
 
     @Config
     public static class Outtake {
-        public static double grabClaw = 0.46;
-        public static double halfClaw = 0.4;
-        public static double dropClaw = 0.25;
+        public static double grabClaw = 0.555;
+        public static double dropClaw = 0.275;
 
-        public static double intakeArm = 0.9928;
-        public static double initArm = 0.5;
-        public static double upArm = 0.33333333;
+        public static double intakeArm = 0.938;
+        public static double initTeleopArm = 0.66666;
+        public static double initAutoArm = 0.781;
         public static double preTransferArm = 0.666666;
+        public static double upArm = 0.33333333;
         public static double intakeWallArm = 0;
         public static double manualArmSpeed = 0.005;
 
-        public static double specimenArm = 0.50;
-        public static double specimenArmEnd = 0.40;
-        public static double basketArm = 0.165;
+        public static double specimenArm = 0.6853;
+        public static double basketArm = 0.22;
 
         //435
-        public static int intakeSlides = 574;
-        public static int intakeWallSlides = 0;
-        public static int safeFromWallSlides = 166;
-        public static int safeFromHSlides = 947;
-        public static int highSpecimenSlides = 680;
-        public static int endSpecimenSlides = 750;
-        public static int lowBasketSlides = 1236;
-        public static int highBasketSlides = 2522;
-        public static int maxSlides = 2670;
+        public static int intakeSlides = 95;
+        public static int intakeWallSlides = 39;
+        public static int safeFromWallSlides = 180;
+        public static int safeFromHSlides = 180;
+        public static int highSpecimenSlides = 408;
+        public static int lowBasketSlides = 267;
+        public static int highBasketSlides = 750;
+        public static int maxSlides = 754;
+        public static int climbSlides = 600;
         public static double manualSlideSpeed = 20;
 
         /*
@@ -100,10 +98,10 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0018, 0.0042, 0.0114,0.68};
-        public static double[] red = {0.009, 0.0051, 0.003, 0.68};
-        public static double[] yellow = {0.0112, 0.0169, 0.0045, 0.88};
-        public static double[] empty = {0.0005, 0.0013, 0.0017, 0.079};
+        public static double[] blue = {0.0018, 0.0041, 0.0127,0.715};
+        public static double[] red = {0.0091, 0.0047, 0.0028, 0.667};
+        public static double[] yellow = {0.0135, 0.0192, 0.0047, 0.91};
+        public static double[] empty = {0.0004, 0.0012, 0.0023, 0.097};
 
         public static double hasDistance = 1; //1.44 0.47 0.54 0.62
     }
