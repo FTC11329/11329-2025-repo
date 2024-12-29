@@ -20,6 +20,8 @@ public class OuttakeSystem {
     public OuttakeSystem(HardwareMap hardwareMap) {
         outtakeArm = new OuttakeArm(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);
+
+        setClawPos(Constants.Outtake.grabClaw);
     }
 
     public void manualArm(double power) {

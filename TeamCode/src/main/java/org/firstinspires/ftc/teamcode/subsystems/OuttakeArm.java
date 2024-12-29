@@ -24,7 +24,7 @@ public class OuttakeArm {
         armServo1.setDirection(Servo.Direction.FORWARD);
         armServo2.setDirection(Servo.Direction.FORWARD);
 
-        clawServo.setPosition(Constants.Outtake.grabClaw);
+        clawServo.setPosition(Constants.Outtake.dropClaw);
         armServo1.setPosition(Constants.Outtake.initTeleopArm);
         armServo2.setPosition(Constants.Outtake.initTeleopArm);
 

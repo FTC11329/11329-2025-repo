@@ -28,7 +28,6 @@ public class IntakeSystem {
 
     private RobotSideEnum robotSide;
 
-    public boolean unjamP0 = false;
     public boolean unjamP2 = false;
 
     public IntakeSystem(HardwareMap hardwareMap, RobotSideEnum robotSide) {
@@ -43,6 +42,7 @@ public class IntakeSystem {
     public void setIntakePower(double newIntakePower) {
         intakeClaw.setIntakePower(newIntakePower);
     }
+
     public void setIntakeServoPos(double newPos) {
         intakeClaw.setIntakeServoPos(newPos);
     }
@@ -51,12 +51,15 @@ public class IntakeSystem {
     public void manualHSlide(double power) {
         hSlides.manualPos(power);
     }
+
     public void setHSlidePos(int newPos) {
         hSlides.setPos(newPos);
     }
+
     public int getHSlideTargetPos() {
         return hSlides.getTargetPos();
     }
+
     public int getHSlidePos() {
         return hSlides.getPos();
     }
@@ -74,6 +77,7 @@ public class IntakeSystem {
             intakeTime = 2000000000;
         }
     }
+
     public void pickupPosWithTime() {
         pickupPosWithTime(Constants.Intake.intakeSlidePos);
     }
@@ -82,6 +86,7 @@ public class IntakeSystem {
         setHSlidePos(hSlidePos);
         setIntakeServoPos(Constants.Intake.wristDown);
     }
+
     public void pickupPos() {
         pickupPos(Constants.Intake.intakeSlidePos);
     }
@@ -91,6 +96,7 @@ public class IntakeSystem {
         setIntakeServoPos(Constants.Intake.wristStore);
         setIntakePower(0);
     }
+
     public void storeOutPos() {
         setHSlidePos(Constants.Intake.minWhileDownPos);
         setIntakeServoPos(Constants.Intake.wristStore);
@@ -104,50 +110,56 @@ public class IntakeSystem {
 
     public boolean intakeUntilColor() {
         setIntakePower(Constants.Intake.intakeSpeed);
-//        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
-            if (robotSide == RobotSideEnum.Blue) {
-                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
-                    setIntakePower(0);
-                    return true;
-                } else {
-                    return false;
-                }
+        if (robotSide == RobotSideEnum.Blue) {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
+                setIntakePower(0);
+                return true;
             } else {
-                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red) {
-                    setIntakePower(0);
-                    return true;
-                } else {
-                    return false;
-                }
+                return false;
             }
-//        } else {
-//            return false;
-//        }
+        } else if (robotSide == RobotSideEnum.Red) {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
 
     public boolean intakeUntil() {
         setIntakePower(Constants.Intake.intakeSpeed);
-//        if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasDistance) {
-            if (robotSide == RobotSideEnum.Blue) {
-                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                    setIntakePower(0);
-                    return true;
-                } else {
-                    return false;
-                }
+        if (robotSide == RobotSideEnum.Blue) {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                setIntakePower(0);
+                return true;
             } else {
-                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                    setIntakePower(0);
-                    return true;
-                } else {
-                    return false;
-                }
+                return false;
             }
-//        } else {
-//            return false;
-//        }
-
+        } else if (robotSide == RobotSideEnum.Red) {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        }
     }
+
     public boolean unjam() {
         setIntakePower(Constants.Intake.unjamSpeed);
         if (intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance && !unjamP2) {
@@ -163,12 +175,15 @@ public class IntakeSystem {
         }
         return false;
     }
+
     public boolean readyToTranfer() {
         return getHSlidePos() < Constants.Intake.safeTransferSlide;
     }
+
     public NormalizedRGBA directColor() {
         return intakeSensor.getNormalizedColors();
     }
+
     public ColorEnum color() {
         return ColorFunctions.toColor(intakeSensor.getNormalizedColors());
     }
@@ -187,9 +202,11 @@ public class IntakeSystem {
 
     private class Extend implements Action {
         int pos;
+
         public Extend(int pos) {
             this.pos = pos;
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (pos == 100000) {
@@ -216,6 +233,7 @@ public class IntakeSystem {
         public IntakeColorMoving(FailoverAction failoverAction) {
             this.failoverAction = failoverAction;
         }
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             boolean hasThing = intakeUntilColor();
@@ -226,8 +244,10 @@ public class IntakeSystem {
         }
 
     }
+
     private class IntakeColor implements Action {
         boolean initialized = false;
+
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
@@ -237,6 +257,7 @@ public class IntakeSystem {
             return !intakeUntilColor();
         }
     }
+
     private class Spit implements Action {
         ElapsedTime time = new ElapsedTime();
         double tempTime;
@@ -260,9 +281,11 @@ public class IntakeSystem {
     public Action extend(int pos) {
         return new Extend(pos);
     }
+
     public Action extend() {
         return new Extend(100000);
     }
+
     public Action retract() {
         return new Retract();
     }
@@ -270,9 +293,11 @@ public class IntakeSystem {
     public Action intakeColor(FailoverAction a) {
         return new IntakeColorMoving(a);
     }
+
     public Action intakeColor() {
         return new IntakeColor();
     }
+
     public Action spit() {
         return new Spit();
     }

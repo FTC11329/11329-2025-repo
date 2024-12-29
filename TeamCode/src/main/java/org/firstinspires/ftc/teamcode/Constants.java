@@ -34,6 +34,7 @@ public class Constants {
         public static int minSlidePos = 0;
         public static int safeTransferSlide = 333;
         public static int minWhileDownPos = 477;
+        public static int autoHSlides = 1050;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1600;
         public static double manualSlideSpeed = 15;
@@ -51,12 +52,12 @@ public class Constants {
 
     @Config
     public static class Outtake {
-        public static double grabClaw = 0.555;
-        public static double dropClaw = 0.275;
+        public static double grabClaw = 0.542;
+        public static double dropClaw = 0.241;
 
         public static double intakeArm = 0.938;
         public static double initTeleopArm = 0.66666;
-        public static double initAutoArm = 0.781;
+        public static double initAutoArm = 0.76;
         public static double preTransferArm = 0.666666;
         public static double upArm = 0.33333333;
         public static double intakeWallArm = 0;
@@ -66,12 +67,12 @@ public class Constants {
         public static double basketArm = 0.22;
 
         //435
-        public static int intakeSlides = 90;
-        public static int intakeWaitSlides = 130;
-        public static int intakeWallSlides = 39;
-        public static int safeFromWallSlides = 180;
+        public static int intakeSlides = 70;
+        public static int intakeWaitSlides = 110;
+        public static int intakeWallSlides = 65;
+        public static int safeFromWallSlides = 170;
         public static int safeFromHSlides = 200;
-        public static int highSpecimenSlides = 408;
+        public static int highSpecimenSlides = 380;
         public static int lowBasketSlides = 267;
         public static int highBasketSlides = 750;
         public static int maxSlides = 754;
