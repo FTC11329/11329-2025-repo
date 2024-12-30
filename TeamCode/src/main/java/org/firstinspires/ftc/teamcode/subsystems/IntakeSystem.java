@@ -11,7 +11,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.roadrunner.FailoverAction;
 import org.firstinspires.ftc.teamcode.utility.ColorEnum;
 import org.firstinspires.ftc.teamcode.utility.ColorFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
@@ -194,112 +193,6 @@ public class IntakeSystem {
 
     public void stop() {
         intakeClaw.stopIntake();
-    }
-
-
-    //Actions***************************************************************************************
-
-
-    private class Extend implements Action {
-        int pos;
-
-        public Extend(int pos) {
-            this.pos = pos;
-        }
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (pos == 100000) {
-                pickupPos();
-            } else {
-                pickupPos(pos);
-            }
-            return false;
-        }
-    }
-
-    private class Retract implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            storePos();
-            return false;
-        }
-    }
-
-    private class IntakeColorMoving implements Action {
-
-        FailoverAction failoverAction;
-
-        public IntakeColorMoving(FailoverAction failoverAction) {
-            this.failoverAction = failoverAction;
-        }
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            boolean hasThing = intakeUntilColor();
-            if (hasThing) {
-                failoverAction.failover();
-            }
-            return !hasThing;
-        }
-
-    }
-
-    private class IntakeColor implements Action {
-        boolean initialized = false;
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                setIntakePower(Constants.Intake.intakeSpeed);
-                initialized = true;
-            }
-            return !intakeUntilColor();
-        }
-    }
-
-    private class Spit implements Action {
-        ElapsedTime time = new ElapsedTime();
-        double tempTime;
-        boolean initialized = false;
-
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                tempTime = time.milliseconds() + 1000;
-                setIntakePower(-0.5);
-                initialized = true;
-            }
-            if (tempTime < time.milliseconds()) {
-                setIntakePower(0);
-                return false;
-            }
-            return true;
-        }
-    }
-
-    public Action extend(int pos) {
-        return new Extend(pos);
-    }
-
-    public Action extend() {
-        return new Extend(100000);
-    }
-
-    public Action retract() {
-        return new Retract();
-    }
-
-    public Action intakeColor(FailoverAction a) {
-        return new IntakeColorMoving(a);
-    }
-
-    public Action intakeColor() {
-        return new IntakeColor();
-    }
-
-    public Action spit() {
-        return new Spit();
     }
 
 }
