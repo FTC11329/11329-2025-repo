@@ -20,14 +20,18 @@ public class OuttakeSystem {
     public OuttakeSystem(HardwareMap hardwareMap) {
         outtakeArm = new OuttakeArm(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);
+
+        setClawPos(Constants.Outtake.grabClaw);
     }
 
     public void manualArm(double power) {
         outtakeArm.manualArmPos(power);
     }
+
     public void setArmPos(double newPos) {
         outtakeArm.setArmPos(newPos);
     }
+
     public double getArmPos() {
         return outtakeArm.getArmPos();
     }
@@ -39,17 +43,17 @@ public class OuttakeSystem {
     public void manualVSlide(double power) {
         vSlides.manualPos(power);
     }
+
     public void setVSlidePos(int newPos) {
         vSlides.setPos(newPos);
     }
+
     public int getVSlideTargetPos() {
         return vSlides.getTargetPos();
     }
+
     public int getVSlidePos() {
         return vSlides.getPos();
-    }
-    public void resetVSlidePower(double power) {
-        vSlides.resetPower(power);
     }
 
     public void storePos() {
@@ -57,132 +61,28 @@ public class OuttakeSystem {
         setVSlidePos(Constants.Outtake.intakeSlides);
         setArmPos(Constants.Outtake.intakeArm);
     }
+
     public void placePos(PlacePosEnum posEnum) {
-        setClawPos(Constants.Outtake.grabClaw);
         if (posEnum == PlacePosEnum.highSpecimen) {
             setArmPos(Constants.Outtake.specimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+
         } else if (posEnum == PlacePosEnum.lowBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.lowBasketSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+
         } else if (posEnum == PlacePosEnum.highBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.highBasketSlides);
-        }
-    }
-    //Actions***************************************************************************************
-    public class ToSpecimen implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            placePos(PlacePosEnum.highSpecimen);
-            return false;
-        }
-    }
-    public class PastSpecimen implements Action {
-        boolean init = false;
-
-        double slideTime = 2000000000;
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!init) {
-                slideTime = time.milliseconds();
-                init = true;
-                setArmPos(Constants.Outtake.specimenArmEnd);
-            }
-            if (time.milliseconds() > slideTime + 200) {
-                setVSlidePos(Constants.Outtake.endSpecimenSlides);
-                return false;
-            }
-            return true;
-        }
-    }
-    public class Drop implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            setClawPos(Constants.Outtake.dropClaw);
-            return false;
-        }
-    }
-    public class Grab implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
             setClawPos(Constants.Outtake.grabClaw);
-            return false;
-        }
-    }
-    public class AboveWall implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            setVSlidePos(Constants.Outtake.safeFromWallSlides);
-            return false;
-        }
-    }
 
-    public class ToWallSpecimen implements Action {
-        boolean initialized = false;
-        double startTime = 0;
+        } else if (posEnum == PlacePosEnum.wall) {
+            setArmPos(Constants.Outtake.intakeWallArm);
+            setVSlidePos(Constants.Outtake.intakeWallSlides);
+            setClawPos(Constants.Outtake.dropClaw);
+        }
 
-        @Override
-        public boolean run(@NotNull TelemetryPacket packet) {
-            if (!initialized) {
-                startTime = time.milliseconds();
-                initialized = true;
-            }
-            if (time.milliseconds() < startTime + 50) {
-                setClawPos(Constants.Outtake.grabClaw);
-                setVSlidePos(Constants.Outtake.intakeWallSlides);
-            }
-            if (time.milliseconds() > startTime + 200 && time.milliseconds() < startTime + 250) {
-                setArmPos(Constants.Outtake.intakeWallArm);
-            }
-            if (time.milliseconds() > startTime + 400 && time.milliseconds() < startTime + 450) {
-                setClawPos(Constants.Outtake.dropClaw);
-                return false;
-            }
-            return true;
-        }
-    }
-    public class EndAutoAction implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            setArmPos(Constants.Outtake.initArm);
-            setVSlidePos(0);
-            return false;
-        }
-    }
-    public class UpdateAction implements Action {
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            update();
-            return true;
-        }
-    }
-    public Action toSpecimen(){
-        return new ToSpecimen();
-    }
-    public Action pastSpecimen(){
-        return new PastSpecimen();
-    }
-    public Action drop(){
-        return new Drop();
-    }
-    public Action grab(){
-        return new Grab();
-    }
-    public Action aboveWall(){
-        return new AboveWall();
-    }
-    public Action toWallSpecimen() {
-        return new ToWallSpecimen();
-    }
-    public Action endAutoAction() {
-        return new EndAutoAction();
-    }
-    public Action updateAction() {
-        return new UpdateAction();
-    }
-
-    public void update() {
-        vSlides.update();
     }
 }

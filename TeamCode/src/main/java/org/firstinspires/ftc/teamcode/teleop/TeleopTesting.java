@@ -30,13 +30,19 @@ public class TeleopTesting {
     boolean driveFast;
     DriveSpeedEnum driveSpeed;
 
+    boolean climbInit = false;
+    boolean climbL1P1 = false;
+    boolean climbL2P1 = false;
+    boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.Intake.wristStore;
+    double testValue = 0;
     double testValue2 = Constants.Outtake.intakeWallArm;
+    double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
+    int climberPos = 0;
     int PTOError = 0;
 
     //this is here because I have to have a teleop blue and teleop red
@@ -83,22 +89,28 @@ public class TeleopTesting {
             //Regular time
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
-            //PTO Time
-            //fancy math for PTO feedforward
-            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-//            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
-            driveTrain.PTOLoop(0);
-
-//            driveTrain.setPTOPower(gamepad1.right_trigger - gamepad1.left_trigger);
-
-            if (gamepad1.dpad_up) {
-                driveTrain.setPTOPos(Constants.PTO.motorClimb);
-            } else if (gamepad1.dpad_down) {
-                driveTrain.setPTOPos(Constants.PTO.motorDrop);
-            }
-            if (gamepad1.a) {
+            //Climbing
+            if (gamepad1.b) {
                 powerTakeOff.disable();
             }
+
+            //fancy math for PTO feedforward
+            PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
+            if (PTOError > 250) {
+                driveTrain.PTOLoop(0.5);
+            } else {
+                driveTrain.PTOLoop(0);
+            }
+
+            if (gamepad2.dpad_up) {
+                driveTrain.setPTOPos(Constants.PTO.motorClimb);
+            }
+            if (gamepad2.dpad_down) {
+                driveTrain.setPTOPos(Constants.PTO.motorDrop);
+            }
+
+            climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));
+            climber.setPos(climberPos);
         }
 
         //PTO Enabling
@@ -110,9 +122,9 @@ public class TeleopTesting {
         if (gamepad1.a) {
             intakeingColor = false;
         }
-        if (gamepad1.b) {
-            intakeSystem.storePos();
-        }
+//        if (gamepad1.b) {
+//            intakeSystem.storePos();
+//        }
         if (gamepad1.x) {
             intakeingColor = true;
         }
@@ -156,37 +168,36 @@ public class TeleopTesting {
                 intakeingColor = false;
             }
         }
-
+        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
+//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+        testValue2 += 5 * (gamepad2.left_stick_y);
+        testValue3 += 0.003 * (gamepad2.right_stick_y);
 
         //HSlides
-        testValue += 5 * (gamepad1.right_trigger - gamepad1.left_trigger);
-//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        testValue2 += 0.003 * (gamepad1.right_stick_y);
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
-        outtakeSystem.setArmPos(testValue2);
-        telemetry.addData("testValue", testValue);
-        telemetry.addData("testValue2", testValue2);
-        telemetry.addData("HSlidepos", intakeSystem.getHSlidePos());
-        telemetry.addData("VSlidepos", outtakeSystem.getVSlidePos());
+        outtakeSystem.setArmPos(testValue3);
+        telemetry.addData("testValue H", testValue);
+        telemetry.addData("testValue2V", testValue2);
+        telemetry.addData("testValue3A", testValue3);
+        telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
+        telemetry.addData("VSlidepos  ", outtakeSystem.getVSlidePos());
         telemetry.addData("power", driveTrain.pidControl.update(driveTrain.leftFront.getCurrentPosition()));
 
-        /*
+
         //HSlide
-        testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        intakeSystem.setHSlidePos((int) testValue);
+//        testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        intakeSystem.setHSlidePos((int) testValue);
         telemetry.addData("targetPos1", (int) testValue);
-        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
-        telemetry.addData(" Pos", intakeSystem.getHSlidePos());
-        */
-        /*
+//        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
+//        telemetry.addData("H Pos", intakeSystem.getHSlidePos());
+
+
         //VSlide
-        testValue2 += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
-        outtakeSystem.setVSlidePos((int) testValue2);
-        telemetry.addData("targetPos", (int) testValue2);
-        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
-        */
+//        outtakeSystem.setVSlidePos((int) testValue2);
+//        telemetry.addData("targetPos", (int) testValue2);
+//        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
         /*
         //PTO
         telemetry.addData("Tpos", driveTrain.getPTOTPos());
@@ -198,10 +209,12 @@ public class TeleopTesting {
         telemetry.addData("l", powerTakeOff.PTOLeft.getPosition());
         telemetry.addData("r", powerTakeOff.PTORight.getPosition());
         */
+
         //Climber
-        telemetry.addData("Pos", climber.getPos());
         climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("Current Position", climber.getPos());
+
+
         //intake color
 //        intakeSystem.setIntakePower(gamepad1.right_trigger - gamepad1.left_trigger);
 //        intakeSystem.setIntakePower(testValue);
@@ -212,10 +225,27 @@ public class TeleopTesting {
         telemetry.addData("Claw a", intakeSystem.directColor().alpha);
         telemetry.addData("Claw distance", intakeSystem.distance());
         telemetry.addData("color", intakeSystem.color());
-//
 //        telemetry.addData("claw", outtakeSystem.outtakeArm.getClawPos());
 
-        outtakeSystem.update();
+        /*
+        PS5
+        telemetry.addData("1", gamepad2.touchpad_finger_1);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_1_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_1_y*100.0)/100.0);
+        telemetry.addData("2", gamepad2.touchpad_finger_2);
+        telemetry.addData("x", Math.round(gamepad2.touchpad_finger_2_x*100.0)/100.0);
+        telemetry.addData("y", Math.round(gamepad2.touchpad_finger_2_y*100.0)/100.0);
+        telemetry.addData("touchpad", gamepad2.touchpad);
+        telemetry.addData("options", gamepad2.options);
+        telemetry.addData("ps", gamepad2.ps);
+        telemetry.addData("guide", gamepad2.guide);
+        telemetry.addData("id", gamepad2.id);
+        telemetry.addData("share", gamepad2.share);
+        telemetry.addData("timestamp", gamepad2.timestamp);
+        telemetry.addData("type", gamepad2.type);
+        telemetry.addData("atRest", gamepad2.atRest());
+         */
+
         telemetry.update();
     }
 

@@ -22,7 +22,7 @@ public class IntakeClaw {
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intakeServo.setDirection(Servo.Direction.REVERSE);

@@ -1,13 +1,9 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 
 
@@ -17,7 +13,7 @@ public class OuttakeArm {
 
     Servo armServo1;
     Servo armServo2;
-    double lastArmPos = 0;
+    double lastArmPos = Constants.Outtake.initTeleopArm;
 
     public OuttakeArm(HardwareMap hardwareMap) {
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -28,9 +24,9 @@ public class OuttakeArm {
         armServo1.setDirection(Servo.Direction.FORWARD);
         armServo2.setDirection(Servo.Direction.FORWARD);
 
-        clawServo.setPosition(Constants.Outtake.grabClaw);
-        armServo1.setPosition(Constants.Outtake.initArm);
-        armServo2.setPosition(Constants.Outtake.initArm);
+        clawServo.setPosition(Constants.Outtake.dropClaw);
+        armServo1.setPosition(Constants.Outtake.initTeleopArm);
+        armServo2.setPosition(Constants.Outtake.initTeleopArm);
 
     }
 

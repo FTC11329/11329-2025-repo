@@ -3,8 +3,12 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.DualNum;
+import com.acmerobotics.roadrunner.MecanumKinematics;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.roadrunner.PoseVelocity2dDual;
+import com.acmerobotics.roadrunner.Time;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -12,7 +16,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.SimplePIDControl;
 
@@ -23,7 +26,7 @@ import java.util.List;
  * Simple mecanum drive hardware implementation for REV hardware.
  */
 @Config
-public class Drivetrain extends MecanumDrive {
+public class Drivetrain {
     public final DcMotorEx leftFront;
     public final DcMotorEx leftBack;
     public final DcMotorEx rightBack;
@@ -35,7 +38,6 @@ public class Drivetrain extends MecanumDrive {
     public boolean isAtPTOPosition = false;
 
     public Drivetrain(HardwareMap hardwareMap) {
-        super(hardwareMap, new Pose2d(0,0,0));
 
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftBack = hardwareMap.get(DcMotorEx.class, "leftBack");
@@ -82,6 +84,11 @@ public class Drivetrain extends MecanumDrive {
         rightBack.setPower(pidControl.update(rightFront.getCurrentPosition(), feedForward));
         leftFront.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
         leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
+    }
+
+    public void moveBackWheels() {
+        rightBack.setPower(0.4);
+        leftBack.setPower(0.4);
     }
 
     public void setRunToPos() {
@@ -136,6 +143,29 @@ public class Drivetrain extends MecanumDrive {
         }
 
         setDrivePowers(new PoseVelocity2d(vel.position, vel.heading.toDouble()));
+    }
+
+    public void setDrivePowers(PoseVelocity2d powers) {
+        MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
+                PoseVelocity2dDual.constant(powers, 1));
+
+        double maxPowerMag = 1;
+        for (DualNum<Time> power : wheelVels.all()) {
+            maxPowerMag = Math.max(maxPowerMag, power.value());
+        }
+
+        leftFront.setPower(wheelVels.leftFront.get(0) / maxPowerMag);
+        leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
+        rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
+        rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+    }
+
+    public double[] getDrivePowers() {
+        return new double[]{leftFront.getPower(),
+                           rightFront.getPower(),
+                           leftBack.getPower(),
+                           rightBack.getPower()
+                          };
     }
 
     public void stopDrive() {
