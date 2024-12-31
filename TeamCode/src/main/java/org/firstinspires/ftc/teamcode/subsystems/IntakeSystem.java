@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -63,6 +59,9 @@ public class IntakeSystem {
         return hSlides.getPos();
     }
 
+    public boolean HSlidePressed() {
+        return hSlides.tuchyWuchy();
+    }
 
     public void pickupPosWithTime(int hSlidePos) {
         if (!intakeOnce) {
@@ -193,6 +192,10 @@ public class IntakeSystem {
 
     public void stop() {
         intakeClaw.stopIntake();
+    }
+
+    public void update() {
+        hSlides.update();
     }
 
 }
