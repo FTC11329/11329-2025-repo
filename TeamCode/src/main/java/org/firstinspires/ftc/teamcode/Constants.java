@@ -25,8 +25,8 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -1500;
-        public static final int outPos  = 6000;
+        public static final int inPos = -7500;
+        public static final int outPos  = 0;
     }
 
     @Config
@@ -65,6 +65,7 @@ public class Constants {
 
         public static double specimenArm = 0.6853;
         public static double basketArm = 0.22;
+        public static double autoArmClimb = 0.628;
 
         //435
         public static int intakeSlides = 70;

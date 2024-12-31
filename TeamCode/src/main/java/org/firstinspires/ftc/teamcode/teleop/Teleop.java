@@ -94,6 +94,7 @@ public class Teleop {
     boolean climbL1P1 = false;
     boolean climbL2P1 = false;
     boolean climbL2P2 = false;
+    boolean hardPID = true;
 
 
     int climberPos = 0;
@@ -105,6 +106,7 @@ public class Teleop {
     double unjamTime = 2000000000;
     double autoWristTime = 2000000000;
     double spitTime = 2000000000;
+    double PTOEnableTime = 2000000000;
 
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
@@ -196,12 +198,12 @@ public class Teleop {
                 climbL1P1 = false;
                 climbL2P1 = false;
                 climbL2P2 = false;
+                hardPID = true;
                 climbInitLoop = false;
             }
             //big auto movement
             if (!climbInit) {
                 climbInit = true;
-                climberPos = Constants.Climber.outPos;
                 outtakeSystem.setVSlidePos(Constants.Outtake.climbSlides);
                 if (!atPickupWall) {
                     climbInitLoop = true;
@@ -209,12 +211,13 @@ public class Teleop {
                 }
                 climber.setPos(climberPos);
                 climbL1P1 = true;
+                PTOEnableTime = elapsedTime.milliseconds();
             }
             if (climbInitLoop && elapsedTime.milliseconds() > climbSlidesTime + 150) {
                 climbInitLoop = false;
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
             }
-            if (climbL1P1 && climber.getPos() > climberPos - 25) {
+            if (climbL1P1 && elapsedTime.milliseconds() > PTOEnableTime + 800) {
                 climbL1P1 = false;
                 driveTrain.setPTOPos(Constants.PTO.motorClimb);
                 climbL2P1 = true;
@@ -232,11 +235,15 @@ public class Teleop {
 
             //fancy math for PTO feedforward
             PTOError = Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos());
-//            if (PTOError > 500) {
-//                driveTrain.PTOLoop(0.5);
-//            } else {
-                driveTrain.PTOLoop(0);
-//            }
+            if (!climbL1P1) {
+                if (PTOError > 500) {
+                    driveTrain.PTOLoop(0.5);
+                } else {
+                    driveTrain.PTOLoop(0);
+                }
+            } else {
+                driveTrain.moveBackWheels();
+            }
 //            driveTrain.PTOLoop(Math.min(0.25, Math.max( ( (PTOError - 60) / 500), 0 )));
 
             climberPos += (int) (20 * (gamepad1.right_trigger - gamepad1.left_trigger));

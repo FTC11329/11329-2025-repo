@@ -86,6 +86,11 @@ public class Drivetrain {
         leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
     }
 
+    public void moveBackWheels() {
+        rightBack.setPower(0.4);
+        leftBack.setPower(0.4);
+    }
+
     public void setRunToPos() {
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);

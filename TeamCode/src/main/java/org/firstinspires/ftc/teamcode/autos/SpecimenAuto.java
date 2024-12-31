@@ -23,8 +23,8 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "PedroAuto", group = " Examples")
-public class PedroAuto extends OpMode {
+@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
+public class SpecimenAuto extends OpMode {
 
     Climber climber;
     Follower follower;
@@ -33,8 +33,6 @@ public class PedroAuto extends OpMode {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
-
-    PIDFController headingPIDF = new PIDFController(FollowerConstants.headingPIDFCoefficients);
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
@@ -69,7 +67,7 @@ public class PedroAuto extends OpMode {
     private final Pose spitSpike3 = new Pose(41, -53, Math.toRadians(-35));
 
     private final Pose frontWall = new Pose(38, -57, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(37, -61.5, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38, -61.5, Math.toRadians(90));
 
     private final Pose park = new Pose(63.75, -64.3, Math.toRadians(90));
 
@@ -115,6 +113,7 @@ public class PedroAuto extends OpMode {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
+        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Auto);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
         outtakeSystem = new OuttakeSystem(hardwareMap);
@@ -497,7 +496,6 @@ public class PedroAuto extends OpMode {
                     outtakeSystem.setVSlidePos(0);
                     setPathState(36);
                 }
-
         }
     }
 
@@ -531,15 +529,6 @@ public class PedroAuto extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
-        Pose target = new Pose();
-        target.setX(follower.getCurrentPath().getPoint(1).getX());
-        target.setY(follower.getCurrentPath().getPoint(1).getY());
-        target.setHeading(0);
-        telemetry.addData("error", follower.getError(target));
-        telemetry.addData("drive speed", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
-        telemetry.addData("error", follower.getError(pickupSpike1).getHeading());
-        telemetry.addData("errorT", Math.toRadians(15));
-        telemetry.addData("errorB", follower.getError(pickupSpike1).getHeading() < Math.toRadians(15));
         telemetry.update();
     }
 
