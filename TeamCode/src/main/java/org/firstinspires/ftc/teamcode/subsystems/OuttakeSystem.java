@@ -1,21 +1,16 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
-import org.jetbrains.annotations.NotNull;
 
 public class OuttakeSystem {
     ElapsedTime time = new ElapsedTime();
 
     public OuttakeArm outtakeArm;
-    VerticalSlides vSlides;
+    public VerticalSlides vSlides;
 
     public OuttakeSystem(HardwareMap hardwareMap) {
         outtakeArm = new OuttakeArm(hardwareMap);
@@ -56,6 +51,10 @@ public class OuttakeSystem {
         return vSlides.getPos();
     }
 
+    public boolean VSlidePressed() {
+        return vSlides.nearlyTuchyWuchyed();
+    }
+
     public void storePos() {
         setClawPos(Constants.Outtake.dropClaw);
         setVSlidePos(Constants.Outtake.intakeSlides);
@@ -81,8 +80,10 @@ public class OuttakeSystem {
         } else if (posEnum == PlacePosEnum.wall) {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallSlides);
-            setClawPos(Constants.Outtake.dropClaw);
         }
+    }
 
+    public void update() {
+        vSlides.update();
     }
 }

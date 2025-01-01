@@ -34,6 +34,7 @@ public class SampleAuto extends OpMode {
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
+    private int transferState = 0;
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -47,11 +48,11 @@ public class SampleAuto extends OpMode {
     private final Pose startPose = new Pose(-40, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(-55.5, -55.5, Math.toRadians(45));
-    private final Pose intakeSpike1 = new Pose(-56.68, -54.59, Math.toRadians(75.5));
+    private final Pose preloadPlace = new Pose(-55.5, -55.5, Math.toRadians(63));
+    private final Pose intakeSpike1 = new Pose(-55, -53.5, Math.toRadians(75.5));
     private final Pose placeSpike1 = new Pose(-59.98, -54.09, Math.toRadians(74.5));
 
-    private final Pose intakeSpike2 = new Pose(-59.4, -52.9, Math.toRadians(85.5));
+    private final Pose intakeSpike2 = new Pose(-57.4, -50.9, Math.toRadians(85.5));
     private final Pose placeSpike2 = new Pose(-61.7, -53, Math.toRadians(80));
 
     private final Pose intakeSpike3 = new Pose(-57.67, -52, Math.toRadians(103));
@@ -60,6 +61,7 @@ public class SampleAuto extends OpMode {
     private final Pose climb1 = new Pose(0, 0, Math.toRadians(0));
 
     private boolean driveShake = false;
+    private boolean transferSample = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload;
@@ -89,6 +91,7 @@ public class SampleAuto extends OpMode {
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        actionTimer = new Timer();
 
         opmodeTimer.resetTimer();
 
@@ -145,6 +148,46 @@ public class SampleAuto extends OpMode {
     }
 
     public void autonomousPathUpdate() {
+        if (transferSample) {
+            switch (transferState) {
+                case 0:
+                    actionTimer.resetTimer();
+                    intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                    transferState = 1;
+                    break;
+                case 1:
+                    if (actionTimer.getElapsedTimeSeconds() > .5){
+                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                        transferState = 2;
+                    }
+                    break;
+                case 2:
+                    if (actionTimer.getElapsedTimeSeconds() > .8){
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                        intakeSystem.setIntakePower(0);
+                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        transferState = 3;
+                    }
+                    break;
+                case 3:
+                    if (actionTimer.getElapsedTimeSeconds() > 1) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
+                        transferState = 4;
+                    }
+                    break;
+                case 4:
+                    if (actionTimer.getElapsedTimeSeconds() > 1.5) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                        transferState = 5;
+                    }
+                    break;
+                case 5:
+                    if (actionTimer.getElapsedTimeSeconds() > 1.9) {
+                        transferSample = false;
+                    }
+            }
+        }
         switch (pathState) {
             //go to score preload
             case 0:
@@ -163,6 +206,101 @@ public class SampleAuto extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > .75) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(3);
+                }
+                break;
+            case 3:
+                if (pathTimer.getElapsedTimeSeconds() > .2){
+                    follower.followPath(intakeSpike1Path);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    setPathState(4);
+                }
+                break;
+            case 4:
+                if (intakeSystem.intakeUntil()){
+                    follower.followPath(placeSpike1Path);
+                    intakeSystem.storePos();
+                    transferSample = true;
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (!transferSample) {
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    setPathState(6);
+                }
+                break;
+            case 6:
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+                    setPathState(7);
+                }
+                break;
+            case 7:
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    follower.followPath(intakeSpike2Path);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    setPathState(8);
+                }
+                break;
+            case 8:
+                if (intakeSystem.intakeUntil()){
+                    follower.followPath(placeSpike2Path);
+                    intakeSystem.storePos();
+                    transferSample = true;
+                    setPathState(9);
+                }
+                break;
+            case 9:
+                if (!transferSample) {
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    setPathState(10);
+                }
+                break;
+            case 10:
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+                    setPathState(11);
+                }
+                break;
+            case 11:
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    follower.followPath(intakeSpike3Path);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    setPathState(12);
+                }
+                break;
+            case 12:
+                if (intakeSystem.intakeUntil()){
+                    follower.followPath(placeSpike3Path);
+                    intakeSystem.storePos();
+                    transferSample = true;
+                    setPathState(13);
+                }
+                break;
+            case 13:
+                if (!transferSample) {
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    setPathState(14);
+                }
+                break;
+            case 14:
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(15);
+                }
+                break;
+            case 15:
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    follower.followPath(climb1Path);
+                    setPathState(16);
                 }
                 break;
         }
