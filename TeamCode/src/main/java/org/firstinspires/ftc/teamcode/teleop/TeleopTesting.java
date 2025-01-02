@@ -137,6 +137,9 @@ public class TeleopTesting {
 //        }
         if (gamepad1.x) {
             blockOffset = blockVision.getBestBlockPos();
+            if (blockOffset != null) {
+                intakeSystem.setHSlidesInches(blockOffset.getY());
+            }
         }
 
 
@@ -253,10 +256,6 @@ public class TeleopTesting {
          */
 
         //limeLight
-        telemetry.addData("block pose", blockOffset);
-        telemetry.addData("res", blockVision.limelight.getLatestResult());
-        telemetry.addData("con", blockVision.limelight.isConnected());
-        telemetry.addData("run", blockVision.limelight.isRunning());
 
 
         telemetry.update();

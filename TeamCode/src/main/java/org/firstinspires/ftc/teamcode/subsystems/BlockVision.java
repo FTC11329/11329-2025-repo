@@ -1,18 +1,15 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import com.qualcomm.hardware.limelightvision.*;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.util.List;
 
 public class BlockVision {
+    RobotSideEnum robotSide;
     public Limelight3A limelight; // Limelight camera instance for vision processing
     //right of robot +X
     //left of robot -X
@@ -24,7 +21,11 @@ public class BlockVision {
     // Constructor to initialize the Limelight camera and set the pipeline
     public BlockVision(HardwareMap hardwareMap, RobotSideEnum robotSide) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.pipelineSwitch(1); // Switch to pipeline 1
+        //0 is yellow
+        //1 is blue
+        //2 is red
+        this.robotSide = robotSide;
+        limelight.start();
     }
 
     /**
@@ -42,12 +43,18 @@ public class BlockVision {
                 double height = 11.4; // Height of the camera in inches
                 int c = 0; // Loop counter
                 double cameraAngle = 60; //degrees from face down
+                double maxExtentionY = 28.0;
 
                 // Iterate to refine the closest block's position
                 while (c <= 4) {
                     double champX = Double.MAX_VALUE; // Temporary best x-distance
                     double champY = Double.MAX_VALUE; // Temporary best y-distance
-
+                    result = getResult();
+                    //checks if new result is good and skips this iteration if not
+                    if (result == null || !result.isValid()) {
+                        c++;
+                        continue;
+                    }
                     List<LLResultTypes.ColorResult> colorResults = result.getColorResults(); // Get color-based detection results
 
                     for (LLResultTypes.ColorResult cr : colorResults) {
@@ -66,7 +73,7 @@ public class BlockVision {
                         double trialX = trialY * Math.tan(x_angle_radians);
 
                         // Check if the block is within a valid range
-                        if (trialY <= 28) {
+                        if (trialY <= maxExtentionY) {
                             if (Math.abs(trialX) < Math.abs(champX)) { // Find the closest block in x-direction
                                 champX = trialX;
                                 champY = trialY;
@@ -91,6 +98,38 @@ public class BlockVision {
             }
         }
         return null; // Return null as a fallback
+    }
+
+    //returns a pose of the best specimen block
+    public Pose getBestSpecimenBlockPos() {
+        if (robotSide == RobotSideEnum.Blue) {
+            limelight.pipelineSwitch(1);
+        } else {
+            limelight.pipelineSwitch(2);
+        }
+        return getBestBlockPos();
+    }
+
+    //returns a pose of the best sample block
+    public Pose getBestSampleBlockPos() {
+        Pose colorBlock;
+        Pose yellowBlock;
+        if (robotSide == RobotSideEnum.Blue) {
+            limelight.pipelineSwitch(1);
+        } else {
+            limelight.pipelineSwitch(2);
+        }
+
+        colorBlock = getBestBlockPos();
+
+        limelight.pipelineSwitch(0);
+        yellowBlock = getBestBlockPos();
+
+        if (colorBlock.getX() < yellowBlock.getX()) {
+            return colorBlock;
+        } else {
+            return yellowBlock;
+        }
     }
 
     /**

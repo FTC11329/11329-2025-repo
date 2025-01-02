@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
@@ -20,8 +22,10 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Sample Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
-public class SampleAuto extends OpMode {
+public class SampleAuto {
+    Telemetry telemetry;
+    HardwareMap hardwareMap;
+    RobotSideEnum robotSide;
 
     Climber climber;
     Follower follower;
@@ -64,7 +68,6 @@ public class SampleAuto extends OpMode {
     private final Pose subIntakeControlPoint = new Pose(-58.5, -12, Math.toRadians(0));
 
     private boolean driveShake = false;
-    private boolean searchSubmersible = false;
     private boolean transferSample = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
@@ -83,13 +86,19 @@ public class SampleAuto extends OpMode {
     private Path intakeSubPath;
     private Path outtakeSubPath;
 
-    @Override
+    public SampleAuto(HardwareMap hardwareMap, Telemetry telemetry, RobotSideEnum robotSide) {
+        this.robotSide = robotSide;
+        this.telemetry = telemetry;
+        this.hardwareMap = hardwareMap;
+    }
+
     public void init() {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
+        blockVision = new BlockVision(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
+        intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
@@ -105,14 +114,12 @@ public class SampleAuto extends OpMode {
         buildPaths();
     }
 
-    @Override
     public void init_loop() {
-//        telemetry.addData("Test Block", blockVision.getBestBlockPos());
+        telemetry.addData("Test Block", blockVision.getBestSampleBlockPos());
     }
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
-    @Override
     public void start() {
         opmodeTimer.resetTimer();
         setPathState(0);
@@ -336,42 +343,33 @@ public class SampleAuto extends OpMode {
                     follower.followPath(intakeSubPath);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(17);
                 }
                 break;
             case 17:
-                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    searchSubmersible = true;
+                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1) {
+                    Pose target = blockVision.getBestSampleBlockPos();
+                    intakeSystem.setHSlidesInches(target.getY());
+                    follower.setBlockError(target.getX());
                     setPathState(18);
                 }
                 break;
             case 18:
-                if (!searchSubmersible && pathTimer.getElapsedTimeSeconds() > .2) {
-                    follower.followPath(outtakeSubPath);
+                follower.runBlockErrorPID();
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(19);
                 }
                 break;
             case 19:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
-                    transferSample = true;
+                follower.runBlockErrorPID();
+                if (intakeSystem.intakeUntil()) {
+                    intakeSystem.storePos();
                     setPathState(20);
                 }
-                break;
-            case 20:
-                if (!transferSample) {
-                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
-                    setPathState(21);
-                }
-            case 21:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(22);
-                }
-                break;
         }
     }
+
     public void setPathState(int pState) {
         pathState = pState;
         pathTimer.resetTimer();
@@ -380,7 +378,7 @@ public class SampleAuto extends OpMode {
         transferState = tState;
         actionTimer.resetTimer();
     }
-    @Override
+
     public void loop() {
 
         // These loop the movements of the robot
@@ -393,15 +391,7 @@ public class SampleAuto extends OpMode {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
             }
         }
-        if (searchSubmersible) {
-            if (intakeSystem.intakeUntil()) {
-               if (Math.round((pathTimer.getElapsedTimeSeconds()) * 2.5) % 2 == 0 ){
-                    driveTrain.drive(0,0, -.5, DriveSpeedEnum.Auto);
-               } else {
-                   driveTrain.drive(0, 0, .5, DriveSpeedEnum.Auto);
-               }
-            }
-        }
+
         // Feedback to FTC Dashboard
         Drawing.drawDebug(follower);
 

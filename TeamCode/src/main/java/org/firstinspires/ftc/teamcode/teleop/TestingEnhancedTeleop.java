@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
@@ -30,6 +31,13 @@ public class TestingEnhancedTeleop extends OpMode {
 
     Follower follower;
     Drivetrain driveTrain;
+
+    //limelight
+    BlockVision blockVision;
+    IntakeSystem intakeSystem;
+    Pose blockOffset = new Pose();
+    double[] test = new double[2];
+    double[] test2 = new double[2];
 
     PIDFController headingPIDF = new PIDFController(FollowerConstants.headingPIDFCoefficients);
     PIDFController xPIDF = new PIDFController(FollowerConstants.translationalPIDFCoefficients);
@@ -60,7 +68,11 @@ public class TestingEnhancedTeleop extends OpMode {
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
 
-        follower.setStartingPose(new Pose(0,-48,Math.toRadians(90)));
+        follower.setStartingPose(new Pose(8.5, -63, Math.toRadians(90)));
+
+        //limelight
+        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Blue);
+        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
     }
 
     public void start() {
@@ -162,7 +174,13 @@ public class TestingEnhancedTeleop extends OpMode {
             sampleDebounce = false;
         }
 
-        follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
+        //limelight
+        if (!gamepad1.y) {
+            follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
+        } else {
+            follower.runBlockErrorPID();
+            intakeSystem.setHSlidesInches(blockOffset.getY());
+        }
         follower.update();
 
         if (gamepad2.ps) {
@@ -186,8 +204,18 @@ public class TestingEnhancedTeleop extends OpMode {
             padButton = PadButton.None;
         }
 
-        telemetry.addData("padButton", padButton);
+        //LIMELIGHT
+        if (gamepad1.x) {
+            blockOffset = blockVision.getBestBlockPos();
+            if (blockOffset != null) {
+                 follower.setBlockError(blockOffset.getX());
 
+            }
+        }
+
+        telemetry.addData("blockOffset", blockOffset);
+        telemetry.addData("pose", currentPose);
+        telemetry.addData("padButton", padButton);
         telemetry.addData("1", gamepad2.touchpad_finger_1);
         telemetry.addData("x", Math.round(gamepad2.touchpad_finger_1_x*100.0)/100.0);
         telemetry.addData("y", Math.round(gamepad2.touchpad_finger_1_y*100.0)/100.0);
