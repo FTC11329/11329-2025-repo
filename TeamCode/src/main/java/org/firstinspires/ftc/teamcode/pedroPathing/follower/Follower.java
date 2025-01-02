@@ -22,7 +22,6 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstan
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.PoseVelocity2d;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -49,10 +48,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
-import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1091,4 +1088,42 @@ public class Follower {
         tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
         return tempPose;
     }
+    private double blockPos = 0;
+
+    public void setBlockError(double blockO) {
+        Pose tempPose = getPose();
+        if (Math.toRadians(225) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(135)) {
+            //north side
+            blockPos = tempPose.getY() + blockO;
+        } else if (Math.toRadians(135) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //east side
+            blockPos = tempPose.getX() + blockO;
+        } else if (tempPose.getHeading() > Math.toRadians(315) || tempPose.getHeading() > Math.toRadians(45)) {
+            //south side
+            blockPos = tempPose.getY() - blockO;
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(225)) {
+            //west side
+            blockPos = tempPose.getX() - blockO;
+        }
+    }
+
+    public void runBlockErrorPID() {
+        Pose tempPose = getPose();
+        if (Math.toRadians(225) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(135)) {
+            //north side
+            translationalPIDF.updateError(getPose().getY() - blockPos);
+        } else if (Math.toRadians(135) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //east side
+            translationalPIDF.updateError(getPose().getX() - blockPos);
+        } else if (tempPose.getHeading() > Math.toRadians(315) || tempPose.getHeading() > Math.toRadians(45)) {
+            //south side
+            translationalPIDF.updateError(getPose().getY() - blockPos);
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(225)) {
+            //west side
+            translationalPIDF.updateError(getPose().getX() - blockPos);
+        }
+        setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), 0);
+    }
+
+
 }

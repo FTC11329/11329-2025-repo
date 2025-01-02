@@ -1,26 +1,33 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.limelightvision.*;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.util.List;
 
 public class BlockVision {
-    private Limelight3A limelight;
+    //right of robot +X
+    //left of robot -X
+    //In front of robot +Y
+
+    private final double cameraXOffset = Math.PI; //close enough
+    private final double cameraYOffset = 1.1;
 
     public BlockVision(HardwareMap hardwareMap, RobotSideEnum robotSide) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         limelight.pipelineSwitch(1);
     }
 
+    public Limelight3A limelight;
+
     //Thanks Adrian
-    public Vector2d getBestBlockPos() {
+    public Pose getBestBlockPos() {
         LLResult result = getResult();
-        Vector2d finalVector = null;
+        Pose finalVector = null;
 
         if (result != null) {
 
@@ -30,7 +37,7 @@ public class BlockVision {
                 double runningMinY = 40000;
 
                 //define constants
-                double height = 10.75;
+                double height = 11.4;
 
                 int c = 0;
 
@@ -73,7 +80,8 @@ public class BlockVision {
                 }
 
                 if ((Math.abs(runningMinY) + Math.abs(runningMinX)) <= 100){
-                    finalVector = new Vector2d(runningMinX, runningMinY);
+                    // returns relative position of the block to front of the robot
+                    finalVector = new Pose(runningMinX - cameraXOffset, runningMinY - cameraYOffset, 0);
                 }
                 return finalVector;
 

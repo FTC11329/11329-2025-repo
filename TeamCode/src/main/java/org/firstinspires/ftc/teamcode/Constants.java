@@ -32,7 +32,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 333;
+        public static int safeTransferSlide = 100;
         public static int minWhileDownPos = 477;
         public static int autoHSlides = 1050;
         public static int intakeSlidePos = 1325;
