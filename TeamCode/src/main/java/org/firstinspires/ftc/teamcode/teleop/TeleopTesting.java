@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -45,6 +46,8 @@ public class TeleopTesting {
     int climberPos = 0;
     int PTOError = 0;
 
+    Pose blockOffset = new Pose();
+
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -64,6 +67,7 @@ public class TeleopTesting {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
+        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Red);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
@@ -125,13 +129,15 @@ public class TeleopTesting {
 //        if (gamepad1.b) {
 //            intakeSystem.storePos();
 //        }
+//        if (gamepad1.x) {
+//            intakeingColor = true;
+//        }
+//        if (gamepad1.y) {
+//            intakeing = true;
+//        }
         if (gamepad1.x) {
-            intakeingColor = true;
+            blockOffset = blockVision.getBestBlockPos();
         }
-        if (gamepad1.y) {
-            intakeing = true;
-        }
-
 
 
         if (gamepad1.left_bumper) {
@@ -245,6 +251,13 @@ public class TeleopTesting {
         telemetry.addData("type", gamepad2.type);
         telemetry.addData("atRest", gamepad2.atRest());
          */
+
+        //limeLight
+        telemetry.addData("block pose", blockOffset);
+        telemetry.addData("res", blockVision.limelight.getLatestResult());
+        telemetry.addData("con", blockVision.limelight.isConnected());
+        telemetry.addData("run", blockVision.limelight.isRunning());
+
 
         telemetry.update();
     }

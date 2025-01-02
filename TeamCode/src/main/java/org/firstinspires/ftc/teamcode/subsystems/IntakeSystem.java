@@ -47,6 +47,9 @@ public class IntakeSystem {
         hSlides.manualPos(power);
     }
 
+    public void setHSlidesInches(double inchesY) {
+        hSlides.setPos((int)(inchesY * 1532.0 / 19.0));
+    }
     public void setHSlidePos(int newPos) {
         hSlides.setPos(newPos);
     }
@@ -197,6 +200,7 @@ public class IntakeSystem {
     public void update() {
         hSlides.update();
     }
+
 
 }
 

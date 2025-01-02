@@ -6,7 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
@@ -34,7 +36,7 @@ public class SampleAuto extends OpMode {
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
-    private int transferState = 0;
+    private int transferState = -1;
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -52,15 +54,17 @@ public class SampleAuto extends OpMode {
     private final Pose intakeSpike1 = new Pose(-55, -53.5, Math.toRadians(75.5));
     private final Pose placeSpike1 = new Pose(-59.98, -54.09, Math.toRadians(74.5));
 
-    private final Pose intakeSpike2 = new Pose(-57.4, -50.9, Math.toRadians(85.5));
+    private final Pose intakeSpike2 = new Pose(-60.4, -51.9, Math.toRadians(85.5));
     private final Pose placeSpike2 = new Pose(-61.7, -53, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-57.67, -52, Math.toRadians(103));
+    private final Pose intakeSpike3 = new Pose(-59.67, -51.5, Math.toRadians(113));
     private final Pose placeSpike3 = new Pose(-58.6, -55, Math.toRadians(55.8));
 
-    private final Pose climb1 = new Pose(0, 0, Math.toRadians(0));
+    private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
+    private final Pose subIntakeControlPoint = new Pose(-58.5, -12, Math.toRadians(0));
 
     private boolean driveShake = false;
+    private boolean searchSubmersible = false;
     private boolean transferSample = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
@@ -76,7 +80,8 @@ public class SampleAuto extends OpMode {
     private Path intakeSpike3Path;
     private Path placeSpike3Path;
 
-    private Path climb1Path;
+    private Path intakeSubPath;
+    private Path outtakeSubPath;
 
     @Override
     public void init() {
@@ -132,61 +137,79 @@ public class SampleAuto extends OpMode {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
-        scorePreload        = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload = follower.linearPathBuilder(startPose, preloadPlace);
 
-        intakeSpike1Path        = follower.linearPathBuilder(preloadPlace, intakeSpike1);
-        placeSpike1Path        = follower.linearPathBuilder(intakeSpike1, placeSpike1);
+        intakeSpike1Path = follower.linearPathBuilder(preloadPlace, intakeSpike1);
+        placeSpike1Path = follower.linearPathBuilder(intakeSpike1, placeSpike1);
 
 
-        intakeSpike2Path        = follower.linearPathBuilder(placeSpike1, intakeSpike2);
-        placeSpike2Path        = follower.linearPathBuilder(intakeSpike2, placeSpike2);
+        intakeSpike2Path = follower.linearPathBuilder(placeSpike1, intakeSpike2);
+        placeSpike2Path = follower.linearPathBuilder(intakeSpike2, placeSpike2);
 
-        intakeSpike3Path        = follower.linearPathBuilder(placeSpike2, placeSpike2);
-        placeSpike3Path        = follower.linearPathBuilder(placeSpike2, placeSpike3);
+        intakeSpike3Path = follower.linearPathBuilder(placeSpike2, intakeSpike3);
+        placeSpike3Path = follower.linearPathBuilder(intakeSpike3, placeSpike3);
 
-        climb1Path      = follower.linearPathBuilder(placeSpike3, climb1);
+        intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subIntakeControlPoint), new Point(subIntake)));
+        intakeSubPath.setTangentHeadingInterpolation();
+
+        outtakeSubPath = new Path(new BezierCurve(new Point(subIntake), new Point(subIntakeControlPoint), new Point(placeSpike3)));
+        outtakeSubPath.setTangentHeadingInterpolation();
     }
-
     public void autonomousPathUpdate() {
         if (transferSample) {
+            telemetry.addData("transfer", transferSample);
+            telemetry.addData("transferState", transferState);
+            telemetry.update();
             switch (transferState) {
-                case 0:
+                case -1:
                     actionTimer.resetTimer();
-                    intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                    transferState = 1;
+                    transferState = 0;
+                    break;
+                case 0:
+                    if (actionTimer.getElapsedTimeSeconds() > .3){
+                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                        setTransferState(1);
+                    }
                     break;
                 case 1:
-                    if (actionTimer.getElapsedTimeSeconds() > .5){
+                    if (actionTimer.getElapsedTimeSeconds() > .3 && intakeSystem.readyToTranfer()){
                         outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                         transferState = 2;
+                        actionTimer.resetTimer();
+                        setTransferState(2);
                     }
                     break;
                 case 2:
-                    if (actionTimer.getElapsedTimeSeconds() > .8){
+                    if (actionTimer.getElapsedTimeSeconds() > .5){
                         intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                         intakeSystem.setIntakePower(0);
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        transferState = 3;
+                        setTransferState(3);
                     }
                     break;
                 case 3:
-                    if (actionTimer.getElapsedTimeSeconds() > 1) {
+                    if (actionTimer.getElapsedTimeSeconds() > .3) {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
-                        transferState = 4;
+                        setTransferState(4);
                     }
                     break;
                 case 4:
-                    if (actionTimer.getElapsedTimeSeconds() > 1.5) {
+                    if (actionTimer.getElapsedTimeSeconds() > .3) {
                         outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
                         outtakeSystem.setArmPos(Constants.Outtake.upArm);
-                        transferState = 5;
+                        setTransferState(5);
                     }
                     break;
                 case 5:
-                    if (actionTimer.getElapsedTimeSeconds() > 1.9) {
+                    if (actionTimer.getElapsedTimeSeconds() > .4 && outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
                         transferSample = false;
+                        actionTimer.resetTimer();
+                        setTransferState(-1);
                     }
             }
+        } else {
+            telemetry.addData("transfer", transferSample);
+            telemetry.update();
         }
         switch (pathState) {
             //go to score preload
@@ -197,8 +220,8 @@ public class SampleAuto extends OpMode {
                 break;
             case 1:
                 if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     setPathState(2);
                 }
                 break;
@@ -209,11 +232,12 @@ public class SampleAuto extends OpMode {
                 }
                 break;
             case 3:
-                if (pathTimer.getElapsedTimeSeconds() > .2){
+                if (pathTimer.getElapsedTimeSeconds() > .3){
                     follower.followPath(intakeSpike1Path);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    driveShake = true;
                     setPathState(4);
                 }
                 break;
@@ -222,11 +246,13 @@ public class SampleAuto extends OpMode {
                     follower.followPath(placeSpike1Path);
                     intakeSystem.storePos();
                     transferSample = true;
+                    driveShake = false;
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!transferSample) {
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     setPathState(6);
                 }
@@ -234,7 +260,6 @@ public class SampleAuto extends OpMode {
             case 6:
                 if (pathTimer.getElapsedTimeSeconds() > .2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(7);
                 }
                 break;
@@ -244,11 +269,13 @@ public class SampleAuto extends OpMode {
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    driveShake = true;
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (intakeSystem.intakeUntil()){
+                    driveShake = false;
                     follower.followPath(placeSpike2Path);
                     intakeSystem.storePos();
                     transferSample = true;
@@ -258,13 +285,13 @@ public class SampleAuto extends OpMode {
             case 9:
                 if (!transferSample) {
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(10);
                 }
                 break;
             case 10:
                 if (pathTimer.getElapsedTimeSeconds() > .2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(11);
                 }
                 break;
@@ -274,11 +301,13 @@ public class SampleAuto extends OpMode {
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    driveShake = true;
                     setPathState(12);
                 }
                 break;
             case 12:
                 if (intakeSystem.intakeUntil()){
+                    driveShake = false;
                     follower.followPath(placeSpike3Path);
                     intakeSystem.storePos();
                     transferSample = true;
@@ -298,9 +327,47 @@ public class SampleAuto extends OpMode {
                 }
                 break;
             case 15:
-                if (pathTimer.getElapsedTimeSeconds() > .3) {
-                    follower.followPath(climb1Path);
+                if (pathTimer.getElapsedTimeSeconds() > .2){
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     setPathState(16);
+                }
+            case 16:
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    follower.followPath(intakeSubPath);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+                    setPathState(17);
+                }
+                break;
+            case 17:
+                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    searchSubmersible = true;
+                    setPathState(18);
+                }
+                break;
+            case 18:
+                if (!searchSubmersible && pathTimer.getElapsedTimeSeconds() > .2) {
+                    follower.followPath(outtakeSubPath);
+                    setPathState(19);
+                }
+                break;
+            case 19:
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    transferSample = true;
+                    setPathState(20);
+                }
+                break;
+            case 20:
+                if (!transferSample) {
+                    outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                    setPathState(21);
+                }
+            case 21:
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(22);
                 }
                 break;
         }
@@ -309,7 +376,10 @@ public class SampleAuto extends OpMode {
         pathState = pState;
         pathTimer.resetTimer();
     }
-
+    public void setTransferState(int tState) {
+        transferState = tState;
+        actionTimer.resetTimer();
+    }
     @Override
     public void loop() {
 
@@ -323,7 +393,15 @@ public class SampleAuto extends OpMode {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
             }
         }
-
+        if (searchSubmersible) {
+            if (intakeSystem.intakeUntil()) {
+               if (Math.round((pathTimer.getElapsedTimeSeconds()) * 2.5) % 2 == 0 ){
+                    driveTrain.drive(0,0, -.5, DriveSpeedEnum.Auto);
+               } else {
+                   driveTrain.drive(0, 0, .5, DriveSpeedEnum.Auto);
+               }
+            }
+        }
         // Feedback to FTC Dashboard
         Drawing.drawDebug(follower);
 
