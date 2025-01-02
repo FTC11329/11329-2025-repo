@@ -16,7 +16,7 @@ public class Constants {
         public static double servoClimb = 0.475;
         public static double speed = 1;
 
-        public static int motorClimb = 1100;
+        public static int motorClimb = 900;
         public static int motorDrop = 0;
 
         public static double p = 0.03;

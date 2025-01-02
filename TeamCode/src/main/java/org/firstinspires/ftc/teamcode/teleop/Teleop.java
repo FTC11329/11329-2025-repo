@@ -218,7 +218,7 @@ public class Teleop {
                 driveTrain.setPTOPos(Constants.PTO.motorClimb);
                 climbL2P1 = true;
             }
-            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 50) {
+            if (climbL2P1 && driveTrain.getPTOPos() > driveTrain.getPTOTPos() - 100) {
                 climbL2P1 = false;
                 climberPos = Constants.Climber.inPos;
                 climbL2P2 = true;
@@ -549,6 +549,8 @@ public class Teleop {
         telemetry.addData("2", climbL2P1);
         telemetry.addData("3", climbL2P2);
         telemetry.addData("pos", climberPos);
+        telemetry.addData("pto Pos", driveTrain.getPTOPos());
+        telemetry.addData("PtoTpos", driveTrain.getPTOTPos());
         telemetry.addData("","");
         telemetry.addData("Vslidepos", outtakeSystem.getVSlidePos());
         telemetry.addData("VslideTpos", outtakeSystem.getVSlideTargetPos());

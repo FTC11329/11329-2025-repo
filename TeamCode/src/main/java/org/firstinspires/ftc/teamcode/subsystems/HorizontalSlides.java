@@ -42,9 +42,6 @@ public class HorizontalSlides {
         if (lastSlidePos != newPos && newPos < Constants.Intake.maxSlidePos) {
             lastSlidePos  = newPos;
             slideMotor.setTargetPosition(newPos);
-        } else {
-            lastSlidePos  = Constants.Intake.maxSlidePos;
-            slideMotor.setTargetPosition(lastSlidePos);
         }
     }
 
