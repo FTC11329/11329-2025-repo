@@ -67,6 +67,7 @@ public class SampleAuto {
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
     private final Pose subIntakeControlPoint = new Pose(-58.5, -12, Math.toRadians(0));
 
+    private Pose target = new Pose();
     private boolean driveShake = false;
     private boolean transferSample = false;
 
@@ -249,7 +250,7 @@ public class SampleAuto {
                 }
                 break;
             case 4:
-                if (intakeSystem.intakeUntil()){
+                if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > 2){
                     follower.followPath(placeSpike1Path);
                     intakeSystem.storePos();
                     transferSample = true;
@@ -281,7 +282,7 @@ public class SampleAuto {
                 }
                 break;
             case 8:
-                if (intakeSystem.intakeUntil()){
+                if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > 2){
                     driveShake = false;
                     follower.followPath(placeSpike2Path);
                     intakeSystem.storePos();
@@ -313,7 +314,7 @@ public class SampleAuto {
                 }
                 break;
             case 12:
-                if (intakeSystem.intakeUntil()){
+                if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > 2){
                     driveShake = false;
                     follower.followPath(placeSpike3Path);
                     intakeSystem.storePos();
@@ -348,7 +349,7 @@ public class SampleAuto {
                 break;
             case 17:
                 if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1) {
-                    Pose target = blockVision.getBestSampleBlockPos();
+                    target = blockVision.getBestSampleBlockPos();
                     intakeSystem.setHSlidesInches(target.getY());
                     follower.setBlockError(target.getX());
                     setPathState(18);
@@ -380,7 +381,6 @@ public class SampleAuto {
     }
 
     public void loop() {
-
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
@@ -396,6 +396,7 @@ public class SampleAuto {
         Drawing.drawDebug(follower);
 
         // Feedback to Driver Hub
+        telemetry.addData("target", target);
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());

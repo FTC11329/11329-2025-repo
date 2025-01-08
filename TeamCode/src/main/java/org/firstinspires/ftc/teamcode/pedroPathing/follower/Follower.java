@@ -1095,19 +1095,19 @@ public class Follower {
         double temp = -1;
         if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
             //north side
-            blockPos = tempPose.getY() + blockO;
+            blockPos = tempPose.getY() - blockO;
             temp = 0;
         } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
             //east side
-            blockPos = tempPose.getX() + blockO;
+            blockPos = tempPose.getX() - blockO;
             temp = 1;
         } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
             //south side
-            blockPos = tempPose.getY() - blockO;
+            blockPos = tempPose.getY() + blockO;
             temp = 2;
         } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
             //west side
-            blockPos = tempPose.getX() - blockO;
+            blockPos = tempPose.getX() + blockO;
             temp = 3;
         }
         return new double[]{temp, blockPos};
@@ -1118,17 +1118,23 @@ public class Follower {
         if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
             //north side
             translationalPIDF.updateError(getPose().getY() - blockPos);
+            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+
         } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
             //east side
             translationalPIDF.updateError(getPose().getX() - blockPos);
+            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+
         } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
             //south side
             translationalPIDF.updateError(getPose().getY() + blockPos);
+            setTeleOpMovementVectors(0, -translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+
         } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
             //west side
             translationalPIDF.updateError(getPose().getX() + blockPos);
+            setTeleOpMovementVectors(0, -translationalPIDF.runPIDF(), headingPIDF.runPIDF());
         }
-        setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), 0);
         return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
     }
 

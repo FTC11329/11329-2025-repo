@@ -26,6 +26,7 @@ public class BlockVision {
         //2 is red
         this.robotSide = robotSide;
         limelight.start();
+        limelight.pipelineSwitch(0);
     }
 
     /**
@@ -124,6 +125,17 @@ public class BlockVision {
 
         limelight.pipelineSwitch(0);
         yellowBlock = getBestBlockPos();
+
+        if (colorBlock == null) {
+            if (yellowBlock == null) {
+                return null;
+            } else {
+                return yellowBlock;
+            }
+        }
+        if (yellowBlock == null) {
+            return colorBlock;
+        }
 
         if (colorBlock.getX() < yellowBlock.getX()) {
             return colorBlock;

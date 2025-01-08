@@ -537,6 +537,9 @@ public class Teleop {
             intakeSystem.setIntakePower(0);
         }
 
+
+        intakeSystem.update();
+        outtakeSystem.update();
         telemetry.addData("sample", hasSample);
         telemetry.addData("hasColor", hasColor);
         telemetry.addData("specimen", hasSpecimen);

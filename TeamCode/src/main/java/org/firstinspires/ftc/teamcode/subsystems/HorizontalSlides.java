@@ -58,9 +58,14 @@ public class HorizontalSlides {
 
     public void update() {
         touched = touchSensor.isPressed();
+        if (touched) {
+            lastSlidePos = 0;
+        }
         if (touched && !lastPressed) {
             slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            lastSlidePos = 0;
+            slideMotor.setTargetPosition(0);
         }
         lastPressed = touchSensor.isPressed();
     }

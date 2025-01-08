@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@TeleOp(name = "Tele-op enhansed", group = " Comp mode")
+@TeleOp(name = "Tele-op enhansed Blue", group = " Comp mode")
 public class TestingEnhancedTeleop extends OpMode {
     ElapsedTime time = new ElapsedTime();
 
@@ -179,7 +179,7 @@ public class TestingEnhancedTeleop extends OpMode {
             follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
             follower.runBlockErrorPID();
-            intakeSystem.setHSlidesInches(blockOffset.getY());
+//            intakeSystem.setHSlidesInches(blockOffset.getY());
         }
         follower.update();
 
@@ -208,11 +208,12 @@ public class TestingEnhancedTeleop extends OpMode {
         if (gamepad1.x) {
             blockOffset = blockVision.getBestBlockPos();
             if (blockOffset != null) {
-                 follower.setBlockError(blockOffset.getX());
-
+                 test = follower.setBlockError(blockOffset.getX());
             }
         }
-
+        for (double t : test) {
+            telemetry.addData("t", t);
+        }
         telemetry.addData("blockOffset", blockOffset);
         telemetry.addData("pose", currentPose);
         telemetry.addData("padButton", padButton);
