@@ -178,7 +178,8 @@ public class TestingEnhancedTeleop extends OpMode {
         if (!gamepad1.y) {
             follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
-            follower.runBlockErrorPID();
+            // when changing the other code I messed this part up
+//            follower.runBlockErrorPID();
 //            intakeSystem.setHSlidesInches(blockOffset.getY());
         }
         follower.update();
@@ -208,7 +209,7 @@ public class TestingEnhancedTeleop extends OpMode {
         if (gamepad1.x) {
             blockOffset = blockVision.getBestBlockPos();
             if (blockOffset != null) {
-                 test = follower.setBlockError(blockOffset.getX());
+                 test = follower.runBlockErrorPID(blockOffset.getX());
             }
         }
         for (double t : test) {

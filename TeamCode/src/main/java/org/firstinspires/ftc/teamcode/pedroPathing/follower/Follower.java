@@ -17,12 +17,11 @@ import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstan
 import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.translationalPIDFSwitch;
 import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.useSecondaryDrivePID;
 import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.useSecondaryHeadingPID;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import static org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants.useSecondaryTranslationalPID;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -1088,54 +1087,31 @@ public class Follower {
         tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
         return tempPose;
     }
-    private double blockPos = 0;
 
-    public double[] setBlockError(double blockO) {
-        Pose tempPose = getPose();
-        double temp = -1;
-        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
-            //north side
-            blockPos = tempPose.getY() - blockO;
-            temp = 0;
-        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
-            //east side
-            blockPos = tempPose.getX() - blockO;
-            temp = 1;
-        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
-            //south side
-            blockPos = tempPose.getY() + blockO;
-            temp = 2;
-        } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
-            //west side
-            blockPos = tempPose.getX() + blockO;
-            temp = 3;
-        }
-        return new double[]{temp, blockPos};
-    }
-
-    public double[] runBlockErrorPID() {
+    // Strafes to the block position
+    public double[] runBlockErrorPID(double blockO) {
         Pose tempPose = getPose();
         if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
             //north side
-            translationalPIDF.updateError(getPose().getY() - blockPos);
+            translationalPIDF.updateError(blockO); // Note to check with allen that I get this
             setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
 
         } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
             //east side
-            translationalPIDF.updateError(getPose().getX() - blockPos);
+            translationalPIDF.updateError(blockO);
             setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
 
         } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
             //south side
-            translationalPIDF.updateError(getPose().getY() + blockPos);
-            setTeleOpMovementVectors(0, -translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+            translationalPIDF.updateError(-blockO);
+            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF()); // I removed the negative signs because I don't get it
 
         } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
             //west side
-            translationalPIDF.updateError(getPose().getX() + blockPos);
-            setTeleOpMovementVectors(0, -translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+            translationalPIDF.updateError(-blockO);
+            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
         }
-        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
+        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()}; // what does this do
     }
 
 

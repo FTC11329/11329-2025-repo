@@ -351,19 +351,19 @@ public class SampleAuto {
                 if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1) {
                     target = blockVision.getBestSampleBlockPos();
                     intakeSystem.setHSlidesInches(target.getY());
-                    follower.setBlockError(target.getX());
+                    follower.runBlockErrorPID(target.getX());
                     setPathState(18);
                 }
                 break;
             case 18:
-                follower.runBlockErrorPID();
+//                follower.runBlockErrorPID();
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(19);
                 }
                 break;
             case 19:
-                follower.runBlockErrorPID();
+//                follower.runBlockErrorPID();
                 if (intakeSystem.intakeUntil()) {
                     intakeSystem.storePos();
                     setPathState(20);
