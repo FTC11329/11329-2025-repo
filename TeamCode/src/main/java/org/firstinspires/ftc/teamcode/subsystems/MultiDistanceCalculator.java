@@ -1,5 +1,6 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.subsystems;
 
+import java.util.Arrays;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
 import java.util.List;
 
@@ -45,10 +47,10 @@ public class MultiDistanceCalculator {
 
                 //Creating a 3d array to store the distances of each block for comparison
                 double[][][] distanceArray;
-                distanceArray = new double[2][7][5];
+                distanceArray = new double[2][5][5];
 
                 int c = 0;
-                while (c <= 5) {
+                while (c <= 4) {
                     int blockNum = 0;
                     List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
 
@@ -75,7 +77,7 @@ public class MultiDistanceCalculator {
                 }
 
                 // Call the method to find the smallest non-zero values
-                double[][] finalResult = findSmallestNonZeroInColumns(distanceArray);
+                double[][] finalResult = findSmallestNonZeroInEachPlane(distanceArray);
 
                 //find the closest non-zero distance block
                 double[] finalValue = findSmallestNonZeroInFinalResult(finalResult);
@@ -83,53 +85,66 @@ public class MultiDistanceCalculator {
                 return finalValue;
 
             }
-        } 
+        }
         return null;
     }
+    public static double[][] findSmallestNonZeroInEachPlane(double[][][] distanceArray) {
+        int planes = distanceArray.length;
+        int rows = distanceArray[0].length;
+        int columns = distanceArray[0][0].length;
 
-    public static double[][] findSmallestNonZeroInColumns(double[][][] distanceArray) {
-        int rows = distanceArray[1].length; // Number of rows in distanceArray[1]
-        int columns = distanceArray[1][0].length; // Number of columns in distanceArray[1]
+        // Array to store the smallest coordinates for each plane
+        double[][] smallestCoordinates = new double[planes][columns];
 
-        // Initialize the result array
-        double[][] smallestValues = new double[columns][2]; // [][0] for distanceArray[1], [][1] for distanceArray[0]
+        // Iterate through each plane
+        for (int p = 0; p < planes; p++) {
+            for (int c = 0; c < columns; c++) {
+                double smallestValue = Double.MAX_VALUE;
+                double correspondingX = 0.0; // X-coordinate for smallest value
+                double correspondingY = 0.0; // Y-coordinate for smallest value
 
-        // Iterate through each column
-        for (int c = 0; c < columns; c++) {
-            double smallestNonZero = Double.MAX_VALUE; // Start with a very large value
-            double correspondingValue = 0; // To store the value from distanceArray[0][x][c]
+                // Iterate through each row in the plane
+                for (int r = 0; r < rows; r++) {
+                    double value = distanceArray[p][r][c];
 
-            // Iterate through each row in the column
-            for (int x = 0; x < rows; x++) {
-                double value = distanceArray[1][x][c];
-
-                // Check if the value is non-zero and smaller than the current smallest
-                if (value > 0 && value < smallestNonZero) {
-                    smallestNonZero = value;
-                    correspondingValue = distanceArray[0][x][c];
+                    if (value > 0 && value < smallestValue) {
+                        smallestValue = value;
+                        correspondingX = distanceArray[p][r][0]; // Assuming X is in column 0
+                        correspondingY = distanceArray[p][r][1]; // Assuming Y is in column 1
+                    }
                 }
-            }
 
-            // If no non-zero value was found, set to 0
-            smallestValues[c][1] = (smallestNonZero == Double.MAX_VALUE) ? 0 : smallestNonZero;
-            smallestValues[c][0] = (smallestNonZero == Double.MAX_VALUE) ? 0 : correspondingValue;
+                // Store the smallest value and its coordinates for this plane
+                smallestCoordinates[p][c] = smallestValue;
+            }
         }
 
-        return smallestValues;
+        return smallestCoordinates;
     }
 
     public static double[] findSmallestNonZeroInFinalResult(double[][] result) {
-        //to sort the result of the first sort lol
-        int columns = result.length;
-        double[] smallestInResult = new double[columns];
-
-        for (int c = 0; c < columns; c++) {
-            smallestInResult[c] = result[c][0] > 0 ? result[c][0] : Double.MAX_VALUE;
+        // Sort the array by smallest values
+        Arrays.sort(result, (a, b) -> Double.compare(a[0], b[0]));
+        System.out.println("Sorted result:");
+        for (double[] row : result) {
+            System.out.println(Arrays.toString(row));
         }
 
-        return smallestInResult;
-    }
+        // Remove the first and last values
+        double[][] trimmedResult = Arrays.copyOfRange(result, 1, result.length - 1);
 
+        // Check if the coordinates are within 3 units and return the result
+        double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[2][0]);
+        double yDiff = Math.abs(trimmedResult[0][1] - trimmedResult[2][1]);
+
+        if (xDiff <= 3 && yDiff <= 3) {
+            double avgX = (trimmedResult[0][0] + trimmedResult[1][0]) / 2;
+            double avgY = (trimmedResult[0][1] + trimmedResult[1][1]) / 2;
+            return new double[]{avgX, avgY};
+        } else {
+            return trimmedResult[1]; // Return the middle value
+        }
+    }
 
     public void stopLimelight() {
         limelight.stop();
