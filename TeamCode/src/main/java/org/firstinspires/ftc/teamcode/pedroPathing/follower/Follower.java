@@ -1088,31 +1088,31 @@ public class Follower {
         return tempPose;
     }
 
-    // Strafes to the block position
-    public double[] runBlockErrorPID(double blockO) {
+
+    public double[] followYourHeart(double blockO) {
         Pose tempPose = getPose();
+        // just initialized
+        Path cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - 3, tempPose.getHeading()));
         if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
             //north side
-            translationalPIDF.updateError(blockO); // Note to check with allen that I get this
-            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + blockO, tempPose.getHeading()));
 
         } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
             //east side
-            translationalPIDF.updateError(blockO);
-            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + blockO, tempPose.getY(), tempPose.getHeading()));
 
         } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
             //south side
-            translationalPIDF.updateError(-blockO);
-            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF()); // I removed the negative signs because I don't get it
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - blockO, tempPose.getHeading()));
 
         } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
             //west side
-            translationalPIDF.updateError(-blockO);
-            setTeleOpMovementVectors(0, translationalPIDF.runPIDF(), headingPIDF.runPIDF());
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
         }
-        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()}; // what does this do
+        followPath(cameraSearchPath);
+        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
     }
+
 
 
 }

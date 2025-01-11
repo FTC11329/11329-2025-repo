@@ -3,25 +3,17 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.R;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
-import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
-import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
-import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PadButton;
-import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
@@ -179,8 +171,8 @@ public class TestingEnhancedTeleop extends OpMode {
             follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
             // when changing the other code I messed this part up
-//            follower.runBlockErrorPID();
-//            intakeSystem.setHSlidesInches(blockOffset.getY());
+            follower.followYourHeart(blockOffset.getX());
+            intakeSystem.setHSlidesInches(blockOffset.getY());
         }
         follower.update();
 
@@ -203,14 +195,12 @@ public class TestingEnhancedTeleop extends OpMode {
             }
         } else {
             padButton = PadButton.None;
+
         }
 
         //LIMELIGHT
         if (gamepad1.x) {
-            blockOffset = blockVision.getBestBlockPos();
-            if (blockOffset != null) {
-                 test = follower.runBlockErrorPID(blockOffset.getX());
-            }
+            blockOffset = blockVision.getBestSampleBlockPos();
         }
         for (double t : test) {
             telemetry.addData("t", t);

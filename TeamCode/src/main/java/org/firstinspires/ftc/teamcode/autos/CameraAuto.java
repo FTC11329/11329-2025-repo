@@ -9,9 +9,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -20,10 +18,9 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
-import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
+@Autonomous(name = "Camera Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
 public class CameraAuto extends OpMode {
 
     Climber climber;
@@ -52,13 +49,15 @@ public class CameraAuto extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose subIntake = new Pose(8, -34, Math.toRadians(90));
+    private final Pose subIntake = new Pose(4, -31, Math.toRadians(90));
 
     private final Pose placeSub1 = new Pose(6, -34, Math.toRadians(90));
 
     private final Pose spitBlock = new Pose(31, -53, Math.toRadians(-35));
 
     private final Pose park = new Pose(63.75, -64.3, Math.toRadians(90));
+
+    Pose target;
 
     private boolean driveShake = false;
 
@@ -78,9 +77,9 @@ public class CameraAuto extends OpMode {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Auto);
+        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Blue);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
+        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem = new OuttakeSystem(hardwareMap);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
@@ -131,10 +130,10 @@ public class CameraAuto extends OpMode {
         firstIntakePath        = follower.linearPathBuilder(startPose, subIntake);
 
         //frontWallToWall
-        spitBlockPath = new Path(new BezierCurve(new Point(subIntake), new Point(spitBlock), new Point(startPose), new Point(placeSub1)));
+        spitBlockPath = new Path(new BezierCurve(new Point(subIntake), new Point(startPose), new Point(placeSub1)));
         spitBlockPath.setConstantHeadingInterpolation(subIntake.getHeading());
 
-        extraIntakePath = new Path(new BezierCurve(new Point(spitBlock), new Point(subIntake), new Point(startPose), new Point(placeSub1)));
+        extraIntakePath = new Path(new BezierCurve(new Point(spitBlock), new Point(startPose), new Point(subIntake)));
         extraIntakePath.setConstantHeadingInterpolation(spitBlock.getHeading());
     }
 
@@ -145,31 +144,31 @@ public class CameraAuto extends OpMode {
         switch (pathState) {
             case 0:
                 // drive to the sub
-                follower.followPath(firstIntakePath);
+                follower.setMaxPower(1);
+                follower.followPath(firstIntakePath, false);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
                 setPathState(1);
                 break;
             case 1:
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1) {
+                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3) {
                     //camera takes photo and starts intake
-                    Pose target;
-                    target = blockVision.getBestSampleBlockPos();
+                    target = blockVision.getBestSpecimenBlockPos();
                     intakeSystem.setHSlidesInches(target.getY());
-                    follower.runBlockErrorPID(target.getX());
-
+                    follower.followYourHeart(target.getX());
                     driveShake = true; //updated so that there is a longer delay
                     setPathState(2);
                 }
                 break;
             case 2:
                 //puts the wrist down after the slides are in the sub
-                if (pathTimer.getElapsedTimeSeconds() >.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(3);
                 }
                 break;
             case 3:
                 // intakes and moves to store pos
-                if (intakeSystem.intakeUntil()) {
+                if (intakeSystem.intakeUntilColor()) {
                     driveShake = false;
                     intakeSystem.storePos();
                     setPathState(4);
@@ -193,7 +192,7 @@ public class CameraAuto extends OpMode {
         follower.update();
         autonomousPathUpdate();
         if (driveShake && pathTimer.getElapsedTimeSeconds() > 2.5) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 0.9) * 2.5) % 2 == 0 ){
+            if (Math.round((pathTimer.getElapsedTimeSeconds() - 2.5) * 2.5) % 2 == 0 ){
                 driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
             } else {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
@@ -208,7 +207,13 @@ public class CameraAuto extends OpMode {
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
         telemetry.addData("heading", follower.getPose().getHeading());
+        if (target != null) {
+            telemetry.addData("targetx", target.getX());
+            telemetry.addData("targety", target.getY());
+            telemetry.addData("targeth", target.getHeading());
+        }
         telemetry.update();
+
     }
 
     /** We do not use this because everything should automatically disable **/

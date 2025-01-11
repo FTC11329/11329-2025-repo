@@ -43,11 +43,11 @@ public class BlockVision {
                 double runningMinY = Double.MAX_VALUE; // Initialize running minimum y-distance
                 double height = 11.4; // Height of the camera in inches
                 int c = 0; // Loop counter
-                double cameraAngle = 60; //degrees from face down
+                double cameraAngle = 58; //degrees from face down
                 double maxExtentionY = 28.0;
 
                 // Iterate to refine the closest block's position
-                while (c <= 4) {
+                while (c <= 1) {
                     double champX = Double.MAX_VALUE; // Temporary best x-distance
                     double champY = Double.MAX_VALUE; // Temporary best y-distance
                     result = getResult();
