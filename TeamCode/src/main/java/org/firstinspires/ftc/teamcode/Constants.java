@@ -45,9 +45,10 @@ public class Constants {
 
         public static double intakeSpeed = 1;
         public static double transferSpeed = 0.5;
-        public static double unjamSpeed = -0.5; //Todo: set
+        public static double unjamSpeed = -0.7; //Todo: set
         public static double spitSpeed = -0.75; //Todo: set
         public static int bitMore = 80;
+        public static double unjamTimeMillis = 350;
     }
 
     @Config

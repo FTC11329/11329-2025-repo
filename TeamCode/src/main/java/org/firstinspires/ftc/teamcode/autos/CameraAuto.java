@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
+import org.firstinspires.ftc.teamcode.subsystems.MultiDistanceCalculator;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
@@ -30,6 +31,7 @@ public class CameraAuto extends OpMode {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
+    MultiDistanceCalculator multiDistanceCalculator;
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
@@ -81,6 +83,7 @@ public class CameraAuto extends OpMode {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem = new OuttakeSystem(hardwareMap);
+        multiDistanceCalculator = new MultiDistanceCalculator(hardwareMap);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
 
@@ -152,11 +155,17 @@ public class CameraAuto extends OpMode {
             case 1:
                 if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3) {
                     //camera takes photo and starts intake
-                    target = blockVision.getBestSpecimenBlockPos();
-                    intakeSystem.setHSlidesInches(target.getY());
-                    follower.followYourHeart(target.getX());
-                    driveShake = true; //updated so that there is a longer delay
-                    setPathState(2);
+                    target = blockVision.getBestBlockPos();
+                    if (target != null) {
+                        intakeSystem.setHSlidesInches(target.getY());
+                        follower.followYourHeart(target.getX());
+                        driveShake = true; //updated so that there is a longer delay
+                        setPathState(2);
+                    } else {
+                        telemetry.addData("","No Blocks Found");
+                        telemetry.update();
+                    }
+
                 }
                 break;
             case 2:

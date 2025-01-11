@@ -15,18 +15,19 @@ import java.util.List;
 
 public class MultiDistanceCalculator {
 
-    private Telemetry telemetry;
     private Limelight3A limelight;
 
-    public MultiDistanceCalculator(HardwareMap hardwareMap, Telemetry telemetry) {
+    private final double cameraYOffset = 1.1;
+    private final double cameraXOffset = Math.PI; //close enough
+
+    public MultiDistanceCalculator(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         // 0 is yellow; 1 is blue; 2 is red
         limelight.pipelineSwitch(1);
         limelight.start();
-        this.telemetry = telemetry;
     }
 
-    public double[] getBlockPosition() {
+    public Pose getBlockPosition() {
 
         LLResult result = limelight.getLatestResult();
 
@@ -66,8 +67,8 @@ public class MultiDistanceCalculator {
                             double distanceX = (distanceY * (Math.tan(trialAngleX)));
                             if (distanceX <= xMaxTurn) {
                                 //store the distance to the array
-                                distanceArray[0][blockNum][c] = distanceX;
-                                distanceArray[1][blockNum][c] = distanceY;
+                                distanceArray[0][blockNum][c] = distanceX - cameraXOffset;
+                                distanceArray[1][blockNum][c] = distanceY - cameraYOffset;
                             }
                         }
                         blockNum++;
@@ -81,9 +82,9 @@ public class MultiDistanceCalculator {
 
                 //find the closest non-zero distance block
                 double[] finalValue = findSmallestNonZeroInFinalResult(finalResult);
+                Pose finalVector = new Pose((finalValue[0] - cameraXOffset), (finalValue[1] - cameraYOffset),0.0);
 
-                return finalValue;
-
+                return finalVector;
             }
         }
         return null;
@@ -100,17 +101,12 @@ public class MultiDistanceCalculator {
         for (int p = 0; p < planes; p++) {
             for (int c = 0; c < columns; c++) {
                 double smallestValue = Double.MAX_VALUE;
-                double correspondingX = 0.0; // X-coordinate for smallest value
-                double correspondingY = 0.0; // Y-coordinate for smallest value
 
                 // Iterate through each row in the plane
                 for (int r = 0; r < rows; r++) {
                     double value = distanceArray[p][r][c];
-
                     if (value > 0 && value < smallestValue) {
                         smallestValue = value;
-                        correspondingX = distanceArray[p][r][0]; // Assuming X is in column 0
-                        correspondingY = distanceArray[p][r][1]; // Assuming Y is in column 1
                     }
                 }
 
@@ -125,17 +121,13 @@ public class MultiDistanceCalculator {
     public static double[] findSmallestNonZeroInFinalResult(double[][] result) {
         // Sort the array by smallest values
         Arrays.sort(result, (a, b) -> Double.compare(a[0], b[0]));
-        System.out.println("Sorted result:");
-        for (double[] row : result) {
-            System.out.println(Arrays.toString(row));
-        }
 
         // Remove the first and last values
         double[][] trimmedResult = Arrays.copyOfRange(result, 1, result.length - 1);
 
         // Check if the coordinates are within 3 units and return the result
-        double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[2][0]);
-        double yDiff = Math.abs(trimmedResult[0][1] - trimmedResult[2][1]);
+        double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[0][2]);
+        double yDiff = Math.abs(trimmedResult[1][0] - trimmedResult[1][2]);
 
         if (xDiff <= 3 && yDiff <= 3) {
             double avgX = (trimmedResult[0][0] + trimmedResult[1][0]) / 2;

@@ -17,6 +17,9 @@ public class IntakeSystem {
     boolean intakeOnce = false;
     double intakeTime = 2000000000;
 
+    boolean unjamOnce = false;
+    double unJamTime = 2000000000;
+
     public IntakeClaw intakeClaw;
     private HorizontalSlides hSlides;
     private RevColorSensorV3 intakeSensor;
@@ -35,13 +38,18 @@ public class IntakeSystem {
     }
 
     public void setIntakePower(double newIntakePower) {
-        intakeClaw.setIntakePower(newIntakePower);
+        if (!isJammed()) {
+            intakeClaw.setIntakePower(newIntakePower);
+        }
     }
 
     public void setIntakeServoPos(double newPos) {
         intakeClaw.setIntakeServoPos(newPos);
     }
 
+    public boolean isJammed() {
+        return intakeClaw.isJammed();
+    }
 
     public void manualHSlide(double power) {
         hSlides.manualPos(power);
@@ -110,54 +118,62 @@ public class IntakeSystem {
     }
 
     public boolean intakeUntilColor() {
-        setIntakePower(Constants.Intake.intakeSpeed);
-        if (robotSide == RobotSideEnum.Blue) {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
-                setIntakePower(0);
-                return true;
+        if (!isJammed()) {
+            setIntakePower(Constants.Intake.intakeSpeed);
+            if (robotSide == RobotSideEnum.Blue) {
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (robotSide == RobotSideEnum.Red) {
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
-            }
-        } else if (robotSide == RobotSideEnum.Red) {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } else {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
     public boolean intakeUntil() {
-        setIntakePower(Constants.Intake.intakeSpeed);
-        if (robotSide == RobotSideEnum.Blue) {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                setIntakePower(0);
-                return true;
+        if (!isJammed()) {
+            setIntakePower(Constants.Intake.intakeSpeed);
+            if (robotSide == RobotSideEnum.Blue) {
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.blue || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (robotSide == RobotSideEnum.Red) {
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
-            }
-        } else if (robotSide == RobotSideEnum.Red) {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.red || ColorFunctions.toColor(intakeSensor.getNormalizedColors()) == ColorEnum.yellow) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
+                if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
+                    setIntakePower(0);
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } else {
-            if (ColorFunctions.toColor(intakeSensor.getNormalizedColors()) != ColorEnum.empty) {
-                setIntakePower(0);
-                return true;
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -198,6 +214,18 @@ public class IntakeSystem {
     }
 
     public void update() {
+//        if (isJammed() && !unjamOnce) {
+//            setIntakePower(Constants.Intake.unjamSpeed);
+//            unJamTime = time.milliseconds();
+//            unjamOnce = true;
+//        }
+        if (isJammed()) {
+            intakeClaw.setIntakePower(Constants.Intake.unjamSpeed);
+        }
+//        if (unjamOnce && !isJammed() && time.milliseconds() > unJamTime + Constants.Intake.unjamTimeMillis) {
+//            setIntakePower(0);
+//            unjamOnce = false;
+//        }
         hSlides.update();
     }
 

@@ -6,13 +6,19 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 
 public class IntakeClaw {
-    DcMotor intakeMotor;
+    ElapsedTime time = new ElapsedTime();
+
+    public DcMotorEx intakeMotor;
     double lastIntakePower = 0;
+    double startJamTime;
+    boolean overCurrentDe = false;
 
     Servo intakeServo;
     double lastWristPos = 0;
@@ -20,6 +26,8 @@ public class IntakeClaw {
     public IntakeClaw(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
+
+        intakeMotor.setCurrentAlert(2.5, CurrentUnit.AMPS);
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -29,7 +37,21 @@ public class IntakeClaw {
 
         intakeServo.setPosition(0);
     }
+    //chackes if it has been jammed for more than a certain amoun of time
+    public boolean isJammed() {
+        boolean jamBool = intakeMotor.isOverCurrent();
 
+        if (jamBool && !overCurrentDe) {
+            startJamTime = time.milliseconds();
+            overCurrentDe = true;
+        } else if (!jamBool) {
+            overCurrentDe = false;
+        }
+        if (jamBool && time.milliseconds() > startJamTime + 500) {
+            return true;
+        }
+        return false;
+    }
     public void setIntakePower(double newIntakePower) {
         if (lastIntakePower != newIntakePower) {
             intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);

@@ -52,7 +52,6 @@ public class VerticalSlides {
         return slideMotor.getCurrentPosition();
     }
 
-
     public boolean nearlyTuchyWuchyed() {
         return touchSensor.isPressed();
     }

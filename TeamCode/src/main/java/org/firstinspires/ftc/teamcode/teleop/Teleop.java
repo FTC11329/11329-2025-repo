@@ -338,7 +338,7 @@ public class Teleop {
             if (elapsedTime.milliseconds() < unjamTime + 50) {
                 intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
             }
-            if (elapsedTime.milliseconds() > unjamTime + 350) {
+            if (elapsedTime.milliseconds() > unjamTime + Constants.Intake.unjamTimeMillis) {
                 if (intakeSystem.intakeUntilColor() || elapsedTime.milliseconds() > unjamTime + 1000) {
                     unjammingIntake = false;
                     unjamTime = 2000000000;

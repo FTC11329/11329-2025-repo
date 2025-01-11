@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
@@ -161,6 +162,10 @@ public class TeleopTesting {
         if (gamepad1.dpad_down && !powerTakeOff.isEnabled()) {
             outtakeSystem.storePos();
         }
+        intakeSystem.setIntakePower(gamepad2.right_trigger);
+        telemetry.addData("unjam", intakeSystem.isJammed());
+        telemetry.addData("current", intakeSystem.intakeClaw.intakeMotor.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("power", intakeSystem.intakeClaw.intakeMotor.getPower());
 
         //intaking loop
         if (intakeing) {
@@ -177,8 +182,8 @@ public class TeleopTesting {
                 intakeingColor = false;
             }
         }
-        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
-//        testValue += 0.003 * (gamepad1.right_trigger - gamepad1.left_trigger);
+//        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
+//        testValue += 0.003 * (gamepad2.right_trigger - gamepad2.left_trigger);
         testValue2 += 5 * (gamepad2.left_stick_y);
         testValue3 += 0.003 * (gamepad2.right_stick_y);
 
@@ -258,6 +263,8 @@ public class TeleopTesting {
         //limeLight
 
 
+        intakeSystem.update();
+        outtakeSystem.update();
         telemetry.update();
     }
 
