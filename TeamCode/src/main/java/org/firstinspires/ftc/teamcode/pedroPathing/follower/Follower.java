@@ -1113,6 +1113,15 @@ public class Follower {
         return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
     }
 
+    public double[] followYourHead(double blockO) {
+        Pose tempPose = getPose();
+        // just initialized
+        Path cameraSearchPath;
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - blockO));
+
+        followPath(cameraSearchPath);
+        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
+    }
 
 
 }

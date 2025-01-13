@@ -35,6 +35,8 @@ public class CameraAuto extends OpMode {
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
+    boolean polar = true; // determines if you rotate the robot or if you move horizontally
+
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
@@ -51,7 +53,7 @@ public class CameraAuto extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose subIntake = new Pose(4, -31, Math.toRadians(90));
+    private final Pose subIntake = new Pose(4, -31, Math.toRadians(90)); //todo: set the y back from the wall a little to give the robot space to rotate
 
     private final Pose placeSub1 = new Pose(6, -34, Math.toRadians(90));
 
@@ -157,8 +159,16 @@ public class CameraAuto extends OpMode {
                     //camera takes photo and starts intake
                     target = blockVision.getBestBlockPos();
                     if (target != null) {
-                        intakeSystem.setHSlidesInches(target.getY());
-                        follower.followYourHeart(target.getX());
+                        if (polar) {
+                            //Thanks Mr. Raney
+                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
+                            double theta = Math.atan(target.getY()/ target.getX());
+                            intakeSystem.setHSlidesInches(r);
+                            follower.followYourHead(theta);
+                        } else {
+                            intakeSystem.setHSlidesInches(target.getY());
+                            follower.followYourHeart(target.getX());
+                        }
                         driveShake = true; //updated so that there is a longer delay
                         setPathState(2);
                     } else {
