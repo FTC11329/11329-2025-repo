@@ -1089,7 +1089,7 @@ public class Follower {
     }
 
 
-    public double[] followYourHeart(double blockO) {
+    public void followYourHeart(double blockO) {
         Pose tempPose = getPose();
         // just initialized
         Path cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - 3, tempPose.getHeading()));
@@ -1110,18 +1110,14 @@ public class Follower {
             cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
         }
         followPath(cameraSearchPath);
-        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
+        translationalPIDF.runPIDF();
     }
 
-    public double[] followYourHead(double blockO) {
+    public void followYourHead(double blockO) {
         Pose tempPose = getPose();
-        // just initialized
         Path cameraSearchPath;
         cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - blockO));
-
         followPath(cameraSearchPath);
-        return new double[] {translationalPIDF.getError(), translationalPIDF.runPIDF()};
+        translationalPIDF.runPIDF();
     }
-
-
 }

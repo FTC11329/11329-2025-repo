@@ -122,20 +122,68 @@ public class MultiDistanceCalculator {
         // Sort the array by smallest values
         Arrays.sort(result, (a, b) -> Double.compare(a[0], b[0]));
 
-        // Remove the first and last values
-        double[][] trimmedResult = Arrays.copyOfRange(result, 1, result.length - 1);
+        /**
+         * based on the length of the array that is passed through it needs to do different things to maximize results
+         */
+        switch (result.length) {
+            case (5):
+                // Remove the first and last values
+                double[][] trimmedResult = Arrays.copyOfRange(result, 1, result.length - 1);
 
-        // Check if the coordinates are within 3 units and return the result
-        double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[0][2]);
-        double yDiff = Math.abs(trimmedResult[1][0] - trimmedResult[1][2]);
+                // Check if the coordinates are within 3 units and return the result
+                double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[0][2]);
+                double yDiff = Math.abs(trimmedResult[1][0] - trimmedResult[1][2]);
+                if (xDiff <= 3 && yDiff <= 3) {
+                    double avgX = (trimmedResult[0][0] + trimmedResult[1][0]) / 2;
+                    double avgY = (trimmedResult[0][1] + trimmedResult[1][1]) / 2;
+                    return new double[]{avgX, avgY};
+                } else {
+                    return trimmedResult[1]; // Return the middle value
+                }
+            case (4):
+                // Remove the first and last values
+                double[][] trimmedResults = Arrays.copyOfRange(result, 1, result.length - 1);
 
-        if (xDiff <= 3 && yDiff <= 3) {
-            double avgX = (trimmedResult[0][0] + trimmedResult[1][0]) / 2;
-            double avgY = (trimmedResult[0][1] + trimmedResult[1][1]) / 2;
-            return new double[]{avgX, avgY};
-        } else {
-            return trimmedResult[1]; // Return the middle value
+                // Check if the coordinates are within 3 units and return the result
+                double xDiffz = Math.abs(trimmedResults[0][0] - trimmedResults[0][1]);
+                double yDiffz = Math.abs(trimmedResults[1][0] - trimmedResults[1][1]);
+
+                if (xDiffz <= 3 && yDiffz <= 3) {
+                    double avgX = (trimmedResults[0][0] + trimmedResults[1][0]) / 2;
+                    double avgY = (trimmedResults[0][1] + trimmedResults[1][1]) / 2;
+                    return new double[]{avgX, avgY};
+                } else {
+                    return trimmedResults[1]; // Return the middle value
+                }
+            case (3):
+                // Check if the coordinates are within 3 units and return the result
+                double xDifft = Math.abs(result[0][0] - result[0][2]);
+                double yDifft = Math.abs(result[1][0] - result[1][2]);
+
+                if (xDifft <= 3 && yDifft <= 3) {
+                    double avgX = (result[0][0] + result[1][0]) / 2;
+                    double avgY = (result[0][1] + result[1][1]) / 2;
+                    return new double[]{avgX, avgY};
+                } else {
+                    return result[1]; // Return the middle value
+                }
+            case (2):
+                // Check if the coordinates are within 3 units and return the result
+                double xDiffs = Math.abs(result[0][0] - result[0][1]);
+                double yDiffs = Math.abs(result[1][0] - result[1][1]);
+                if (xDiffs <= 3 && yDiffs <= 3) {
+                    double avgX = (result[0][0] + result[1][0]) / 2;
+                    double avgY = (result[0][1] + result[1][1]) / 2;
+                    return new double[]{avgX, avgY};
+                } else {
+                    return result[0]; // Return the first value
+                }
+            case (1):
+                return result[0];
+            case (0):
+                return null;
         }
+        return null;
     }
 
     public void stopLimelight() {
