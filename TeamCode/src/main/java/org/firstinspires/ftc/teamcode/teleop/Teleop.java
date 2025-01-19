@@ -442,6 +442,7 @@ public class Teleop {
                     atPickupWall = true;
                     atHighBasket = false;
                 }
+                intakeSystem.setIntakePower(0);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 transferring = false;
             }
