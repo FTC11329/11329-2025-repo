@@ -155,14 +155,19 @@ public class CameraAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3) {
+//                todo: try switching 1 inch to like 3 or 5
+                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 1) {
                     //camera takes photo and starts intake
-                    target = blockVision.getBestBlockPos();
+                    target = multiDistanceCalculator.getBlockPosition();
                     if (target != null) {
                         if (polar) {
                             //Thanks Mr. Raney
                             double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
                             double theta = Math.atan(target.getY()/ target.getX());
+                            if (r >= 28) {
+                                polar = false;
+                                break;
+                            }
                             intakeSystem.setHSlidesInches(r);
                             follower.followYourHead(theta);
                         } else {

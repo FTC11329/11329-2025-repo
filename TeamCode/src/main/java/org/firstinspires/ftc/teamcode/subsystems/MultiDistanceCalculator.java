@@ -48,7 +48,7 @@ public class MultiDistanceCalculator {
 
                 //Creating a 3d array to store the distances of each block for comparison
                 double[][][] distanceArray;
-                distanceArray = new double[2][5][5];
+                distanceArray = new double[2][7][5];
 
                 int c = 0;
                 while (c <= 4) {
@@ -82,9 +82,8 @@ public class MultiDistanceCalculator {
 
                 //find the closest non-zero distance block
                 double[] finalValue = findSmallestNonZeroInFinalResult(finalResult);
-                Pose finalVector = new Pose((finalValue[0] - cameraXOffset), (finalValue[1] - cameraYOffset),0.0);
 
-                return finalVector;
+                return new Pose((finalValue[0] - cameraXOffset), (finalValue[1] - cameraYOffset),0.0);
             }
         }
         return null;
