@@ -16,7 +16,7 @@ public class Constants {
         public static double servoClimb = 0.475;
         public static double speed = 1;
 
-        public static int motorClimb = 900;
+        public static int motorClimb = 1100;
         public static int motorDrop = 0;
 
         public static double p = 0.03;
@@ -45,8 +45,8 @@ public class Constants {
 
         public static double intakeSpeed = 1;
         public static double transferSpeed = 0.5;
-        public static double unjamSpeed = -0.7; //Todo: set
-        public static double spitSpeed = -0.75; //Todo: set
+        public static double unjamSpeed = -0.7;
+        public static double spitSpeed = -0.75;
         public static int bitMore = 80;
         public static double unjamTimeMillis = 350;
     }
@@ -73,7 +73,7 @@ public class Constants {
         public static int intakeWaitSlides = 110;
         public static int intakeWallSlides = 65;
         public static int safeFromWallSlides = 170;
-        public static int safeFromHSlides = 200;
+        public static int safeFromHSlides = 300;
         public static int highSpecimenSlides = 380;
         public static int lowBasketSlides = 267;
         public static int highBasketSlides = 750;
@@ -86,7 +86,7 @@ public class Constants {
         public static int intakeSlides = 247;
         public static int intakeWallSlides = 0;
         public static int safeFromWallSlides = 100;
-        public static int safeFromHSlides = 400; //Todo: set
+        public static int safeFromHSlides = 400;
         public static int highSpecimenSlides = 258;
         public static int lowBasketSlides = 424;
         public static int highBasketSlides = 948;
