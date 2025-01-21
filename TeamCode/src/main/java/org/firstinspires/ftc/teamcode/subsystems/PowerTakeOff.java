@@ -14,6 +14,10 @@ public class PowerTakeOff {
     public Servo PTORight;
     double lastRightPos = 0;
 
+    public Servo hookReleaseL;
+    public Servo hookReleaseR;
+    double lastReleasePos = 0;
+
     boolean enabled = false;
     public PowerTakeOff(HardwareMap hardwareMap) {
         PTOLeft = hardwareMap.get(Servo.class, "PTOL");
@@ -24,6 +28,16 @@ public class PowerTakeOff {
 
         PTOLeft.setPosition(Constants.PTO.servoRelease);
         PTORight.setPosition(Constants.PTO.servoRelease);
+
+        hookReleaseL = hardwareMap.get(Servo.class, "hookReleaseL");
+        hookReleaseR = hardwareMap.get(Servo.class, "hookReleaseR");
+
+        PTOLeft.setDirection(Servo.Direction.REVERSE);
+        PTORight.setDirection(Servo.Direction.FORWARD);
+
+        PTOLeft.setPosition(0.6);
+        PTORight.setPosition(0.6);
+
     }
 
     public void enable() {
@@ -53,5 +67,14 @@ public class PowerTakeOff {
             lastRightPos = newPos;
             PTORight.setPosition(newPos);
         }
+    }
+
+    public void setHookRelease(double newPos) {
+        if (lastReleasePos != newPos) {
+            lastReleasePos = newPos;
+            hookReleaseL.setPosition(newPos);
+            hookReleaseR.setPosition(newPos);
+        }
+
     }
 }

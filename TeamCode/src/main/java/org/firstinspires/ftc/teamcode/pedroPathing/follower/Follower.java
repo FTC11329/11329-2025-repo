@@ -1110,14 +1110,12 @@ public class Follower {
             cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
         }
         followPath(cameraSearchPath);
-        translationalPIDF.runPIDF();
     }
 
     public void followYourHead(double blockO) {
         Pose tempPose = getPose();
         Path cameraSearchPath;
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - blockO));
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading() - blockO));
         followPath(cameraSearchPath);
-        translationalPIDF.runPIDF();
     }
 }

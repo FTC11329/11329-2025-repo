@@ -38,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = 0;
+    double testValue = 0.6;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -183,8 +183,8 @@ public class TeleopTesting {
             }
         }
 //        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
-//        testValue += 0.003 * (gamepad2.right_trigger - gamepad2.left_trigger);
-        testValue2 += 5 * (gamepad2.left_stick_y);
+        testValue += 0.002 * (gamepad2.right_trigger - gamepad2.left_trigger);
+        testValue2 += 5 * (-gamepad2.left_stick_y);
         testValue3 += 0.003 * (gamepad2.right_stick_y);
 
         //HSlides
@@ -192,7 +192,8 @@ public class TeleopTesting {
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
         outtakeSystem.setArmPos(testValue3);
-        telemetry.addData("testValue H", testValue);
+        powerTakeOff.setHookRelease(testValue);
+        telemetry.addData("testValue H but not really though", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
@@ -203,13 +204,13 @@ public class TeleopTesting {
         //HSlide
 //        testValue += 3 * (gamepad1.right_trigger - gamepad1.left_trigger);
 //        intakeSystem.setHSlidePos((int) testValue);
-        telemetry.addData("targetPos1", (int) testValue);
+//        telemetry.addData("targetPos1", (int) testValue);
 //        telemetry.addData("targetPos2", intakeSystem.getHSlideTargetPos());
 //        telemetry.addData("H Pos", intakeSystem.getHSlidePos());
 
 
         //VSlide
-//        outtakeSystem.setVSlidePos((int) testValue2);
+        outtakeSystem.setVSlidePos((int) testValue2);
 //        telemetry.addData("targetPos", (int) testValue2);
 //        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
         /*
@@ -225,8 +226,8 @@ public class TeleopTesting {
         */
 
         //Climber
-        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-        telemetry.addData("Current Position", climber.getPos());
+//        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//        telemetry.addData("Current Position", climber.getPos());
 
 
         //intake color
