@@ -12,8 +12,10 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double releaseTheHooks = 0.6;
-        public static double grabTheHooks = 0.6;
+        public static double releaseTheHooksR = 0.768;
+        public static double releaseTheHooksL = 0.71;
+        public static double grabTheHooksR = 0.86;
+        public static double grabTheHooksL = 0.606;
 
         public static double PTOServoRelease = 0.28;
         public static double PTOServoClimb = 0.475;

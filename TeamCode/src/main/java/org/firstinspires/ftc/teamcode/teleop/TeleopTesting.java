@@ -38,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = 0.6;
+    double testValue = 0.289;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -162,7 +162,7 @@ public class TeleopTesting {
         if (gamepad1.dpad_down && !powerTakeOff.isEnabled()) {
             outtakeSystem.storePos();
         }
-        intakeSystem.setIntakePower(gamepad2.right_trigger);
+//        intakeSystem.setIntakePower(gamepad2.right_trigger);
         telemetry.addData("unjam", intakeSystem.isJammed());
         telemetry.addData("current", intakeSystem.intakeClaw.intakeMotor.getCurrent(CurrentUnit.AMPS));
         telemetry.addData("power", intakeSystem.intakeClaw.intakeMotor.getPower());
@@ -186,13 +186,17 @@ public class TeleopTesting {
         testValue += 0.002 * (gamepad2.right_trigger - gamepad2.left_trigger);
         testValue2 += 5 * (-gamepad2.left_stick_y);
         testValue3 += 0.003 * (gamepad2.right_stick_y);
+        if (gamepad2.y) {
+            powerTakeOff.hookRelease();
+        } else {
+            powerTakeOff.hookGrab();
+        }
 
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
         outtakeSystem.setArmPos(testValue3);
-        powerTakeOff.setHookRelease(testValue);
         telemetry.addData("testValue H but not really though", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
@@ -226,8 +230,8 @@ public class TeleopTesting {
         */
 
         //Climber
-//        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-//        telemetry.addData("Current Position", climber.getPos());
+        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+        telemetry.addData("Current Position", climber.getPos());
 
 
         //intake color

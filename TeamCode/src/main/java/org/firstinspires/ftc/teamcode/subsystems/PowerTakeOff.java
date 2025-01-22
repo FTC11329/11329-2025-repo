@@ -15,8 +15,9 @@ public class PowerTakeOff {
     double lastRightPos = 0;
 
     public Servo hookReleaseL;
+    double lastReleaseLPos = 0;
     public Servo hookReleaseR;
-    double lastReleasePos = 0;
+    double lastReleaseRPos = 0;
 
     boolean enabled = false;
     public PowerTakeOff(HardwareMap hardwareMap) {
@@ -32,11 +33,11 @@ public class PowerTakeOff {
         hookReleaseL = hardwareMap.get(Servo.class, "hookReleaseL");
         hookReleaseR = hardwareMap.get(Servo.class, "hookReleaseR");
 
-        PTOLeft.setDirection(Servo.Direction.REVERSE);
-        PTORight.setDirection(Servo.Direction.FORWARD);
+        hookReleaseL.setDirection(Servo.Direction.FORWARD);
+        hookReleaseR.setDirection(Servo.Direction.FORWARD);
 
-        PTOLeft.setPosition(0.6);
-        PTORight.setPosition(0.6);
+        hookReleaseL.setPosition(Constants.PTO.grabTheHooksL);
+        hookReleaseR.setPosition(Constants.PTO.grabTheHooksR);
 
     }
 
@@ -69,12 +70,24 @@ public class PowerTakeOff {
         }
     }
 
-    public void setHookRelease(double newPos) {
-        if (lastReleasePos != newPos) {
-            lastReleasePos = newPos;
+    public void hookRelease() {
+        setHookReleaseL(Constants.PTO.releaseTheHooksL);
+        setHookReleaseR(Constants.PTO.releaseTheHooksR);
+    }
+    public void hookGrab() {
+        setHookReleaseL(Constants.PTO.grabTheHooksL);
+        setHookReleaseR(Constants.PTO.grabTheHooksR);
+    }
+    public void setHookReleaseL(double newPos) {
+        if (lastReleaseLPos != newPos) {
+            lastReleaseLPos = newPos;
             hookReleaseL.setPosition(newPos);
+        }
+    }
+    public void setHookReleaseR(double newPos) {
+        if (lastReleaseRPos != newPos) {
+            lastReleaseRPos = newPos;
             hookReleaseR.setPosition(newPos);
         }
-
     }
 }

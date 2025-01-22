@@ -162,45 +162,46 @@ public class NewTeleop {
         //Toggle Climber
         if (climbToggButton && !climbDebounce) {
             climbTogg = !climbTogg;
+            climbDebounce = true;
         }
         if (!climbToggButton) {
-            climbDebounce = true;
+            climbDebounce = false;
         }
 
 
         //Drivetrain
-        if (!powerTakeOff.isEnabled()) {
+        if (!climbTogg) {
             //Drive time
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
 
             if (climbTogg) {
-                powerTakeOff.enable();
                 driveTrain.setRunToPos();
                 climberTimer.resetTimer();
             }
         } else {
-            if (!climbTogg) {
-                powerTakeOff.disable();
-            }
+//            if (!climbTogg) {
+//                powerTakeOff.disable();
+//            }
             switch (climberStage) {
                 case 0:
-                    powerTakeOff.setHookRelease(Constants.PTO.releaseTheHooks);
+                    powerTakeOff.hookRelease();
                     //puts arm to safe space
                     if (outtakeSystem.getArmPos() > 0.6) {
-                        stateMachine.doGoToStore();
+                        outtakeSystem.setVSlidePos(1000);
+                        outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     } else {
-                        stateMachine.goWall(false, false, false);
+                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
                     }
 
                     climberTimer.resetTimer();
                     climberStage = 1;
                     break;
                 case 1:
-                    if (climberTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (climberTimer.getElapsedTimeSeconds() > 3) {
                         driveTrain.setRunToPos();
                         powerTakeOff.enable();
                         //disables to save power
-                        outtakeSystem.disable();
+//                        outtakeSystem.disable();
                         intakeSystem.disable();
 
                         climberTimer.resetTimer();
@@ -218,14 +219,14 @@ public class NewTeleop {
                 case 3:
                     if (Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos()) < 100) {
                         climber.setPos(Constants.Climber.hookPos);
-                        outtakeSystem.reEnable(Constants.Outtake.maxSlides);
+                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
 
                         climberTimer.resetTimer();
                         climberStage = 4;
                     }
                     break;
                 case 4:
-                    if (Math.abs(climber.getPos() - climber.getTargetPos()) < 300) {
+                    if (Math.abs(climber.getPos() - climber.getTargetPos()) < 300 && climberTimer.getElapsedTimeSeconds() > 0.5) {
                         //disable PTO to conserve power
                         driveTrain.setPTOPower(0);
                         climber.setPos(Constants.Climber.inPos);
@@ -235,7 +236,7 @@ public class NewTeleop {
                     }
                     break;
                 case 5:
-                    if (Math.abs(climber.getPos() - climber.getTargetPos()) < 500) {
+                    if (Math.abs(climber.getPos() - climber.getTargetPos()) < 500 && climberTimer.getElapsedTimeSeconds() > 0.5) {
                         driveTrain.setPTOPos(Constants.PTO.motorDrop);
 
                         climberTimer.resetTimer();
@@ -514,12 +515,14 @@ public class NewTeleop {
         }
         if (debugClimber || debugAll) {
             telemetry.addLine("CLIMBER");
+            telemetry.addData("cLimberToggle", climbTogg);
             telemetry.addData("climberStage", climberStage);
             telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
             telemetry.addData("PTO Pos", driveTrain.getPTOPos());
             telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
             telemetry.addData("Climber Tar", climber.getTargetPos());
             telemetry.addData("Climber Pos", climber.getPos());
+            telemetry.addData("Climber err", Math.abs(climber.getPos() - climber.getTargetPos()));
             telemetry.addLine();
         }
         if (debugMisc || debugAll) {
