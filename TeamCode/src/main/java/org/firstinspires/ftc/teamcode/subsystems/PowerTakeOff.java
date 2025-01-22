@@ -14,6 +14,11 @@ public class PowerTakeOff {
     public Servo PTORight;
     double lastRightPos = 0;
 
+    public Servo hookReleaseL;
+    double lastReleaseLPos = 0;
+    public Servo hookReleaseR;
+    double lastReleaseRPos = 0;
+
     boolean enabled = false;
     public PowerTakeOff(HardwareMap hardwareMap) {
         PTOLeft = hardwareMap.get(Servo.class, "PTOL");
@@ -22,18 +27,28 @@ public class PowerTakeOff {
         PTOLeft.setDirection(Servo.Direction.FORWARD);
         PTORight.setDirection(Servo.Direction.FORWARD);
 
-        PTOLeft.setPosition(Constants.PTO.servoRelease);
-        PTORight.setPosition(Constants.PTO.servoRelease);
+        PTOLeft.setPosition(Constants.PTO.PTOServoRelease);
+        PTORight.setPosition(Constants.PTO.PTOServoRelease);
+
+        hookReleaseL = hardwareMap.get(Servo.class, "hookReleaseL");
+        hookReleaseR = hardwareMap.get(Servo.class, "hookReleaseR");
+
+        hookReleaseL.setDirection(Servo.Direction.FORWARD);
+        hookReleaseR.setDirection(Servo.Direction.FORWARD);
+
+        hookReleaseL.setPosition(Constants.PTO.grabTheHooksL);
+        hookReleaseR.setPosition(Constants.PTO.grabTheHooksR);
+
     }
 
     public void enable() {
-        setRightPos(Constants.PTO.servoClimb);
-        setLeftPos(Constants.PTO.servoClimb);
+        setRightPos(Constants.PTO.PTOServoClimb);
+        setLeftPos(Constants.PTO.PTOServoClimb);
         enabled = true;
     }
     public void disable() {
-        setRightPos(Constants.PTO.servoRelease);
-        setLeftPos(Constants.PTO.servoRelease);
+        setRightPos(Constants.PTO.PTOServoRelease);
+        setLeftPos(Constants.PTO.PTOServoRelease);
         enabled = false;
     }
 
@@ -52,6 +67,27 @@ public class PowerTakeOff {
         if (lastRightPos != newPos) {
             lastRightPos = newPos;
             PTORight.setPosition(newPos);
+        }
+    }
+
+    public void hookRelease() {
+        setHookReleaseL(Constants.PTO.releaseTheHooksL);
+        setHookReleaseR(Constants.PTO.releaseTheHooksR);
+    }
+    public void hookGrab() {
+        setHookReleaseL(Constants.PTO.grabTheHooksL);
+        setHookReleaseR(Constants.PTO.grabTheHooksR);
+    }
+    public void setHookReleaseL(double newPos) {
+        if (lastReleaseLPos != newPos) {
+            lastReleaseLPos = newPos;
+            hookReleaseL.setPosition(newPos);
+        }
+    }
+    public void setHookReleaseR(double newPos) {
+        if (lastReleaseRPos != newPos) {
+            lastReleaseRPos = newPos;
+            hookReleaseR.setPosition(newPos);
         }
     }
 }

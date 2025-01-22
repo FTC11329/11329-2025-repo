@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.Constants;
 
 public class VerticalSlides {
 
+    boolean disabled = false;
+
     DcMotorEx slideMotor;
     int lastSlidePos;
 
@@ -58,6 +60,9 @@ public class VerticalSlides {
 
     public void update() {
         touched = touchSensor.isPressed();
+        if (disabled) {
+            return;
+        }
         if (touched) {
             lastSlidePos = 0;
         }
@@ -68,4 +73,17 @@ public class VerticalSlides {
         }
         lastPressed = touchSensor.isPressed();
     }
+
+    public void disable() {
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        disabled = true;
+    }
+
+    public void reEnable(int slidePos) {
+        setPos(slidePos);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        disabled = false;
+    }
+
+
 }

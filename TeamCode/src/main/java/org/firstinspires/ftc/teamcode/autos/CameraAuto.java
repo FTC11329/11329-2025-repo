@@ -53,7 +53,7 @@ public class CameraAuto extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose subIntake = new Pose(4, -31, Math.toRadians(90)); //todo: set the y back from the wall a little to give the robot space to rotate
+    private final Pose subIntake = new Pose(4, -40, Math.toRadians(90)); //todo: set the y back from the wall a little to give the robot space to rotate
 
     private final Pose placeSub1 = new Pose(6, -34, Math.toRadians(90));
 
@@ -150,26 +150,23 @@ public class CameraAuto extends OpMode {
             case 0:
                 // drive to the sub
                 follower.setMaxPower(1);
-                follower.followPath(firstIntakePath, false);
+//                follower.followPath(firstIntakePath, true);
                 outtakeSystem.setArmPos(Constants.Outtake.upArm);
                 setPathState(1);
                 break;
             case 1:
-//                todo: try switching 1 inch to like 3 or 5
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 1) {
+                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3 || true) {
                     //camera takes photo and starts intake
-                    target = multiDistanceCalculator.getBlockPosition();
-                    if (target != null) {
+                    target = blockVision.getBestBlockPos();
+                    if (target != null || true){
                         if (polar) {
                             //Thanks Mr. Raney
-                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
-                            double theta = Math.atan(target.getY()/ target.getX());
-                            if (r >= 28) {
-                                polar = false;
-                                break;
-                            }
-                            intakeSystem.setHSlidesInches(r);
-                            follower.followYourHead(theta);
+//                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
+//                            double theta = Math.atan(target.getY()/ target.getX());
+                            intakeSystem.setHSlidesInches(15);
+                            follower.followYourHead(Math.toRadians(35));
+//                            telemetry.addData("theta", theta);
+//                            telemetry.addData("are", r);
                         } else {
                             intakeSystem.setHSlidesInches(target.getY());
                             follower.followYourHeart(target.getX());

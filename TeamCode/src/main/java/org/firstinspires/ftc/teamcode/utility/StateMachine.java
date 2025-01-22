@@ -13,9 +13,23 @@ public class StateMachine {
     boolean transferred = false;
     boolean atStorePos = false;
 
+    public void resetValues() {
+        goingHighSpecimen = false;
+        goingLowBasket  = false;
+        goingHighBasket = false;
+        goingWall = false;
+
+        goingStore = false;
+        goingTransfer = false;
+
+        hasInIntake = false;
+        transferred = false;
+        atStorePos = false;
+    }
 
     //Functions that start the movement of the robot
     public void goHighSpecimen(boolean atStorePos) {
+        resetValues();
         goingHighSpecimen = true;
         this.hasInIntake = false;
         this.transferred = true;
@@ -23,6 +37,7 @@ public class StateMachine {
     }
 
     public void goLowBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
+        resetValues();
         goingLowBasket = true;
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
@@ -30,6 +45,7 @@ public class StateMachine {
     }
 
     public void goHighBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
+        resetValues();
         goingHighBasket = true;
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
@@ -37,6 +53,7 @@ public class StateMachine {
     }
 
     public void goWall(boolean hasInIntake, boolean transferred, boolean atStorePos) {
+        resetValues();
         goingWall = true;
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
@@ -44,6 +61,7 @@ public class StateMachine {
     }
 
     public void goStore() {
+        resetValues();
         goingStore = true;
         this.hasInIntake = true;
         this.transferred = false;
@@ -51,6 +69,7 @@ public class StateMachine {
     }
 
     public void goTransfer(boolean atStorePos) {
+        resetValues();
         goingTransfer = true;
         this.hasInIntake = true;
         this.transferred = false;
@@ -123,4 +142,13 @@ public class StateMachine {
     public void finishWall() {
         goingWall = false;
     }
+
+    public boolean[] debug() {
+        boolean[] temp = new boolean[3];
+        temp[0] = hasInIntake;
+        temp[1] = transferred;
+        temp[2] = atStorePos;
+        return temp;
+    }
+
 }

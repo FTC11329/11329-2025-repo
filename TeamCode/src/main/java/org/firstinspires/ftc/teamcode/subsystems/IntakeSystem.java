@@ -214,21 +214,19 @@ public class IntakeSystem {
     }
 
     public void update() {
-//        if (isJammed() && !unjamOnce) {
-//            setIntakePower(Constants.Intake.unjamSpeed);
-//            unJamTime = time.milliseconds();
-//            unjamOnce = true;
-//        }
         if (isJammed()) {
             intakeClaw.setIntakePower(Constants.Intake.unjamSpeed);
         }
-//        if (unjamOnce && !isJammed() && time.milliseconds() > unJamTime + Constants.Intake.unjamTimeMillis) {
-//            setIntakePower(0);
-//            unjamOnce = false;
-//        }
         hSlides.update();
     }
 
+    public void disable() {
+        hSlides.disable();
+    }
+
+    public void reEnable(int slidePos) {
+        hSlides.reEnable(slidePos);
+    }
 
 }
 

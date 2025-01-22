@@ -86,4 +86,11 @@ public class OuttakeSystem {
     public void update() {
         vSlides.update();
     }
+
+    public void disable() {
+        vSlides.disable();
+    }
+    public void reEnable(int slidePos) {
+        vSlides.reEnable(slidePos);
+    }
 }
