@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.util.List;
 
@@ -20,6 +21,18 @@ public class MultiDistanceCalculator {
     private final double cameraYOffset = 1.1;
     private final double cameraXOffset = Math.PI; //close enough
 
+    //define the height that the center of the camera lens is off the ground
+    double height = 10.75;
+    //define the angle that the camera is pointing (90 deg = directly forward)
+    double cameraAngle = Math.toRadians(60.0);
+    // define the range of blocks that the robot can grab inches
+    double yMaxExtension = 28.0;
+    double xMaxTurn = 18.0;
+
+    //find the corresponding angles that the camera would need to get to go outside the acceptable range
+    double maxYangle = (Math.atan(yMaxExtension / height) - cameraAngle);
+    //the xMaxRotation cannot be calculated because we do not have the distance of the block
+
     public MultiDistanceCalculator(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         // 0 is yellow; 1 is blue; 2 is red
@@ -29,22 +42,24 @@ public class MultiDistanceCalculator {
 
     public Pose getBlockPosition() {
 
+        double[][][] distanceArray = fillImageArray();
+
+        double[][] newDistanceArray = findAverageOfFullFrames(distanceArray);
+
+        // Call the method to find the smallest non-zero values
+        double[] finalValues = MinimizeTime(newDistanceArray);
+
+        //find the closest non-zero distance block
+
+        return new Pose(finalValues[0], finalValues[1], 0.0);
+    }
+
+    public double[][][] fillImageArray() {
+
         LLResult result = limelight.getLatestResult();
 
         if (result != null) {
             if (result.isValid()) {
-
-                //define the height that the center of the camera lens is off the ground
-                double height = 10.75;
-                //define the angle that the camera is pointing (90 deg = directly forward)
-                double cameraAngle = Math.toRadians(60.0);
-                // define the range of blocks that the robot can grab inches
-                double yMaxExtension = 28.0;
-                double xMaxTurn = 18.0;
-
-                //find the corresponding angles that the camera would need to get to go outside the acceptable range
-                double maxYangle = (Math.atan(yMaxExtension / height) - cameraAngle);
-                //the xMaxRotation cannot be calculated because we do not have the distance of the block
 
                 //Creating a 3d array to store the distances of each block for comparison
                 double[][][] distanceArray;
@@ -76,116 +91,107 @@ public class MultiDistanceCalculator {
 
                     c++;
                 }
-
-                // Call the method to find the smallest non-zero values
-                double[][] finalResult = findSmallestNonZeroInEachPlane(distanceArray);
-
-                //find the closest non-zero distance block
-                double[] finalValue = findSmallestNonZeroInFinalResult(finalResult);
-
-                return new Pose((finalValue[0] - cameraXOffset), (finalValue[1] - cameraYOffset),0.0);
+                return distanceArray;
             }
         }
         return null;
     }
-    public static double[][] findSmallestNonZeroInEachPlane(double[][][] distanceArray) {
-        int planes = distanceArray.length;
-        int rows = distanceArray[0].length;
-        int columns = distanceArray[0][0].length;
 
-        // Array to store the smallest coordinates for each plane
-        double[][] smallestCoordinates = new double[planes][columns];
+    public static double[][] findAverageOfFullFrames(double[][][] distanceArray) {
+        // this class is here to deal with cases where the camera misses a block
+        // this will cut out all frames that have too few blocks and average the remaining
 
-        // Iterate through each plane
-        for (int p = 0; p < planes; p++) {
-            for (int c = 0; c < columns; c++) {
-                double smallestValue = Double.MAX_VALUE;
+        int maxBlockNumber = 0;
+        double[] blockNumbers = new double[5];
+        // counts how many blocks are in each frame
+        for (int frame = 0; frame < 5; frame++) {
+            int number = 0;
+            for (int block = 0; block < 7; block++) {
+                if (distanceArray[0][block][frame] != 0 || distanceArray[1][block][frame] != 0) {
+                    number += 1;
+                }
+            }
+            blockNumbers[frame] = number;
+            if (number > maxBlockNumber){
+                maxBlockNumber = number;
+            }
+        }
 
-                // Iterate through each row in the plane
-                for (int r = 0; r < rows; r++) {
-                    double value = distanceArray[p][r][c];
-                    if (value > 0 && value < smallestValue) {
-                        smallestValue = value;
+        double[][] newDistanceArray = new double[2][maxBlockNumber];
+        System.out.println("Max block number: " + maxBlockNumber);
+        // average all of the blocks in the frames that share the greatest number of blocks
+        if (maxBlockNumber > 0) {
+            int q = 0;
+            for (int block = 0; block < 7; block++) {
+                double[] pos = {0, 0};
+                for (int frame = 0; frame < 5; frame++) {
+                    if (blockNumbers[frame] == maxBlockNumber) {
+                        pos[0] += distanceArray[0][block][frame] / maxBlockNumber;
+                        pos[1] += distanceArray[1][block][frame] / maxBlockNumber;
                     }
                 }
+                if (pos[0] != 0 || pos[1] != 0) {
+                    newDistanceArray[0][q] = pos[0];
+                    newDistanceArray[1][q] = pos[1];
+                    q++;
+                }
+            }
+        }
+        return newDistanceArray;
+    }
 
-                // Store the smallest value and its coordinates for this plane
-                smallestCoordinates[p][c] = smallestValue;
+    public static double[] MinimizeTime(double[][] distanceArray) {
+        int axis = distanceArray.length;
+        int blocks = distanceArray[0].length;
+
+        // Array to store the smallest coordinates for each plane
+        double[] smallestCoordinates = new double[2];
+        double minTime = Double.MAX_VALUE;
+
+        // Iterate through each plane
+        for (int c = 0; c < blocks; c++) {
+            double[] value = {distanceArray[0][c], distanceArray[1][c]};
+            double time = fastestSearchTime(value);
+            if (time < minTime) {
+                minTime = time;
+                smallestCoordinates = value;
             }
         }
 
         return smallestCoordinates;
     }
 
-    public static double[] findSmallestNonZeroInFinalResult(double[][] result) {
-        // Sort the array by smallest values
-        Arrays.sort(result, (a, b) -> Double.compare(a[0], b[0]));
-
-        /**
-         * based on the length of the array that is passed through it needs to do different things to maximize results
-         */
-        switch (result.length) {
-            case (5):
-                // Remove the first and last values
-                double[][] trimmedResult = Arrays.copyOfRange(result, 1, result.length - 1);
-
-                // Check if the coordinates are within 3 units and return the result
-                double xDiff = Math.abs(trimmedResult[0][0] - trimmedResult[0][2]);
-                double yDiff = Math.abs(trimmedResult[1][0] - trimmedResult[1][2]);
-                if (xDiff <= 3 && yDiff <= 3) {
-                    double avgX = (trimmedResult[0][0] + trimmedResult[1][0]) / 2;
-                    double avgY = (trimmedResult[0][1] + trimmedResult[1][1]) / 2;
-                    return new double[]{avgX, avgY};
-                } else {
-                    return trimmedResult[1]; // Return the middle value
-                }
-            case (4):
-                // Remove the first and last values
-                double[][] trimmedResults = Arrays.copyOfRange(result, 1, result.length - 1);
-
-                // Check if the coordinates are within 3 units and return the result
-                double xDiffz = Math.abs(trimmedResults[0][0] - trimmedResults[0][1]);
-                double yDiffz = Math.abs(trimmedResults[1][0] - trimmedResults[1][1]);
-
-                if (xDiffz <= 3 && yDiffz <= 3) {
-                    double avgX = (trimmedResults[0][0] + trimmedResults[1][0]) / 2;
-                    double avgY = (trimmedResults[0][1] + trimmedResults[1][1]) / 2;
-                    return new double[]{avgX, avgY};
-                } else {
-                    return trimmedResults[1]; // Return the middle value
-                }
-            case (3):
-                // Check if the coordinates are within 3 units and return the result
-                double xDifft = Math.abs(result[0][0] - result[0][2]);
-                double yDifft = Math.abs(result[1][0] - result[1][2]);
-
-                if (xDifft <= 3 && yDifft <= 3) {
-                    double avgX = (result[0][0] + result[1][0]) / 2;
-                    double avgY = (result[0][1] + result[1][1]) / 2;
-                    return new double[]{avgX, avgY};
-                } else {
-                    return result[1]; // Return the middle value
-                }
-            case (2):
-                // Check if the coordinates are within 3 units and return the result
-                double xDiffs = Math.abs(result[0][0] - result[0][1]);
-                double yDiffs = Math.abs(result[1][0] - result[1][1]);
-                if (xDiffs <= 3 && yDiffs <= 3) {
-                    double avgX = (result[0][0] + result[1][0]) / 2;
-                    double avgY = (result[0][1] + result[1][1]) / 2;
-                    return new double[]{avgX, avgY};
-                } else {
-                    return result[0]; // Return the first value
-                }
-            case (1):
-                return result[0];
-            case (0):
-                return null;
-        }
-        return null;
+    public static double fastestSearchTime(double[] coords){
+        return Math.sqrt(Math.pow(coords[0], 2) + Math.pow(coords[1], 2));
     }
 
     public void stopLimelight() {
         limelight.stop();
+    }
+
+    public Pose getBestColoredBlock(int pipelineNum) {
+        // 0 is yellow, 1 is blue, 2 is red
+        limelight.pipelineSwitch(pipelineNum);
+        return getBlockPosition();
+    }
+
+    public Pose getBestBlockGeneral(int pipelineNum) {
+        limelight.pipelineSwitch(pipelineNum);
+        Pose colorPose = getBlockPosition();
+        limelight.pipelineSwitch(0);
+        Pose yellowPose = getBlockPosition();
+
+        double[] colorCoords = {colorPose.getX(), colorPose.getY()};
+        double[] yellowCoords = {yellowPose.getX(), yellowPose.getY()};
+
+        double colorTime = fastestSearchTime(colorCoords);
+        double yellowTime = fastestSearchTime(yellowCoords);
+
+        if (colorTime < yellowTime) {
+            return colorPose;
+        } else if (yellowTime < colorTime) {
+            return yellowPose;
+        }
+        return null;
     }
 }
