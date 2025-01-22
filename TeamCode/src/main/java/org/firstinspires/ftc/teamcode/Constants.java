@@ -12,11 +12,11 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double hookRelease = 0.6;
-        public static double hookGrab = 0.6;
+        public static double releaseTheHooks = 0.6;
+        public static double grabTheHooks = 0.6;
 
-        public static double servoRelease = 0.28;
-        public static double servoClimb = 0.475;
+        public static double PTOServoRelease = 0.28;
+        public static double PTOServoClimb = 0.475;
         public static double speed = 1;
 
         public static int motorClimb = 1100;
@@ -29,6 +29,7 @@ public class Constants {
     @Config
     public static class Climber {
         public static final int inPos = -7500;
+        public static final int hookPos = -4000;
         public static final int outPos  = 0;
     }
 

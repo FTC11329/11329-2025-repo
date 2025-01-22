@@ -10,6 +10,8 @@ import org.firstinspires.ftc.teamcode.Constants;
 
 public class HorizontalSlides {
 
+    boolean disabled = false;
+
     DcMotorEx slideMotor;
     int lastSlidePos;
 
@@ -58,6 +60,12 @@ public class HorizontalSlides {
 
     public void update() {
         touched = touchSensor.isPressed();
+        if (disabled) {
+            if (!touched) {
+                slideMotor.setPower(-0.2);
+            }
+            return;
+        }
         if (touched) {
             lastSlidePos = 0;
         }
@@ -68,5 +76,17 @@ public class HorizontalSlides {
             slideMotor.setTargetPosition(0);
         }
         lastPressed = touchSensor.isPressed();
+    }
+
+    public void disable() {
+        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        disabled = true;
+    }
+
+    public void reEnable(int slidePos) {
+        setPos(slidePos);
+        slideMotor.setPower(1);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        disabled = false;
     }
 }

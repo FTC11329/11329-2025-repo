@@ -26,8 +26,8 @@ public class PowerTakeOff {
         PTOLeft.setDirection(Servo.Direction.FORWARD);
         PTORight.setDirection(Servo.Direction.FORWARD);
 
-        PTOLeft.setPosition(Constants.PTO.servoRelease);
-        PTORight.setPosition(Constants.PTO.servoRelease);
+        PTOLeft.setPosition(Constants.PTO.PTOServoRelease);
+        PTORight.setPosition(Constants.PTO.PTOServoRelease);
 
         hookReleaseL = hardwareMap.get(Servo.class, "hookReleaseL");
         hookReleaseR = hardwareMap.get(Servo.class, "hookReleaseR");
@@ -41,13 +41,13 @@ public class PowerTakeOff {
     }
 
     public void enable() {
-        setRightPos(Constants.PTO.servoClimb);
-        setLeftPos(Constants.PTO.servoClimb);
+        setRightPos(Constants.PTO.PTOServoClimb);
+        setLeftPos(Constants.PTO.PTOServoClimb);
         enabled = true;
     }
     public void disable() {
-        setRightPos(Constants.PTO.servoRelease);
-        setLeftPos(Constants.PTO.servoRelease);
+        setRightPos(Constants.PTO.PTOServoRelease);
+        setLeftPos(Constants.PTO.PTOServoRelease);
         enabled = false;
     }
 
