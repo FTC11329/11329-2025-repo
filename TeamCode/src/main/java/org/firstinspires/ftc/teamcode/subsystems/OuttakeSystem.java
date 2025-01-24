@@ -80,6 +80,10 @@ public class OuttakeSystem {
         } else if (posEnum == PlacePosEnum.wall) {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallSlides);
+
+        } else if (posEnum == PlacePosEnum.wallAuto) {
+            setArmPos(Constants.Outtake.intakeWallArm);
+            setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
         }
     }
 

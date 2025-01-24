@@ -80,11 +80,11 @@ public class StateMachine {
 
     //Functions that return when we should do certain things on the robot
     public boolean doGoToStore() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !transferred && !atStorePos;
+        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos;
     }
 
     public boolean doTransfer() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingTransfer) && hasInIntake && !transferred && atStorePos;
+        return (goingLowBasket || goingHighBasket || goingWall || goingTransfer) && hasInIntake && atStorePos;
     }
 
     public boolean doUnStore() {

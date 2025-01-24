@@ -5,17 +5,19 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class VerticalSlides {
 
+    ElapsedTime time = new ElapsedTime();
     boolean disabled = false;
 
     DcMotorEx slideMotor;
     int lastSlidePos;
 
-    boolean lastPressed = false;
+        double lastPressedTime = 0;
     boolean touched = false;
 
     public TouchSensor touchSensor;
@@ -63,15 +65,13 @@ public class VerticalSlides {
         if (disabled) {
             return;
         }
-        if (touched) {
-            lastSlidePos = 0;
-        }
-        if (touched && !lastPressed) {
+        if (touched && time.milliseconds() > lastPressedTime + 100) {
+            lastPressedTime = time.milliseconds();
             slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             slideMotor.setTargetPosition(0);
+            lastSlidePos = 0;
         }
-        lastPressed = touchSensor.isPressed();
     }
 
     public void disable() {

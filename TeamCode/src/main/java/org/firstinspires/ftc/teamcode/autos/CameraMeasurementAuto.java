@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Camera Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
+@Autonomous(name = "Camera Measurement Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
 public class CameraMeasurementAuto extends OpMode {
 
     Climber climber;

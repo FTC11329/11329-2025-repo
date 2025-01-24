@@ -49,6 +49,8 @@ public class TeleopTesting {
 
     Pose blockOffset = new Pose();
 
+    Gamepad.RumbleEffect.Builder builder = new Gamepad.RumbleEffect.Builder();
+
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
     Telemetry telemetry;
@@ -72,6 +74,11 @@ public class TeleopTesting {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
+
+        for (int i = 0; i < 10; i++) {
+            builder.addStep(1, 0,10);
+            builder.addStep(0,1,10);
+        }
     }
 
 
@@ -190,6 +197,10 @@ public class TeleopTesting {
             powerTakeOff.hookRelease();
         } else {
             powerTakeOff.hookGrab();
+        }
+
+        if (gamepad1.touchpad) {
+            gamepad1.runRumbleEffect(builder.build());
         }
 
         //HSlides

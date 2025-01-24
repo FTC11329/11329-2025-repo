@@ -116,13 +116,13 @@ public class NewTeleop {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        powerTakeOff = new PowerTakeOff(hardwareMap);
 
         stateMachine = new StateMachine();
     }
 
     public void start() {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
+        powerTakeOff = new PowerTakeOff(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap);
         elapsedTime.reset();
     }
@@ -142,7 +142,7 @@ public class NewTeleop {
         climbToggButton = gamepad1.back;
 
         manualVSlide = -gamepad2.right_stick_y;
-        manualHSlide = gamepad2.right_trigger - gamepad2.left_trigger;
+        manualHSlide = gamepad2.right_trigger - gamepad2.left_trigger + gamepad1.right_trigger - gamepad1.left_trigger;
         manualArm = gamepad2.left_stick_y;
         manualClimber = gamepad1.right_trigger - gamepad1.left_trigger;
 
@@ -150,14 +150,14 @@ public class NewTeleop {
         highBasket = gamepad2.dpad_right;
         lowBasket = gamepad2.dpad_down;
         wallPreset = gamepad2.dpad_left;
-        storePos = gamepad2.y;
+        storePos = gamepad2.triangle;//y
         transfer = gamepad2.left_bumper;
 
         clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
 
-        intake = gamepad2.a;
-        intakeColor = gamepad2.x;
-        unJam = gamepad2.b;
+        intake = gamepad2.cross;//a
+        intakeColor = gamepad2.square;//x
+        unJam = gamepad2.circle;//b
 
         //Toggle Climber
         if (climbToggButton && !climbDebounce) {
@@ -278,6 +278,9 @@ public class NewTeleop {
             stateMachine.goWall(hasInIntake, transferred, atStorePos);
         }
         if (storePos) {
+            intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goStore();
         }
         if (transfer) {
@@ -374,8 +377,8 @@ public class NewTeleop {
         if (stateMachine.doWall()) {
             outtakeSystem.placePos(PlacePosEnum.wall);
             if (!transferred) {
-                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                clawToggle = true;
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                clawToggle = false;
             }
             whereAmI = PlacePosEnum.wall;
             stateMachine.finishWall();
@@ -393,7 +396,6 @@ public class NewTeleop {
                 grabbingOffWall = true;
                 grabbingOffWallTime = elapsedTime.milliseconds();
             } else if (clawToggle) {
-                //remove to lock down more
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
             }
 
@@ -429,27 +431,31 @@ public class NewTeleop {
         }
 
         //Intakes
-        if (intakeColor && !intakeingDebounce && !unjamming) {
+        if (intakeColor && !intakeingDebounce) {
             intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
             intakeingColor = true;
             intakeWristTime = elapsedTime.milliseconds();
         }
-        if (intake && !intakeingDebounce && !unjamming) {
+        if (intake && !intakeingDebounce) {
             intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
             intakeing = true;
             intakeWristTime = elapsedTime.milliseconds();
         }
 
-        if (intakeing && !unjamming) {
+        if (intakeing) {
             if (intakeSystem.intakeUntil()) {
                 intakeSystem.storePos();
+                gamepad1.rumble(0,1,300);
+                gamepad2.rumble(0,1,300);
                 hasInIntake = true;
                 intakeing = false;
             }
         }
-        if (intakeingColor && !unjamming) {
+        if (intakeingColor) {
             if (intakeSystem.intakeUntilColor()) {
                 intakeSystem.storePos();
+                gamepad1.rumble(0,1,300);
+                gamepad2.rumble(0,1,300);
                 hasInIntake = true;
                 intakeingColor = false;
             }
@@ -465,17 +471,18 @@ public class NewTeleop {
         if (unJam) {
             unjamming = true;
             unjammingTime = elapsedTime.milliseconds();
+            intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
         }
-        if (unjamming) {
-            if (elapsedTime.milliseconds() < unjammingTime + 100) {
-                intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
+        if (unjamming && !unJam) {
+            if (intakeSystem.intakeUntil() || elapsedTime.milliseconds() > unjammingTime + 1000) {
+                intakeSystem.setIntakePower(0);
+                unjamming = false;
             }
-            if (elapsedTime.milliseconds() > unjammingTime + Constants.Intake.unjamTimeMillis) {
-                if (intakeSystem.intakeUntil() || elapsedTime.milliseconds() > unjammingTime + 1000) {
-                    intakeSystem.setIntakePower(0);
-                    unjamming = false;
-                }
-            }
+        }
+
+        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 92) {
+            gamepad1.rumble(1000);
+            gamepad2.rumble(1000);
         }
 
         intakeSystem.update();
@@ -529,6 +536,7 @@ public class NewTeleop {
             telemetry.addLine("MISCELLANEOUS");
             telemetry.addData("onceTime", onceTime);
             telemetry.addData("transferTime", transferTime);
+            telemetry.addData("Time", elapsedTime.seconds());
             //TODO add more Things here
             telemetry.addLine();
         }
