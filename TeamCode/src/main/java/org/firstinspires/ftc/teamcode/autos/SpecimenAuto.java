@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "Tele-op Blue")
+@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Blue")
 public class SpecimenAuto extends OpMode {
 
     Climber climber;
@@ -52,11 +52,11 @@ public class SpecimenAuto extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(8, -34, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(6, -32.5, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(4, -32.5, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(2, -32.5, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(0, -32.5, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(8, -32, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(6, -32, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(4, -32, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(2, -32, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(0, -32, Math.toRadians(90));
 
     private final Pose pickupSpike1 = new Pose(28.5, -41.5, Math.toRadians(55));
     private final Pose pickupSpike2 = new Pose(42, -48, Math.toRadians(55));

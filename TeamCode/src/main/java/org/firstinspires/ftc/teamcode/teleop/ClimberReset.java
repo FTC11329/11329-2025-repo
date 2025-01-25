@@ -28,7 +28,7 @@ public class ClimberReset extends OpMode {
 
     @Override
     public void loop() {
-        drivetrain.drive(-gamepad1.left_stick_y, 0, 0, DriveSpeedEnum.Slow);
+        drivetrain.drive(-gamepad1.left_stick_y, 0, 0, DriveSpeedEnum.Fast);
         climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
         if (gamepad1.back && !ptoDebounce) {

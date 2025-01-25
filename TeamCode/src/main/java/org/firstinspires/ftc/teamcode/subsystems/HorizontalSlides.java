@@ -68,7 +68,7 @@ public class HorizontalSlides {
             }
             return;
         }
-        if (touched && time.milliseconds() > lastPressedTime + 100) {
+        if (touched && time.milliseconds() > lastPressedTime + 100 && lastSlidePos < getPos()) {
             lastPressedTime = time.milliseconds();
             slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);

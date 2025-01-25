@@ -18,7 +18,7 @@ public class Climber {
         climberMotor.setPower(1);
         climberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         climberMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        climberMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        climberMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     public void setPos(int newPos) {

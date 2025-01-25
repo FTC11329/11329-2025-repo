@@ -14,8 +14,8 @@ public class Constants {
     public static class PTO {
         public static double releaseTheHooksR = 0.768;
         public static double releaseTheHooksL = 0.71;
-        public static double grabTheHooksR = 0.86;
-        public static double grabTheHooksL = 0.576;
+        public static double grabTheHooksR = 0.887;
+        public static double grabTheHooksL = 0.58;
 
         public static double PTOServoRelease = 0.28;
         public static double PTOServoClimb = 0.475;
@@ -30,8 +30,8 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -7500;
-        public static final int hookPos = -4000;
+        public static final int inPos = 7500;
+        public static final int hookPos = 4000;
         public static final int outPos  = 0;
     }
 
