@@ -158,7 +158,7 @@ public class NewTeleop {
         storePos = gamepad2.triangle;//y
         transfer = gamepad2.left_bumper;
 
-        clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
+        clawToggleButton = gamepad1.left_bumper;// || gamepad2.right_bumper;
 
         intake = gamepad2.cross;//a
         intakeColor = gamepad2.square;//x
@@ -216,7 +216,7 @@ public class NewTeleop {
                     if (climberTimer.getElapsedTimeSeconds() > 0) {
                         //disables to save power
 //                        outtakeSystem.disable();
-//                        intakeSystem.disable();
+                        intakeSystem.disable();
 
                         climberTimer.resetTimer();
                         climberStage = 3;
@@ -261,10 +261,11 @@ public class NewTeleop {
             }
             if (climberStage == 3) {
                 driveTrain.moveBackWheels();
+            } else if (climberStage == 6) {
+                driveTrain.setPTOPower(0);
             } else if (climberStage > 3) {
-                driveTrain.PTOLoop(0.5);
+                driveTrain.PTOLoop(0);
             }
-
 
             //manual movement
             climberPos += (int) (20 * (manualClimber));
@@ -278,25 +279,25 @@ public class NewTeleop {
 
         //Presets
         //Button to State Machine class
-        if (highSpecimen) {
+        if (highSpecimen && !stateMachine.isBusy()) {
             stateMachine.goHighSpecimen(atStorePos);
         }
-        if (highBasket) {
+        if (highBasket && !stateMachine.isBusy()) {
             stateMachine.goHighBasket(hasInIntake, transferred, atStorePos);
         }
-        if (lowBasket) {
+        if (lowBasket && !stateMachine.isBusy()) {
             stateMachine.goLowBasket(hasInIntake, transferred, atStorePos);
         }
-        if (wallPreset) {
+        if (wallPreset && !stateMachine.isBusy()) {
             stateMachine.goWall(hasInIntake, transferred, atStorePos);
         }
-        if (storePos) {
+        if (storePos && !stateMachine.isBusy()) {
             intakeSystem.storePos();
             intakeingColor = false;
             intakeing = false;
             stateMachine.goStore();
         }
-        if (transfer) {
+        if (transfer && !stateMachine.isBusy()) {
             stateMachine.goTransfer(atStorePos);
         }
 
@@ -325,7 +326,7 @@ public class NewTeleop {
             }
         }
 
-        if (stateMachine.doTransfer()) {
+        if (stateMachine.doTransfer() && intakeSystem.getHSlidePos() < 75) {
             if (onceTime) {
                 transferTime = elapsedTime.milliseconds();
                 onceTime = false;
@@ -333,20 +334,20 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > transferTime + 0 && elapsedTime.milliseconds() < transferTime + 100) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
             }
-            if (elapsedTime.milliseconds() > transferTime + 300 && elapsedTime.milliseconds() < transferTime + 400) {
+            if (elapsedTime.milliseconds() > transferTime + 400 && elapsedTime.milliseconds() < transferTime + 500) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
             }
-            if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 600) {
+            if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 clawToggle = true;
             }
-            if (elapsedTime.milliseconds() > transferTime + 800 && elapsedTime.milliseconds() < transferTime + 900) {
+            if (elapsedTime.milliseconds() > transferTime + 900 && elapsedTime.milliseconds() < transferTime + 1000) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
-            if (elapsedTime.milliseconds() > transferTime + 900 && elapsedTime.milliseconds() < transferTime + 1000) {
+            if (elapsedTime.milliseconds() > transferTime + 1000 && elapsedTime.milliseconds() < transferTime + 1100) {
                 hasInIntake = false;
                 transferred = true;
                 onceTime = true;
@@ -553,6 +554,7 @@ public class NewTeleop {
             telemetry.addData("PTO Err", Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos()));
             telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
             telemetry.addData("Climber Tar", climber.getTargetPos());
+            telemetry.addData("Climber Var", climberPos);
             telemetry.addData("Climber Pos", climber.getPos());
             telemetry.addData("Climber err", Math.abs(climber.getPos() - climber.getTargetPos()));
             telemetry.addLine();

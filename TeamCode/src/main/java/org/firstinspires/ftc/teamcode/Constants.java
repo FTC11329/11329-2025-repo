@@ -18,10 +18,10 @@ public class Constants {
         public static double grabTheHooksL = 0.58;
 
         public static double PTOServoRelease = 0.28;
-        public static double PTOServoClimb = 0.475;
+        public static double PTOServoClimb = 0.55;
         public static double speed = 1;
 
-        public static int motorClimb = 1100;
+        public static int motorClimb = 1150;
         public static int motorDrop = 0;
 
         public static double p = 0.03;
@@ -30,8 +30,8 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = 7500;
-        public static final int hookPos = 4000;
+        public static final int inPos = 8500;
+        public static final int hookPos = 1700;
         public static final int outPos  = 0;
     }
 
@@ -50,7 +50,7 @@ public class Constants {
         public static double wristDown = 0.425;
 
         public static double intakeSpeed = 1;
-        public static double transferSpeed = 0.5;
+        public static double transferSpeed = 1;
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
@@ -59,8 +59,8 @@ public class Constants {
 
     @Config
     public static class Outtake {
-        public static double grabClaw = 0.542;
-        public static double dropClaw = 0.241;
+        public static double grabClaw = 0.59;
+        public static double dropClaw = 0.21;
 
         public static double intakeArm = 0.92;
         public static double initTeleopArm = 0.66666;

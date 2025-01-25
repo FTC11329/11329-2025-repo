@@ -151,4 +151,8 @@ public class StateMachine {
         return temp;
     }
 
+    public boolean isBusy() {
+        return goingHighSpecimen || goingHighBasket || goingLowBasket || goingTransfer || goingStore || goingWall;
+    }
+
 }
