@@ -88,8 +88,8 @@ public class Drivetrain {
     }
 
     public void moveBackWheels() {
-        rightBack.setPower(0.4);
-        leftBack.setPower(0.4);
+        rightBack.setPower(0.7);
+        leftBack.setPower(0.7);
     }
 
     public void setRunToPos() {
@@ -162,17 +162,19 @@ public class Drivetrain {
     }
 
     public double[] getDrivePowers() {
-        return new double[]{leftFront.getPower(),
-                           rightFront.getPower(),
-                           leftBack.getPower(),
-                           rightBack.getPower()
-                          };
+        return new double[]{
+                leftFront.getPower(),
+                leftBack.getPower(),
+                rightFront.getPower(),
+                rightBack.getPower()
+        };
     }
 
     public double[] getDriveCurrent() {
-        return new double[]{leftFront.getCurrent(CurrentUnit.AMPS),
-                rightFront.getCurrent(CurrentUnit.AMPS),
+        return new double[]{
+                leftFront.getCurrent(CurrentUnit.AMPS),
                 leftBack.getCurrent(CurrentUnit.AMPS),
+                rightFront.getCurrent(CurrentUnit.AMPS),
                 rightBack.getCurrent(CurrentUnit.AMPS)
         };
     }

@@ -59,7 +59,7 @@ public class SpecimenAuto extends OpMode {
     private final Pose placeSub4 = new Pose(0, -32, Math.toRadians(90));
 
     private final Pose pickupSpike1 = new Pose(28.5, -41.5, Math.toRadians(55));
-    private final Pose pickupSpike2 = new Pose(42, -48, Math.toRadians(55));
+    private final Pose pickupSpike2 = new Pose(44, -47, Math.toRadians(55));
     private final Pose pickupSpike3 = new Pose(54, -49, Math.toRadians(59));
 
     private final Pose spitSpike1 = new Pose(31, -53, Math.toRadians(-35));
@@ -234,7 +234,7 @@ public class SpecimenAuto extends OpMode {
                 break;
             //start intaking spike1
             case 2:
-                if (follower.getError(pickupSpike1).getHeading() < Math.toRadians(30)) {
+                if (follower.getError(pickupSpike1).getHeading() < Math.toRadians(25)) {
                     driveShake = true;
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(3);
@@ -270,6 +270,7 @@ public class SpecimenAuto extends OpMode {
             case 6:
                 if (pathTimer.getElapsedTimeSeconds() > spitTime) {
                     follower.followPath(pickupSpike2Path, false);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     intakeSystem.setIntakePower(0);
                     setPathState(7);
                 }
@@ -278,7 +279,6 @@ public class SpecimenAuto extends OpMode {
             case 7:
                 if (follower.getError(pickupSpike2).getHeading() < Math.toRadians(25)) {
                     driveShake = true;
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(8);
                 }
