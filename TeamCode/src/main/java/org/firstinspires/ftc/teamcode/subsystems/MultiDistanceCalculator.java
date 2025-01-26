@@ -112,8 +112,13 @@ public class MultiDistanceCalculator {
                 }
             }
             blockNumbers[frame] = number;
-            if (number > maxBlockNumber){
-                maxBlockNumber = number;
+            maxBlockNumber = Math.max(maxBlockNumber, number);
+        }
+
+        int validFrames = 0;
+        for (int frame = 0; frame < 5; frame++) {
+            if (blockNumbers[frame] == maxBlockNumber) {
+                validFrames += 1;
             }
         }
 
@@ -122,14 +127,15 @@ public class MultiDistanceCalculator {
         // average all of the blocks in the frames that share the greatest number of blocks
         if (maxBlockNumber > 0) {
             int q = 0;
-            for (int block = 0; block < 7; block++) {
+            for (int block = 0; block < maxBlockNumber; block++) {
                 double[] pos = {0, 0};
                 for (int frame = 0; frame < 5; frame++) {
                     if (blockNumbers[frame] == maxBlockNumber) {
-                        pos[0] += distanceArray[0][block][frame] / maxBlockNumber;
-                        pos[1] += distanceArray[1][block][frame] / maxBlockNumber;
+                        pos[0] += distanceArray[0][block][frame] / validFrames;
+                        pos[1] += distanceArray[1][block][frame] / validFrames;
                     }
                 }
+                System.out.println("Avarage Pos of block " + block + " is: " + pos[0] + ", " + pos[1]);
                 if (pos[0] != 0 || pos[1] != 0) {
                     newDistanceArray[0][q] = pos[0];
                     newDistanceArray[1][q] = pos[1];
@@ -162,7 +168,30 @@ public class MultiDistanceCalculator {
     }
 
     public static double fastestSearchTime(double[] coords){
-        return Math.sqrt(Math.pow(coords[0], 2) + Math.pow(coords[1], 2));
+        return followHeart(coords);
+    }
+
+    public static double followHead(double[] coords){
+        //Intake Extension speed in inches per second
+        double forwardSpeed = 0.5;
+        //Turning speed in angle per second
+        double sidewaysSpeed = 0.01;
+
+        double finalTime = coords[0]/sidewaysSpeed + coords[1]/forwardSpeed;
+        return finalTime;
+    }
+
+    public static double followHeart(double[] coords) {
+        double dst = Math.sqrt(Math.pow(coords[0], 2) + Math.pow(coords[1], 2));
+        double angle = Math.atan2(coords[0], coords[1]);
+
+        //Intake Extension speed in inches per second
+        double extendSpeed = 0.5;
+        //Turning speed in angle per second
+        double turningSpeed = 0.01;
+
+        double finalTime = dst / extendSpeed + angle / turningSpeed;
+        return finalTime;
     }
 
     public void stopLimelight() {
