@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.text.style.IconMarginSpan;
+
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,6 +31,7 @@ public class NewTeleop {
 
     StateMachine stateMachine;
     ElapsedTime elapsedTime = new ElapsedTime();
+    FtcDashboard dashboard;
 
     //Debug Variables
     boolean debugAll = true;
@@ -73,7 +77,8 @@ public class NewTeleop {
     Timer climberTimer = new Timer();
     int climberPos = 0;
 
-    boolean climbTogg = false;
+    boolean climberActive = false;
+    boolean climbPause = false;
     boolean climbDebounce = false;
 
     boolean onceTime = true;
@@ -115,6 +120,9 @@ public class NewTeleop {
     }
 
     public void init() {
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
+
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
 
@@ -145,11 +153,13 @@ public class NewTeleop {
         manualVSlide = -gamepad2.right_stick_y;
         if (!powerTakeOff.isEnabled()) {
             manualHSlide = gamepad2.right_trigger - gamepad2.left_trigger + gamepad1.right_trigger - gamepad1.left_trigger;
+            manualArm = gamepad2.left_stick_y;
+            manualClimber = gamepad1.right_trigger - gamepad1.left_trigger;
         } else {
             manualHSlide = 0;
+            manualArm = 0;
+            manualClimber = 0;
         }
-        manualArm = gamepad2.left_stick_y;
-        manualClimber = gamepad1.right_trigger - gamepad1.left_trigger;
 
         highSpecimen = gamepad2.dpad_up;
         highBasket = gamepad2.dpad_right;
@@ -164,29 +174,31 @@ public class NewTeleop {
         intakeColor = gamepad2.square;//x
         unJam = gamepad2.circle;//b
 
-        //Toggle Climber
-        if (climbToggButton && !climbDebounce) {
-            climbTogg = !climbTogg;
-            climbDebounce = true;
-        }
-        if (!climbToggButton) {
-            climbDebounce = false;
-        }
-
+        //Climber Controls
 
         //Drivetrain
-        if (!climbTogg) {
+        if (!climberActive) {
+            if (climbToggButton) {
+                climberActive = true;
+                climbDebounce = true;
+            }
             //Drive time
             driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
 
-            if (climbTogg) {
+            if (climberActive) {
                 driveTrain.setRunToPos();
                 climberTimer.resetTimer();
             }
-        } else {
-//            if (!climbTogg) {
-//                powerTakeOff.disable();
-//            }
+        }
+        if (climberActive && !climbPause) {
+            if (climbToggButton && !climbDebounce) {
+                climbPause = true;
+                climber.setPos(climber.getPos());
+                driveTrain.setPTOPos(driveTrain.getPTOPos());
+            }
+            if (!climbToggButton) {
+                climbDebounce = false;
+            }
             switch (climberStage) {
                 case 0:
                     powerTakeOff.hookRelease();
@@ -231,7 +243,7 @@ public class NewTeleop {
                     }
                     break;
                 case 4:
-                    if (Math.abs(driveTrain.getPTOPos() - Constants.PTO.motorClimb) < 100) {
+                    if (Math.abs(driveTrain.getPTOPos() - Constants.PTO.motorClimb) < 200) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
 
@@ -261,15 +273,29 @@ public class NewTeleop {
             }
             if (climberStage == 3) {
                 driveTrain.moveBackWheels();
+
+            } else if (climberStage == 5) {
+                driveTrain.setPTOPower(0.3);
+
             } else if (climberStage == 6) {
                 driveTrain.setPTOPower(0);
+
             } else if (climberStage > 3) {
                 driveTrain.PTOLoop(0);
+
             }
 
             //manual movement
             climberPos += (int) (20 * (manualClimber));
             climber.setPos(climberPos);
+        }
+        if (climbPause) {
+            if (gamepad2.left_stick_y + gamepad2.right_trigger + gamepad2.left_trigger > 0.1) {
+                driveTrain.setPTOPower(-gamepad2.left_stick_y);
+                climber.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
+            } else {
+                driveTrain.PTOLoop(0);
+            }
         }
 
         //Manual Movements
@@ -547,8 +573,11 @@ public class NewTeleop {
         }
         if (debugClimber || debugAll) {
             telemetry.addLine("CLIMBER");
-            telemetry.addData("cLimberToggle", climbTogg);
+            telemetry.addData("climberActive", climberActive);
             telemetry.addData("climberStage", climberStage);
+            telemetry.addData("climbPause", climbPause);
+            telemetry.addData("climbDebounce", climbDebounce);
+
             telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
             telemetry.addData("PTO Pos", driveTrain.getPTOPos());
             telemetry.addData("PTO Err", Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos()));

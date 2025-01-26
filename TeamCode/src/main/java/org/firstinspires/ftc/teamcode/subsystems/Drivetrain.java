@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.SimplePIDControl;
@@ -166,6 +167,14 @@ public class Drivetrain {
                            leftBack.getPower(),
                            rightBack.getPower()
                           };
+    }
+
+    public double[] getDriveCurrent() {
+        return new double[]{leftFront.getCurrent(CurrentUnit.AMPS),
+                rightFront.getCurrent(CurrentUnit.AMPS),
+                leftBack.getCurrent(CurrentUnit.AMPS),
+                rightBack.getCurrent(CurrentUnit.AMPS)
+        };
     }
 
     public void stopDrive() {

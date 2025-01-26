@@ -21,7 +21,7 @@ public class Constants {
         public static double PTOServoClimb = 0.55;
         public static double speed = 1;
 
-        public static int motorClimb = 1150;
+        public static int motorClimb = 1200;
         public static int motorDrop = 0;
 
         public static double p = 0.03;
@@ -31,7 +31,7 @@ public class Constants {
     @Config
     public static class Climber {
         public static final int inPos = 8500;
-        public static final int hookPos = 1700;
+        public static final int hookPos = 1900;
         public static final int outPos  = 0;
     }
 

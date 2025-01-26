@@ -341,30 +341,17 @@ public class SampleAuto {
             case 16:
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
                     follower.followPath(intakeSubPath);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
-                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    outtakeSystem.setVSlidePos(0);
+                    outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
                     setPathState(17);
                 }
                 break;
             case 17:
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1) {
-                    target = blockVision.getBestSampleBlockPos();
-                    intakeSystem.setHSlidesInches(target.getY());
-                    follower.followYourHeart(target.getX());
+                if (follower.getError(subIntake).getX() < 2 && follower.getError(subIntake).getY() < 2) {
+                    outtakeSystem.setArmPos(0.5);
                     setPathState(18);
                 }
                 break;
-            case 18:
-                if (pathTimer.getElapsedTimeSeconds() > .3) {
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    setPathState(19);
-                }
-                break;
-            case 19:
-                if (intakeSystem.intakeUntil()) {
-                    intakeSystem.storePos();
-                    setPathState(20);
-                }
         }
     }
 
