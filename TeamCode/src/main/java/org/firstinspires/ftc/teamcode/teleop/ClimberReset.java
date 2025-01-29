@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 
@@ -13,7 +14,8 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 public class ClimberReset extends OpMode {
 
     Climber climber;
-    Drivetrain drivetrain;
+    Drivetrain driveTrain;
+    OuttakeSystem outtakeSystem;
     PowerTakeOff powerTakeOff;
 
     boolean ptoToggle = false;
@@ -22,14 +24,22 @@ public class ClimberReset extends OpMode {
     @Override
     public void init() {
         climber = new Climber(hardwareMap);
-        drivetrain = new Drivetrain(hardwareMap);
+        driveTrain = new Drivetrain(hardwareMap);
+        outtakeSystem = new OuttakeSystem(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
     }
 
     @Override
     public void loop() {
-        drivetrain.drive(-gamepad1.left_stick_y, 0, 0, DriveSpeedEnum.Fast);
+        driveTrain.drive(-gamepad1.left_stick_y, 0, 0, DriveSpeedEnum.Fast);
         climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+        outtakeSystem.manualVSlide(-gamepad1.right_stick_y);
+        if (gamepad1.a) {
+            outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+        }
+        if (gamepad1.b) {
+            outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+        }
 
         if (gamepad1.back && !ptoDebounce) {
             ptoToggle = !ptoToggle;
@@ -49,5 +59,6 @@ public class ClimberReset extends OpMode {
         } else {
             powerTakeOff.hookGrab();
         }
+        telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
     }
 }
