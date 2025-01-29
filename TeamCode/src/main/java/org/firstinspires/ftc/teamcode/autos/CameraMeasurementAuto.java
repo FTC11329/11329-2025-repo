@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
@@ -64,6 +65,11 @@ public class CameraMeasurementAuto extends OpMode {
 
     Pose target;
 
+    private int measurementType = 0;
+    private  double movementX = 1;
+    private  double extendo = 1;
+    private  double rotation = 1;
+
     private boolean driveShake = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
@@ -74,6 +80,7 @@ public class CameraMeasurementAuto extends OpMode {
     private Path extraIntakePath;
 
     private Path parkPath; //IS THAT A BTD REFERENCE?
+
 
 
     /** This method is called once at the init of the OpMode. **/
@@ -96,8 +103,6 @@ public class CameraMeasurementAuto extends OpMode {
         opmodeTimer.resetTimer();
 
         follower.setStartingPose(startPose);
-
-        buildPaths();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
@@ -112,41 +117,10 @@ public class CameraMeasurementAuto extends OpMode {
         setPathState(0);
     }
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
-    public void buildPaths() {
-        /* There are two major types of paths components: BezierCurves and BezierLines.
-         *    * BezierCurves are curved, and require >= 3 points. There are the start and end points, and the control points.
-         *    - Control points manipulate the curve between the start and end points.
-         *    - A good visualizer for this is [this](https://pedro-path-generator.vercel.app/).
-         *    * BezierLines are straight, and require 2 points. There are the start and end points.
-         * Paths have can have heading interpolation: Constant, Linear, or Tangential
-         *    * Linear heading interpolation:
-         *    - Pedro will slowly change the heading of the robot from the startHeading to the endHeading over the course of the entire path.
-         *    * Constant Heading Interpolation:
-         *    - Pedro will maintain one heading throughout the entire path.
-         *    * Tangential Heading Interpolation:
-         *    - Pedro will follows the angle of the path such that the robot is always driving forward when it follows the path.
-         * PathChains hold Path(s) within it and are able to hold their end point, meaning that they will holdPoint until another path is followed.
-         * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
-
-        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-//        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
-//        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
-        firstIntakePath        = follower.linearPathBuilder(startPose, subIntake);
-
-        //frontWallToWall
-        spitBlockPath = new Path(new BezierCurve(new Point(subIntake), new Point(startPose), new Point(placeSub1)));
-        spitBlockPath.setConstantHeadingInterpolation(subIntake.getHeading());
-
-        extraIntakePath = new Path(new BezierCurve(new Point(spitBlock), new Point(startPose), new Point(subIntake)));
-        extraIntakePath.setConstantHeadingInterpolation(spitBlock.getHeading());
-    }
-
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() {
+    public void autonomousPathUpdateX() {
         switch (pathState) {
             case 0:
                 // drive to the sub
@@ -154,17 +128,120 @@ public class CameraMeasurementAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                follower.followYourHeart(1.0);
+                follower.followYourHeart(movementX);
                 setPathState(2);
+                break;
             case 2:
-                if (follower.getVelocityMagnitude() < .2    ) {
+                if (follower.getVelocityMagnitude() < .05) {
                     telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    setPathState(3);
                 }
-
-
+                break;
+            case 3:
+                follower.followYourHeart(-movementX);
+                setPathState(4);
+                break;
+            case 4:
+                if (follower.getVelocityMagnitude() < .05) {
+                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (follower.getVelocityMagnitude() < .01){
+                    if (movementX > 12) {
+                        setPathState(6);
+                    }
+                    else {
+                        movementX += 2;
+                        setPathState(0);
+                    }
+                }
+                break;
         }
     }
 
+    public void autonomousPathUpdateExtendo() {
+        switch (pathState) {
+            case 0:
+                // drive to the sub
+                intakeSystem.setIntakePower(1);
+                setPathState(1);
+                break;
+            case 1:
+                intakeSystem.setHSlidesInches(extendo);
+                setPathState(2);
+                break;
+            case 2:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
+                    telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    setPathState(3);
+                }
+                break;
+            case 3:
+                intakeSystem.setHSlidePos(Constants.Intake.minSlidePos);
+                setPathState(4);
+                break;
+            case 4:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
+                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .01){
+                    if (extendo > 12) {
+                        setPathState(6);
+                    }
+                    else {
+                        extendo += 2;
+                        setPathState(0);
+                    }
+                }
+                break;
+        }
+    }
+
+    //Isn't quite finished yet.
+    public void autonomousPathUpdateRotation() {
+        switch (pathState) {
+            case 0:
+                // drive to the sub
+                setPathState(1);
+                break;
+            case 1:
+                driveTrain.drive(0,0, rotation, DriveSpeedEnum.Auto);
+                setPathState(2);
+                break;
+            case 2:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
+                    telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    setPathState(3);
+                }
+                break;
+            case 3:
+                driveTrain.drive(0,0, -rotation, DriveSpeedEnum.Auto);
+                setPathState(4);
+                break;
+            case 4:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
+                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    setPathState(5);
+                }
+                break;
+            case 5:
+                if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .01){
+                    if (rotation > 12) {
+                        setPathState(6);
+                    }
+                    else {
+                        extendo += 2;
+                        setPathState(0);
+                    }
+                }
+                break;
+        }
+    }
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
@@ -178,13 +255,14 @@ public class CameraMeasurementAuto extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        autonomousPathUpdate();
-        if (driveShake && pathTimer.getElapsedTimeSeconds() > 2.5) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 2.5) * 2.5) % 2 == 0 ){
-                driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
-            } else {
-                driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
-            }
+        intakeSystem.update();
+        switch (measurementType){
+            case 0:
+                autonomousPathUpdateX();
+                break;
+            case 1:
+                autonomousPathUpdateExtendo();
+                break;
         }
 
         // Feedback to FTC Dashboard
