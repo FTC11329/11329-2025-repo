@@ -24,21 +24,19 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 public class NewTeleop {
     Climber climber;
     Drivetrain driveTrain;
-    BlockVision blockVision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
 
     StateMachine stateMachine;
     ElapsedTime elapsedTime = new ElapsedTime();
-    FtcDashboard dashboard;
 
     //Debug Variables
     boolean debugAll = false;
-    boolean debugState = true;
+    boolean debugState = false;
     boolean debugStateMachine = false;
     boolean debugPos = false;
-    boolean debugClimber = true;
+    boolean debugClimber = false ;
     boolean debugMisc = false;
 
     //Input Variables
@@ -104,6 +102,8 @@ public class NewTeleop {
 
     boolean unjamming = false;
     double unjammingTime = 2000000000;
+    boolean unjamAfterIntake = false;
+    double unjamAfterIntakeTime = 2000000000;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -142,6 +142,7 @@ public class NewTeleop {
 
     public void loop() {
         // Inputs
+        debugAll = gamepad1.triangle;
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
         driveRotation = -gamepad1.right_stick_x;
@@ -341,30 +342,60 @@ public class NewTeleop {
 
         //Presets
         //Button to State Machine class
-        if (highSpecimen && !stateMachine.isBusy()) {
+        if (highSpecimen) {
+            onceTime = true;
             stateMachine.goHighSpecimen(atStorePos);
         }
-        if (highBasket && !stateMachine.isBusy()) {
+        if (highBasket) {
+            onceTime = true;
             stateMachine.goHighBasket(hasInIntake, transferred, atStorePos);
         }
-        if (lowBasket && !stateMachine.isBusy()) {
+        if (lowBasket) {
+            onceTime = true;
             stateMachine.goLowBasket(hasInIntake, transferred, atStorePos);
         }
-        if (wallPreset && !stateMachine.isBusy()) {
-            stateMachine.goWall(hasInIntake, transferred, atStorePos);
+        if (wallPreset) {
+            onceTime = true;
+            stateMachine.goWall(hasInIntake, transferred, atStorePos, whereAmI == PlacePosEnum.highSpecimen);
         }
-        if (storePos && !stateMachine.isBusy()) {
+        if (storePos) {
+            onceTime = true;
+            stateMachine.resetValues();
             intakeSystem.storePos();
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goStore();
+            stateMachine.goStore(whereAmI == PlacePosEnum.highSpecimen);
         }
-        if (transfer && !stateMachine.isBusy()) {
-            stateMachine.goTransfer(atStorePos);
+        if (transfer) {
+            onceTime = true;
+            stateMachine.goTransfer(atStorePos, whereAmI == PlacePosEnum.highSpecimen);
         }
 
 
         //State Machine class to movement
+        if (stateMachine.doGoToStoreFromTopSpec()) {
+            if (onceTime) {
+                storeTime = elapsedTime.milliseconds();
+                onceTime = false;
+            }
+            if (elapsedTime.milliseconds() < storeTime + 100) {
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                clawToggle = false;
+                outtakeSystem.setVSlidePos(1514);
+            }
+            if (elapsedTime.milliseconds() > storeTime + 350 && elapsedTime.milliseconds() < storeTime + 450) {
+                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                outtakeSystem.setVSlidePos(1712);
+            }
+            if (elapsedTime.milliseconds() > storeTime + 600 && elapsedTime.milliseconds() < storeTime + 700) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+
+                atStorePos = true;
+                onceTime = true;
+                stateMachine.finishGoToStoreFromSpec();
+            }
+        }
+
         if (stateMachine.doGoToStore()) {
             if (onceTime) {
                 storeTime = elapsedTime.milliseconds();
@@ -381,35 +412,38 @@ public class NewTeleop {
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
             }
             if (elapsedTime.milliseconds() > storeTime + 700 && elapsedTime.milliseconds() < storeTime + 800) {
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
+                outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
                 atStorePos = true;
                 onceTime = true;
                 stateMachine.finishGoToStore();
             }
         }
 
-        if (stateMachine.doTransfer() && intakeSystem.getHSlidePos() < 75) {
+        if (stateMachine.doTransfer()) {
             if (onceTime) {
                 transferTime = elapsedTime.milliseconds();
                 onceTime = false;
             }
-            if (elapsedTime.milliseconds() > transferTime + 0 && elapsedTime.milliseconds() < transferTime + 100) {
+            if (elapsedTime.milliseconds() > transferTime + 450 && elapsedTime.milliseconds() < transferTime + 550) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-            }
-            if (elapsedTime.milliseconds() > transferTime + 400 && elapsedTime.milliseconds() < transferTime + 500) {
-                outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                if (intakeSystem.getHSlidePos() > 150) {
+                    transferTime = elapsedTime.milliseconds() - 200;
+                }
             }
             if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 800 && elapsedTime.milliseconds() < transferTime + 900) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 clawToggle = true;
             }
-            if (elapsedTime.milliseconds() > transferTime + 900 && elapsedTime.milliseconds() < transferTime + 1000) {
+            if (elapsedTime.milliseconds() > transferTime + 1100 && elapsedTime.milliseconds() < transferTime + 1200) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
-            if (elapsedTime.milliseconds() > transferTime + 1000 && elapsedTime.milliseconds() < transferTime + 1100) {
+            if (elapsedTime.milliseconds() > transferTime + 1200 && elapsedTime.milliseconds() < transferTime + 1300) {
                 hasInIntake = false;
                 transferred = true;
                 onceTime = true;
@@ -433,21 +467,38 @@ public class NewTeleop {
         }
 
         if (stateMachine.doHighSpecimen()) {
+            clawToggle = true;
             outtakeSystem.placePos(PlacePosEnum.highSpecimen);
             whereAmI = PlacePosEnum.highSpecimen;
             stateMachine.finishHighSpecimen();
         }
 
         if (stateMachine.doLowBasket()) {
-            outtakeSystem.placePos(PlacePosEnum.lowBasket);
-            whereAmI = PlacePosEnum.lowBasket;
-            stateMachine.finishLowBasket();
+            if (onceTime) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.lowBasketSlides);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                whereAmI = PlacePosEnum.lowBasket;
+                onceTime = false;
+            }
+            if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
+                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                stateMachine.finishLowBasket();
+                onceTime = true;
+            }
         }
 
         if (stateMachine.doHighBasket()) {
-            outtakeSystem.placePos(PlacePosEnum.highBasket);
-            whereAmI = PlacePosEnum.highBasket;
-            stateMachine.finishHighBasket();
+            if (onceTime) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                whereAmI = PlacePosEnum.highBasket;
+                onceTime = false;
+            }
+            if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
+                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                stateMachine.finishHighBasket();
+                onceTime = true;
+            }
         }
 
         if (stateMachine.doWall()) {
@@ -469,6 +520,7 @@ public class NewTeleop {
 
             if (clawToggle && whereAmI == PlacePosEnum.wall) {
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                transferred = true;
                 grabbingOffWall = true;
                 grabbingOffWallTime = elapsedTime.milliseconds();
             } else if (clawToggle) {
@@ -480,6 +532,11 @@ public class NewTeleop {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 droppingBasket = true;
                 droppingBasketTime = elapsedTime.milliseconds();
+            } else if (!clawToggle && whereAmI == PlacePosEnum.highSpecimen) {
+                transferred = false;
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+
+                stateMachine.goStore(true);
             } else if (!clawToggle) {
                 transferred = false;
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -501,15 +558,19 @@ public class NewTeleop {
                 outtakeSystem.setArmPos(Constants.Outtake.upArm);
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 500) {
-                stateMachine.goStore();
+                stateMachine.goStore(false);
                 droppingBasket = false;
             }
         }
 
-        if (gamepad1.touchpad) {
-            extendHSlide = (int) ((gamepad1.touchpad_finger_1_x + 1)/2.0 * Constants.Intake.maxSlidePos);
-        }
         //Intakes
+        if (gamepad1.touchpad_finger_1) {
+            extendHSlide = (int) ((gamepad1.touchpad_finger_1_x + 1)/2.0 * Constants.Intake.maxSlidePos);
+            if (gamepad1.touchpad) {
+                intakeSystem.setHSlidePos(extendHSlide);
+            }
+        }
+
         if (intakeColor && !intakeing && !intakeingDebounce) {
             intakeSystem.setHSlidePos(extendHSlide);
             intakeingColor = true;
@@ -523,61 +584,78 @@ public class NewTeleop {
 
         if (intakeing) {
             if (intakeSystem.intakeUntil()) {
-                if (gamepad1.touchpad) {
-                    intakeSystem.setHSlidePos(extendHSlide);
-                }
                 intakeSystem.storePos();
                 gamepad1.rumble(0,1,300);
                 gamepad2.rumble(0,1,300);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 intakeing = false;
+                if (atStorePos) {
+                    stateMachine.goTransfer(atStorePos, whereAmI == PlacePosEnum.highSpecimen);
+                }
+                unjamAfterIntakeTime = elapsedTime.milliseconds();
+                unjamAfterIntake = true;;
             }
         }
         if (intakeingColor) {
             if (intakeSystem.intakeUntilColor()) {
-                if (gamepad1.touchpad) {
-                    intakeSystem.setHSlidePos(extendHSlide);
-                }
                 intakeSystem.storePos();
-                gamepad1.rumble(0,1,300);
-                gamepad2.rumble(0,1,300);
+                gamepad1.rumble(0, 1, 300);
+                gamepad2.rumble(0, 1, 300);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 intakeingColor = false;
+                if (atStorePos) {
+                    stateMachine.goTransfer(atStorePos, whereAmI == PlacePosEnum.highSpecimen);
+                }
             }
         }
 
         //makes the intake wrist not hit the robot while coming out
-        if ((intakeingColor && !intakeColor) || (intakeing && !intake) && elapsedTime.milliseconds() > intakeWristTime + 300) {
+        if ((intakeingColor && !intakeColor) || (intakeing && !intake) && !transferred && intakeSystem.getHSlidePos() > Constants.Intake.minWhileDownPos) {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
         }
+
         //Unjamming intake
+        if (unjamAfterIntake) {
+            if (elapsedTime.milliseconds() < unjamAfterIntakeTime + Constants.Intake.unjamTimeMillis) {
+                unJam = true;
+            }
+            if (elapsedTime.milliseconds() > unjamAfterIntakeTime + Constants.Intake.unjamTimeMillis) {
+                unjamAfterIntake = false;
+            }
+        }
+
         if (unJam) {
             if (!intakeing && !intakeingColor) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
             }
             unjamming = true;
             unjammingTime = elapsedTime.milliseconds();
+
             intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
         }
+
         if (unjamming && !unJam) {
-            intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+            if (!(intakeing || intakeingColor)) {
+                intakeSystem.storePos();
+            }
+
             if (intakeSystem.intakeUntil()) {
 
                 intakeSystem.setIntakePower(0);
                 unjamming = false;
             }
-            if (elapsedTime.milliseconds() >  unjammingTime + 600) {
+            if (elapsedTime.milliseconds() > unjammingTime + 600) {
                 hasInIntake = false;
                 intakeSystem.setIntakePower(0);
                 unjamming = false;
             }
         }
 
-        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 92) {
+        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91) {
             gamepad1.rumble(1000);
             gamepad2.rumble(1000);
         }
@@ -591,11 +669,13 @@ public class NewTeleop {
             telemetry.addData("hasInIntake", hasInIntake);
             telemetry.addData("transferred", transferred);
             telemetry.addData("atStore", atStorePos);
+            telemetry.addData("onceTime", onceTime);
             telemetry.addData("where am I", whereAmI);
             telemetry.addLine();
         }
         if (debugStateMachine || debugAll) {
             telemetry.addLine("STATE MACHINE");
+            telemetry.addData("doGoToStoreFromSpec", stateMachine.doGoToStoreFromTopSpec());
             telemetry.addData("doGoToStore", stateMachine.doGoToStore());
             telemetry.addData("doTransfer", stateMachine.doTransfer());
             telemetry.addData("doUnStore", stateMachine.doUnStore());
@@ -644,7 +724,6 @@ public class NewTeleop {
             //TODO add more Things here
             telemetry.addLine();
         }
-
         telemetry.update();
     }
 

@@ -12,6 +12,7 @@ public class StateMachine {
     boolean hasInIntake = false;
     boolean transferred = false;
     boolean atStorePos = false;
+    boolean atTopSpecimen = false;
 
     public void resetValues() {
         goingHighSpecimen = false;
@@ -25,6 +26,7 @@ public class StateMachine {
         hasInIntake = false;
         transferred = false;
         atStorePos = false;
+        atTopSpecimen = false;
     }
 
     //Functions that start the movement of the robot
@@ -34,6 +36,7 @@ public class StateMachine {
         this.hasInIntake = false;
         this.transferred = true;
         this.atStorePos = atStorePos;
+        this.atTopSpecimen = false;
     }
 
     public void goLowBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
@@ -42,6 +45,7 @@ public class StateMachine {
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
         this.atStorePos = atStorePos;
+        this.atTopSpecimen = false;
     }
 
     public void goHighBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
@@ -50,37 +54,45 @@ public class StateMachine {
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
         this.atStorePos = atStorePos;
+        this.atTopSpecimen = false;
     }
 
-    public void goWall(boolean hasInIntake, boolean transferred, boolean atStorePos) {
+    public void goWall(boolean hasInIntake, boolean transferred, boolean atStorePos, boolean atTopSpecimen) {
         resetValues();
         goingWall = true;
         this.hasInIntake = hasInIntake;
         this.transferred = transferred;
         this.atStorePos = atStorePos;
+        this.atTopSpecimen = atTopSpecimen;
     }
 
-    public void goStore() {
+    public void goStore(boolean atTopSpecimen) {
         resetValues();
         goingStore = true;
         this.hasInIntake = true;
         this.transferred = false;
         this.atStorePos = false;
+        this.atTopSpecimen = atTopSpecimen;
     }
 
-    public void goTransfer(boolean atStorePos) {
+    public void goTransfer(boolean atStorePos, boolean atTopSpecimen) {
         resetValues();
         goingTransfer = true;
         this.hasInIntake = true;
         this.transferred = false;
         this.atStorePos = atStorePos;
+        this.atTopSpecimen = atTopSpecimen;
     }
 
 
 
     //Functions that return when we should do certain things on the robot
+    public boolean doGoToStoreFromTopSpec() {
+        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos && atTopSpecimen;
+    }
+
     public boolean doGoToStore() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos;
+        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos && !atTopSpecimen;
     }
 
     public boolean doTransfer() {
@@ -110,6 +122,12 @@ public class StateMachine {
 
 
     //Functions to finish one thing and start the next
+    public void finishGoToStoreFromSpec() {
+        goingStore = false;
+
+        atStorePos = true;
+    }
+
     public void finishGoToStore() {
         goingStore = false;
 

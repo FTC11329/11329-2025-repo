@@ -75,7 +75,7 @@ public class Constants {
         public static double autoArmClimb = 0.628;
 
         public static int intakeSlides = 200;
-        public static int intakeWaitSlides = 475;
+        public static int intakeWaitSlides = 350;
         public static int intakeWallSlides = 70;
         public static int intakeWallAutoSlides = 160;
         public static int safeFromWallSlides = 360;
