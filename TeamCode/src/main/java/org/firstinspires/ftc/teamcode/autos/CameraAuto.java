@@ -35,7 +35,7 @@ public class CameraAuto extends OpMode {
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = true; // determines if you rotate the robot or if you move horizontally
+    boolean polar = false; // determines if you rotate the robot or if you move horizontally
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
@@ -111,27 +111,7 @@ public class CameraAuto extends OpMode {
         setPathState(0);
     }
 
-    /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
-     * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
-        /* There are two major types of paths components: BezierCurves and BezierLines.
-         *    * BezierCurves are curved, and require >= 3 points. There are the start and end points, and the control points.
-         *    - Control points manipulate the curve between the start and end points.
-         *    - A good visualizer for this is [this](https://pedro-path-generator.vercel.app/).
-         *    * BezierLines are straight, and require 2 points. There are the start and end points.
-         * Paths have can have heading interpolation: Constant, Linear, or Tangential
-         *    * Linear heading interpolation:
-         *    - Pedro will slowly change the heading of the robot from the startHeading to the endHeading over the course of the entire path.
-         *    * Constant Heading Interpolation:
-         *    - Pedro will maintain one heading throughout the entire path.
-         *    * Tangential Heading Interpolation:
-         *    - Pedro will follows the angle of the path such that the robot is always driving forward when it follows the path.
-         * PathChains hold Path(s) within it and are able to hold their end point, meaning that they will holdPoint until another path is followed.
-         * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
-
-        /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-//        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
-//        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
         firstIntakePath        = follower.linearPathBuilder(startPose, subIntake);
 
         //frontWallToWall
@@ -155,18 +135,16 @@ public class CameraAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3 || true) {
+                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3) {
                     //camera takes photo and starts intake
-                    target = blockVision.getBestBlockPos();
-                    if (target != null || true){
+                    target = multiDistanceCalculator.getBestColoredBlock(1); //Blue
+                    if (target != null){
                         if (polar) {
                             //Thanks Mr. Raney
-//                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
-//                            double theta = Math.atan(target.getY()/ target.getX());
-                            intakeSystem.setHSlidesInches(15);
-                            follower.followYourHead(Math.toRadians(35));
-//                            telemetry.addData("theta", theta);
-//                            telemetry.addData("are", r);
+                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
+                            double theta = Math.atan(target.getY()/ target.getX());
+                            intakeSystem.setHSlidesInches(r);
+                            follower.followYourHead(Math.toRadians(theta));
                         } else {
                             intakeSystem.setHSlidesInches(target.getY());
                             follower.followYourHeart(target.getX());
