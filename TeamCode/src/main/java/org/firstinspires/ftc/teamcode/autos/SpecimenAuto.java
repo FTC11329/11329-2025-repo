@@ -23,7 +23,7 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Blue")
+@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAuto extends OpMode {
 
     Climber climber;
@@ -66,11 +66,11 @@ public class SpecimenAuto extends OpMode {
     private final Pose spitSpike2 = new Pose(41, -53, Math.toRadians(-35));
     private final Pose spitSpike3 = new Pose(41, -53, Math.toRadians(-35));
 
-    private final Pose frontWall = new Pose(38, -54, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(38, -61.7, Math.toRadians(90));
+    private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38, -60.5, Math.toRadians(90));
 
     private final Pose controlPointPose = new Pose(38, -34, Math.toRadians(59));;
-    private final Pose park = new Pose(63.75, -64.3, Math.toRadians(90));
+    private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     private final double humanWaitTime = 0.9;
     private final double humanWaitTime2 = 1.25;
@@ -78,11 +78,15 @@ public class SpecimenAuto extends OpMode {
     private final double pickupTimeout = 1.5;
 
     private final double spitTime = 0.5;
+    private double loopTime = 0;
 
     private boolean driveShake = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload;
+
+    private Path skipSpitSpike1Path;
+    private Path skipSpitSpike2Path;
 
     private Path pickupSpike1Path;
     private Path spitSpike1Path;
@@ -166,6 +170,10 @@ public class SpecimenAuto extends OpMode {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
+
+        skipSpitSpike1Path  = follower.linearPathBuilder(pickupSpike1, pickupSpike2);
+        skipSpitSpike2Path  = follower.linearPathBuilder(pickupSpike2, pickupSpike3);
+
         scorePreload        = follower.linearPathBuilder(startPose, preloadPlace);
 
         pickupSpike1Path    = follower.linearPathBuilder(preloadPlace, pickupSpike1);
@@ -178,6 +186,8 @@ public class SpecimenAuto extends OpMode {
         spitSpike3Path      = follower.linearPathBuilder(pickupSpike3, spitSpike3);
 
         frontWallToWall     = follower.linearPathBuilder(frontWall, pickupWall);
+
+
 
 
         toFrontWall1 = follower.linearPathBuilder(spitSpike3, frontWall);
@@ -249,13 +259,22 @@ public class SpecimenAuto extends OpMode {
                 break;
             //done intaking spike1 move to spiting
             case 4:
-                if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (intakeSystem.intakeUntil()) {
                     driveShake = false;
                     follower.followPath(spitSpike1Path);
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides);
                     setPathState(5);
+                }
+                //Skips spitting
+                if (pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                    driveShake = false;
+                    follower.followPath(skipSpitSpike1Path);
+                    intakeSystem.setIntakePower(0);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoHSlides);
+                    setPathState(7);
                 }
                 break;
             //start spiting
@@ -270,7 +289,6 @@ public class SpecimenAuto extends OpMode {
             case 6:
                 if (pathTimer.getElapsedTimeSeconds() > spitTime) {
                     follower.followPath(pickupSpike2Path, false);
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     intakeSystem.setIntakePower(0);
                     setPathState(7);
                 }
@@ -279,13 +297,14 @@ public class SpecimenAuto extends OpMode {
             case 7:
                 if (follower.getError(pickupSpike2).getHeading() < Math.toRadians(25)) {
                     driveShake = true;
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(8);
                 }
                 break;
             //done intaking spike2 move to spiting
             case 8:
-                if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (intakeSystem.intakeUntil()) {
                     driveShake = false;
                     follower.followPath(spitSpike2Path);
                     intakeSystem.setIntakePower(0);
@@ -293,6 +312,16 @@ public class SpecimenAuto extends OpMode {
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides - 200);
                     setPathState(9);
                 }
+                //Skips spit
+                if (pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                    driveShake = false;
+                    follower.followPath(skipSpitSpike2Path);
+                    intakeSystem.setIntakePower(0);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoHSlides - 200);
+                    setPathState(11);
+                }
+
                 break;
             //start spiting
             case 9:
@@ -537,11 +566,15 @@ public class SpecimenAuto extends OpMode {
         Drawing.drawDebug(follower);
 
         // Feedback to Driver Hub
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        telemetry.update();
+        if (false) {
+            telemetry.addData("path state", pathState);
+            telemetry.addData("x", follower.getPose().getX());
+            telemetry.addData("y", follower.getPose().getY());
+            telemetry.addData("heading", follower.getPose().getHeading());
+            telemetry.addData("loopTime", loopTime - opmodeTimer.getElapsedTime());
+            loopTime = opmodeTimer.getElapsedTime();
+            telemetry.update();
+        }
     }
 
     /** We do not use this because everything should automatically disable **/

@@ -32,7 +32,7 @@ public class NewTeleop {
     ElapsedTime elapsedTime = new ElapsedTime();
 
     //Debug Variables
-    boolean debugAll = false;
+    boolean debugAll = true;
     boolean debugState = false;
     boolean debugStateMachine = false;
     boolean debugPos = false;
@@ -427,23 +427,23 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > transferTime + 450 && elapsedTime.milliseconds() < transferTime + 550) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                 if (intakeSystem.getHSlidePos() > 150) {
-                    transferTime = elapsedTime.milliseconds() - 200;
+                    transferTime = elapsedTime.milliseconds() - 500;
                 }
             }
             if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
             }
-            if (elapsedTime.milliseconds() > transferTime + 800 && elapsedTime.milliseconds() < transferTime + 900) {
+            if (elapsedTime.milliseconds() > transferTime + 950 && elapsedTime.milliseconds() < transferTime + 1050) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 clawToggle = true;
             }
-            if (elapsedTime.milliseconds() > transferTime + 1100 && elapsedTime.milliseconds() < transferTime + 1200) {
+            if (elapsedTime.milliseconds() > transferTime + 1250 && elapsedTime.milliseconds() < transferTime + 1350) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
-                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
-            if (elapsedTime.milliseconds() > transferTime + 1200 && elapsedTime.milliseconds() < transferTime + 1300) {
+            if (elapsedTime.milliseconds() > transferTime + 1400 && elapsedTime.milliseconds() < transferTime + 1500) {
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 hasInIntake = false;
                 transferred = true;
                 onceTime = true;

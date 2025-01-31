@@ -38,7 +38,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 100;
+        public static int safeTransferSlide = 150;
         public static int minWhileDownPos = 477;
         public static int autoHSlides = 1050;
         public static int intakeSlidePos = 1325;
@@ -49,8 +49,8 @@ public class Constants {
         public static double wristClear = 0.25;
         public static double wristDown = 0.425;
 
-        public static double intakeSpeed = 1;
-        public static double transferSpeed = 1;
+        public static double intakeSpeed = 0.9;
+        public static double transferSpeed = 0.9;
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
@@ -62,7 +62,7 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.92;
+        public static double intakeArm = 0.925;
         public static double initTeleopArm = 0.66666;
         public static double initAutoArm = 0.76;
         public static double preTransferArm = 0.666666;
@@ -74,12 +74,12 @@ public class Constants {
         public static double basketArm = 0.22;
         public static double autoArmClimb = 0.628;
 
-        public static int intakeSlides = 200;
-        public static int intakeWaitSlides = 350;
-        public static int intakeWallSlides = 70;
+        public static int intakeSlides = 225;
+        public static int intakeWaitSlides = 650;
+        public static int intakeWallSlides = 160;
         public static int intakeWallAutoSlides = 160;
         public static int safeFromWallSlides = 360;
-        public static int safeFromHSlides = 600;
+        public static int safeFromHSlides = 650;
         public static int highSpecimenSlides = 1088;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
