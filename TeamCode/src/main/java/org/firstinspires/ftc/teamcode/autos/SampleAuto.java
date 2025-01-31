@@ -124,7 +124,7 @@ public class SampleAuto {
      * It runs all the setup actions, including building paths and starting the path system **/
     public void start() {
         opmodeTimer.resetTimer();
-        setPathState(0);
+        setPathState(SampleAutoEnum.scorePreload);
     }
 
     public void buildPaths() {
@@ -378,14 +378,12 @@ public class SampleAuto {
                     setPathState(SampleAutoEnum.placeSample4);
                 }
                 break;
-                //go place
             case placeSample4:
                 if (!transferSample) {
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
 
                     setPathState(SampleAutoEnum.dropClaw5);
                 }
-                //go place
             case dropClaw5:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -393,23 +391,13 @@ public class SampleAuto {
                     setPathState(SampleAutoEnum.intakeArm2);
                 }
                 break;
-            //go intake
             case intakeArm2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-
-                    setPathState(SampleAutoEnum.intakeSlides);
+                    
+                    setPathState(SampleAutoEnum.goSub1);
                 }
                 break;
-            //go intake
-            case intakeSlides:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
-
-                    setPathState(SampleAutoEnum.newAction);
-                }
-                break;
-
         }
     }
 
