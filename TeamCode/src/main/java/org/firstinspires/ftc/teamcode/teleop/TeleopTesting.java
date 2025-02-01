@@ -38,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = 0.289;
+    double testValue = Constants.Intake.wristStore;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -206,9 +206,9 @@ public class TeleopTesting {
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
-//        intakeSystem.setIntakeServoPos(testValue);
-        outtakeSystem.setArmPos(testValue3);
-        telemetry.addData("testValue H but not really though", testValue);
+        intakeSystem.setIntakeServoPos(testValue);
+//        outtakeSystem.setArmPos(testValue3);
+        telemetry.addData("testValue H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
