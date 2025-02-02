@@ -509,7 +509,7 @@ public class NewTeleop {
                 whereAmI = PlacePosEnum.highBasket;
                 onceTime = false;
             }
-            if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
+            if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
                 outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                 stateMachine.finishHighBasket();
                 onceTime = true;

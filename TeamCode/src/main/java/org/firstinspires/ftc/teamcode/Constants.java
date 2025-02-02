@@ -49,7 +49,7 @@ public class Constants {
         public static double wristClear = 0.25;
         public static double wristDown = 0.504;
 
-        public static double intakeSpeed = 0.9;
+        public static double intakeSpeed = 0.8;
         public static double transferSpeed = 0.9;
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
@@ -77,7 +77,7 @@ public class Constants {
         public static int intakeSlides = 225;
         public static int intakeWaitSlides = 650;
         public static int intakeWallSlides = 80;
-        public static int intakeWallAutoSlides = 80;
+        public static int intakeWallAutoSlides = 130;
         public static int safeFromWallSlides = 360;
         public static int safeFromHSlides = 650;
         public static int highSpecimenSlides = 1088;
