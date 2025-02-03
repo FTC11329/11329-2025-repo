@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
@@ -122,6 +123,23 @@ public class CameraAuto extends OpMode {
         extraIntakePath.setConstantHeadingInterpolation(spitBlock.getHeading());
     }
 
+    public Pose getBlockPosition() {
+
+        double[][][] distanceArray = multiDistanceCalculator.fillImageArray();
+        telemetry.addData("newDistanceArray[][][]: ", distanceArray);
+
+        double[][] newDistanceArray = multiDistanceCalculator.findAverageOfFullFrames(distanceArray);
+        telemetry.addData("newDistanceArray[][]: ", newDistanceArray);
+
+        // Call the method to find the smallest non-zero values
+        double[] finalValues = multiDistanceCalculator.MinimizeTime(newDistanceArray);
+        telemetry.addData("finalValues[][]: ", finalValues);
+
+        //find the closest non-zero distance block
+
+        return new Pose(finalValues[0], finalValues[1], 0.0);
+    }
+
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
@@ -129,51 +147,54 @@ public class CameraAuto extends OpMode {
         switch (pathState) {
             case 0:
                 // drive to the sub
-                follower.setMaxPower(1);
-//                follower.followPath(firstIntakePath, true);
-                outtakeSystem.setArmPos(Constants.Outtake.upArm);
+//                follower.setMaxPower(1);
+                //follower.followPath(firstIntakePath, true);
+//                outtakeSystem.setArmPos(Constants.Outtake.upArm);
                 setPathState(1);
                 break;
             case 1:
-                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3) {
-                    //camera takes photo and starts intake
-                    target = multiDistanceCalculator.getBestColoredBlock(1); //Blue
-                    if (target != null){
-                        if (polar) {
-                            //Thanks Mr. Raney
-                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
-                            double theta = Math.atan(target.getY()/ target.getX());
-                            intakeSystem.setHSlidesInches(r);
-                            follower.followYourHead(Math.toRadians(theta));
-                        } else {
-                            intakeSystem.setHSlidesInches(target.getY());
-                            follower.followYourHeart(target.getX());
-                        }
-                        driveShake = true; //updated so that there is a longer delay
-                        setPathState(2);
-                    } else {
-                        telemetry.addData("","No Blocks Found");
-                        telemetry.update();
-                    }
-
+                target = getBlockPosition(); //Blue
+                telemetry.addData("blockpos", target);
+                telemetry.update();
+//                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3 || true) {
+//                    //camera takes photo and starts intake
+//
+//                    if (target != null){
+//                        if (polar) {
+//                            //Thanks Mr. Raney
+//                            double r = Math.sqrt((target.getY()*target.getY())+(target.getX()*target.getX()));
+//                            double theta = Math.atan(target.getY()/ target.getX());
+//                            intakeSystem.setHSlidesInches(r);
+//                            follower.followYourHead(Math.toRadians(theta));
+//                        } else {
+//                            intakeSystem.setHSlidesInches(target.getY());
+//                            follower.followYourHeart(target.getX());
+//                        }
+//                        driveShake = true; //updated so that there is a longer delay
+//                        setPathState(2);
+//                    } else {
+//                        telemetry.addData("","No Blocks Found");
+//                        telemetry.update();
+//                    }
+                    break;
                 }
-                break;
-            case 2:
-                //puts the wrist down after the slides are in the sub
-                if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                // intakes and moves to store pos
-                if (intakeSystem.intakeUntilColor()) {
-                    driveShake = false;
-                    intakeSystem.storePos();
-                    setPathState(4);
-                }
-                break;
-        }
+//                break;
+//            case 2:
+//                //puts the wrist down after the slides are in the sub
+//                if (pathTimer.getElapsedTimeSeconds() > 1) {
+//                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+//                    setPathState(3);
+//                }
+//                break;
+//            case 3:
+//                // intakes and moves to store pos
+//                if (intakeSystem.intakeUntilColor()) {
+//                    driveShake = false;
+//                    intakeSystem.storePos();
+//                    setPathState(4);
+//                }
+//                break;
+//        }
     }
 
     /** These change the states of the paths and actions

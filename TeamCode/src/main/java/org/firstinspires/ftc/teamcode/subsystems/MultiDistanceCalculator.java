@@ -21,6 +21,8 @@ public class MultiDistanceCalculator {
     private final double cameraYOffset = 1.1;
     private final double cameraXOffset = Math.PI; //close enough
 
+
+
     //define the height that the center of the camera lens is off the ground
     double height = 10.75;
     //define the angle that the camera is pointing (90 deg = directly forward)
@@ -40,7 +42,7 @@ public class MultiDistanceCalculator {
         limelight.start();
     }
 
-    public Pose getBlockPosition() {
+    public Pose getBlockPosition(HardwareMap hardwareMap) {
 
         double[][][] distanceArray = fillImageArray();
 
@@ -97,7 +99,7 @@ public class MultiDistanceCalculator {
         return null;
     }
 
-    public static double[][] findAverageOfFullFrames(double[][][] distanceArray) {
+    public double[][] findAverageOfFullFrames(double[][][] distanceArray) {
         // this class is here to deal with cases where the camera misses a block
         // this will cut out all frames that have too few blocks and average the remaining
 
@@ -145,7 +147,7 @@ public class MultiDistanceCalculator {
         return newDistanceArray;
     }
 
-    public static double[] MinimizeTime(double[][] distanceArray) {
+    public double[] MinimizeTime(double[][] distanceArray) {
         int axis = distanceArray.length;
         int blocks = distanceArray[0].length;
 
@@ -166,7 +168,7 @@ public class MultiDistanceCalculator {
         return smallestCoordinates;
     }
 
-    public static double fastestSearchTime(double[] coords){
+    public double fastestSearchTime(double[] coords){
         return Math.hypot(coords[0], coords[1]);
     }
 
@@ -174,28 +176,28 @@ public class MultiDistanceCalculator {
         limelight.stop();
     }
 
-    public Pose getBestColoredBlock(int pipelineNum) {
-        // 0 is yellow, 1 is blue, 2 is red
-        limelight.pipelineSwitch(pipelineNum);
-        return getBlockPosition();
-    }
-
-    public Pose getBestBlockGeneral(int pipelineNum) {
-        limelight.pipelineSwitch(pipelineNum);
-        Pose colorPose = getBlockPosition();
-        limelight.pipelineSwitch(0);
-        Pose yellowPose = getBlockPosition();
-
-        double[] colorCoords = {colorPose.getX(), colorPose.getY()};
-        double[] yellowCoords = {yellowPose.getX(), yellowPose.getY()};
-
-        double colorTime = fastestSearchTime(colorCoords);
-        double yellowTime = fastestSearchTime(yellowCoords);
-
-        if (colorTime < yellowTime) {
-            return colorPose;
-        } else {
-            return yellowPose;
-        }
-    }
+//    public Pose getBestColoredBlock(int pipelineNum) {
+//        // 0 is yellow, 1 is blue, 2 is red
+//        limelight.pipelineSwitch(pipelineNum);
+//        return getBlockPosition();
+//    }
+//
+//    public Pose getBestBlockGeneral(int pipelineNum) {
+//        limelight.pipelineSwitch(pipelineNum);
+//        Pose colorPose = getBlockPosition();
+//        limelight.pipelineSwitch(0);
+//        Pose yellowPose = getBlockPosition();
+//
+//        double[] colorCoords = {colorPose.getX(), colorPose.getY()};
+//        double[] yellowCoords = {yellowPose.getX(), yellowPose.getY()};
+//
+//        double colorTime = fastestSearchTime(colorCoords);
+//        double yellowTime = fastestSearchTime(yellowCoords);
+//
+//        if (colorTime < yellowTime) {
+//            return colorPose;
+//        } else {
+//            return yellowPose;
+//        }
+//    }
 }

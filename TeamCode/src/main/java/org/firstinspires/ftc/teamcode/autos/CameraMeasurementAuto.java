@@ -28,14 +28,14 @@ public class CameraMeasurementAuto extends OpMode {
 
     Climber climber;
     Follower follower;
-    Drivetrain driveTrain;
+    Drivetrain driveTrain;   
     BlockVision blockVision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
     MultiDistanceCalculator multiDistanceCalculator;
 
-    private Timer pathTimer, actionTimer, opmodeTimer;
+    private Timer pathTimer, opmodeTimer;
 
     boolean polar = true; // determines if you rotate the robot or if you move horizontally
 
@@ -99,6 +99,7 @@ public class CameraMeasurementAuto extends OpMode {
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
+        pathTimer = new Timer();
 
         opmodeTimer.resetTimer();
 
@@ -133,7 +134,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 2:
                 if (follower.getVelocityMagnitude() < .05) {
-                    telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("time", pathTimer.getElapsedTimeSeconds());
                     setPathState(3);
                 }
                 break;
@@ -143,7 +144,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 4:
                 if (follower.getVelocityMagnitude() < .05) {
-                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("-time" + movementX, pathTimer.getElapsedTimeSeconds());
                     setPathState(5);
                 }
                 break;
@@ -174,7 +175,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 2:
                 if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
-                    telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("time", pathTimer.getElapsedTimeSeconds());
                     setPathState(3);
                 }
                 break;
@@ -184,7 +185,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 4:
                 if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
-                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("-time" + movementX, pathTimer.getElapsedTimeSeconds());
                     setPathState(5);
                 }
                 break;
@@ -215,7 +216,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 2:
                 if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
-                    telemetry.addData("time", actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("time", pathTimer.getElapsedTimeSeconds());
                     setPathState(3);
                 }
                 break;
@@ -225,7 +226,7 @@ public class CameraMeasurementAuto extends OpMode {
                 break;
             case 4:
                 if (Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < .05) {
-                    telemetry.addData("-time" + movementX, actionTimer.getElapsedTimeSeconds());
+                    telemetry.addData("-time" + movementX, pathTimer.getElapsedTimeSeconds());
                     setPathState(5);
                 }
                 break;
