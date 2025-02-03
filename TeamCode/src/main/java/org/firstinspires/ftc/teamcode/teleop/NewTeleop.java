@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
-
+//the fitness grand pacer test is a multi stage arobic capacity test that gets harder with each stage
 public class NewTeleop {
     Climber climber;
     Drivetrain driveTrain;
