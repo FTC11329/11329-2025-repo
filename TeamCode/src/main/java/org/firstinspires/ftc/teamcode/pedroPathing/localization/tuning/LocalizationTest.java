@@ -82,6 +82,7 @@ public class LocalizationTest extends OpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         poseUpdater.setStartingPose(new Pose(8.5, -63, Math.toRadians(90)));
+//        poseUpdater.setStartingPose(new Pose(0, 0, Math.toRadians(0)));
     }
 
     /**
