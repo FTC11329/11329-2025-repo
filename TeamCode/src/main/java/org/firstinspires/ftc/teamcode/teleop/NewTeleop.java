@@ -20,9 +20,10 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
-//the fitness grand pacer test is a multi stage arobic capacity test that gets harder with each stage
+
 public class NewTeleop {
     Climber climber;
+    Follower follower;
     Drivetrain driveTrain;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
@@ -38,6 +39,26 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugClimber = false ;
     boolean debugMisc = false;
+    
+    //Auto Variables
+    private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38, -60.75, Math.toRadians(90));
+    private final Pose placeSub = new Pose(0, -34, Math.toRadians(90));
+
+    private final Pose controlPointStart = new Pose(8.5, -63, Math.toRadians(90));
+    private final Pose controlPointSpit = new Pose(38, -34, Math.toRadians(59));;
+
+    //Goes to sub from wall
+    private Path placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointSpit), new Point(controlPointStart), new Point(placeSub)));
+    placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
+
+    //Goes to front wall from sub
+    private Path toFrontWall  = new Path(new BezierCurve(new Point(placeSub), new Point(controlPointStart), new Point(controlPointSpit), new Point(frontWall)));
+    toFrontWall.setConstantHeadingInterpolation(placeSub.getHeading());
+
+    //Goes to wall from front wall
+    private Path frontWallToWall = follower.linearPathBuilder(frontWall, pickupWall)
+
 
     //Input Variables
     double driveForward;
@@ -74,6 +95,12 @@ public class NewTeleop {
     int climberStage = 0;
     Timer climberTimer = new Timer();
     int climberPos = 0;
+
+    boolean autoMovement = false;
+    boolean autoMovementOnce = true;
+    boolean autoToWall = false;
+    boolean autoToSub = false;
+    int autoState = 0;
 
     boolean climberActive = false;
     boolean climbPause = false;
@@ -127,6 +154,7 @@ public class NewTeleop {
 //        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
+        follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
 
         stateMachine = new StateMachine();
@@ -181,7 +209,7 @@ public class NewTeleop {
         //Climber Controls
 
         //Drivetrain
-        if (!climberActive) {
+        if (!climberActive && !autoMovement) {
             if (climbToggButton) {
                 climberActive = true;
                 climbDebounce = true;
@@ -193,6 +221,39 @@ public class NewTeleop {
                 driveTrain.setRunToPos();
                 climberTimer.resetTimer();
             }
+            //Autos
+            if (gamepad1.x) {
+                autoMovement = true;
+                autoMovementOnce = true;
+
+                autoToSub = true;
+                autoToWall = false;
+            }
+            if (gamepad1.y) {
+                autoMovement = true;
+                autoMovementOnce = true;
+
+                autoToSub = false;
+                autoToWall = true;
+            }
+        }
+        //Auto drive
+        if (autoMovement) {
+            currentPose = follower.getPose();
+
+            if (autoMovementOnce) {
+                follower.reset(); //change
+                if (autoToSub) {
+                    follower.setPose(new Pose(pickupWall.getX(), pickupWall.getY(), currentPose.getHeading));
+                    autoState = 5; //change
+                }
+                if (autoToWall) {
+                    autoState = 0; //change
+                }
+                autoMovementOnce = false;
+            }
+            
+
         }
         if (climberActive && !climbPause) {
             if (climbToggButton && !climbDebounce) {
