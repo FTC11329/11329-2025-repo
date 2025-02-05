@@ -47,19 +47,19 @@ public class Attempt89 {
 
     public Pose getBlockPosition() {
 
-        List<List<Pose>> distanceArray = fillImageArray();
-        if (distanceArray == null){ return new Pose(0.0, 0.0, -1.0); }
+        List<Pose> distanceArray = fillImageArray();
+        if (distanceArray == null || distanceArray.isEmpty()){ return new Pose(0.0, 0.0, -1.0); }
 
-        List<Pose> newDistanceArray = findAverageOfFullFrames(distanceArray);
-        if (newDistanceArray == null){ return new Pose(0.0, 0.0, -1.0); }
+        /*List<Pose> newDistanceArray = findAverageOfFullFrames(distanceArray);
+        if (newDistanceArray == null){ return new Pose(0.0, 0.0, -1.0); }*/
 
-        Pose finalResult = getClosestBlock(newDistanceArray);
+        Pose finalResult = getClosestBlock(distanceArray);
         if (finalResult == null){ return new Pose(0.0, 0.0, -1.0); }
 
         return finalResult;
     }
 
-    public List<List<Pose>> fillImageArray() {
+    /*public List<List<Pose>> fillImageArrayIterations() {
         //Creating a 3d array to store the distances of each block for comparison
         List<List<Pose>> distances = new ArrayList<>();
         int c = 0;
@@ -87,6 +87,32 @@ public class Attempt89 {
                 }
             }
             return distances;
+        }
+        return null;
+    }*/
+
+    public List<Pose> fillImageArray() {
+        //Creating a 3d array to store the distances of each block for comparison
+        LLResult result = limelight.getLatestResult();
+        if (result != null) {
+            if (result.isValid()) {
+                List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
+
+                List<Pose> frameDistances = new ArrayList<>();
+
+                for (LLResultTypes.ColorResult cr : colorResults) {
+                    //put the angles that are being used in a better variable
+                    double cameraAngleY = (Math.toRadians(cr.getTargetYDegrees()) + cameraAngle);
+                    double trialAngleX = Math.toRadians(cr.getTargetXDegrees());
+
+                    //calculate the real distances X&Y away from the camera
+                    double distanceY = (height * (Math.tan(cameraAngleY)));
+                    double distanceX = (distanceY * (Math.tan(trialAngleX)));
+                    Pose distance = new Pose(distanceX, distanceY, 0.0);
+                    frameDistances.add(distance);
+                }
+                return frameDistances;
+            }
         }
         return null;
     }
