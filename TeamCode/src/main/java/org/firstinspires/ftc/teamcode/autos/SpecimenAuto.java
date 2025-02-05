@@ -419,13 +419,14 @@ public class SpecimenAuto extends OpMode {
                     setPathState(20);
                 }
                 break;
-            //back to front wall
+            //drop specimen
             case 20:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(21);
                 }
                 break;
+            //back to front wall
             case 21:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
