@@ -125,7 +125,6 @@ public class MultiDistanceCalculator {
         }
 
         double[][] newDistanceArray = new double[2][maxBlockNumber];
-        System.out.println("Max block number: " + maxBlockNumber);
         // average all of the blocks in the frames that share the greatest number of blocks
         if (maxBlockNumber > 0) {
             int q = 0;

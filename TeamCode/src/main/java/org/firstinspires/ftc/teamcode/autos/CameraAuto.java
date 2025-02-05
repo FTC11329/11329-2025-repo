@@ -126,14 +126,24 @@ public class CameraAuto extends OpMode {
     public Pose getBlockPosition() {
 
         double[][][] distanceArray = multiDistanceCalculator.fillImageArray();
-        telemetry.addData("newDistanceArray[][][]: ", distanceArray);
+        for (int block = 0; block < distanceArray[0].length; block++) {
+            for (int frame = 0; frame < distanceArray[0][0].length; frame++) {
+                telemetry.addData("DistanceArray[0][" + block + "][" + frame + "]: ", distanceArray[0][block][frame]);
+                telemetry.addData("DistanceArray[1][" + block + "][" + frame + "]: ", distanceArray[1][block][frame]);
+            }
+        }
+        //telemetry.addData("newDistanceArray[][][]: ", distanceArray);
 
         double[][] newDistanceArray = multiDistanceCalculator.findAverageOfFullFrames(distanceArray);
-        telemetry.addData("newDistanceArray[][]: ", newDistanceArray);
+        for (int block = 0; block < newDistanceArray[0].length; block++) {
+            telemetry.addData("newDistanceArray[0][" + block + "]:", newDistanceArray[0][block]);
+            telemetry.addData("newDistanceArray[1][" + block + "]:", newDistanceArray[1][block]);
+        }
+        //telemetry.addData("newDistanceArray[][]: ", newDistanceArray);
 
         // Call the method to find the smallest non-zero values
         double[] finalValues = multiDistanceCalculator.MinimizeTime(newDistanceArray);
-        telemetry.addData("finalValues[][]: ", finalValues);
+        //telemetry.addData("finalValues[][]: ", finalValues);
 
         //find the closest non-zero distance block
 
@@ -154,7 +164,11 @@ public class CameraAuto extends OpMode {
                 break;
             case 1:
                 target = getBlockPosition(); //Blue
-                telemetry.addData("blockpos", target);
+                if (target != null) {
+                    telemetry.addData("targetx", target.getX());
+                    telemetry.addData("targety", target.getY());
+                    telemetry.addData("target", target.getHeading());
+                }
                 telemetry.update();
 //                if (follower.getError(subIntake).getX() < 1 && follower.getError(subIntake).getY() < 1 && pathTimer.getElapsedTimeSeconds() > 3 || true) {
 //                    //camera takes photo and starts intake
@@ -222,17 +236,6 @@ public class CameraAuto extends OpMode {
         // Feedback to FTC Dashboard
         Drawing.drawDebug(follower);
 
-        // Feedback to Driver Hub
-        telemetry.addData("path state", pathState);
-        telemetry.addData("x", follower.getPose().getX());
-        telemetry.addData("y", follower.getPose().getY());
-        telemetry.addData("heading", follower.getPose().getHeading());
-        if (target != null) {
-            telemetry.addData("targetx", target.getX());
-            telemetry.addData("targety", target.getY());
-            telemetry.addData("targeth", target.getHeading());
-        }
-        telemetry.update();
 
     }
 
