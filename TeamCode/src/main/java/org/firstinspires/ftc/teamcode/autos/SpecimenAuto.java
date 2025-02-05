@@ -23,6 +23,15 @@ import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
+//Match 1 transfer too long, down with servo then out with intake for 3rd          miss 2
+//Match 2 Wiring                                                                   miss 4
+//match 3 down with servo then out with intake for 3rd, grabed too early x2        miss 2
+//match 4 Bad clip                                                                 miss 0
+//match 5 down with servo then out with intake for 3rd, grabbed to early x2        miss 2
+//Tournament miss one from arm not coming down early                               miss 1
+
+
+
 @Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAuto extends OpMode {
 
@@ -52,22 +61,22 @@ public class SpecimenAuto extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(8, -32, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(6, -32, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(4, -32, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(2, -32, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(0, -32, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(9, -32, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(7.5, -32, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(6, -32, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(4.5, -32, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(3, -32, Math.toRadians(90));
 
-    private final Pose pickupSpike1 = new Pose(28.25, -41.5, Math.toRadians(55));
-    private final Pose pickupSpike2 = new Pose(42.5, -48, Math.toRadians(55));
-    private final Pose pickupSpike3 = new Pose(54.5, -49, Math.toRadians(59));
+    private final Pose pickupSpike1 = new Pose(29.25, -41.5, Math.toRadians(55));
+    private final Pose pickupSpike2 = new Pose(41, -47, Math.toRadians(55));
+    private final Pose pickupSpike3 = new Pose(53.5, -48, Math.toRadians(59));
 
     private final Pose spitSpike1 = new Pose(31, -53, Math.toRadians(-35));
     private final Pose spitSpike2 = new Pose(41, -53, Math.toRadians(-35));
     private final Pose spitSpike3 = new Pose(41, -53, Math.toRadians(-35));
 
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(38, -60.75, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(37, -60.75, Math.toRadians(90));
 
     private final Pose controlPointPose = new Pose(38, -34, Math.toRadians(59));;
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
@@ -75,7 +84,7 @@ public class SpecimenAuto extends OpMode {
     private final double humanWaitTime = 0.9;
     private final double humanWaitTime2 = 1.25;
 
-    private final double pickupTimeout = 1.5;
+    private final double pickupTimeout = 2.5;
 
     private final double spitTime = 0.5;
     private double loopTime = 0;
@@ -242,30 +251,34 @@ public class SpecimenAuto extends OpMode {
                     setPathState(2);
                 }
                 break;
-            //start intaking spike1
             case 2:
+                if (pathTimer.getElapsedTimeSeconds() > 0.17) {
+                    outtakeSystem.placePos(PlacePosEnum.wallAuto);
+                    setPathState(3);
+                }
+            //start intaking spike1
+            case 3:
                 if (follower.getError(pickupSpike1).getHeading() < Math.toRadians(25)) {
                     driveShake = true;
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
-                    setPathState(3);
-                }
-                break;
-            case 3:
-                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                    outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(4);
                 }
                 break;
-            //done intaking spike1 move to spiting
             case 4:
+                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    setPathState(5);
+                }
+                break;
+            //done intaking spike1 move to spiting
+            case 5:
                 if (intakeSystem.intakeUntil()) {
                     driveShake = false;
                     follower.followPath(spitSpike1Path);
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides);
-                    setPathState(5);
+                    setPathState(6);
                 }
                 //Skips spitting
                 if (pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
@@ -274,44 +287,44 @@ public class SpecimenAuto extends OpMode {
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides);
-                    setPathState(7);
+                    setPathState(6);
                 }
                 break;
             //start spiting
-            case 5:
+            case 6:
                 if (follower.getError(spitSpike1).getHeading() < Math.toRadians(7)) {
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
-                    setPathState(6);
+                    setPathState(7);
                 }
                 break;
             //part 2 *******************************************************************************
             //go to pickup spike2
-            case 6:
+            case 7:
                 if (pathTimer.getElapsedTimeSeconds() > spitTime) {
                     follower.followPath(pickupSpike2Path, false);
                     intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
                     intakeSystem.setIntakePower(0);
-                    setPathState(7);
-                }
-                break;
-            //start intaking spike2
-            case 7:
-                if (follower.getError(pickupSpike2).getHeading() < Math.toRadians(25)) {
-                    driveShake = true;
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos - 25);
                     setPathState(8);
                 }
                 break;
-            //done intaking spike2 move to spiting
+            //start intaking spike2
             case 8:
+                if (follower.getError(pickupSpike2).getHeading() < Math.toRadians(25)) {
+                    driveShake = true;
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + 50);
+                    setPathState(9);
+                }
+                break;
+            //done intaking spike2 move to spiting
+            case 9:
                 if (intakeSystem.intakeUntil()) {
                     driveShake = false;
                     follower.followPath(spitSpike2Path);
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides - 200);
-                    setPathState(9);
+                    setPathState(10);
                 }
                 //Skips spit
                 if (pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
@@ -320,225 +333,234 @@ public class SpecimenAuto extends OpMode {
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides - 200);
-                    setPathState(11);
+                    setPathState(10);
                 }
 
                 break;
             //start spiting
-            case 9:
+            case 10:
                 if (follower.getError(spitSpike2).getHeading() < Math.toRadians(7)) {
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
-                    setPathState(10);
+                    setPathState(11);
                 }
                 break;
             //part 3 *******************************************************************************
             //go to pickup spike3
-            case 10:
+            case 11:
                 if (pathTimer.getElapsedTimeSeconds() > spitTime) {
                     follower.followPath(pickupSpike3Path);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoHSlides - 400);
                     intakeSystem.setIntakePower(0);
-                    setPathState(11);
+                    setPathState(12);
                 }
                 break;
             //start intaking spike3
-            case 11:
+            case 12:
                 if (follower.getError(pickupSpike3).getHeading() < Math.toRadians(35)) {
                     driveShake = true;
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
-                    setPathState(12);
+                    setPathState(13);
                 }
                 break;
             //done intaking spike3 move to spiting
-            case 12:
+            case 13:
                 if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     driveShake = false;
                     follower.followPath(spitSpike3Path);
                     intakeSystem.setIntakePower(0);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     intakeSystem.setHSlidePos(Constants.Intake.autoHSlides);
-                    setPathState(13);
+                    setPathState(14);
                 }
                 break;
             //start spiting
-            case 13:
+            case 14:
                 if (follower.getError(spitSpike3).getHeading() < Math.toRadians(7)) {
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
-                    setPathState(14);
+                    setPathState(15);
                 }
                 break;
             //part 4 placing specimen 2 ************************************************************
             //go to pickup off wall
-            case 14:
+            case 15:
                 if (pathTimer.getElapsedTimeSeconds() > spitTime) {
                     follower.followPath(toFrontWall1);
                     intakeSystem.storePos();
-                    setPathState(15);
-                }
-                break;
-            //front Wall To Wall
-            case 15:
-                if (pathTimer.getElapsedTimeSeconds() > humanWaitTime) {
-                    follower.followPath(frontWallToWall);
                     setPathState(16);
                 }
                 break;
-            //grab off wall and go to sub
+            //front Wall To Wall
             case 16:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                if (pathTimer.getElapsedTimeSeconds() > humanWaitTime) {
+                    follower.followPath(frontWallToWall);
                     setPathState(17);
                 }
                 break;
-            //outtake to specimen place pos
+            //grab off wall and go to sub
             case 17:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    follower.followPath(placeSub1Path);
-                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(18);
                 }
                 break;
-            //drop specimen
+            //outtake to specimen place pos
             case 18:
-                if (follower.getError(placeSub1).getY() < 1) {
-                    follower.followPath(toFrontWall2);
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.followPath(placeSub1Path);
+                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                     setPathState(19);
                 }
                 break;
-            //back to front wall
+            //drop specimen
             case 19:
+                if (follower.getError(placeSub1).getY() < 1) {
+                    follower.followPath(toFrontWall2);
+                    setPathState(20);
+                }
+                break;
+            //drop specimen
+            case 20:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(21);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                break;
+            //back to front wall
+            case 21:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(20);
+                    setPathState(22);
                 }
                 break;
             //part 5 placing specimen 3 ************************************************************
             //front Wall To Wall
-            case 20:
+            case 22:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(21);
-                }
-                break;
-            //grab off wall and go to sub
-            case 21:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(22);
-                }
-                break;
-            //outtake to specimen place pos
-            case 22:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    follower.followPath(placeSub2Path);
-                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                     setPathState(23);
                 }
                 break;
-            //drop specimen
+            //grab off wall and go to sub
             case 23:
-                if (follower.getError(placeSub1).getY() < 1) {
-                    follower.followPath(toFrontWall3);
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(24);
                 }
                 break;
-            //back to front wall
+            //outtake to specimen place pos
             case 24:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.followPath(placeSub2Path);
+                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                    setPathState(25);
+                }
+                break;
+            //drop specimen
+            case 25:
+                if (follower.getError(placeSub1).getY() < 1) {
+                    follower.followPath(toFrontWall3);
+                    setPathState(26);
+                }
+                break;
+            //back to front wall
+            case 26:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(27);
                 }
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                break;
+            case 27:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(25);
+                    setPathState(28);
                 }
                 break;
             //part 6 placing specimen 4 ************************************************************
             //front Wall To Wall
-            case 25:
+            case 28:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(26);
-                }
-                break;
-            //grab off wall and go to sub
-            case 26:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(27);
-                }
-                break;
-            //outtake to specimen place pos
-            case 27:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    follower.followPath(placeSub3Path);
-                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(28);
-                }
-                break;
-            //drop specimen
-            case 28:
-                if (follower.getError(placeSub1).getY() < 1) {
-                    follower.followPath(toFrontWall4);
                     setPathState(29);
                 }
                 break;
-            //back to front wall
+            //grab off wall and go to sub
             case 29:
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    setPathState(30);
+                }
+                break;
+            //outtake to specimen place pos
+            case 30:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.followPath(placeSub3Path);
+                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                    setPathState(31);
+                }
+                break;
+            //drop specimen
+            case 31:
+                if (follower.getError(placeSub1).getY() < 1) {
+                    follower.followPath(toFrontWall4);
+                    setPathState(32);
+                }
+                break;
+            //back to front wall
+            case 32:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(33);
                 }
+                break;
+            case 33:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(30);
+                    setPathState(34);
                 }
                 break;
             //part 7 placing specimen 5 ************************************************************
             //front Wall To Wall
-            case 30:
+            case 34:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(31);
-                }
-                break;
-            //grab off wall and go to sub
-            case 31:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(32);
-                }
-                break;
-            //outtake to specimen place pos
-            case 32:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    follower.followPath(placeSub4Path);
-                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(33);
-                }
-                break;
-            //drop specimen
-            case 33:
-                if (follower.getError(placeSub1).getY() < 1) {
-                    follower.followPath(parkPath);
-                    setPathState(34);
-                }
-                break;
-            //back to front wall
-            case 34:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                }
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     setPathState(35);
                 }
                 break;
+            //grab off wall and go to sub
             case 35:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    setPathState(36);
+                }
+                break;
+            //outtake to specimen place pos
+            case 36:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.followPath(placeSub4Path);
+                    outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                    setPathState(37);
+                }
+                break;
+            //drop specimen
+            case 37:
+                if (follower.getError(placeSub1).getY() < 1) {
+                    follower.followPath(parkPath);
+                    setPathState(38);
+                }
+                break;
+            //back to front wall
+            case 38:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(39);
+                }
+                break;
+            case 39:
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
                     outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(36);
+                    setPathState(40);
                 }
         }
     }
@@ -557,8 +579,8 @@ public class SpecimenAuto extends OpMode {
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-        if (driveShake && pathTimer.getElapsedTimeSeconds() > 0.9) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 0.9) * 2.5) % 2 == 0 ){
+        if (driveShake && pathTimer.getElapsedTimeSeconds() > 1.2) {
+            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.2) * 2.5) % 2 == 0 ){
                 driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
             } else {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
