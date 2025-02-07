@@ -7,6 +7,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 
 import java.lang.reflect.Array;
@@ -22,7 +25,7 @@ public class Attempt89 {
     private Limelight3A limelight;
 
     private final double cameraYOffset = 1.1;
-    private final double cameraXOffset = Math.PI; //close enough
+    private final double cameraXOffset = 2.4; //close enough
 
     //define the height that the center of the camera lens is off the ground
     double height = 10.75;
@@ -41,65 +44,30 @@ public class Attempt89 {
     public Attempt89(HardwareMap hardwareMap) {
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         // 0 is yellow; 1 is blue; 2 is red
-        limelight.pipelineSwitch(1);
+        limelight.pipelineSwitch(2);
         limelight.start();
     }
 
-    public Pose getBlockPosition() {
+    public Pose2D getBlockPosition() {
 
-        List<Pose> distanceArray = fillImageArray();
-        if (distanceArray == null || distanceArray.isEmpty()){ return new Pose(0.0, 0.0, -1.0); }
+        List<Pose2D> distanceArray = fillImageArray();
+        if (distanceArray == null || distanceArray.isEmpty()){ return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1); }
 
-        /*List<Pose> newDistanceArray = findAverageOfFullFrames(distanceArray);
-        if (newDistanceArray == null){ return new Pose(0.0, 0.0, -1.0); }*/
-
-        Pose finalResult = getClosestBlock(distanceArray);
-        if (finalResult == null){ return new Pose(0.0, 0.0, -1.0); }
+        Pose2D finalResult = getClosestBlock(distanceArray);
+        if (finalResult == null){ return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1); }
 
         return finalResult;
     }
 
-    /*public List<List<Pose>> fillImageArrayIterations() {
-        //Creating a 3d array to store the distances of each block for comparison
-        List<List<Pose>> distances = new ArrayList<>();
-        int c = 0;
-        while (c < 5){
-            LLResult result = limelight.getLatestResult();
-            if (result != null) {
-                if (result.isValid()) {
-                    List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-
-                    List<Pose> frameDistances = new ArrayList<>();
-
-                    for (LLResultTypes.ColorResult cr : colorResults) {
-                        //put the angles that are being used in a better variable
-                        double cameraAngleY = (Math.toRadians(cr.getTargetYDegrees()) + cameraAngle);
-                        double trialAngleX = Math.toRadians(cr.getTargetXDegrees());
-
-                        //calculate the real distances X&Y away from the camera
-                        double distanceY = (height * (Math.tan(cameraAngleY)));
-                        double distanceX = (distanceY * (Math.tan(trialAngleX)));
-                        Pose distance = new Pose(distanceX, distanceY, 0.0);
-                        frameDistances.add(distance);
-                    }
-                    distances.add(frameDistances);
-                    c += 1;
-                }
-            }
-            return distances;
-        }
-        return null;
-    }*/
-
-    public List<Pose> fillImageArray() {
+    public List<Pose2D> fillImageArray() {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
 
-                List<Pose> frameDistances = new ArrayList<>();
-
+                List<Pose2D> frameDistances = new ArrayList<>();
+                int i = 0;
                 for (LLResultTypes.ColorResult cr : colorResults) {
                     //put the angles that are being used in a better variable
                     double cameraAngleY = (Math.toRadians(cr.getTargetYDegrees()) + cameraAngle);
@@ -108,13 +76,38 @@ public class Attempt89 {
                     //calculate the real distances X&Y away from the camera
                     double distanceY = (height * (Math.tan(cameraAngleY)));
                     double distanceX = (distanceY * (Math.tan(trialAngleX)));
-                    Pose distance = new Pose(distanceX, distanceY, 0.0);
+                    Pose2D distance = new Pose2D(DistanceUnit.INCH, distanceX - cameraXOffset, distanceY, AngleUnit.DEGREES, 0);
                     frameDistances.add(distance);
+                    i++;
                 }
                 return frameDistances;
             }
         }
         return null;
+    }
+
+    public Pose2D getClosestBlock(List<Pose2D> distanceArray) {
+        int blocks = distanceArray.size();
+
+        // Array to store the smallest coordinates for each plane
+        Pose2D smallestCoordinates = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
+        double minTime = Double.MAX_VALUE;
+
+        // Iterate through each block
+        for (int block = 0; block < blocks; block++) {
+            Pose2D pos = distanceArray.get(block);
+            double time = getReachTime(pos);
+            if (time < minTime) {
+                minTime = time;
+                smallestCoordinates = pos;
+            }
+        }
+
+        return smallestCoordinates;
+    }
+
+    public double getReachTime(Pose2D coords){
+        return Math.hypot(coords.getX(DistanceUnit.INCH), coords.getY(DistanceUnit.INCH));
     }
 
     public List<Pose> findAverageOfFullFrames(List<List<Pose>> distanceArray) {
@@ -149,25 +142,6 @@ public class Attempt89 {
         return newDistanceArray;
     }
 
-    public Pose getClosestBlock(List<Pose> distanceArray) {
-        int blocks = distanceArray.size();
-
-        // Array to store the smallest coordinates for each plane
-        Pose smallestCoordinates = new Pose(0.0, 0.0, 0.0);
-        double minTime = Double.MAX_VALUE;
-
-        // Iterate through each block
-        for (int block = 0; block < blocks; block++) {
-            Pose pos = distanceArray.get(block);
-            double time = getReachTime(pos);
-            if (time < minTime) {
-                minTime = time;
-                smallestCoordinates = pos;
-            }
-        }
-
-        return smallestCoordinates;
-    }
 
     public List<Pose> averageBlocks(List<List<Pose>> poses) {
         // Initialize the cluster centers with the first frame's detections.
@@ -224,27 +198,23 @@ public class Attempt89 {
         return new ArrayList<>(Arrays.asList(clusterCenters));
     }
 
-
-    public double getReachTime(Pose coords){
-        return Math.hypot(coords.getX(), coords.getY());
-    }
-
     public void stopLimelight() {
         limelight.stop();
     }
 
-    public Pose getBestBlock(int pipelineNum) {
+    public void switchPipeline(int pipelineNum){
+        limelight.pipelineSwitch(pipelineNum);
+    }
+
+    public Pose2D getBestBlock(int pipelineNum) {
         // 0 is yellow, 1 is blue, 2 is red
         pipelineSwitching = true;
-        limelight.pipelineSwitch(pipelineNum);
-        while (limelight.getStatus().getPipelineIndex() == pipelineNum){
-        }
         return getBlockPosition();
     }
 
-    public Pose getBestSample(int pipelineNum) {
-        Pose colorPose = getBestBlock(pipelineNum);
-        Pose yellowPose = getBestBlock(0);
+    public Pose2D getBestSample(int pipelineNum) {
+        Pose2D colorPose = getBestBlock(pipelineNum);
+        Pose2D yellowPose = getBestBlock(0);
 
         double colorTime = getReachTime(colorPose);
         double yellowTime = getReachTime(yellowPose);
