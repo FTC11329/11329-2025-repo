@@ -9,9 +9,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -61,40 +59,43 @@ public class SpecimenAutoDrive extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(9, -32, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(7.5, -32, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(6, -32, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(4.5, -32, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(3, -32, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(9, -31, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(10, -31, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(8, -31, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(6.5, -31, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(5, -31, Math.toRadians(90));
 
-    private final Pose spike1ControlPoint1 = new Pose(47, -64.5, 0);
+    private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -8.5, 0);
     private final Pose backSpike1 = new Pose(48, -12, Math.toRadians(90));
 
-    private final Pose pushedSpike1 = new Pose(48.5, -58, Math.toRadians(90));
+    private final Pose pushedSpike1 = new Pose(48.5, -50, Math.toRadians(90));
 
-
-    private final Pose spike2ControlPoint1 = new Pose(41, 15, 0);
-    private final Pose spike2ControlPoint2 = new Pose(67.5, 15, 0);
-    private final Pose pushedSpike2 = new Pose(58.5, -58, Math.toRadians(90));
+    private final Pose spike2ControlPoint1 = new Pose(39, -8, 0);
+    private final Pose spike2ControlPoint2 = new Pose(66, -8, 0);
+    private final Pose pushedSpike2 = new Pose(57, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(64, -10.5, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(64, -15, Math.toRadians(90));
 
-    private final Pose pushedSpike3 = new Pose(64, -58.5, Math.toRadians(90));
+    private final Pose pushedSpike3 = new Pose(64, -50, Math.toRadians(90));
 
-    private final Pose frontWallControlPoint  = new Pose(39.5, -25.5, 0);
-    private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(37, -60.75, Math.toRadians(90));
+    private final Pose frontWall  = new Pose(38.5, -48, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38.5, -61, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(64, -61, Math.toRadians(90));
 
-    private final Pose controlPointPose = new Pose(38, -34, Math.toRadians(59));;
+    private final Pose controlPointForSubPlace = new Pose(8.5, -63, 0);
+
+    private final Pose controlPointForWall1 = new Pose(12, -50, 0);
+    private final Pose controlPointForWall2 = new Pose(42, -18, 0);
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
-    private final double humanWaitTime = 1.2;
-    private final double humanWaitTime2 = 1.25;
+    private final double humanWaitTime = 0.2;
+    private final double humanWaitTime2 = 1.8;
 
-    private final double pickupTimeout = 2.5;
+    private final double pickupTimeout = 0.8;
 
+    private final double slowSpeed = 1;
     private final double spitTime = 0.5;
     private double loopTime = 0;
 
@@ -113,7 +114,7 @@ public class SpecimenAutoDrive extends OpMode {
 
     private Path frontWallToWall;
 
-    private Path toFrontWall1;
+    private Path toWall1;
     private Path placeSub1Path;
 
     private Path toFrontWall2;
@@ -160,7 +161,7 @@ public class SpecimenAutoDrive extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        setPathState(0);
+        setPathState(-3);
     }
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
@@ -200,31 +201,30 @@ public class SpecimenAutoDrive extends OpMode {
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
 
 
-        toFrontWall1 = new Path(new BezierCurve(new Point(pushedSpike3), new Point(frontWallControlPoint), new Point(frontWall)));
-        toFrontWall1.setConstantHeadingInterpolation(Math.toRadians(90));
+        toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
         //frontWallToWall
-        placeSub1Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub1)));
+        placeSub1Path = new Path(new BezierCurve(new Point(pickupWallRightSide), new Point(controlPointForSubPlace), new Point(placeSub1)));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
 
 
-        toFrontWall2 = new Path(new BezierCurve(new Point(placeSub1), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall2 = new Path(new BezierCurve(new Point(placeSub1), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
         toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
         //frontWallToWall
-        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub2)));
+        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub2)));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
 
 
-        toFrontWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
         toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
         //frontWallToWall
-        placeSub3Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub3)));
+        placeSub3Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub3)));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
 
 
-        toFrontWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
         toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
         //frontWallToWall
-        placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub4)));
+        placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub4)));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
 
         parkPath = follower.linearPathBuilder(placeSub4, park);
@@ -237,12 +237,27 @@ public class SpecimenAutoDrive extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             //go to score preload
+            case -3:
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                setPathState(pathState + 1);
+                break;
+            case -2:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    follower.followPath(scorePreload);
+                    setPathState(pathState + 1);
+                }
+            case -1:
+                if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
+                    outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
+                    setPathState(pathState + 1);
+                }
+                break;
             case 0:
-                follower.setMaxPower(1);
-                follower.followPath(scorePreload);
-                outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
-                outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
-                setPathState(1);
+                if (pathTimer.getElapsedTimeSeconds() > 0.05) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
+                    setPathState(pathState + 1);
+                }
                 break;
             //go to pickup spike1
             case 1:
@@ -250,7 +265,7 @@ public class SpecimenAutoDrive extends OpMode {
                 if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
                     follower.followPath(pickupSpike1Path);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(2);
+                    setPathState(pathState+1);
                 }
                 break;
             //go to pickup wall preset
@@ -258,55 +273,52 @@ public class SpecimenAutoDrive extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 0.17) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(3);
+                    setPathState(pathState+1);
                 }
             //go to pickup spike2
             case 3:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
                     follower.followPath(pushSpike1Path);
-                    setPathState(4);
+                    setPathState(pathState+1);
                 }
+                break;
             case 4:
                 if (follower.getError(pushedSpike1).getX() < 2 && follower.getError(pushedSpike1).getY() < 2) {
                     follower.followPath(pickupSpike2Path);
-                    setPathState(5);
+                    setPathState(pathState+1);
                 }
                 break;
             //go to pickup spike3
             case 5:
                 if (follower.getError(pushedSpike2).getX() < 2 && follower.getError(pushedSpike2).getY() < 2) {
                     follower.followPath(pickupSpike3Path);
-                    setPathState(6);
+                    setPathState(pathState+1);
                 }
                 break;
             //go to front pickup wall
             case 6:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
-                    setPathState(7);
-                }
-            case 7:
-                if (follower.getError(pushedSpike3).getX() < 4 && follower.getError(pushedSpike3).getY() < 4) {
-                    follower.followPath(toFrontWall1);
-                    setPathState(16);
+                    outtakeSystem.placePos(PlacePosEnum.wallAuto);
+                    setPathState(pathState+1);
                 }
                 break;
-            case 8:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                }
-            //go to pickup wall
-            case 16:
-                if (pathTimer.getElapsedTimeSeconds() > humanWaitTime) {
-                    follower.followPath(frontWallToWall);
-                    setPathState(17);
+            case 7:
+                if (follower.getError(pushedSpike3).getY() < 1) {
+                    setPathState(pathState+1);
                 }
                 break;
             //grab off wall and go to sub
+            case 8:
+                if (pathTimer.getElapsedTimeSeconds() > humanWaitTime) {
+                    follower.followPath(toWall1);
+                    setPathState(17);
+                }
+                break;
             case 17:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (follower.getError(pickupWallRightSide).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(18);
+                    setPathState(pathState+1);
                 }
                 break;
             //outtake to specimen place pos
@@ -314,28 +326,29 @@ public class SpecimenAutoDrive extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     follower.followPath(placeSub1Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(19);
+                    setPathState(pathState+1);
                 }
                 break;
             //drop specimen
             case 19:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall2);
-                    setPathState(20);
+                    setPathState(pathState+1);
                 }
                 break;
             //drop specimen
             case 20:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(21);
+                    setPathState(pathState+1);
                 }
                 break;
             //back to front wall
             case 21:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(22);
+                    setPathState(pathState+1);
                 }
                 break;
             //part 5 placing specimen 3 ************************************************************
@@ -343,42 +356,45 @@ public class SpecimenAutoDrive extends OpMode {
             case 22:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(23);
+                    setPathState(pathState+1);
                 }
                 break;
             //grab off wall and go to sub
             case 23:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(24);
+                    setPathState(pathState+1);
+                    //YOU DON'T SEE ME
                 }
                 break;
             //outtake to specimen place pos
             case 24:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.setMaxPower(1);
                     follower.followPath(placeSub2Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(25);
+                    setPathState(pathState+1);
                 }
                 break;
             //drop specimen
             case 25:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall3);
-                    setPathState(26);
+                    setPathState(pathState+1);
                 }
                 break;
             //back to front wall
             case 26:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(27);
+                    setPathState(pathState+1);
                 }
                 break;
             case 27:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(28);
+                    setPathState(pathState+1);
                 }
                 break;
             //part 6 placing specimen 4 ************************************************************
@@ -386,42 +402,45 @@ public class SpecimenAutoDrive extends OpMode {
             case 28:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(29);
+                    setPathState(pathState+1);
                 }
                 break;
             //grab off wall and go to sub
             case 29:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(30);
+                    setPathState(pathState+1);
+                    //YOU DON'T SEE ME pt2
                 }
                 break;
             //outtake to specimen place pos
             case 30:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.setMaxPower(1);
                     follower.followPath(placeSub3Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(31);
+                    setPathState(pathState+1);
                 }
                 break;
             //drop specimen
             case 31:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall4);
-                    setPathState(32);
+                    setPathState(pathState+1);
                 }
                 break;
             //back to front wall
             case 32:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(33);
+                    setPathState(pathState+1);
                 }
                 break;
             case 33:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(34);
+                    setPathState(pathState+1);
                 }
                 break;
             //part 7 placing specimen 5 ************************************************************
@@ -429,43 +448,45 @@ public class SpecimenAutoDrive extends OpMode {
             case 34:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(35);
+                    setPathState(pathState+1);
                 }
                 break;
             //grab off wall and go to sub
             case 35:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(36);
+                    setPathState(pathState+1);
+                    //YOU DON'T SEE ME pt3
                 }
                 break;
             //outtake to specimen place pos
             case 36:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.setMaxPower(1);
                     follower.followPath(placeSub4Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(37);
+                    setPathState(pathState+1);
                 }
                 break;
             //drop specimen
             case 37:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(parkPath);
-                    setPathState(38);
+                    setPathState(pathState+1);
                 }
                 break;
-            //back to front wall
+            //Park path
             case 38:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(39);
+                    setPathState(pathState+1);
                 }
                 break;
             case 39:
-                if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(40);
+                    setPathState(pathState+1);
                 }
         }
     }

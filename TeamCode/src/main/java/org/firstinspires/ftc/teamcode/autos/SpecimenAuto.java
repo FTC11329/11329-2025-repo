@@ -9,9 +9,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -78,7 +76,7 @@ public class SpecimenAuto extends OpMode {
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
     private final Pose pickupWall = new Pose(37, -60.75, Math.toRadians(90));
 
-    private final Pose controlPointPose = new Pose(38, -34, Math.toRadians(59));;
+    private final Pose controlPointPoseNearSpike1 = new Pose(48, -12, Math.toRadians(59));
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     private final double humanWaitTime = 0.9;
@@ -201,28 +199,28 @@ public class SpecimenAuto extends OpMode {
 
         toFrontWall1 = follower.linearPathBuilder(spitSpike3, frontWall);
         //frontWallToWall
-        placeSub1Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub1)));
+        placeSub1Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPoseNearSpike1), new Point(startPose), new Point(placeSub1)));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
 
 
-        toFrontWall2 = new Path(new BezierCurve(new Point(placeSub1), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall2 = new Path(new BezierCurve(new Point(placeSub1), new Point(startPose), new Point(controlPointPoseNearSpike1), new Point(frontWall)));
         toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
         //frontWallToWall
-        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub2)));
+        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPoseNearSpike1), new Point(startPose), new Point(placeSub2)));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
 
 
-        toFrontWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(startPose), new Point(controlPointPoseNearSpike1), new Point(frontWall)));
         toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
         //frontWallToWall
-        placeSub3Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub3)));
+        placeSub3Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPoseNearSpike1), new Point(startPose), new Point(placeSub3)));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
 
 
-        toFrontWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(startPose), new Point(controlPointPose), new Point(frontWall)));
+        toFrontWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(startPose), new Point(controlPointPoseNearSpike1), new Point(frontWall)));
         toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
         //frontWallToWall
-        placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPose), new Point(startPose), new Point(placeSub4)));
+        placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointPoseNearSpike1), new Point(startPose), new Point(placeSub4)));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
 
         parkPath = follower.linearPathBuilder(placeSub4, park);
