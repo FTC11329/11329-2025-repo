@@ -386,7 +386,7 @@ public class SampleAuto {
                 }
                 break;
             case placeSample4:
-                if (!transferSample && follower.getError(placeSpike1).getX() > 1 && follower.getError(placeSpike1).getY() > 1) {
+                if (!transferSample && follower.getError(placeSpike1).getX() < 1 && follower.getError(placeSpike1).getY() < 1) {
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
 
                     setPathState(SampleAutoEnum.dropClaw5);
