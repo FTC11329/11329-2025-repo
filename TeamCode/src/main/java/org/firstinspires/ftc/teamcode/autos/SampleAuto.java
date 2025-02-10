@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -34,6 +38,7 @@ public class SampleAuto {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
+    Attempt89 attempt89;
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
@@ -102,6 +107,8 @@ public class SampleAuto {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
+        attempt89 = new Attempt89(hardwareMap);
+        attempt89.switchPipeline(2);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
 
@@ -353,8 +360,9 @@ public class SampleAuto {
                 break;
             case visionSearch1:
                 if (follower.getVelocity().getXComponent() <= 1 && follower.getVelocity().getYComponent() <= 1) {
-                    target = blockVision.getBestSampleBlockPos();
-                    if (target != null) {
+                    Pose2D target2D = attempt89.getBestSample(2);
+                    if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
+                        target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
                         intakeSystem.setHSlidesInches(target.getY());
                         follower.followYourHeart(target.getX());
                         setPathState(SampleAutoEnum.subIntake1);
