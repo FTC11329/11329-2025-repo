@@ -193,11 +193,6 @@ public class TeleopTesting {
         testValue += 0.002 * (gamepad2.right_trigger - gamepad2.left_trigger);
         testValue2 += 5 * (-gamepad2.left_stick_y);
         testValue3 += 0.003 * (gamepad2.right_stick_y);
-        if (gamepad2.y) {
-            powerTakeOff.hookRelease();
-        } else {
-            powerTakeOff.hookGrab();
-        }
 
         if (gamepad1.touchpad) {
             gamepad1.runRumbleEffect(builder.build());

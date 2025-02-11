@@ -91,6 +91,7 @@ public class NewTeleop {
     int climberStage = 0;
     Timer climberTimer = new Timer();
     int climberPos = 0;
+    int ptoManualPos = 0;
 
     Timer pathTimer = new Timer();
     boolean autoMovement = false;
@@ -203,7 +204,7 @@ public class NewTeleop {
         climbToggButton = gamepad1.back;
 
         manualVSlide = -gamepad2.right_stick_y;
-        if (!powerTakeOff.isEnabled()) {
+        if (!climberActive) {
             manualHSlide = gamepad2.right_trigger + (0.6 *(-gamepad2.left_trigger + gamepad1.right_trigger - gamepad1.left_trigger));
             if (debugAll) {
                 manualHSlide = manualHSlide * 2;
@@ -230,7 +231,7 @@ public class NewTeleop {
         unJam = gamepad2.circle;//b
 
         //Drivetrain *******************************************************************************
-        if (!climberActive && !autoMovement) {
+        if (!climberActive && !autoMovement && !climbPause) {
             if (climbToggButton) {
                 climberActive = true;
                 climbDebounce = true;
@@ -264,8 +265,6 @@ public class NewTeleop {
         }
         //Auto drive *******************************************************************************
         if (autoMovement) {
-            Pose currentPose = follower.getPose();
-
             if (autoMovementOnce) {
                 if (autoToSub) {
                     follower.setPose(new Pose(pickupWall.getY() + 1, pickupWall.getX(), pickupWall.getHeading()));
@@ -346,7 +345,6 @@ public class NewTeleop {
             double current;
             switch (climberStage) {
                 case 0:
-                    powerTakeOff.hookRelease();
                     //puts arm to safe space
                     if (outtakeSystem.getArmPos() > 0.6) {
                         outtakeSystem.setVSlidePos(1000);
@@ -354,44 +352,28 @@ public class NewTeleop {
                     } else {
                         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
                     }
+
                     intakeSystem.storePos();
 
+                    climberPos = Constants.Climber.outPos;
+
+                    //Enable PTO
+                    driveTrain.setRunToPos();
+                    powerTakeOff.enable();
 
                     climberTimer.resetTimer();
                     climberStage = 1;
                     break;
                 case 1:
-                    if (climberTimer.getElapsedTimeSeconds() > .5) {
-
-                        driveTrain.drive(0.55, 0, 0, DriveSpeedEnum.Fast);
+                    if (climberTimer.getElapsedTimeSeconds() > 2 && Math.abs(climber.getPos() - climberPos) < 500) {
+                        driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
                         climberTimer.resetTimer();
                         climberStage = 2;
                     }
                     break;
                 case 2:
-                    if (climberTimer.getElapsedTimeSeconds() > 0.8) {
-                        driveTrain.drive(0, 0, 0, DriveSpeedEnum.Fast);
-                        driveTrain.setRunToPos();
-                        powerTakeOff.enable();
-//                        intakeSystem.disable();
-
-                        //disables to save power
-//                        outtakeSystem.disable();
-
-                        climberTimer.resetTimer();
-                        climberStage = 3;
-                    }
-                    break;
-                case 3:
-                    if (climberTimer.getElapsedTimeSeconds() > 2) {
-                        driveTrain.setPTOPos(Constants.PTO.motorClimb);
-
-                        climberTimer.resetTimer();
-                        climberStage = 4;
-                    }
-                    break;
-                case 4:
+                    //Does some things to make sure that the current has been tripped for more than 1 second after one one second
                     if (climberTimer.getElapsedTimeSeconds() > 1) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
                     } else {
@@ -408,21 +390,25 @@ public class NewTeleop {
                     if (current > 6 && elapsedTime.milliseconds() > lastCurrentTripTime + 1000) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
+                        //Prevent pto from drawing too much power
+                        driveTrain.setPTOPos(driveTrain.getPTOPos());
 
                         climberTimer.resetTimer();
-                        climberStage = 5;
+                        climberStage = 3;
                     }
                     break;
-                case 5:
+                case 3:
                     if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 300) {
                         //disable PTO to conserve power
                         driveTrain.setPTOPower(0);
                         climberPos = Constants.Climber.inPos;
 
                         climberTimer.resetTimer();
-                        climberStage = 6;
+                        climberStage = 4;
                     }
                     break;
+                    /*
+                    delete after a working climb
                 case 6:
                     if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 700) {
                         driveTrain.setPTOPower(-1);
@@ -445,24 +431,19 @@ public class NewTeleop {
                         climberTimer.resetTimer();
                         climberStage = 8;
                     }
+                     */
             }
-            if (climberStage == 3) {
-                driveTrain.moveBackWheels();
+            //PTO Power Switch
+            switch (climberStage) {
+                case 1:
+                    driveTrain.moveBackWheels();
+                    break;
 
-            } else if (climberStage == 4) {
-                driveTrain.PTOLoop(0);
-
-            } else if (climberStage == 5) {
-                driveTrain.setPTOPower(0.3);
-
-            } else if (climberStage == 6) {
-                driveTrain.setPTOPower(0);
-
-            } else if (climberStage == 7) {
-                driveTrain.setPTOPower(-1);
-
-            } else if (climberStage == 8) {
-                driveTrain.setPTOPower(-0.1);
+                case 2:
+                case 3:
+                case 4:
+                    driveTrain.PTOLoop(0);
+                    break;
             }
 
             //manual movement
@@ -470,8 +451,11 @@ public class NewTeleop {
             climber.setPos(climberPos);
         }
         if (climbPause) {
-            climber.setPower(gamepad2.right_trigger - gamepad2.left_trigger);
-            driveTrain.setPTOPower(-0.3);
+            climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+
+            ptoManualPos += (int) (5 * -gamepad1.left_stick_y);
+            driveTrain.setPTOPos(ptoManualPos);
+            driveTrain.PTOLoop(0);
         }
 
         //Manual Movements *************************************************************************
@@ -851,6 +835,8 @@ public class NewTeleop {
             telemetry.addData("climberStage", climberStage);
             telemetry.addData("climbPause", climbPause);
             telemetry.addData("climbDebounce", climbDebounce);
+            telemetry.addData("climberPos", climberPos);
+            telemetry.addData("ptoManualPos", ptoManualPos);
 
             telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
             telemetry.addData("PTO Pos", driveTrain.getPTOPos());

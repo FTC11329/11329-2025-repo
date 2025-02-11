@@ -53,12 +53,6 @@ public class ClimberReset extends OpMode {
         } else {
             powerTakeOff.disable();
         }
-
-        if (gamepad1.y) {
-            powerTakeOff.hookRelease();
-        } else {
-            powerTakeOff.hookGrab();
-        }
         telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
     }
 }

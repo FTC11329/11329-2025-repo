@@ -117,7 +117,7 @@ public class Drivetrain {
         return (int) pidControl.getTargetValue();
     }
     public int getPTOPos() {
-        return leftFront.getCurrentPosition();
+        return (leftFront.getCurrentPosition() + rightFront.getCurrentPosition() / 2);
     }
 
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
