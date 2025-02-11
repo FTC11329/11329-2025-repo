@@ -40,21 +40,25 @@ public class NewTeleop {
     boolean debugStateMachine = false;
     boolean debugPos = false;
     boolean debugClimber = false ;
-    boolean debugAuto = false;
+    boolean debugAuto = true;
     boolean debugMisc = false;
 
     //Auto Variables
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
     private final Pose pickupWall = new Pose(38, -60.75, Math.toRadians(90));
-    private final Pose placeSub = new Pose(6, -48, Math.toRadians(90));
+    private final Pose placeSub = new Pose(12, -33, Math.toRadians(90));
+    private final Pose pushSub = new Pose(0, -32, Math.toRadians(80));
 
-    private final Pose controlPointForSubPlace = new Pose(8.5, -63, 0);
+    private final Pose controlPointForSubPlace = new Pose(-10, -63, 0);
     private final Pose controlPointForWall1 = new Pose(12, -50, 0);
     private final Pose controlPointForWall2 = new Pose(42, -18, 0);
 
-    private Path placeSubPath;
+    //39.1 60.5
+
     private Path toFrontWall;
     private Path frontWallToWall;
+    private Path placeSubPath;
+    private Path pushSubPath;
 
     //Input Variables
     double driveForward;
@@ -168,16 +172,16 @@ public class NewTeleop {
         stateMachine = new StateMachine();
 
 
-        //Build paths
+        //Building paths
         toFrontWall = new Path(new BezierCurve(new Point(placeSub), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
         toFrontWall.setConstantHeadingInterpolation(placeSub.getHeading());
-        //frontWallToWall
+
+        frontWallToWall = follower.linearPathBuilder(frontWall, pickupWall);
+
         placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
 
-        //Goes to wall from front wall
-        frontWallToWall = follower.linearPathBuilder(frontWall, pickupWall);
-
+        pushSubPath = follower.linearPathBuilder(placeSub, pushSub);
     }
 
     public void start() {
@@ -258,10 +262,12 @@ public class NewTeleop {
                 autoToSub = false;
                 autoToWall = true;
             }
+            follower.update();
         }
         if (gamepad1.b) {
             autoMovement = false;
             autoMovementOnce = true;
+            follower.breakFollowing();
         }
         //Auto drive *******************************************************************************
         if (autoMovement) {
@@ -305,6 +311,8 @@ public class NewTeleop {
                 case 3:
                     if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        clawToggle = true;
+                        hasInOuttake = true;
 
                         pathTimer.resetTimer();
                         autoState = 4;
@@ -324,10 +332,21 @@ public class NewTeleop {
                 //drop specimen
                 case 5:
                     if (follower.getError(placeSub).getY() < 1) {
-                        autoMovement = false;
-                        autoMovementOnce = true;
+                        follower.followPath(pushSubPath);
+
+                        pathTimer.resetTimer();
+                        autoState = 6;
                     }
                     break;
+                case 6:
+                    if (follower.getError(pushSub).getX() < 1 && follower.getError(pushSub).getY() < 1 && follower.getError(pushSub).getHeading() < Math.toRadians(10)){
+                        follower.breakFollowing();
+                        autoMovement = false;
+                        autoMovementOnce = true;
+
+                        pathTimer.resetTimer();
+                        autoState = 7;
+                    }
             }
             follower.update();
         }
