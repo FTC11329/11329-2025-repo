@@ -95,7 +95,6 @@ public class NewTeleop {
     int climberStage = 0;
     Timer climberTimer = new Timer();
     int climberPos = 0;
-    int ptoManualPos = 0;
 
     Timer pathTimer = new Timer();
     boolean autoMovement = false;
@@ -419,6 +418,7 @@ public class NewTeleop {
                 case 3:
                     if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 300) {
                         //disable PTO to conserve power
+                        driveTrain.setPTOPos(Constants.PTO.motorDrop);
                         driveTrain.setPTOPower(0);
                         climberPos = Constants.Climber.inPos;
 
@@ -472,9 +472,7 @@ public class NewTeleop {
         if (climbPause) {
             climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
-            ptoManualPos += (int) (5 * -gamepad1.left_stick_y);
-            driveTrain.setPTOPos(ptoManualPos);
-            driveTrain.PTOLoop(0);
+            driveTrain.setPTOPower(-gamepad1.left_stick_y);
         }
 
         //Manual Movements *************************************************************************
@@ -855,7 +853,6 @@ public class NewTeleop {
             telemetry.addData("climbPause", climbPause);
             telemetry.addData("climbDebounce", climbDebounce);
             telemetry.addData("climberPos", climberPos);
-            telemetry.addData("ptoManualPos", ptoManualPos);
 
             telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
             telemetry.addData("PTO Pos", driveTrain.getPTOPos());

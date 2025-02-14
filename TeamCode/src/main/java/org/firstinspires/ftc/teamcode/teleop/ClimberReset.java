@@ -54,5 +54,6 @@ public class ClimberReset extends OpMode {
             powerTakeOff.disable();
         }
         telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
+        telemetry.addData("Climb Pos", climber.getPos());
     }
 }

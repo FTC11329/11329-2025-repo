@@ -12,11 +12,6 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double releaseTheHooksR = 0.66;
-        public static double releaseTheHooksL = 0.83;
-        public static double grabTheHooksR = 0.88;
-        public static double grabTheHooksL = 0.58;
-
         public static double PTOServoRelease = 0.28;
         public static double PTOServoClimb = 0.6;
         public static double speed = 1;
@@ -31,8 +26,8 @@ public class Constants {
     @Config
     public static class Climber {
         public static final int inPos = 0;
-        public static final int hookPos = 4200;
-        public static final int outPos  = 5900;
+        public static final int hookPos = 7000;
+        public static final int outPos  = 9000;
     }
 
     @Config
@@ -101,27 +96,11 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0018, 0.0041, 0.0127,0.715};
+        public static double[] blue = {0.0018, 0.0041, 0.0127, 0.715};
         public static double[] red = {0.0091, 0.0047, 0.0028, 0.667};
         public static double[] yellow = {0.0135, 0.0192, 0.0047, 0.91};
         public static double[] empty = {0.0004, 0.0012, 0.0023, 0.097};
 
         public static double hasDistance = 1; //1.44 0.47 0.54 0.62
-    }
-
-    @Config
-    public static class RoadRunner {
-        public static double inPerTick = 0.000526976391;
-        public static double lateralInPerTick = 0.00030531911012706043;
-        public static double trackWidthTicks = 20846.185113581167;
-
-        public static double kS = 1.7168128242964098;
-        public static double kV = 0.00007007307591705226;
-        public static double kA = 0.000024;
-
-        //TODO: tune these values if needed
-        public static double axialGain = 5.25;
-        public static double lateralGain = 6;
-        public static double headingGain = 4; // shared with turn
     }
 }
