@@ -59,11 +59,11 @@ public class SpecimenAutoDrive extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(9, -31, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(10, -31, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(8, -31, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(6.5, -31, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(5, -31, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(9, -32.5, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(10, -32.5, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(4, -32.5, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(2, -32.5, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(0, -32.5, Math.toRadians(90));
 
     private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -8.5, 0);
@@ -71,8 +71,8 @@ public class SpecimenAutoDrive extends OpMode {
 
     private final Pose pushedSpike1 = new Pose(48.5, -50, Math.toRadians(90));
 
-    private final Pose spike2ControlPoint1 = new Pose(39, -8, 0);
-    private final Pose spike2ControlPoint2 = new Pose(66, -8, 0);
+    private final Pose spike2ControlPoint1 = new Pose(39, -6, 0);
+    private final Pose spike2ControlPoint2 = new Pose(66, -6, 0);
     private final Pose pushedSpike2 = new Pose(57, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
@@ -80,14 +80,14 @@ public class SpecimenAutoDrive extends OpMode {
 
     private final Pose pushedSpike3 = new Pose(64, -50, Math.toRadians(90));
 
-    private final Pose frontWall  = new Pose(38.5, -48, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(38.5, -61, Math.toRadians(90));
+    private final Pose frontWall  = new Pose(38.5, -50, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38.5, -60, Math.toRadians(90));
     private final Pose pickupWallRightSide = new Pose(64, -61, Math.toRadians(90));
 
     private final Pose controlPointForSubPlace = new Pose(8.5, -63, 0);
 
     private final Pose controlPointForWall1 = new Pose(12, -50, 0);
-    private final Pose controlPointForWall2 = new Pose(42, -18, 0);
+    private final Pose controlPointForWall2 = new Pose(42, -24, 0);
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     private final double humanWaitTime = 0.2;
@@ -243,7 +243,7 @@ public class SpecimenAutoDrive extends OpMode {
                 setPathState(pathState + 1);
                 break;
             case -2:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     follower.followPath(scorePreload);
                     setPathState(pathState + 1);
                 }

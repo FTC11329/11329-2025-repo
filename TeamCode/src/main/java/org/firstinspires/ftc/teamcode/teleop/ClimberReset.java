@@ -37,8 +37,8 @@ public class ClimberReset extends OpMode {
         if (gamepad1.a) {
             outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
         }
-        if (gamepad1.b) {
-            outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+        if (gamepad1.y) {
+            outtakeSystem.setArmPos(Constants.Outtake.upArm);
         }
 
         if (gamepad1.back && !ptoDebounce) {

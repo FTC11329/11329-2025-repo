@@ -33,9 +33,10 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 150;
+        public static int safeTransferSlide = 200;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
+        public static int autoPreExtendSlides = 500;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1600;
         public static double manualSlideSpeed = 75;
@@ -49,7 +50,7 @@ public class Constants {
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillis = 150;
+        public static double unjamTimeMillis = 175;
     }
 
     @Config
@@ -58,19 +59,19 @@ public class Constants {
         public static double dropClaw = 0.21;
 
         public static double intakeArm = 0.949;
-        public static double initTeleopArm = 0.690666;
-        public static double initAutoArm = 0.784;
+        public static double initTeleopArm = 0.71;
+        public static double initAutoArm = 0.80;
         public static double preTransferArm = 0.690666;
-        public static double upArm = 0.333333;
+        public static double upArm = 0.43;
         public static double intakeWallArm = 0.024;
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.709;
         public static double basketArm = 0.244;
         public static double autoArmClimb = 0.628;
-        public static double parkArm = 0.66666; //Todo
+        public static double parkArm = 0.609;
 
-        public static int intakeSlides = 225;
+        public static int intakeSlides = 210;
         public static int intakeWaitSlides = 450;
         public static int intakeWallSlides = 160;
         public static int intakeWallAutoSlides = 180;
@@ -83,7 +84,6 @@ public class Constants {
         public static int highSpecimenSlides = 1088;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
-        public static int parkSlides = 1000; //Todo
 
         public static int maxSlides = 1975;
         public static int climbSlides = 1975;

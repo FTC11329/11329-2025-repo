@@ -45,7 +45,7 @@ public class NewTeleop {
 
     //Auto Variables
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(38, -60.75, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38, -61, Math.toRadians(90));
     private final Pose placeSub = new Pose(0, -48, Math.toRadians(90));
 
     private final Pose controlPointForSubPlace = new Pose(-10, -63, 0);
@@ -267,7 +267,7 @@ public class NewTeleop {
         if (autoMovement) {
             if (autoMovementOnce) {
                 if (autoToSub) {
-                    follower.setPose(new Pose(pickupWall.getY() + 1, pickupWall.getX(), pickupWall.getHeading()));
+                    follower.setPose(new Pose(pickupWall.getY() + 1.5, pickupWall.getX(), pickupWall.getHeading()));
                     autoState = 3;
                 }
                 if (autoToWall) {

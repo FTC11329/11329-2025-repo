@@ -90,7 +90,8 @@ public class Attempt89 {
                     //calculate the real distances X&Y away from the camera
                     double distanceY = (height * (Math.tan(cameraAngleY)));
                     double distanceX = (distanceY * (Math.tan(trialAngleX)));
-                    Pose2D distance = new Pose2D(DistanceUnit.INCH, distanceX - cameraXOffset, distanceY, AngleUnit.DEGREES, 0);
+                    //Added distanceY - 1 so we will hit the block with the front rollers
+                    Pose2D distance = new Pose2D(DistanceUnit.INCH, distanceX - cameraXOffset, distanceY - 1, AngleUnit.DEGREES, 0);
                     frameDistances.add(distance);
                     i++;
                 }

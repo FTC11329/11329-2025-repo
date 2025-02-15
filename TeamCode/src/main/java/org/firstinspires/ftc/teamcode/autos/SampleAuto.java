@@ -57,29 +57,31 @@ public class SampleAuto {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-55.5, -55.5, Math.toRadians(63));
-    private final Pose intakeSpike1 = new Pose(-55, -53.5, Math.toRadians(75.5));
+    private final Pose intakeSpike1 = new Pose(-55, -52, Math.toRadians(75.5));
     private final Pose placeSpike1 = new Pose(-59, -54.09, Math.toRadians(74.5));
 
-    private final Pose intakeSpike2 = new Pose(-60.4, -51.9, Math.toRadians(90));
+    private final Pose intakeSpike2 = new Pose(-59, -51.9, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-61.7, -53, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-59.67, -51.5, Math.toRadians(113));
+    private final Pose intakeSpike3 = new Pose(-59.6, -50, Math.toRadians(120));
     private final Pose placeSpike3 = new Pose(-61.7, -53, Math.toRadians(80));
 
-    private final Pose subIntake = new Pose(-24.5, -7.5, Math.toRadians(0));
-    private final Pose subControlPoint = new Pose(-58.5, -12, Math.toRadians(0));
+    private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
+    private final Pose subControlPointTo = new Pose(-57, -14, Math.toRadians(0));
+    private final Pose subControlPointFrom = new Pose(-53, -14, Math.toRadians(0));
 
     private Pose target = new Pose();
     private boolean driveShake = false;
     private boolean driveSweep = false;
     private boolean transferSample = false;
 
+    private final int autoMoreSlides = 200;
+
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path scorePreload;
 
     private Path intakeSpike1Path;
     private Path placeSpike1Path;
-
 
     private Path intakeSpike2Path;
     private Path placeSpike2Path;
@@ -120,7 +122,10 @@ public class SampleAuto {
     }
 
     public void init_loop() {
-        telemetry.addData("Test Block", blockVision.getBestSample());
+        Pose2D sample = blockVision.getBestSample();
+        telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
+        telemetry.addData("Test Block Y", sample.getY(DistanceUnit.INCH));
+        telemetry.addData("Test Block H", sample.getHeading(AngleUnit.DEGREES));
     }
 
     /** This method is called once at the start of the OpMode.
@@ -160,10 +165,10 @@ public class SampleAuto {
         intakeSpike3Path = follower.linearPathBuilder(placeSpike2, intakeSpike3);
         placeSpike3Path = follower.linearPathBuilder(intakeSpike3, placeSpike3);
 
-        intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subControlPoint), new Point(subIntake)));
+        intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subControlPointTo), new Point(subIntake)));
         intakeSubPath.setLinearHeadingInterpolation(placeSpike3.getHeading(), subIntake.getHeading());
 
-        placeSubPath = new Path(new BezierCurve(new Point(subIntake), new Point(subControlPoint), new Point(placeSpike3)));
+        placeSubPath = new Path(new BezierCurve(new Point(subIntake), new Point(subControlPointFrom), new Point(placeSpike3)));
         placeSubPath.setLinearHeadingInterpolation(subIntake.getHeading(), placeSpike1.getHeading());
     }
     public void autonomousPathUpdate() {
@@ -176,45 +181,59 @@ public class SampleAuto {
                     transferState = 0;
                     break;
                 case 0:
-                    if (actionTimer.getElapsedTimeSeconds() > .5){
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-
+                    if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillis / 1000.0) {
+                        intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
                         setTransferState(1);
                     }
                     break;
                 case 1:
-                    if (actionTimer.getElapsedTimeSeconds() > .2 && intakeSystem.readyToTranfer()){
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                    if (intakeSystem.intakeUntil() || actionTimer.getElapsedTimeSeconds() > 0.5) {
+                        intakeSystem.setIntakePower(0);
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
 
                         setTransferState(2);
                     }
                     break;
                 case 2:
-                    if (actionTimer.getElapsedTimeSeconds() > .35){
-                        intakeSystem.setIntakePower(0);
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    if (actionTimer.getElapsedTimeSeconds() > .2){
+                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
 
                         setTransferState(3);
                     }
                     break;
                 case 3:
-                    if (actionTimer.getElapsedTimeSeconds() > .3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                    if (intakeSystem.readyToTranfer()){
+                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
                         setTransferState(4);
                     }
                     break;
                 case 4:
-                    if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
-                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    if (outtakeSystem.getVSlidePos() < Constants.Outtake.intakeSlides + 50){
+                        intakeSystem.setIntakePower(0);
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
 
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                         setTransferState(5);
                     }
                     break;
                 case 5:
-                    if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
+                    if (actionTimer.getElapsedTimeSeconds() > .3) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+
+                        setTransferState(6);
+                    }
+                    break;
+                case 6:
+                    if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
+                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                        setTransferState(7);
+                    }
+                    break;
+                case 7:
+                    if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 200) {
                         outtakeSystem.setArmPos(Constants.Outtake.basketArm);
 
                         transferSample = false;
@@ -225,20 +244,26 @@ public class SampleAuto {
         //Driving and everything else
         switch (pathState) {
             case scorePreload:
+                follower.setMaxPower(1);
                 follower.followPath(scorePreload);
                 outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                setPathState(SampleAutoEnum.placePreload);
+                setPathState(SampleAutoEnum.armClearing0);
                 break;
+            case armClearing0:
+                if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    setPathState(SampleAutoEnum.placePreload);
+                }
             case placePreload:
                 if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                    intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides);
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     setPathState(SampleAutoEnum.dropClaw0);
                 }
                 break;
             case dropClaw0:
-                if (pathTimer.getElapsedTimeSeconds() > .75) {
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.intakeSpike1);
                 }
@@ -251,23 +276,30 @@ public class SampleAuto {
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
 
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     driveShake = true;
+                    setPathState(SampleAutoEnum.armClearing1);
+                }
+                break;
+            case armClearing1:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
                     setPathState(SampleAutoEnum.spike1Transfer);
                 }
                 break;
             case spike1Transfer:
                 if (intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > 3){
+                    driveShake = false;
                     follower.followPath(placeSpike1Path);
                     intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     transferSample = true;
-                    driveShake = false;
                     setPathState(SampleAutoEnum.placeSample);
                 }
                 break;
             case placeSample:
                 if (!transferSample) {
-                    intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 200);
                     setPathState(SampleAutoEnum.dropClaw1);
                 }
                 break;
@@ -283,8 +315,14 @@ public class SampleAuto {
                     follower.followPath(intakeSpike2Path);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     driveShake = true;
+                    setPathState(SampleAutoEnum.armClearing2);
+                }
+                break;
+            case armClearing2:
+                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
                     setPathState(SampleAutoEnum.spike2Transfer);
                 }
                 break;
@@ -293,13 +331,14 @@ public class SampleAuto {
                     driveShake = false;
                     follower.followPath(placeSpike2Path);
                     intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     transferSample = true;
                     setPathState(SampleAutoEnum.placeSample2);
                 }
                 break;
             case placeSample2:
                 if (!transferSample) {
-                    intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
                     setPathState(SampleAutoEnum.dropClaw2);
                 }
                 break;
@@ -315,7 +354,15 @@ public class SampleAuto {
                     follower.followPath(intakeSpike3Path);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+
                     driveShake = true;
+                    setPathState(SampleAutoEnum.armClearing3);
+                }
+                break;
+            case armClearing3:
+                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
                     setPathState(SampleAutoEnum.spike3Transfer);
                 }
                 break;
@@ -324,6 +371,7 @@ public class SampleAuto {
                     driveShake = false;
                     follower.followPath(placeSpike3Path);
                     intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     transferSample = true;
                     setPathState(SampleAutoEnum.placeSample3);
                 }
@@ -335,7 +383,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw3:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.intakeArm);
                 }
@@ -349,7 +397,7 @@ public class SampleAuto {
             //Loop Starts here
             case goSub1:
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
-                    follower.followPath(intakeSubPath);
+                    follower.followPath(intakeSubPath, false);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
                     setPathState(SampleAutoEnum.visionSearch1);
                 }
@@ -357,7 +405,7 @@ public class SampleAuto {
             case visionSearch1:
                 if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
                     Pose2D target2D = blockVision.getBestSample();
-                    if (opmodeTimer.getElapsedTimeSeconds() > 25) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 30) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
@@ -370,7 +418,7 @@ public class SampleAuto {
                 }
                 break;
             case subIntake1:
-                if (pathTimer.getElapsedTimeSeconds() > .8) {
+                if (pathTimer.getElapsedTimeSeconds() > .3) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
 
                     setPathState(SampleAutoEnum.transferSample4);
@@ -381,19 +429,20 @@ public class SampleAuto {
                     driveSweep = false;
                     follower.followPath(placeSubPath);
                     intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     transferSample = true;
                     setPathState(SampleAutoEnum.placeSample4);
                 }
                 break;
             case placeSample4:
-                if (!transferSample && follower.getError(placeSpike1).getX() < 1 && follower.getError(placeSpike1).getY() < 1) {
+                if (!transferSample && follower.getError(placeSpike3).getX() < 1 && follower.getError(placeSpike3).getY() < 1) {
                     setPathState(SampleAutoEnum.dropClaw4);
                 }
                 break;
             case dropClaw4:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    if (opmodeTimer.getElapsedTimeSeconds() > 22) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 28) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else {
@@ -403,29 +452,43 @@ public class SampleAuto {
                 break;
             case intakeArm2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    follower.followPath(intakeSubPath, false);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    
-                    setPathState(SampleAutoEnum.goSub1);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
+
+                    setPathState(SampleAutoEnum.visionSearch1);
                     //Go loop
                 }
                 break;
 
             case park:
-                follower.followPath(intakeSubPath);
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                setPathState(SampleAutoEnum.parkArm);
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    follower.followPath(intakeSubPath);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                    setPathState(SampleAutoEnum.parkArm);
+                }
+                break;
             case parkArm:
                 if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar - 50) {
                     outtakeSystem.setArmPos(Constants.Outtake.parkArm);
 
-                    setPathState(SampleAutoEnum.parkSlides);
+                    setPathState(SampleAutoEnum.parkSlides1);
                 }
-            case parkSlides:
-                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                    outtakeSystem.setVSlidePos(Constants.Outtake.parkSlides);
+                break;
+            case parkSlides1:
+                if (pathTimer.getElapsedTimeSeconds() > 0.05) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
+
+                    setPathState(SampleAutoEnum.parkSlides2);
+                }
+                break;
+            case parkSlides2:
+                if (pathTimer.getElapsedTimeSeconds() > 0.1 && follower.getError(subIntake).getX() < 2) {
+                    outtakeSystem.setVSlidePos(0);
 
                     setPathState(SampleAutoEnum.end);
                 }
+                break;
         }
     }
 
@@ -442,8 +505,8 @@ public class SampleAuto {
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-        if (driveShake && pathTimer.getElapsedTimeSeconds() > 1.5) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.5) * 2.5) % 2 == 0 ){
+        if (driveShake && pathTimer.getElapsedTimeSeconds() > 1.1) {
+            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.1) * 2.5) % 2 == 0 ){
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
             } else {
                 driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
@@ -452,9 +515,9 @@ public class SampleAuto {
 
         if (driveSweep && pathTimer.getElapsedTimeSeconds() > 1.9) {
             if (Math.round((pathTimer.getElapsedTimeSeconds() - 0.9) * .5) % 2 == 0 ){
-                driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
+                driveTrain.drive(0,0.5, 0, DriveSpeedEnum.Auto);
             } else {
-                driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
+                driveTrain.drive(0,-0.5, 0, DriveSpeedEnum.Auto);
             }
         }
 
