@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 
 
-@Autonomous(name = "Specimen Auto Extend", group = " Comp", preselectTeleOp = "New Tele-op Red")
+@Autonomous(name = "Specimen Auto Extend", group = "Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAutoExtend extends OpMode {
 
     Climber climber;

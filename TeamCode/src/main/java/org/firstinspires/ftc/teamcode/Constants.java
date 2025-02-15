@@ -38,7 +38,7 @@ public class Constants {
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
         public static int intakeSlidePos = 1325;
-        public static int maxSlidePos = 1600;
+        public static int maxSlidePos = 1450;
         public static double manualSlideSpeed = 75;
 
         public static double wristStore = 0.05;
@@ -50,7 +50,7 @@ public class Constants {
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillis = 175;
+        public static double unjamTimeMillis = 150; //todo make an auto vs teleop times
     }
 
     @Config
@@ -66,22 +66,22 @@ public class Constants {
         public static double intakeWallArm = 0.024;
         public static double manualArmSpeed = 0.01;
 
-        public static double specimenArm = 0.709;
-        public static double basketArm = 0.244;
+        public static double specimenArm = 0.71;
+        public static double basketArm = 0.25;
         public static double autoArmClimb = 0.628;
         public static double parkArm = 0.609;
 
         public static int intakeSlides = 210;
         public static int intakeWaitSlides = 450;
-        public static int intakeWallSlides = 160;
-        public static int intakeWallAutoSlides = 180;
+        public static int intakeWallSlides = 135;
+        public static int intakeWallAutoSlides = 135;
 
         public static int safeFromWallSlides = 360;
         public static int safeFromHSlides = 650;
         public static int safeFromClimberBar = 1200;
         public static int safeFromSpecBar = 1712;
 
-        public static int highSpecimenSlides = 1088;
+        public static int highSpecimenSlides = 1050;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
 

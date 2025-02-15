@@ -40,7 +40,7 @@ public class NewTeleop {
     boolean debugStateMachine = false;
     boolean debugPos = false;
     boolean debugClimber = false ;
-    boolean debugAuto = true;
+    boolean debugAuto = false;
     boolean debugMisc = false;
 
     //Auto Variables
@@ -481,6 +481,8 @@ public class NewTeleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goHighBasket(hasInIntake, hasInOuttake, atStorePos);
         }
         if (lowBasket) {
@@ -488,6 +490,8 @@ public class NewTeleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goLowBasket(hasInIntake, hasInOuttake, atStorePos);
         }
         if (wallPreset) {
@@ -495,6 +499,8 @@ public class NewTeleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goWall(hasInIntake, hasInOuttake, atStorePos);
         }
         if (storePos) {
@@ -511,6 +517,8 @@ public class NewTeleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goTransfer(atStorePos);
         }
 

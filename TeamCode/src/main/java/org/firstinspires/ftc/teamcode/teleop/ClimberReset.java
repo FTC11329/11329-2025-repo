@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 
-@TeleOp(name = "Climber Reset", group = " Comp mode")
+@TeleOp(name = "Climber Reset", group = "Comp mode")
 public class ClimberReset extends OpMode {
 
     Climber climber;

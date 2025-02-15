@@ -56,15 +56,15 @@ public class SampleAuto {
     private final Pose startPose = new Pose(-40, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(-55.5, -55.5, Math.toRadians(63));
+    private final Pose preloadPlace = new Pose(-55.5, -55.5, Math.toRadians(54));
     private final Pose intakeSpike1 = new Pose(-55, -52, Math.toRadians(75.5));
-    private final Pose placeSpike1 = new Pose(-59, -54.09, Math.toRadians(74.5));
+    private final Pose placeSpike1 = new Pose(-61.7, -53, Math.toRadians(80));
 
     private final Pose intakeSpike2 = new Pose(-59, -51.9, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-61.7, -53, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-59.6, -50, Math.toRadians(120));
-    private final Pose placeSpike3 = new Pose(-61.7, -53, Math.toRadians(80));
+    private final Pose intakeSpike3 = new Pose(-59.6, -50, Math.toRadians(115));
+    private final Pose placeSpike3 = new Pose(-61.7, -52.5, Math.toRadians(80));
 
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
     private final Pose subControlPointTo = new Pose(-57, -14, Math.toRadians(0));
@@ -174,7 +174,6 @@ public class SampleAuto {
     public void autonomousPathUpdate() {
         //Transfering
         if (transferSample) {
-            telemetry.addData("transferState", transferState);
             switch (transferState) {
                 case -1:
                     actionTimer.resetTimer();
@@ -263,7 +262,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw0:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.intakeSpike1);
                 }
@@ -283,7 +282,7 @@ public class SampleAuto {
             case armClearing1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
+                    intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SampleAutoEnum.spike1Transfer);
                 }
                 break;
@@ -304,7 +303,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw1:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(SampleAutoEnum.intakeSpike2);
@@ -322,7 +321,7 @@ public class SampleAuto {
             case armClearing2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
+                    intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SampleAutoEnum.spike2Transfer);
                 }
                 break;
@@ -343,7 +342,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw2:
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                if (pathTimer.getElapsedTimeSeconds() > .4) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(SampleAutoEnum.intakeSpike3);
@@ -362,7 +361,7 @@ public class SampleAuto {
             case armClearing3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos + autoMoreSlides);
+                    intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SampleAutoEnum.spike3Transfer);
                 }
                 break;
@@ -383,7 +382,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw3:
-                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                if (pathTimer.getElapsedTimeSeconds() > .4) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.intakeArm);
                 }
@@ -405,6 +404,8 @@ public class SampleAuto {
             case visionSearch1:
                 if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
                     Pose2D target2D = blockVision.getBestSample();
+                    telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
+                    telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (opmodeTimer.getElapsedTimeSeconds() > 30) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
@@ -418,7 +419,7 @@ public class SampleAuto {
                 }
                 break;
             case subIntake1:
-                if (pathTimer.getElapsedTimeSeconds() > .3) {
+                if (pathTimer.getElapsedTimeSeconds() > .35) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
 
                     setPathState(SampleAutoEnum.transferSample4);
@@ -440,7 +441,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw4:
-                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     if (opmodeTimer.getElapsedTimeSeconds() > 28) {
                         //Break loop
@@ -463,7 +464,7 @@ public class SampleAuto {
 
             case park:
                 if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                    follower.followPath(intakeSubPath);
+                    follower.followPath(intakeSubPath, false);
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     setPathState(SampleAutoEnum.parkArm);
                 }
@@ -525,7 +526,7 @@ public class SampleAuto {
         Drawing.drawDebug(follower);
 
         // Feedback to Driver Hub
-        if (true) {
+        if (false) {
             telemetry.addData("target", target);
             telemetry.addData("path state", pathState);
             telemetry.addData("x", follower.getPose().getX());

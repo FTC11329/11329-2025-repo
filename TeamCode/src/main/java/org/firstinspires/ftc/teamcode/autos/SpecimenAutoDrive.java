@@ -76,9 +76,9 @@ public class SpecimenAutoDrive extends OpMode {
     private final Pose pushedSpike2 = new Pose(57, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(64, -15, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(64.5, -15, Math.toRadians(90));
 
-    private final Pose pushedSpike3 = new Pose(64, -50, Math.toRadians(90));
+    private final Pose pushedSpike3 = new Pose(64.5, -50, Math.toRadians(90));
 
     private final Pose frontWall  = new Pose(38.5, -50, Math.toRadians(90));
     private final Pose pickupWall = new Pose(38.5, -60, Math.toRadians(90));
@@ -238,13 +238,12 @@ public class SpecimenAutoDrive extends OpMode {
         switch (pathState) {
             //go to score preload
             case -3:
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                setPathState(pathState + 1);
+                follower.followPath(scorePreload);
+                outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                setPathState(0);
                 break;
             case -2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.6) {
-                    follower.followPath(scorePreload);
                     setPathState(pathState + 1);
                 }
             case -1:

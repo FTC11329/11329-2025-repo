@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 //Tournament miss one from arm not coming down early                               miss 1
 
 
-@Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Red")
+@Autonomous(name = "Specimen Auto", group = "Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAuto extends OpMode {
 
     Climber climber;
