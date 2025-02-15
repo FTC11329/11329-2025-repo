@@ -115,12 +115,6 @@ public class OTOSLocalizer extends Localizer {
 
         return MathFunctions.addPoses(startPose, MathFunctions.rotatePose(pose, startPose.getHeading(), false));
     }
-//    0.53 drivebase 24 in
-//    1.03 intake    24 in
-
-
-//    0.66 intake out 90 deg
-//    0.46 intake in  90 deg
 
     /**
      * This returns the current velocity estimate.

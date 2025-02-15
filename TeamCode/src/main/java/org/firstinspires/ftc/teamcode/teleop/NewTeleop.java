@@ -46,19 +46,15 @@ public class NewTeleop {
     //Auto Variables
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
     private final Pose pickupWall = new Pose(38, -60.75, Math.toRadians(90));
-    private final Pose placeSub = new Pose(12, -33, Math.toRadians(90));
-    private final Pose pushSub = new Pose(0, -32, Math.toRadians(80));
+    private final Pose placeSub = new Pose(0, -48, Math.toRadians(90));
 
     private final Pose controlPointForSubPlace = new Pose(-10, -63, 0);
     private final Pose controlPointForWall1 = new Pose(12, -50, 0);
     private final Pose controlPointForWall2 = new Pose(42, -18, 0);
 
-    //39.1 60.5
-
     private Path toFrontWall;
     private Path frontWallToWall;
     private Path placeSubPath;
-    private Path pushSubPath;
 
     //Input Variables
     double driveForward;
@@ -180,7 +176,6 @@ public class NewTeleop {
         placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
 
-        pushSubPath = follower.linearPathBuilder(placeSub, pushSub);
     }
 
     public void start() {
@@ -331,21 +326,14 @@ public class NewTeleop {
                 //drop specimen
                 case 5:
                     if (follower.getError(placeSub).getY() < 1) {
-                        follower.followPath(pushSubPath);
-
-                        pathTimer.resetTimer();
-                        autoState = 6;
-                    }
-                    break;
-                case 6:
-                    if (follower.getError(pushSub).getX() < 1 && follower.getError(pushSub).getY() < 1 && follower.getError(pushSub).getHeading() < Math.toRadians(10)){
                         follower.breakFollowing();
                         autoMovement = false;
                         autoMovementOnce = true;
 
                         pathTimer.resetTimer();
-                        autoState = 7;
+                        autoState = 6;
                     }
+                    break;
             }
             follower.update();
         }

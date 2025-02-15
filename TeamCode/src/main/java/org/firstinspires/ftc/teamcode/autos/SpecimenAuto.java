@@ -29,14 +29,12 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 //Tournament miss one from arm not coming down early                               miss 1
 
 
-
 @Autonomous(name = "Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAuto extends OpMode {
 
     Climber climber;
     Follower follower;
     Drivetrain driveTrain;
-    BlockVision blockVision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
@@ -127,7 +125,6 @@ public class SpecimenAuto extends OpMode {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Auto);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
         outtakeSystem = new OuttakeSystem(hardwareMap);

@@ -95,7 +95,7 @@ public class CameraAuto extends OpMode {
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem = new OuttakeSystem(hardwareMap);
         multiDistanceCalculator = new MultiDistanceCalculator(hardwareMap);
-        attempt89 = new Attempt89(hardwareMap);
+        attempt89 = new Attempt89(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
         pathTimer = new Timer();
         opmodeTimer = new Timer();

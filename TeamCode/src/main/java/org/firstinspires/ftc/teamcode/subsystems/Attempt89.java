@@ -11,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Set;
 
 public class Attempt89 {
+
+    RobotSideEnum robotSideEnum;
 
     private Limelight3A limelight;
 
@@ -38,23 +41,34 @@ public class Attempt89 {
     //find the corresponding angles that the camera would need to get to go outside the acceptable range
     double maxYangle = (Math.atan(yMaxExtension / height) - cameraAngle);
 
-    boolean pipelineSwitching = false;
     //the xMaxRotation cannot be calculated because we do not have the distance of the block
 
-    public Attempt89(HardwareMap hardwareMap) {
+    public Attempt89(HardwareMap hardwareMap, RobotSideEnum robotSideEnum) {
+        this.robotSideEnum = robotSideEnum;
+
         limelight = hardwareMap.get(Limelight3A.class, "limelight");
         // 0 is yellow; 1 is blue; 2 is red
-        limelight.pipelineSwitch(2);
+        if (robotSideEnum == RobotSideEnum.Red) {
+            switchPipeline(2);
+        } else {
+            switchPipeline(1);
+        }
         limelight.start();
     }
 
     public Pose2D getBlockPosition() {
 
         List<Pose2D> distanceArray = fillImageArray();
-        if (distanceArray == null || distanceArray.isEmpty()){ return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1); }
+        //Returns an empty pose2d if nothing is there
+        if (distanceArray == null || distanceArray.isEmpty()){
+            return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1);
+        }
 
+        //Returns an empty pose2d if nothing is there
         Pose2D finalResult = getClosestBlock(distanceArray);
-        if (finalResult == null){ return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1); }
+        if (finalResult == null){
+            return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1);
+        }
 
         return finalResult;
     }
@@ -208,12 +222,17 @@ public class Attempt89 {
 
     public Pose2D getBestBlock(int pipelineNum) {
         // 0 is yellow, 1 is blue, 2 is red
-        pipelineSwitching = true;
+        switchPipeline(pipelineNum);
         return getBlockPosition();
     }
 
-    public Pose2D getBestSample(int pipelineNum) {
-        Pose2D colorPose = getBestBlock(pipelineNum);
+    public Pose2D getBestSample() {
+        Pose2D colorPose;
+        if (robotSideEnum == RobotSideEnum.Red) {
+            colorPose = getBestBlock(2);
+        } else {
+            colorPose = getBestBlock(1);
+        }
         Pose2D yellowPose = getBestBlock(0);
 
         double colorTime = getReachTime(colorPose);

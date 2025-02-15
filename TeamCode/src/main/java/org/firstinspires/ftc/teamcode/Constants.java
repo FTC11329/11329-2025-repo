@@ -68,9 +68,10 @@ public class Constants {
         public static double specimenArm = 0.709;
         public static double basketArm = 0.244;
         public static double autoArmClimb = 0.628;
+        public static double parkArm = 0.66666; //Todo
 
         public static int intakeSlides = 225;
-        public static int intakeWaitSlides = 650;
+        public static int intakeWaitSlides = 450;
         public static int intakeWallSlides = 160;
         public static int intakeWallAutoSlides = 180;
 
@@ -82,6 +83,7 @@ public class Constants {
         public static int highSpecimenSlides = 1088;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
+        public static int parkSlides = 1000; //Todo
 
         public static int maxSlides = 1975;
         public static int climbSlides = 1975;

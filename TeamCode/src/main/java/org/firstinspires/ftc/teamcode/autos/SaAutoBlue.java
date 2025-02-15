@@ -16,6 +16,11 @@ public class SaAutoBlue extends OpMode {
     }
 
     @Override
+    public void init_loop() {
+        sampleAuto.init_loop();
+    }
+
+    @Override
     public void loop() {
         sampleAuto.loop();
     }
