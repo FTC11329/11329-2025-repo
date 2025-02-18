@@ -67,7 +67,7 @@ public class Constants {
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.71;
-        public static double basketArm = 0.25;
+        public static double basketArm = 0.242;
         public static double autoArmClimb = 0.628;
         public static double parkArm = 0.609;
 

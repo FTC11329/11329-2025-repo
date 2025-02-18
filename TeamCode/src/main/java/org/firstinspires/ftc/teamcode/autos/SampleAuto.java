@@ -66,7 +66,7 @@ public class SampleAuto {
     private final Pose placeSpike2 = new Pose(-61.7, -53, Math.toRadians(80));
 
     private final Pose intakeSpike3 = new Pose(-59.6, -50, Math.toRadians(115));
-    private final Pose placeSpike3 = new Pose(-61.7, -52.5, Math.toRadians(80));
+    private final Pose placeSpike3 = new Pose(-62.5, -54, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
     private final Pose subControlPointTo = new Pose(-57, -14, Math.toRadians(0));
@@ -394,7 +394,7 @@ public class SampleAuto {
                     intakeSystem.storePos();
                     intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     transferSample = true;
-                    setPathState(SampleAutoEnum.failSpikeSequence);
+                    setPathState(SampleAutoEnum.placeSample3);
                 } else if (pathTimer.getElapsedTimeSeconds() > 3) {
                     driveShake = false;
                     intakeFail = true;
@@ -432,7 +432,7 @@ public class SampleAuto {
                     Pose2D target2D = blockVision.getBestSample();
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
-                    if (opmodeTimer.getElapsedTimeSeconds() > 30) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 200) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
@@ -469,7 +469,7 @@ public class SampleAuto {
             case dropClaw4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 200) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else {
@@ -516,10 +516,12 @@ public class SampleAuto {
                     setPathState(SampleAutoEnum.end);
                 }
                 break;
+
+
             case failSpikeSequence:
                 if (intakeFail) {
                     intakeSystem.storePos();
-                    follower.followPath(failSpike3Path, true);
+                    follower.followPath(failSpike3Path);
                     setPathState(SampleAutoEnum.failSpikeSearch);
                 } else {
                     setPathState(SampleAutoEnum.goSub1);
@@ -527,7 +529,7 @@ public class SampleAuto {
                 break;
             case failSpikeSearch:
                 intakeFail = false;
-                if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
+                if (follower.getVelocity().getXComponent() < .5 && follower.getVelocity().getYComponent() < .5 && pathTimer.getElapsedTimeSeconds() > .2) {
                     Pose2D target2D = blockVision.getBestSample();
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
