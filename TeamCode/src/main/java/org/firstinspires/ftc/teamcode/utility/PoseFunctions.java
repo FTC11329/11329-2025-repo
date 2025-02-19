@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.utility;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import com.pedropathing.localization.Pose;
 
 public class PoseFunctions {
     private static final double sideSubY = -24;

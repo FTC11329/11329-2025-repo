@@ -1,16 +1,24 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -183,12 +191,12 @@ public class SpecimenAutoDrive extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload     = linearPathBuilder(startPose, preloadPlace);
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
 
-        pushSpike1Path   = follower.linearPathBuilder(backSpike1, pushedSpike1);
+        pushSpike1Path   = linearPathBuilder(backSpike1, pushedSpike1);
 
         pickupSpike2Path = new Path(new BezierCurve(new Point(pushedSpike1), new Point(spike2ControlPoint1), new Point(spike2ControlPoint2), new Point(pushedSpike2)));
         pickupSpike2Path.setConstantHeadingInterpolation(Math.toRadians(90));
@@ -196,12 +204,12 @@ public class SpecimenAutoDrive extends OpMode {
         pickupSpike3Path = new Path(new BezierCurve(new Point(pushedSpike2), new Point(spike3ControlPoint1), new Point(backSpike3)));
         pickupSpike3Path.setConstantHeadingInterpolation(Math.toRadians(90));
 
-        pushSpike3Path   = follower.linearPathBuilder(backSpike3, pushedSpike3);
+        pushSpike3Path   = linearPathBuilder(backSpike3, pushedSpike3);
 
-        frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
+        frontWallToWall  = linearPathBuilder(frontWall, pickupWall);
 
 
-        toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
+        toWall1 = linearPathBuilder(pushedSpike3, pickupWallRightSide);
         //frontWallToWall
         placeSub1Path = new Path(new BezierCurve(new Point(pickupWallRightSide), new Point(controlPointForSubPlace), new Point(placeSub1)));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
@@ -227,7 +235,7 @@ public class SpecimenAutoDrive extends OpMode {
         placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub4)));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
 
-        parkPath = follower.linearPathBuilder(placeSub4, park);
+        parkPath = linearPathBuilder(placeSub4, park);
 
     }
 
@@ -261,7 +269,7 @@ public class SpecimenAutoDrive extends OpMode {
             //go to pickup spike1
             case 1:
                 //Checks if you are less than 1 inch away from target pos
-                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
+                if (getError(preloadPlace).getX() < 1 && getError(preloadPlace).getY() < 1) {
                     follower.followPath(pickupSpike1Path);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(pathState+1);
@@ -276,34 +284,34 @@ public class SpecimenAutoDrive extends OpMode {
                 }
             //go to pickup spike2
             case 3:
-                if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
+                if (getError(backSpike1).getX() < 4 && getError(backSpike1).getY() < 4) {
                     follower.followPath(pushSpike1Path);
                     setPathState(pathState+1);
                 }
                 break;
             case 4:
-                if (follower.getError(pushedSpike1).getX() < 2 && follower.getError(pushedSpike1).getY() < 2) {
+                if (getError(pushedSpike1).getX() < 2 && getError(pushedSpike1).getY() < 2) {
                     follower.followPath(pickupSpike2Path);
                     setPathState(pathState+1);
                 }
                 break;
             //go to pickup spike3
             case 5:
-                if (follower.getError(pushedSpike2).getX() < 2 && follower.getError(pushedSpike2).getY() < 2) {
+                if (getError(pushedSpike2).getX() < 2 && getError(pushedSpike2).getY() < 2) {
                     follower.followPath(pickupSpike3Path);
                     setPathState(pathState+1);
                 }
                 break;
             //go to front pickup wall
             case 6:
-                if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
+                if (getError(backSpike3).getX() < 4 && getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
                     setPathState(pathState+1);
                 }
                 break;
             case 7:
-                if (follower.getError(pushedSpike3).getY() < 1) {
+                if (getError(pushedSpike3).getY() < 1) {
                     setPathState(pathState+1);
                 }
                 break;
@@ -315,7 +323,7 @@ public class SpecimenAutoDrive extends OpMode {
                 }
                 break;
             case 17:
-                if (follower.getError(pickupWallRightSide).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (getError(pickupWallRightSide).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(pathState+1);
                 }
@@ -330,7 +338,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //drop specimen
             case 19:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall2);
                     setPathState(pathState+1);
                 }
@@ -360,7 +368,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //grab off wall and go to sub
             case 23:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(pathState+1);
                     //YOU DON'T SEE ME
@@ -377,7 +385,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //drop specimen
             case 25:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall3);
                     setPathState(pathState+1);
                 }
@@ -406,7 +414,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //grab off wall and go to sub
             case 29:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(pathState+1);
                     //YOU DON'T SEE ME pt2
@@ -423,7 +431,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //drop specimen
             case 31:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall4);
                     setPathState(pathState+1);
                 }
@@ -452,7 +460,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //grab off wall and go to sub
             case 35:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(pathState+1);
                     //YOU DON'T SEE ME pt3
@@ -469,7 +477,7 @@ public class SpecimenAutoDrive extends OpMode {
                 break;
             //drop specimen
             case 37:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(parkPath);
                     setPathState(pathState+1);
                 }
@@ -525,6 +533,20 @@ public class SpecimenAutoDrive extends OpMode {
             loopTime = opmodeTimer.getElapsedTime();
             telemetry.update();
         }
+    }
+
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+
+    private Pose getError(Pose targetPose) {
+        Pose tempPose = follower.getPose();
+        tempPose.setX(Math.abs(tempPose.getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(tempPose.getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(tempPose.getHeading() - targetPose.getHeading()));
+        return tempPose;
     }
 
     /** We do not use this because everything should automatically disable **/

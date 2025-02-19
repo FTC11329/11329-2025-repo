@@ -1,14 +1,14 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.util.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
@@ -168,11 +168,7 @@ public class TestingEnhancedTeleop extends OpMode {
 
         //limelight
         if (!gamepad1.y) {
-            follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
-        } else {
-            // when changing the other code I messed this part up
-            follower.followYourHeart(blockOffset.getX());
-            intakeSystem.setHSlidesInches(blockOffset.getY());
+            follower.setTeleOpMovementVectors(driveForward, driveStrafe, driveRotation);
         }
         follower.update();
 

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -9,13 +10,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
@@ -163,20 +171,20 @@ public class SampleAuto {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
-        scorePreload = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload = linearPathBuilder(startPose, preloadPlace);
 
-        intakeSpike1Path = follower.linearPathBuilder(preloadPlace, intakeSpike1);
-        placeSpike1Path = follower.linearPathBuilder(intakeSpike1, placeSpike1);
+        intakeSpike1Path = linearPathBuilder(preloadPlace, intakeSpike1);
+        placeSpike1Path = linearPathBuilder(intakeSpike1, placeSpike1);
 
-        intakeSpike2Path = follower.linearPathBuilder(placeSpike1, intakeSpike2);
-        placeSpike2Path = follower.linearPathBuilder(intakeSpike2, placeSpike2);
+        intakeSpike2Path = linearPathBuilder(placeSpike1, intakeSpike2);
+        placeSpike2Path = linearPathBuilder(intakeSpike2, placeSpike2);
 
-        intakeSpike3Path = follower.linearPathBuilder(placeSpike2, intakeSpike3);
-        placeSpike3Path = follower.linearPathBuilder(intakeSpike3, placeSpike3);
+        intakeSpike3Path = linearPathBuilder(placeSpike2, intakeSpike3);
+        placeSpike3Path = linearPathBuilder(intakeSpike3, placeSpike3);
 
-        failSpike1Path = follower.linearPathBuilder(intakeSpike1, intakeSpike2);
-        failSpike2Path = follower.linearPathBuilder(intakeSpike2, intakeSpike3);
-        failSpike3Path = follower.linearPathBuilder(intakeSpike3, spikeSearch);
+        failSpike1Path = linearPathBuilder(intakeSpike1, intakeSpike2);
+        failSpike2Path = linearPathBuilder(intakeSpike2, intakeSpike3);
+        failSpike3Path = linearPathBuilder(intakeSpike3, spikeSearch);
 
         intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subControlPointTo), new Point(subIntake)));
         intakeSubPath.setLinearHeadingInterpolation(placeSpike3.getHeading(), subIntake.getHeading());
@@ -438,7 +446,7 @@ public class SampleAuto {
                     } else if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
                         intakeSystem.setHSlidesInches(target.getY());
-                        follower.followYourHeart(target.getX());
+                        followYourHeart(target.getX());
                         setPathState(SampleAutoEnum.subIntake1);
                         driveSweep = true;
                     }
@@ -462,7 +470,7 @@ public class SampleAuto {
                 }
                 break;
             case placeSample4:
-                if (!transferSample && follower.getError(placeSpike3).getX() < 1 && follower.getError(placeSpike3).getY() < 1) {
+                if (!transferSample && getError(placeSpike3).getX() < 1 && getError(placeSpike3).getY() < 1) {
                     setPathState(SampleAutoEnum.dropClaw4);
                 }
                 break;
@@ -510,7 +518,7 @@ public class SampleAuto {
                 }
                 break;
             case parkSlides2:
-                if (pathTimer.getElapsedTimeSeconds() > 0.1 && follower.getError(subIntake).getX() < 2) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.1 && getError(subIntake).getX() < 2) {
                     outtakeSystem.setVSlidePos(0);
 
                     setPathState(SampleAutoEnum.end);
@@ -536,7 +544,7 @@ public class SampleAuto {
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
                         intakeSystem.setHSlidesInches(target.getY());
-                        follower.followYourHeart(target.getX());
+                        followYourHeart(target.getX());
                         setPathState(SampleAutoEnum.spikeSearchWrist);
                         driveSweep = true;
                     } else if (pathTimer.getElapsedTimeSeconds() > 3) {
@@ -605,5 +613,42 @@ public class SampleAuto {
             telemetry.addData("heading", follower.getPose().getHeading());
             telemetry.update();
         }
+    }
+
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+
+    private Pose getError(Pose targetPose) {
+        Pose tempPose = follower.getPose();
+        tempPose.setX(Math.abs(tempPose.getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(tempPose.getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(tempPose.getHeading() - targetPose.getHeading()));
+        return tempPose;
+    }
+
+    public void followYourHeart(double blockO) {
+        Pose tempPose = follower.getPose();
+        // just initialized
+        Path cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - 3, tempPose.getHeading()));
+        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
+            //north side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + blockO, tempPose.getHeading()));
+
+        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
+            //east side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + blockO, tempPose.getY(), tempPose.getHeading()));
+
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //south side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - blockO, tempPose.getHeading()));
+
+        } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
+            //west side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
+        }
+        follower.followPath(cameraSearchPath);
     }
 }

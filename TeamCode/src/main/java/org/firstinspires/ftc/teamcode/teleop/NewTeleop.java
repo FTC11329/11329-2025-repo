@@ -7,12 +7,13 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
@@ -171,7 +172,7 @@ public class NewTeleop {
         toFrontWall = new Path(new BezierCurve(new Point(placeSub), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
         toFrontWall.setConstantHeadingInterpolation(placeSub.getHeading());
 
-        frontWallToWall = follower.linearPathBuilder(frontWall, pickupWall);
+        frontWallToWall = linearPathBuilder(frontWall, pickupWall);
 
         placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
@@ -303,7 +304,7 @@ public class NewTeleop {
                     break;
                 //grab off wall and go to sub
                 case 3:
-                    if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         clawToggle = true;
                         hasInOuttake = true;
@@ -325,7 +326,7 @@ public class NewTeleop {
                     break;
                 //drop specimen
                 case 5:
-                    if (follower.getError(placeSub).getY() < 1) {
+                    if (getError(placeSub).getY() < 1) {
                         follower.breakFollowing();
                         autoMovement = false;
                         autoMovementOnce = true;
@@ -898,6 +899,21 @@ public class NewTeleop {
             telemetry.addLine();
         }
         telemetry.update();
+    }
+
+    //Auto functions
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+
+    private Pose getError(Pose targetPose) {
+        Pose tempPose = follower.getPose();
+        tempPose.setX(Math.abs(tempPose.getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(tempPose.getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(tempPose.getHeading() - targetPose.getHeading()));
+        return tempPose;
     }
 
     public void stop() {

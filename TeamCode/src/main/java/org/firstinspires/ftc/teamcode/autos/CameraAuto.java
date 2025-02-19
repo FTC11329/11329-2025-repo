@@ -8,13 +8,21 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
+
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -121,7 +129,7 @@ public class CameraAuto extends OpMode {
     }
 
     public void buildPaths() {
-        firstIntakePath        = follower.linearPathBuilder(startPose, subIntake);
+        firstIntakePath        = linearPathBuilder(startPose, subIntake);
 
         //frontWallToWall
         spitBlockPath = new Path(new BezierCurve(new Point(subIntake), new Point(startPose), new Point(placeSub1)));
@@ -181,16 +189,9 @@ public class CameraAuto extends OpMode {
                 if (follower.getVelocityMagnitude() < .1 && follower.getVelocityMagnitude() < .1 && pathTimer.getElapsedTimeSeconds() > 1.5) {
                     //camera takes photo and starts intake
                     if (target != null){
-                        if (polar) {
-                            //Thanks Mr. Raney
-                            double r = Math.sqrt((target.getY(DistanceUnit.INCH)*target.getY(DistanceUnit.INCH))+(target.getX(DistanceUnit.INCH)*target.getX(DistanceUnit.INCH)));
-                            double theta = Math.atan(target.getY(DistanceUnit.INCH)/ target.getX(DistanceUnit.INCH));
-                            intakeSystem.setHSlidesInches(r);
-                            follower.followYourHead(Math.toRadians(theta));
-                        } else {
-                            intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
-                            follower.followYourHeart(target.getX(DistanceUnit.INCH));
-                        }
+                        intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
+                        followYourHeart(target.getX(DistanceUnit.INCH));
+
 //                        driveShake = true; //updated so that there is a longer delay
                         setPathState(2);
                     } else {
@@ -239,9 +240,34 @@ public class CameraAuto extends OpMode {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
             }
         }
+    }
 
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+    public void followYourHeart(double blockO) {
+        Pose tempPose = follower.getPose();
+        // just initialized
+        Path cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - 3, tempPose.getHeading()));
+        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
+            //north side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + blockO, tempPose.getHeading()));
 
+        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
+            //east side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + blockO, tempPose.getY(), tempPose.getHeading()));
 
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //south side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - blockO, tempPose.getHeading()));
+
+        } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
+            //west side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
+        }
+        follower.followPath(cameraSearchPath);
     }
 
     /** We do not use this because everything should automatically disable **/

@@ -1,16 +1,24 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -180,28 +188,28 @@ public class SpecimenAutoExtend extends OpMode {
 //        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
 
-        scorePreload        = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload        = linearPathBuilder(startPose, preloadPlace);
 
-        pickupSpike1Path    = follower.linearPathBuilder(preloadPlace, pickupSpike1);
+        pickupSpike1Path    = linearPathBuilder(preloadPlace, pickupSpike1);
 //        pushSpike1Path      = new Path(new BezierCurve(new Point(pickupSpike1), new Point(controlPointSpike1), new Point(endSpike1)));
 //        pushSpike1Path.setLinearHeadingInterpolation(pickupSpike1.getHeading(), endSpike1.getHeading());
-        pushSpike1Path = follower.linearPathBuilder(pickupSpike1, endSpike1);
+        pushSpike1Path = linearPathBuilder(pickupSpike1, endSpike1);
 
-        pickupSpike2Path    = follower.linearPathBuilder(endSpike1, pickupSpike2);
+        pickupSpike2Path    = linearPathBuilder(endSpike1, pickupSpike2);
 //        pushSpike2Path      = new Path(new BezierCurve(new Point(pickupSpike2), new Point(controlPointSpike2), new Point(endSpike2)));
 //        pushSpike2Path.setLinearHeadingInterpolation(pickupSpike2.getHeading(), endSpike2.getHeading());
-        pushSpike2Path = follower.linearPathBuilder(pickupSpike2, endSpike2);
+        pushSpike2Path = linearPathBuilder(pickupSpike2, endSpike2);
 
-        pickupSpike3Path    = follower.linearPathBuilder(endSpike2, pickupSpike3);
-        pushSpike3Path      = follower.linearPathBuilder(pickupSpike3, endSpike3);
+        pickupSpike3Path    = linearPathBuilder(endSpike2, pickupSpike3);
+        pushSpike3Path      = linearPathBuilder(pickupSpike3, endSpike3);
 
-        frontWallToWall     = follower.linearPathBuilder(frontWall, pickupWall);
+        frontWallToWall     = linearPathBuilder(frontWall, pickupWall);
 
 
 
 //        toFrontWall1 = new Path(new BezierCurve(new Point(endSpike3), new Point(controlPointNearFrontWall), new Point(frontWall)));
 //        toFrontWall1.setTangentHeadingInterpolation();
-        toFrontWall1 = follower.linearPathBuilder(endSpike3, frontWall);
+        toFrontWall1 = linearPathBuilder(endSpike3, frontWall);
         //frontWallToWall
         placeSub1Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointNearSpike1), new Point(startPose), new Point(placeSub1)));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
@@ -227,7 +235,7 @@ public class SpecimenAutoExtend extends OpMode {
         placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointNearSpike1), new Point(startPose), new Point(placeSub4)));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
 
-        parkPath = follower.linearPathBuilder(placeSub4, park);
+        parkPath = linearPathBuilder(placeSub4, park);
 
     }
 
@@ -247,7 +255,7 @@ public class SpecimenAutoExtend extends OpMode {
             //go to pickup spike1
             case 1:
                 //Checks if you are less than 1 inch away from target pos
-                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
+                if (getError(preloadPlace).getX() < 1 && getError(preloadPlace).getY() < 1) {
                     follower.followPath(pickupSpike1Path, false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(2);
@@ -262,7 +270,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //start grabbing
             case 3:
-                if (follower.getError(pickupSpike1).getHeading() < Math.toRadians(10)) {
+                if (getError(pickupSpike1).getHeading() < Math.toRadians(10)) {
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(4);
                 }
@@ -283,14 +291,14 @@ public class SpecimenAutoExtend extends OpMode {
             //part 2 *******************************************************************************
             //go to pickup spike2
             case 6:
-                if (follower.getError(endSpike1).getX() < 1.5 && follower.getError(endSpike1).getY() < 1.5 && follower.getError(endSpike1).getHeading() < 15) {
+                if (getError(endSpike1).getX() < 1.5 && getError(endSpike1).getY() < 1.5 && getError(endSpike1).getHeading() < 15) {
                     follower.followPath(pickupSpike2Path);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     setPathState(7);
                 }
             //start grabbing
             case 7:
-                if (follower.getError(pickupSpike2).getX() < 1.5 && follower.getError(pickupSpike2).getY() < 1.5 && follower.getError(pickupSpike2).getHeading() < 15) {
+                if (getError(pickupSpike2).getX() < 1.5 && getError(pickupSpike2).getY() < 1.5 && getError(pickupSpike2).getHeading() < 15) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(8);
                 }
@@ -305,7 +313,7 @@ public class SpecimenAutoExtend extends OpMode {
             //part 3 *******************************************************************************
             //go to pickup spike3
             case 9:
-                if (follower.getError(endSpike2).getX() < 1.5 && follower.getError(endSpike2).getY() < 1.5 && follower.getError(endSpike2).getHeading() < 15) {
+                if (getError(endSpike2).getX() < 1.5 && getError(endSpike2).getY() < 1.5 && getError(endSpike2).getHeading() < 15) {
                     follower.followPath(pickupSpike3Path);
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                     setPathState(10);
@@ -313,7 +321,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //start grabbing
             case 10:
-                if (follower.getError(pickupSpike3).getX() < 1.5 && follower.getError(pickupSpike3).getY() < 1.5 && follower.getError(pickupSpike3).getHeading() < 15) {
+                if (getError(pickupSpike3).getX() < 1.5 && getError(pickupSpike3).getY() < 1.5 && getError(pickupSpike3).getHeading() < 15) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(11);
                 }
@@ -327,7 +335,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //go to front wall
             case 12:
-                if ((follower.getError(endSpike3).getX() < 1.5 && follower.getError(endSpike3).getY() < 1.5 && follower.getError(endSpike3).getHeading() < 15) || pathTimer.getElapsedTimeSeconds() > 3) {
+                if ((getError(endSpike3).getX() < 1.5 && getError(endSpike3).getY() < 1.5 && getError(endSpike3).getHeading() < 15) || pathTimer.getElapsedTimeSeconds() > 3) {
                     intakeSystem.storePos();
                     follower.followPath(toFrontWall1);
                     setPathState(16);
@@ -343,7 +351,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //grab off wall and go to sub
             case 17:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(18);
                 }
@@ -358,7 +366,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //drop specimen
             case 19:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall2);
                     setPathState(20);
                 }
@@ -387,7 +395,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //grab off wall and go to sub
             case 23:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(24);
                 }
@@ -402,7 +410,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //drop specimen
             case 25:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall3);
                     setPathState(26);
                 }
@@ -430,7 +438,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //grab off wall and go to sub
             case 29:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(30);
                 }
@@ -445,7 +453,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //drop specimen
             case 31:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall4);
                     setPathState(32);
                 }
@@ -473,7 +481,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //grab off wall and go to sub
             case 35:
-                if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
+                if (getError(pickupWall).getX() < 1 && getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(36);
                 }
@@ -488,7 +496,7 @@ public class SpecimenAutoExtend extends OpMode {
                 break;
             //drop specimen
             case 37:
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (getError(placeSub1).getY() < 1) {
                     follower.followPath(parkPath);
                     setPathState(38);
                 }
@@ -544,6 +552,20 @@ public class SpecimenAutoExtend extends OpMode {
             loopTime = opmodeTimer.getElapsedTime();
             telemetry.update();
         }
+    }
+
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+
+    private Pose getError(Pose targetPose) {
+        Pose tempPose = follower.getPose();
+        tempPose.setX(Math.abs(tempPose.getX() - targetPose.getX()));
+        tempPose.setY(Math.abs(tempPose.getY() - targetPose.getY()));
+        tempPose.setHeading(Math.abs(tempPose.getHeading() - targetPose.getHeading()));
+        return tempPose;
     }
 
     /** We do not use this because everything should automatically disable **/

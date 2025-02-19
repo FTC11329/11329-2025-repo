@@ -1,18 +1,25 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.localizers.OTOSLocalizer;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierCurve;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.PathChain;
+import com.pedropathing.pathgen.Point;
+import com.pedropathing.util.Timer;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.FConstants;
+import org.firstinspires.ftc.teamcode.pedroPathing.constants.LConstants;
 import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -129,7 +136,7 @@ public class CameraMeasurementAuto extends OpMode {
                 setPathState(1);
                 break;
             case 1:
-                follower.followYourHeart(movementX);
+                followYourHeart(movementX);
                 setPathState(2);
                 break;
             case 2:
@@ -139,7 +146,7 @@ public class CameraMeasurementAuto extends OpMode {
                 }
                 break;
             case 3:
-                follower.followYourHeart(-movementX);
+                followYourHeart(-movementX);
                 setPathState(4);
                 break;
             case 4:
@@ -281,6 +288,35 @@ public class CameraMeasurementAuto extends OpMode {
         }
         telemetry.update();
 
+    }
+
+    private Path linearPathBuilder(Pose startPose, Pose endPose) {
+        Path newPath = new Path(new BezierCurve(new Point(startPose), new Point(endPose)));
+        newPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+        return newPath;
+    }
+
+    public void followYourHeart(double blockO) {
+        Pose tempPose = follower.getPose();
+        // just initialized
+        Path cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - 3, tempPose.getHeading()));
+        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
+            //north side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + blockO, tempPose.getHeading()));
+
+        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
+            //east side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + blockO, tempPose.getY(), tempPose.getHeading()));
+
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //south side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - blockO, tempPose.getHeading()));
+
+        } else if (Math.toRadians(315) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(225)) {
+            //west side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - blockO, tempPose.getY(), tempPose.getHeading()));
+        }
+        follower.followPath(cameraSearchPath);
     }
 
     /** We do not use this because everything should automatically disable **/
