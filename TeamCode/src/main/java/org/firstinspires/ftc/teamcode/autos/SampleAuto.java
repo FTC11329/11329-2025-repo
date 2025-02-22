@@ -440,10 +440,7 @@ public class SampleAuto {
                     Pose2D target2D = blockVision.getBestSample();
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
-                    if (opmodeTimer.getElapsedTimeSeconds() > 200) {
-                        //Break loop
-                        setPathState(SampleAutoEnum.park);
-                    } else if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
+                    if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
                         intakeSystem.setHSlidesInches(target.getY());
                         followYourHeart(target.getX());
@@ -460,6 +457,10 @@ public class SampleAuto {
                 }
                 break;
             case transferSample4:
+                if (opmodeTimer.getElapsedTimeSeconds() > 26) {
+                    //Break loop
+                    setPathState(SampleAutoEnum.park);
+                }
                 if (intakeSystem.intakeUntil()) {
                     driveSweep = false;
                     follower.followPath(placeSubPath);
@@ -477,7 +478,7 @@ public class SampleAuto {
             case dropClaw4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.35) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    if (opmodeTimer.getElapsedTimeSeconds() > 200) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 0.23) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else {

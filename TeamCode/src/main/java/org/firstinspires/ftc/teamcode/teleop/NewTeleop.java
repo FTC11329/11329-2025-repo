@@ -40,7 +40,7 @@ public class NewTeleop {
     boolean debugState = false;
     boolean debugStateMachine = false;
     boolean debugPos = false;
-    boolean debugClimber = false ;
+    boolean debugClimber = false;
     boolean debugAuto = false;
     boolean debugMisc = false;
 
@@ -372,7 +372,7 @@ public class NewTeleop {
                     climberStage = 1;
                     break;
                 case 1:
-                    if (climberTimer.getElapsedTimeSeconds() > 2 && Math.abs(climber.getPos() - climberPos) < 500) {
+                    if (climberTimer.getElapsedTimeSeconds() > 3 && Math.abs(climber.getPos() - climberPos) < 500) {
                         driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
                         climberTimer.resetTimer();
@@ -387,14 +387,14 @@ public class NewTeleop {
                         current = 0;
                     }
 
-                    if (current > 6 && !lastCurrentTrip) {
+                    if (current > 5.7 && !lastCurrentTrip) {
                         lastCurrentTripTime = elapsedTime.milliseconds();
                         lastCurrentTrip = true;
                     } else if (current < 6) {
                         lastCurrentTrip = false;
                     }
 
-                    if (current > 6 && elapsedTime.milliseconds() > lastCurrentTripTime + 1000) {
+                    if (current > 5.7 && elapsedTime.milliseconds() > lastCurrentTripTime + 1000) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         //Prevent pto from drawing too much power
@@ -405,26 +405,26 @@ public class NewTeleop {
                     }
                     break;
                 case 3:
-                    if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 300) {
+                    if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 100) {
                         //disable PTO to conserve power
-                        driveTrain.setPTOPos(Constants.PTO.motorDrop);
                         driveTrain.setPTOPower(0);
+
                         climberPos = Constants.Climber.inPos;
 
                         climberTimer.resetTimer();
                         climberStage = 4;
                     }
                     break;
-                    /*
-                    delete after a working climb
-                case 6:
-                    if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 700) {
-                        driveTrain.setPTOPower(-1);
+                case 4:
+                    if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 1000) {
+                        driveTrain.setPTOPos(Constants.PTO.motorDrop);
 
                         climberTimer.resetTimer();
-                        climberStage = 7;
+                        climberStage = 5;
                     }
                     break;
+                    //TODO add clause after pto has about reached position to power pto -0.4 or 0.4 or whatever we need
+                    /*
                 case 7:
                     current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
 
@@ -449,9 +449,17 @@ public class NewTeleop {
 
                 case 2:
                 case 3:
-                case 4:
                     driveTrain.PTOLoop(0);
                     break;
+
+                case 4:
+                    driveTrain.setPTOPower(0);
+                    break;
+
+                case 5:
+                    driveTrain.PTOLoop(0);
+                    break;
+
             }
 
             //manual movement
@@ -462,6 +470,10 @@ public class NewTeleop {
             climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
 
             driveTrain.setPTOPower(-gamepad1.left_stick_y);
+        }
+        if (gamepad1.dpad_up || gamepad2.back) {
+            climberPos = Constants.Climber.outPos;
+            climber.setPos(climberPos);
         }
 
         //Manual Movements *************************************************************************
