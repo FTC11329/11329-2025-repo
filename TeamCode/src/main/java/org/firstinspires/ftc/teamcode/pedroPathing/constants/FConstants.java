@@ -24,13 +24,13 @@ public class FConstants { // This is how we change Follower Constants.
         FollowerConstants.rightRearMotorName = "rightBack";
 
         FollowerConstants.leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
-        FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
-        FollowerConstants.leftRearMotorDirection = DcMotorSimple.Direction.FORWARD;
+        FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
+        FollowerConstants.leftRearMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
         FollowerConstants.motorCachingThreshold = 0.01;
 
-        FollowerConstants.xMovement = 70;
-        FollowerConstants.yMovement = 48.8;
+        FollowerConstants.xMovement = 73.2;
+        FollowerConstants.yMovement = 53.863;
         double[] convertToPolar = Point.cartesianToPolar(xMovement, -yMovement);
         FollowerConstants.frontLeftVector = MathFunctions.normalizeVector(new Vector(convertToPolar[0], convertToPolar[1]));
 
@@ -90,11 +90,11 @@ public class FConstants { // This is how we change Follower Constants.
 
         // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
         // if not negative, then the robot thinks that its going to go faster under 0 power
-        FollowerConstants.forwardZeroPowerAcceleration = -33;
+        FollowerConstants.forwardZeroPowerAcceleration = -28.786;
 
         // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
         // if not negative, then the robot thinks that its going to go faster under 0 power
-        FollowerConstants.lateralZeroPowerAcceleration = -80;
+        FollowerConstants.lateralZeroPowerAcceleration = -73.6813;
 
         // A multiplier for the zero power acceleration to change the speed the robot decelerates at
         // the end of paths.
@@ -153,8 +153,8 @@ public class FConstants { // This is how we change Follower Constants.
 
         // These activate / deactivate the secondary PIDs. These take over at errors under a set limit for
         // the translational, heading, and drive PIDs.
-        FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.useSecondaryTranslationalPID = true;
+        FollowerConstants.useSecondaryHeadingPID = true;
         FollowerConstants.useSecondaryDrivePID = false;
 
 

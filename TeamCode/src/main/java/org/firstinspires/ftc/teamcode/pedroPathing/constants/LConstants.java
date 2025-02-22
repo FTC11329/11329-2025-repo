@@ -7,6 +7,7 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.opencv.core.Mat;
 
 public class LConstants {
     static {
@@ -14,9 +15,9 @@ public class LConstants {
         OTOSConstants.hardwareMapName = "sensor_otos";
         OTOSConstants.linearUnit = DistanceUnit.INCH;
         OTOSConstants.angleUnit = AngleUnit.RADIANS;
-        OTOSConstants.offset = new SparkFunOTOS.Pose2D(0.0, 0.0, 1.5707963267948966);
-        OTOSConstants.linearScalar = 1.0;
-        OTOSConstants.angularScalar = 1.0;
+        OTOSConstants.offset = new SparkFunOTOS.Pose2D(0.0, 0.0, Math.toRadians(-90));
+        OTOSConstants.linearScalar = 0.9766443303;
+        OTOSConstants.angularScalar = 0.9977134153;
         ;
     }
 
