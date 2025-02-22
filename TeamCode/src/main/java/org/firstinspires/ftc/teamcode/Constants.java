@@ -78,7 +78,7 @@ public class Constants {
 
         public static int safeFromWallSlides = 360;
         public static int safeFromHSlides = 650;
-        public static int safeFromClimberBar = 1200;
+        public static int safeFromClimberBar = 1300;
         public static int safeFromSpecBar = 1712;
 
         public static int highSpecimenSlides = 1050;

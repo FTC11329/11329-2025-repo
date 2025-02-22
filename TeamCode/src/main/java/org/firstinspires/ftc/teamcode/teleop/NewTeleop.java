@@ -762,9 +762,6 @@ public class NewTeleop {
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 intakeingColor = false;
-                if (atStorePos) {
-                    stateMachine.goTransfer(true);
-                }
                 unjamAfterIntakeTime = elapsedTime.milliseconds();
                 unjamAfterIntake = true;
             }
