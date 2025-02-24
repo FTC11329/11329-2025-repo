@@ -134,6 +134,8 @@ public class SpecimenAutoExtend extends OpMode {
     /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
+        com.pedropathing.util.Constants.setConstants(FConstants.class, LConstants.class);
+
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);

@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.constants;
 
-import static com.pedropathing.follower.FollowerConstants.xMovement;
-import static com.pedropathing.follower.FollowerConstants.yMovement;
-
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.localization.Localizers;
@@ -31,15 +28,20 @@ public class FConstants { // This is how we change Follower Constants.
 
         FollowerConstants.xMovement = 73.2;
         FollowerConstants.yMovement = 53.863;
-        double[] convertToPolar = Point.cartesianToPolar(xMovement, -yMovement);
+        double[] convertToPolar = Point.cartesianToPolar(FollowerConstants.xMovement, -FollowerConstants.yMovement);
         FollowerConstants.frontLeftVector = MathFunctions.normalizeVector(new Vector(convertToPolar[0], convertToPolar[1]));
 
 
         // Translational PIDF coefficients (don't use integral)
+//        FollowerConstants.translationalPIDFCoefficients = new CustomPIDFCoefficients(
+//                0.14,
+//                0,
+//                0.01,
+//                0);
         FollowerConstants.translationalPIDFCoefficients = new CustomPIDFCoefficients(
-                0.14,
                 0,
-                0.01,
+                0,
+                0,
                 0);
 
         // Translational Integral

@@ -116,6 +116,8 @@ public class SampleAuto {
     }
 
     public void init() {
+        com.pedropathing.util.Constants.setConstants(FConstants.class, LConstants.class);
+
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);

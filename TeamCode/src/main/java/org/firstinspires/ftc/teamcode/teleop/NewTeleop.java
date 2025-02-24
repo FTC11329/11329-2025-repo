@@ -795,6 +795,8 @@ public class NewTeleop {
             unjamming = true;
             unjammingTime = elapsedTime.milliseconds();
 
+            hasInIntake = false;
+
             intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
         }
 
@@ -804,6 +806,7 @@ public class NewTeleop {
             }
 
             if (intakeSystem.intakeUntil()) {
+                hasInIntake = true;
                 intakeSystem.setIntakePower(0);
                 unjamming = false;
             }
