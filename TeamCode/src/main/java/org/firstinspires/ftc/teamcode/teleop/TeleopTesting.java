@@ -7,7 +7,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
+import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
@@ -21,7 +21,7 @@ public class TeleopTesting {
 
     Climber climber;
     Drivetrain driveTrain;
-    BlockVision blockVision;
+    Attempt89 blockvision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
@@ -70,7 +70,6 @@ public class TeleopTesting {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Red);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
@@ -143,12 +142,7 @@ public class TeleopTesting {
 //        if (gamepad1.y) {
 //            intakeing = true;
 //        }
-        if (gamepad1.x) {
-            blockOffset = blockVision.getBestBlockPos();
-            if (blockOffset != null) {
-                intakeSystem.setHSlidesInches(blockOffset.getY());
-            }
-        }
+
 
 
         if (gamepad1.left_bumper) {

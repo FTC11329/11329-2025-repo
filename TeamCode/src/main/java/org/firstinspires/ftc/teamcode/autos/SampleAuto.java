@@ -35,7 +35,7 @@ public class SampleAuto {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
-    Attempt89 blockVision;
+    Attempt89 attempt89;
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
@@ -114,8 +114,8 @@ public class SampleAuto {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
-        blockVision = new Attempt89(hardwareMap, robotSide);
-        blockVision.switchPipeline(2);
+        attempt89 = new Attempt89(hardwareMap, robotSide);
+        attempt89.switchPipeline(2);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
 
@@ -131,7 +131,7 @@ public class SampleAuto {
     }
 
     public void init_loop() {
-        Pose2D sample = blockVision.getBestSample();
+        Pose2D sample = attempt89.getBestSample();
         telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
         telemetry.addData("Test Block Y", sample.getY(DistanceUnit.INCH));
         telemetry.addData("Test Block H", sample.getHeading(AngleUnit.DEGREES));
@@ -256,6 +256,7 @@ public class SampleAuto {
 
         //Driving and everything else
         switch (pathState) { //todo: convert vision to polar coordinates so it can intake the 3rd spike if it misses
+            //todo: make sure to pass in the color you are intaking for vision
             case scorePreload:
                 follower.setMaxPower(1);
                 follower.followPath(scorePreload);
@@ -429,12 +430,12 @@ public class SampleAuto {
                 break;
             case visionSearch1:
                 if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
-                    Pose2D target2D = blockVision.getBestSample();
+                    Pose2D target2D = attempt89.getBestSample();
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
-                        intakeSystem.setHSlidesInches(target.getY());
+                        intakeSystem.setHSlidesInches(target.getY()); //leave this in cartesian because slow intake slides
                         follower.followYourHeart(target.getX());
                         setPathState(SampleAutoEnum.subIntake1);
                         driveSweep = true;
@@ -453,6 +454,7 @@ public class SampleAuto {
                     //Break loop
                     setPathState(SampleAutoEnum.park);
                 }
+                if (pathTimer.getElapsedTimeSeconds() > 1.8) {follower.breakFollowing();} // this should prevent the robot resisting the drive sweep
                 if (intakeSystem.intakeUntil()) {
                     driveSweep = false;
                     follower.followPath(placeSubPath);
@@ -531,13 +533,11 @@ public class SampleAuto {
             case failSpikeSearch:
                 intakeFail = false;
                 if (follower.getVelocity().getXComponent() < .5 && follower.getVelocity().getYComponent() < .5 && pathTimer.getElapsedTimeSeconds() > .2) {
-                    Pose2D target2D = blockVision.getBestSample();
+                    Pose2D target2D = attempt89.getBestSample();
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
-                        target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
-                        intakeSystem.setHSlidesInches(target.getY());
-                        follower.followYourHeart(target.getX());
+                        intakeSystem.setHSlidesInches(follower.followYourHeadSub(target2D));
                         setPathState(SampleAutoEnum.spikeSearchWrist);
                         driveSweep = true;
                     } else if (pathTimer.getElapsedTimeSeconds() > 3) {

@@ -9,7 +9,6 @@ import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
-import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
@@ -63,7 +62,6 @@ public class TestingEnhancedTeleop extends OpMode {
         follower.setStartingPose(new Pose(8.5, -63, Math.toRadians(90)));
 
         //limelight
-        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Blue);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
     }
 

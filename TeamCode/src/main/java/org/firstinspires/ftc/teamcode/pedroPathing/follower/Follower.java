@@ -28,6 +28,9 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.PoseUpdater;
@@ -46,6 +49,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
@@ -1112,10 +1116,37 @@ public class Follower {
         followPath(cameraSearchPath);
     }
 
-    public void followYourHead(double blockO) {
+    public double followYourHeadSub(Pose2D blockO) {
+        // WARNING: can only run facing a multiple of 90 degrees
         Pose tempPose = getPose();
         Path cameraSearchPath;
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading() - blockO));
+        double X = blockO.getX(DistanceUnit.INCH);
+        double Y = blockO.getY(DistanceUnit.INCH);
+        double alphaOne = Math.atan(X/Y);
+        double B = 7.7 * Math.sin(alphaOne); // 7.7 aproximates 1/2 width of robot
+        if (B <= 1) {B = 1;}
+        double alphaTwo = Math.atan(X / (Y + B));
+
+        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
+            //north side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + B, tempPose.getY(), tempPose.getHeading() + alphaTwo));
+
+        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
+            //east side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - B, tempPose.getHeading() + alphaTwo));
+
+        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
+            //south side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - B, tempPose.getY(), tempPose.getHeading() + alphaTwo));
+
+        } else {
+            //west side
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + B, tempPose.getHeading() + alphaTwo));
+        }
+
         followPath(cameraSearchPath);
+
+        return Math.sqrt((X * X)+((Y + B) * (Y + B))); //Extend Hslides
     }
+
 }

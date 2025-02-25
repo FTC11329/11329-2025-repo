@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -13,10 +12,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
-import org.firstinspires.ftc.teamcode.subsystems.BlockVision;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
@@ -32,7 +29,6 @@ public class CameraAuto extends OpMode {
     Climber climber;
     Follower follower;
     Drivetrain driveTrain;
-    BlockVision blockVision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
@@ -43,7 +39,7 @@ public class CameraAuto extends OpMode {
     Attempt89 attempt89;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = false; // determines if you rotate the robot or if you move horizontally
+    boolean polar = true; // determines if you rotate the robot or if you move horizontally
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
@@ -90,7 +86,6 @@ public class CameraAuto extends OpMode {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        blockVision = new BlockVision(hardwareMap, RobotSideEnum.Blue);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem = new OuttakeSystem(hardwareMap);
@@ -163,13 +158,6 @@ public class CameraAuto extends OpMode {
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0:
-                // drive to the sub
-//                follower.setMaxPower(1);
-                //follower.followPath(firstIntakePath, true);
-//                outtakeSystem.setArmPos(Constants.Outtake.upArm);
-                setPathState(1);
-                break;
             case 1:
                 target = attempt89.getBestBlock(2); //red
                 if (target != null) {
@@ -178,31 +166,26 @@ public class CameraAuto extends OpMode {
                     telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
                 }
                 telemetry.update();
-                if (follower.getVelocityMagnitude() < .1 && follower.getVelocityMagnitude() < .1 && pathTimer.getElapsedTimeSeconds() > 1.5) {
-                    //camera takes photo and starts intake
-                    if (target != null){
-                        if (polar) {
-                            //Thanks Mr. Raney
-                            double r = Math.sqrt((target.getY(DistanceUnit.INCH)*target.getY(DistanceUnit.INCH))+(target.getX(DistanceUnit.INCH)*target.getX(DistanceUnit.INCH)));
-                            double theta = Math.atan(target.getY(DistanceUnit.INCH)/ target.getX(DistanceUnit.INCH));
-                            intakeSystem.setHSlidesInches(r);
-                            follower.followYourHead(Math.toRadians(theta));
-                        } else {
-                            intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
-                            follower.followYourHeart(target.getX(DistanceUnit.INCH));
-                        }
-//                        driveShake = true; //updated so that there is a longer delay
-                        setPathState(2);
+                //camera takes photo and starts intake
+                if (target != null && target.getHeading(AngleUnit.DEGREES) != -1){
+                    if (polar) {
+                        //Thanks Mr. Raney
+                        intakeSystem.setHSlidesInches(follower.followYourHeadSub(target));
+
                     } else {
-                        telemetry.addData("","No Blocks Found");
-                        telemetry.update();
+                        intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
+                        follower.followYourHeart(target.getX(DistanceUnit.INCH));
                     }
-                    break;
+                    setPathState(2);
+                } else {
+                    telemetry.addData("","No Blocks Found");
+                    telemetry.update();
                 }
                 break;
+
             case 2:
                 //puts the wrist down after the slides are in the sub
-                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                if (pathTimer.getElapsedTimeSeconds() > .25) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(3);
                 }
@@ -210,7 +193,6 @@ public class CameraAuto extends OpMode {
             case 3:
                 // intakes and moves to store pos
                 if (intakeSystem.intakeUntilColor()) {
-                    driveShake = false;
                     intakeSystem.storePos();
                     setPathState(4);
                 }
