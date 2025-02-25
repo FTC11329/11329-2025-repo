@@ -1129,24 +1129,35 @@ public class Follower {
 
         if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
             //north side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + B, tempPose.getY(), tempPose.getHeading() + alphaTwo));
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + B, tempPose.getY(), tempPose.getHeading() - alphaTwo));
 
         } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
             //east side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - B, tempPose.getHeading() + alphaTwo));
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - B, tempPose.getHeading() - alphaTwo));
 
         } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
             //south side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - B, tempPose.getY(), tempPose.getHeading() + alphaTwo));
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - B, tempPose.getY(), tempPose.getHeading() - alphaTwo));
 
         } else {
             //west side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + B, tempPose.getHeading() + alphaTwo));
+            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + B, tempPose.getHeading() - alphaTwo));
         }
 
         followPath(cameraSearchPath);
 
         return Math.sqrt((X * X)+((Y + B) * (Y + B))); //Extend Hslides
     }
-
+//    public double followYourHeadSpike(Pose2D blockO) {
+//        Pose tempPose = getPose();
+//        // just initialized
+//        Path cameraSearchPath;
+//        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading() - Math.atan(blockO.getX(DistanceUnit.INCH)/blockO.getY(DistanceUnit.INCH))));
+//
+//        followPath(cameraSearchPath);
+//        return new double Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
+//    }
+//    public void followYourButt() {
+//        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading()))
+//    }
 }
