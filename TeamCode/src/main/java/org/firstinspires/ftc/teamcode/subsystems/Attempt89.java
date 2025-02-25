@@ -227,9 +227,9 @@ public class Attempt89 {
         return getBlockPosition();
     }
 
-    public Pose2D getBestSample() {
+    public Pose2D getBestSample(RobotSideEnum robotSide) {
         Pose2D colorPose;
-        if (robotSideEnum == RobotSideEnum.Red) {
+        if (robotSide == RobotSideEnum.Red) {
             colorPose = getBestBlock(2);
         } else {
             colorPose = getBestBlock(1);

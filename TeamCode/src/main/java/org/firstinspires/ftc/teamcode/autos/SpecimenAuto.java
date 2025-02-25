@@ -84,6 +84,7 @@ public class SpecimenAuto extends OpMode {
     private final double spitTime = 0.5;
     private double loopTime = 0;
 
+    boolean work = true;
     private boolean driveShake = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */

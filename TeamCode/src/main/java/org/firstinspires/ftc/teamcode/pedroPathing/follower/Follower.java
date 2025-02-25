@@ -1148,16 +1148,13 @@ public class Follower {
 
         return Math.sqrt((X * X)+((Y + B) * (Y + B))); //Extend Hslides
     }
-//    public double followYourHeadSpike(Pose2D blockO) {
-//        Pose tempPose = getPose();
-//        // just initialized
-//        Path cameraSearchPath;
-//        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading() - Math.atan(blockO.getX(DistanceUnit.INCH)/blockO.getY(DistanceUnit.INCH))));
-//
-//        followPath(cameraSearchPath);
-//        return new double Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
-//    }
-//    public void followYourButt() {
-//        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + 1, tempPose.getY(), tempPose.getHeading()))
-//    }
+    public double followYourHeadSpike(Pose2D blockO) {
+        Pose tempPose = getPose();
+        // just initialized
+        Path cameraSearchPath;
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - Math.atan(blockO.getX(DistanceUnit.INCH)/blockO.getY(DistanceUnit.INCH))));
+
+        followPath(cameraSearchPath);
+        return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
+    }
 }

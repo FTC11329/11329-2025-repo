@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
+import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
@@ -23,8 +23,8 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Camera Auto", group = "Test")
-public class CameraAuto extends OpMode {
+@Autonomous(name = "Camera Auto Wiggle", group = "Test")
+public class CameraAutoWiggle extends OpMode {
 
     Climber climber;
     Follower follower;
@@ -40,7 +40,8 @@ public class CameraAuto extends OpMode {
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     boolean polar = true; // determines if you rotate the robot or if you move horizontally
-
+    boolean wiggle = false;
+    boolean wiggleBot = false;
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState;
@@ -170,8 +171,12 @@ public class CameraAuto extends OpMode {
                 if (target != null && target.getHeading(AngleUnit.DEGREES) != -1){
                     if (polar) {
                         //Thanks Mr. Raney
-                        intakeSystem.setHSlidesInches(follower.followYourHeadSub(target));
-
+                        if (wiggleBot) {
+                            intakeSystem.setHSlidesInches(follower.followYourHeadSpike(target));
+                            wiggle = true;
+                        } else {
+                            intakeSystem.setHSlidesInches(follower.followYourHeadSub(target));
+                        }
                     } else {
                         intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
                         follower.followYourHeart(target.getX(DistanceUnit.INCH));
@@ -186,6 +191,7 @@ public class CameraAuto extends OpMode {
             case 2:
                 //puts the wrist down after the slides are in the sub
                 if (pathTimer.getElapsedTimeSeconds() > .25) {
+                    wiggle = false;
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(3);
                 }
@@ -221,6 +227,7 @@ public class CameraAuto extends OpMode {
                 driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
             }
         }
+        if (wiggle && pathTimer.getElapsedTimeSeconds() < .25) {driveTrain.drive(0,0.5, 0, DriveSpeedEnum.Auto);}
 
 
 

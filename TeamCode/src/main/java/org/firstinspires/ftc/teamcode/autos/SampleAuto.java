@@ -131,7 +131,7 @@ public class SampleAuto {
     }
 
     public void init_loop() {
-        Pose2D sample = attempt89.getBestSample();
+        Pose2D sample = attempt89.getBestSample(robotSide);
         telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
         telemetry.addData("Test Block Y", sample.getY(DistanceUnit.INCH));
         telemetry.addData("Test Block H", sample.getHeading(AngleUnit.DEGREES));
@@ -430,7 +430,7 @@ public class SampleAuto {
                 break;
             case visionSearch1:
                 if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
-                    Pose2D target2D = attempt89.getBestSample();
+                    Pose2D target2D = attempt89.getBestSample(robotSide);
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
@@ -533,7 +533,7 @@ public class SampleAuto {
             case failSpikeSearch:
                 intakeFail = false;
                 if (follower.getVelocity().getXComponent() < .5 && follower.getVelocity().getYComponent() < .5 && pathTimer.getElapsedTimeSeconds() > .2) {
-                    Pose2D target2D = attempt89.getBestSample();
+                    Pose2D target2D = attempt89.getBestSample(robotSide);
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
