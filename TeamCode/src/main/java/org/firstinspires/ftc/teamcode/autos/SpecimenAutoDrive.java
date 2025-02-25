@@ -235,12 +235,13 @@ public class SpecimenAutoDrive extends OpMode {
         switch (pathState) {
             //go to score preload
             case -3:
-                follower.followPath(scorePreload);
-                outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                 setPathState(0);
+                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                 break;
             case -2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.6) {
+                    follower.followPath(scorePreload);
                     setPathState(pathState + 1);
                 }
             case -1:
