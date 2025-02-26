@@ -40,8 +40,8 @@ public class CameraAutoWiggle extends OpMode {
     private Timer pathTimer, actionTimer, opmodeTimer;
 
     boolean polar = true; // determines if you rotate the robot or if you move horizontally
-    boolean wiggle = false;
-    boolean wiggleBot = false;
+    boolean wiggle = false; // This makes the robot move while true
+    boolean wiggleBot = false; // This makes the robot try wiggle pathing
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private int pathState = 1;
@@ -54,31 +54,14 @@ public class CameraAutoWiggle extends OpMode {
      * This visualizer is very easy to use to find and create paths/pathchains/poses: <https://pedro-path-generator.vercel.app/>
      **/
 
-    /** Start Pose of our robot */
-    private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
-
-    /** Scoring Poses of our robot. */
-    private final Pose subIntake = new Pose(4, -40, Math.toRadians(90)); //todo: set the y back from the wall a little to give the robot space to rotate
-
-    private final Pose placeSub1 = new Pose(6, -34, Math.toRadians(90));
-
-    private final Pose spitBlock = new Pose(31, -53, Math.toRadians(-35));
-
-    private final Pose park = new Pose(63.75, -64.3, Math.toRadians(90));
+    private final Pose startPose = new Pose(0, 0, Math.toRadians(90));
 
     Pose2D target;
-
-    private boolean driveShake = false;
 
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path firstIntakePath;
 
     boolean work = false; // yayy!!
-    private Path spitBlockPath;
-
-    private Path extraIntakePath;
-
-    private Path parkPath; //IS THAT A BTD REFERENCE?
 
 
     /** This method is called once at the init of the OpMode. **/
@@ -101,13 +84,20 @@ public class CameraAutoWiggle extends OpMode {
         follower.setStartingPose(startPose);
         attempt89.switchPipeline(2);
 
-        buildPaths();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
-    public void init_loop() {}
-
+    public void init_loop() {
+        target = attempt89.getBlockPosition();
+        if (target != null) {
+            telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
+            telemetry.addData("targety", target.getY(DistanceUnit.INCH));
+            telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
+        }
+        telemetry.update();
+    }
+    
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
@@ -116,43 +106,7 @@ public class CameraAutoWiggle extends OpMode {
         setPathState(0);
     }
 
-    public void buildPaths() {
-        firstIntakePath        = follower.linearPathBuilder(startPose, subIntake);
 
-        //frontWallToWall
-        spitBlockPath = new Path(new BezierCurve(new Point(subIntake), new Point(startPose), new Point(placeSub1)));
-        spitBlockPath.setConstantHeadingInterpolation(subIntake.getHeading());
-
-        extraIntakePath = new Path(new BezierCurve(new Point(spitBlock), new Point(startPose), new Point(subIntake)));
-        extraIntakePath.setConstantHeadingInterpolation(spitBlock.getHeading());
-    }
-
-    public Pose getBlockPosition() {
-
-        double[][][] distanceArray = multiDistanceCalculator.fillImageArray();
-        for (int block = 0; block < distanceArray[0].length; block++) {
-            for (int frame = 0; frame < distanceArray[0][0].length; frame++) {
-                telemetry.addData("DistanceArray[0][" + block + "][" + frame + "]: ", distanceArray[0][block][frame]);
-                telemetry.addData("DistanceArray[1][" + block + "][" + frame + "]: ", distanceArray[1][block][frame]);
-            }
-        }
-        //telemetry.addData("newDistanceArray[][][]: ", distanceArray);
-
-        double[][] newDistanceArray = multiDistanceCalculator.findAverageOfFullFrames(distanceArray);
-        for (int block = 0; block < newDistanceArray[0].length; block++) {
-            telemetry.addData("newDistanceArray[0][" + block + "]:", newDistanceArray[0][block]);
-            telemetry.addData("newDistanceArray[1][" + block + "]:", newDistanceArray[1][block]);
-        }
-        //telemetry.addData("newDistanceArray[][]: ", newDistanceArray);
-
-        // Call the method to find the smallest non-zero values
-        double[] finalValues = multiDistanceCalculator.MinimizeTime(newDistanceArray);
-        //telemetry.addData("finalValues[][]: ", finalValues);
-
-        //find the closest non-zero distance block
-
-        return new Pose(finalValues[0], finalValues[1], 0.0);
-    }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
@@ -160,7 +114,7 @@ public class CameraAutoWiggle extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 1:
-                target = attempt89.getBestBlock(2); //red
+                target = attempt89.getBlockPosition();
                 telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
                 telemetry.addData("targety", target.getY(DistanceUnit.INCH));
                 telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
@@ -218,17 +172,7 @@ public class CameraAutoWiggle extends OpMode {
         // These loop the movements of the robot
         follower.update();
         autonomousPathUpdate();
-        if (driveShake && pathTimer.getElapsedTimeSeconds() > 2.5) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 2.5) * 2.5) % 2 == 0 ){
-                driveTrain.drive(0,0, -0.5, DriveSpeedEnum.Auto);
-            } else {
-                driveTrain.drive(0,0, 0.5, DriveSpeedEnum.Auto);
-            }
-        }
         if (wiggle && pathTimer.getElapsedTimeSeconds() < .25) {driveTrain.drive(0,0.5, 0, DriveSpeedEnum.Auto);}
-
-
-
     }
 
     /** We do not use this because everything should automatically disable **/
