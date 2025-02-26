@@ -46,7 +46,7 @@ public class FollowerConstants {
     // Translational Integral
     public static CustomPIDFCoefficients translationalIntegral = new CustomPIDFCoefficients(
             0,
-            0.0002,
+            0,
             0,
             0);
 
@@ -67,9 +67,9 @@ public class FollowerConstants {
 
     // Drive PIDF coefficients
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
-            0.006,
-            0.001,
-            0.000095,
+            0.004,
+            0,
+            0.0003,
             0.6,
             0);
 
@@ -104,7 +104,7 @@ public class FollowerConstants {
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 1;
+    public static double zeroPowerAccelerationMultiplier = 4;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
@@ -154,7 +154,7 @@ public class FollowerConstants {
 
     // These activate / deactivate the secondary PIDs. These take over at errors under a set limit for
     // the translational, heading, and drive PIDs.
-    public static boolean useSecondaryTranslationalPID = false;
+    public static boolean useSecondaryTranslationalPID = true;
     public static boolean useSecondaryHeadingPID = false;
     public static boolean useSecondaryDrivePID = false;
 
@@ -173,7 +173,7 @@ public class FollowerConstants {
     // Secondary translational Integral value
     public static CustomPIDFCoefficients secondaryTranslationalIntegral = new CustomPIDFCoefficients(
             0,
-            0,
+            0.01,
             0,
             0);
 

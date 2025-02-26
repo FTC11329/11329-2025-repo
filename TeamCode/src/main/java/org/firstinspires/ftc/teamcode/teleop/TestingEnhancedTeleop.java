@@ -5,10 +5,13 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
@@ -24,9 +27,9 @@ public class TestingEnhancedTeleop extends OpMode {
     Drivetrain driveTrain;
 
     //limelight
-    BlockVision blockVision;
+    Attempt89 blockVision;
     IntakeSystem intakeSystem;
-    Pose blockOffset = new Pose();
+    Pose2D blockOffset;
     double[] test = new double[2];
     double[] test2 = new double[2];
 
@@ -168,9 +171,8 @@ public class TestingEnhancedTeleop extends OpMode {
         if (!gamepad1.y) {
             follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
         } else {
-            // when changing the other code I messed this part up
-            follower.followYourHeart(blockOffset.getX());
-            intakeSystem.setHSlidesInches(blockOffset.getY());
+            follower.followYourHeart(blockOffset.getX(DistanceUnit.INCH));
+            intakeSystem.setHSlidesInches(blockOffset.getY(DistanceUnit.INCH));
         }
         follower.update();
 
@@ -198,7 +200,7 @@ public class TestingEnhancedTeleop extends OpMode {
 
         //LIMELIGHT
         if (gamepad1.x) {
-            blockOffset = blockVision.getBestSampleBlockPos();
+            blockOffset = blockVision.getBestSample();
         }
         for (double t : test) {
             telemetry.addData("t", t);

@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
@@ -40,6 +42,18 @@ public class StraightBackAndForth extends OpMode {
     private Path forwards;
     private Path backwards;
 
+
+    //for cool path
+    private final Pose preloadPlace = new Pose(9, -32.5, Math.toRadians(90));
+    private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
+    private final Pose spike1ControlPoint2 = new Pose(22.5, -8.5, 0);
+    private final Pose backSpike1 = new Pose(48, -12, Math.toRadians(90));
+    private final Pose pushedSpike1 = new Pose(48.5, -50, Math.toRadians(90));
+
+    private Path pickupSpike1Path;
+    private Path backPickupSpike1Path;
+
+
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
      * initializes the FTC Dashboard telemetry.
@@ -53,7 +67,16 @@ public class StraightBackAndForth extends OpMode {
         backwards = new Path(new BezierLine(new Point(DISTANCE,0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
         backwards.setConstantHeadingInterpolation(0);
 
-        follower.followPath(forwards);
+        pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
+        pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
+
+        backPickupSpike1Path = new Path(new BezierCurve(new Point(backSpike1), new Point(spike1ControlPoint2), new Point(spike1ControlPoint1), new Point(preloadPlace)));
+        backPickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
+
+
+
+        follower.followPath(pickupSpike1Path);
+        follower.setStartingPose(preloadPlace);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will run the robot in a straight line going " + DISTANCE
@@ -72,10 +95,10 @@ public class StraightBackAndForth extends OpMode {
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
-                follower.followPath(backwards);
+                follower.followPath(backPickupSpike1Path);
             } else {
                 forward = true;
-                follower.followPath(forwards);
+                follower.followPath(pickupSpike1Path);
             }
         }
 

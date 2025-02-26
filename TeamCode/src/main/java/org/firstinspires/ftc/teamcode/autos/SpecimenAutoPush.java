@@ -30,7 +30,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 
 @Autonomous(name = "Specimen Auto Push", group = " Comp", preselectTeleOp = "New Tele-op Red")
-public class SpecimenAutoDrive extends OpMode {
+public class SpecimenAutoPush extends OpMode {
 
     Climber climber;
     Follower follower;
@@ -235,9 +235,9 @@ public class SpecimenAutoDrive extends OpMode {
         switch (pathState) {
             //go to score preload
             case -3:
-                setPathState(0);
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                setPathState(pathState + 1);
                 break;
             case -2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.6) {
