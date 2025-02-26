@@ -43,7 +43,7 @@ public class SpecimenAutoPush extends OpMode {
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
-    private int pathState;
+    private SpecimenPushAutoEnum pathState;
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -158,7 +158,7 @@ public class SpecimenAutoPush extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        setPathState(-3);
+        setPathState(SpecimenPushAutoEnum.armClearing);
     }
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
@@ -229,268 +229,265 @@ public class SpecimenAutoPush extends OpMode {
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
-     * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
+     * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState(SpecimenPushAutoEnum.) method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
     public void autonomousPathUpdate() {
         switch (pathState) {
             //go to score preload
-            case -3:
+            case armClearing:
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                setPathState(pathState + 1);
+                setPathState(SpecimenPushAutoEnum.driveGoScorePreload);
                 break;
-            case -2:
+            case driveGoScorePreload:
                 if (pathTimer.getElapsedTimeSeconds() > 0.6) {
                     follower.followPath(scorePreload);
-                    setPathState(pathState + 1);
+                    setPathState(SpecimenPushAutoEnum.armGoScorePreload);
                 }
-            case -1:
+            case armGoScorePreload:
                 if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
                     outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
-                    setPathState(pathState + 1);
+                    setPathState(SpecimenPushAutoEnum.slideGoScorePreload);
                 }
                 break;
-            case 0:
+            case slideGoScorePreload:
                 if (pathTimer.getElapsedTimeSeconds() > 0.05) {
                     outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
-                    setPathState(pathState + 1);
+                    setPathState(SpecimenPushAutoEnum.placePreload);
                 }
                 break;
             //go to pickup spike1
-            case 1:
+            case placePreload:
                 //Checks if you are less than 1 inch away from target pos
                 if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
                     follower.followPath(pickupSpike1Path);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.dropedClaw0);
                 }
                 break;
             //go to pickup wall preset
-            case 2:
+            case dropedClaw0:
                 if (pathTimer.getElapsedTimeSeconds() > 0.17) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.pushSpike1);
                 }
             //go to pickup spike2
-            case 3:
+            case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
                     follower.followPath(pushSpike1Path);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.pushSpike2);
                 }
                 break;
-            case 4:
+            case pushSpike2:
                 if (follower.getError(pushedSpike1).getX() < 2 && follower.getError(pushedSpike1).getY() < 2) {
                     follower.followPath(pickupSpike2Path);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goBackSpike3);
                 }
                 break;
             //go to pickup spike3
-            case 5:
+            case goBackSpike3:
                 if (follower.getError(pushedSpike2).getX() < 2 && follower.getError(pushedSpike2).getY() < 2) {
                     follower.followPath(pickupSpike3Path);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.pushSpike3);
                 }
                 break;
             //go to front pickup wall
-            case 6:
+            case pushSpike3:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.waitFrontWall1);
                 }
                 break;
-            case 7:
+            case waitFrontWall1:
                 if (follower.getError(pushedSpike3).getY() < 1) {
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.pickupWall1);
                 }
                 break;
             //grab off wall and go to sub
-            case 8:
+            case pickupWall1:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime) {
                     follower.followPath(toWall1);
-                    setPathState(17);
+                    setPathState(SpecimenPushAutoEnum.grabWall1);
                 }
                 break;
-            case 17:
+            case grabWall1:
                 if (follower.getError(pickupWallRightSide).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goPlaceSub1);
                 }
                 break;
             //outtake to specimen place pos
-            case 18:
+            case goPlaceSub1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     follower.followPath(placeSub1Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goFrontWall2);
                 }
                 break;
-            //drop specimen
-            case 19:
+            //go Front Wall 2
+            case goFrontWall2:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall2);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.dropClaw1);
                 }
                 break;
             //drop specimen
-            case 20:
+            case dropClaw1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.wallPreset2);
                 }
                 break;
             //back to front wall
-            case 21:
+            case wallPreset2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.frontWallToWall2);
                 }
                 break;
             //part 5 placing specimen 3 ************************************************************
             //front Wall To Wall
-            case 22:
+            case frontWallToWall2:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.grabWall2);
                 }
                 break;
             //grab off wall and go to sub
-            case 23:
+            case grabWall2:
                 if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(pathState+1);
-                    //YOU DON'T SEE ME
+                    setPathState(SpecimenPushAutoEnum.goPlaceSub2);
                 }
                 break;
             //outtake to specimen place pos
-            case 24:
+            case goPlaceSub2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     follower.setMaxPower(1);
                     follower.followPath(placeSub2Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goFrontWall3);
                 }
                 break;
             //drop specimen
-            case 25:
+            case goFrontWall3:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall3);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.dropClaw2);
                 }
                 break;
             //back to front wall
-            case 26:
+            case dropClaw2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.wallPreset3);
                 }
                 break;
-            case 27:
+            case wallPreset3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.frontWallToWall3);
                 }
                 break;
             //part 6 placing specimen 4 ************************************************************
             //front Wall To Wall
-            case 28:
+            case frontWallToWall3:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.grabWall3);
                 }
                 break;
             //grab off wall and go to sub
-            case 29:
+            case grabWall3:
                 if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(pathState+1);
-                    //YOU DON'T SEE ME pt2
+                    setPathState(SpecimenPushAutoEnum.goPlaceSub3);
                 }
                 break;
             //outtake to specimen place pos
-            case 30:
+            case goPlaceSub3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     follower.setMaxPower(1);
                     follower.followPath(placeSub3Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goFrontWall4);
                 }
                 break;
             //drop specimen
-            case 31:
+            case goFrontWall4:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(toFrontWall4);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.dropClaw3);
                 }
                 break;
             //back to front wall
-            case 32:
+            case dropClaw3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     follower.setMaxPower(slowSpeed);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.wallPreset4);
                 }
                 break;
-            case 33:
+            case wallPreset4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.frontWallToWall4);
                 }
                 break;
             //part 7 placing specimen 5 ************************************************************
             //front Wall To Wall
-            case 34:
+            case frontWallToWall4:
                 if (pathTimer.getElapsedTimeSeconds() > humanWaitTime2) {
                     follower.followPath(frontWallToWall);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.grabWall4);
                 }
                 break;
             //grab off wall and go to sub
-            case 35:
+            case grabWall4:
                 if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1.5 || pathTimer.getElapsedTimeSeconds() > pickupTimeout) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    setPathState(pathState+1);
-                    //YOU DON'T SEE ME pt3
+                    setPathState(SpecimenPushAutoEnum.goPlaceSub4);
                 }
                 break;
             //outtake to specimen place pos
-            case 36:
+            case goPlaceSub4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     follower.setMaxPower(1);
                     follower.followPath(placeSub4Path);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.goPark);
                 }
                 break;
             //drop specimen
-            case 37:
+            case goPark:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(parkPath);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.dropClaw4);
                 }
                 break;
             //Park path
-            case 38:
+            case dropClaw4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.teleopPreset);
                 }
                 break;
-            case 39:
+            case teleopPreset:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(pathState+1);
+                    setPathState(SpecimenPushAutoEnum.end);
                 }
         }
     }
 
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
-    public void setPathState(int pState) {
+    public void setPathState(SpecimenPushAutoEnum.SpecimenPushAutoEnum pState) {
         pathState = pState;
         pathTimer.resetTimer();
     }

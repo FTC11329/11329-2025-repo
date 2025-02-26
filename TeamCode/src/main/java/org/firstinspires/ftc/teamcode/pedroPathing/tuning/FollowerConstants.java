@@ -110,35 +110,42 @@ public class FollowerConstants {
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
     // this value, then end the Path. This is in inches/second.
     // This can be custom set for each Path.
+    // Unused
     public static double pathEndVelocityConstraint = 0.1;
 
     // When the robot is at the end of its current Path or PathChain and the translational error
     // goes below this value, then end the Path. This is in inches.
     // This can be custom set for each Path.
+    // Unused
     public static double pathEndTranslationalConstraint = 0.1;
 
     // When the robot is at the end of its current Path or PathChain and the heading error goes
     // below this value, then end the Path. This is in radians.
     // This can be custom set for each Path.
+    // Unused
     public static double pathEndHeadingConstraint = 0.007;
 
     // When the t-value of the closest point to the robot on the Path is greater than this value,
     // then the Path is considered at its end.
     // This can be custom set for each Path.
+    // Unused
     public static double pathEndTValueConstraint = 0.995;
 
     // When the Path is considered at its end parametrically, then the Follower has this many
     // milliseconds to further correct by default.
     // This can be custom set for each Path.
+    // Unused
     public static double pathEndTimeoutConstraint = 500;
 
     // This is how many steps the BezierCurve class uses to approximate the length of a BezierCurve.
     public static int APPROXIMATION_STEPS = 1000;
 
     // This is scales the translational error correction power when the Follower is holding a Point.
+    // Debating changing this to 1
     public static double holdPointTranslationalScaling = 0.45;
 
     // This is scales the heading error correction power when the Follower is holding a Point.
+    // Debating changing this to 1
     public static double holdPointHeadingScaling = 0.35;
 
     // This is the number of times the velocity is recorded for averaging when approximating a first
