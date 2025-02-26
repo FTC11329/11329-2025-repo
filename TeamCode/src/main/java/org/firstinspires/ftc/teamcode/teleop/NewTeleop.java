@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
@@ -33,6 +34,8 @@ public class NewTeleop {
 
     StateMachine stateMachine;
     ElapsedTime elapsedTime = new ElapsedTime();
+
+    FtcDashboard dashboard;
 
     //Debug Variables
     boolean debugAll = true;
@@ -157,8 +160,8 @@ public class NewTeleop {
 
     public void init() {
         //uncomment if you want telemetry on dashboard
-//        dashboard = FtcDashboard.getInstance();
-//        telemetry = dashboard.getTelemetry();
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
@@ -353,13 +356,14 @@ public class NewTeleop {
                 case 0:
                     //puts arm to safe space
                     if (outtakeSystem.getArmPos() > 0.6) {
-                        outtakeSystem.setVSlidePos(1000);
+                        outtakeSystem.setVSlidePos(1400);
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     } else {
                         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
                     }
 
                     intakeSystem.storePos();
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClimb);
 
                     climberPos = Constants.Climber.outPos;
 
@@ -371,6 +375,7 @@ public class NewTeleop {
                     climberStage = 1;
                     break;
                 case 1:
+                    driveTrain.moveBackWheels();
                     if (climberTimer.getElapsedTimeSeconds() > 3 && Math.abs(climber.getPos() - climberPos) < 500) {
                         driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
@@ -379,8 +384,9 @@ public class NewTeleop {
                     }
                     break;
                 case 2:
+                    driveTrain.setPTOPower(1);
                     //Does some things to make sure that the current has been tripped for more than 1 second after one one second
-                    if (climberTimer.getElapsedTimeSeconds() > 1) {
+                    if (climberTimer.getElapsedTimeSeconds() > 2.5) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
                     } else {
                         current = 0;
@@ -393,7 +399,7 @@ public class NewTeleop {
                         lastCurrentTrip = false;
                     }
 
-                    if (current > 5.7 && elapsedTime.milliseconds() > lastCurrentTripTime + 1000) {
+                    if (current > 5.7 && elapsedTime.milliseconds() > lastCurrentTripTime + 400) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         //Prevent pto from drawing too much power
@@ -404,6 +410,7 @@ public class NewTeleop {
                     }
                     break;
                 case 3:
+                    driveTrain.setPTOPower(0.1);
                     if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 100) {
                         //disable PTO to conserve power
                         driveTrain.setPTOPower(0);
@@ -415,14 +422,40 @@ public class NewTeleop {
                     }
                     break;
                 case 4:
+                    driveTrain.setPTOPower(0);
                     if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 1000) {
-                        driveTrain.setPTOPos(Constants.PTO.motorDrop);
 
                         climberTimer.resetTimer();
                         climberStage = 5;
                     }
                     break;
-                    //TODO add clause after pto has about reached position to power pto -0.4 or 0.4 or whatever we need
+                case 5:
+                    driveTrain.setPTOPower(-0.5);
+                    //Does some things to make sure that the current has been tripped for more than 1 second after one one second
+                    if (climberTimer.getElapsedTimeSeconds() > 0.5) {
+                        current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
+                    } else {
+                        current = 0;
+                    }
+
+                    if (current > 4 && !lastCurrentTrip) {
+                        lastCurrentTripTime = elapsedTime.milliseconds();
+                        lastCurrentTrip = true;
+                    } else if (current < 4) {
+                        lastCurrentTrip = false;
+                    }
+
+                    if (current > 4 && elapsedTime.milliseconds() > lastCurrentTripTime + 400) {
+                        //Prevent pto from drawing too much power
+                        driveTrain.setPTOPos(driveTrain.getPTOPos());
+
+                        climberTimer.resetTimer();
+                        climberStage = 6;
+                    }
+                    break;
+                case 6:
+                    driveTrain.setPTOPower(-0.2);
+
                     /*
                 case 7:
                     current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
@@ -439,26 +472,6 @@ public class NewTeleop {
                         climberStage = 8;
                     }
                      */
-            }
-            //PTO Power Switch
-            switch (climberStage) {
-                case 1:
-                    driveTrain.moveBackWheels();
-                    break;
-
-                case 2:
-                case 3:
-                    driveTrain.PTOLoop(0);
-                    break;
-
-                case 4:
-                    driveTrain.setPTOPower(0);
-                    break;
-
-                case 5:
-                    driveTrain.PTOLoop(0);
-                    break;
-
             }
 
             //manual movement
@@ -906,6 +919,11 @@ public class NewTeleop {
             //TODO add more Things here
             telemetry.addLine();
         }
+        telemetry.addData("leftFront", driveTrain.getDriveCurrent()[0]);
+        telemetry.addData("leftBack", driveTrain.getDriveCurrent()[1]);
+        telemetry.addData("rightFront", driveTrain.getDriveCurrent()[2]);
+        telemetry.addData("rightBack", driveTrain.getDriveCurrent()[3]);
+        telemetry.addData("climber", climber.getCurrentAmp());
         telemetry.update();
     }
 

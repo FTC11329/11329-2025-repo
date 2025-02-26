@@ -44,7 +44,7 @@ public class CameraAutoWiggle extends OpMode {
     boolean wiggleBot = false;
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
-    private int pathState;
+    private int pathState = 1;
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -73,7 +73,7 @@ public class CameraAutoWiggle extends OpMode {
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path firstIntakePath;
 
-    boolean work = true; // yayy!!
+    boolean work = false; // yayy!!
     private Path spitBlockPath;
 
     private Path extraIntakePath;
@@ -161,11 +161,9 @@ public class CameraAutoWiggle extends OpMode {
         switch (pathState) {
             case 1:
                 target = attempt89.getBestBlock(2); //red
-                if (target != null) {
-                    telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
-                    telemetry.addData("targety", target.getY(DistanceUnit.INCH));
-                    telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
-                }
+                telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
+                telemetry.addData("targety", target.getY(DistanceUnit.INCH));
+                telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
                 telemetry.update();
                 //camera takes photo and starts intake
                 if (target != null && target.getHeading(AngleUnit.DEGREES) != -1){

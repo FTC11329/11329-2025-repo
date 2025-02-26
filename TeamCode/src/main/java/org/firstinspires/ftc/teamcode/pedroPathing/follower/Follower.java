@@ -1152,7 +1152,7 @@ public class Follower {
         Pose tempPose = getPose();
         // just initialized
         Path cameraSearchPath;
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - Math.atan(blockO.getX(DistanceUnit.INCH)/blockO.getY(DistanceUnit.INCH))));
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - Math.atan2(blockO.getX(DistanceUnit.INCH), blockO.getY(DistanceUnit.INCH))));
 
         followPath(cameraSearchPath);
         return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));

@@ -41,7 +41,8 @@ public class Constants {
         public static int maxSlidePos = 1450;
         public static double manualSlideSpeed = 75;
 
-        public static double wristStore = 0;
+        public static double wristClimb = 0;
+        public static double wristStore = 0.05;
         public static double wristClear = 0.25;
         public static double wristDown = 0.504;
 

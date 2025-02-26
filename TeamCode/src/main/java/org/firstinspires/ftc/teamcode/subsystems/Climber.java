@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 public class Climber {
 
     DcMotorEx climberMotor;
@@ -36,6 +38,10 @@ public class Climber {
     }
     public int getPos() {
         return climberMotor.getCurrentPosition();
+    }
+
+    public double getCurrentAmp() {
+        return climberMotor.getCurrent(CurrentUnit.AMPS);
     }
 
 
