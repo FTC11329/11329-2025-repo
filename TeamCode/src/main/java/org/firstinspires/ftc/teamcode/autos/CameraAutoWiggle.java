@@ -61,7 +61,7 @@ public class CameraAutoWiggle extends OpMode {
     /* These are our Paths and PathChains that we will define in buildPaths() */
     private Path firstIntakePath;
 
-    boolean work = false; // yayy!!
+    boolean work = true; // yayy!!
 
 
     /** This method is called once at the init of the OpMode. **/
@@ -97,13 +97,13 @@ public class CameraAutoWiggle extends OpMode {
         }
         telemetry.update();
     }
-    
+
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        setPathState(0);
+        setPathState(1);
     }
 
 
