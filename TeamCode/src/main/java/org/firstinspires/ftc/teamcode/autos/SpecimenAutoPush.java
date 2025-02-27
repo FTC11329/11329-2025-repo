@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import org.firstinspires.ftc.teamcode.utility.SpecimenPushAutoEnum;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
@@ -487,7 +488,7 @@ public class SpecimenAutoPush extends OpMode {
 
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
-    public void setPathState(SpecimenPushAutoEnum.SpecimenPushAutoEnum pState) {
+    public void setPathState(SpecimenPushAutoEnum pState) {
         pathState = pState;
         pathTimer.resetTimer();
     }
