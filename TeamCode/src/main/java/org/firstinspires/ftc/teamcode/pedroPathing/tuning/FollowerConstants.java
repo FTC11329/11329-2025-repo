@@ -69,7 +69,7 @@ public class FollowerConstants {
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
             0.0045,
             0,
-            0.00035,
+            0.0005,
             0.6,
             0);
 
@@ -86,7 +86,7 @@ public class FollowerConstants {
     public static double mass = 14;
 
     // Centripetal force to power scaling
-    public static double centripetalScaling = 0.008;
+    public static double centripetalScaling = 0.007;
 
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
@@ -168,7 +168,7 @@ public class FollowerConstants {
 
     // the limit at which the translational PIDF switches between the main and secondary translational PIDFs,
     // if the secondary PID is active
-    public static double translationalPIDFSwitch = 1.3;
+    public static double translationalPIDFSwitch = 1;
 
     // Secondary translational PIDF coefficients (don't use integral)
     public static CustomPIDFCoefficients secondaryTranslationalPIDFCoefficients = new CustomPIDFCoefficients(
