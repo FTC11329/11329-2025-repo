@@ -231,7 +231,7 @@ public class NewTeleop {
         intakeColor = gamepad2.square;//x
         unJam = gamepad2.circle;//b
 
-        //Drivetrain *******************************************************************************
+        //Drivetrain ******************************************************************************~
         if (!climberActive && !autoMovement && !climbPause) {
             if (climbToggButton) {
                 climberActive = true;
@@ -266,7 +266,7 @@ public class NewTeleop {
             autoMovementOnce = true;
             follower.breakFollowing();
         }
-        //Auto drive *******************************************************************************
+        //Auto drive ******************************************************************************~
         if (autoMovement) {
             if (autoMovementOnce) {
                 if (autoToSub) {
@@ -340,7 +340,7 @@ public class NewTeleop {
             }
             follower.update();
         }
-        //Auto Climb *******************************************************************************
+        //Auto Climb ******************************************************************************~
         if (climberActive && !climbPause) {
             if (climbToggButton && !climbDebounce) {
                 climbPause = true;
@@ -488,13 +488,13 @@ public class NewTeleop {
             climber.setPos(climberPos);
         }
 
-        //Manual Movements *************************************************************************
+        //Manual Movements ************************************************************************~
         intakeSystem.manualHSlide(manualHSlide);
         outtakeSystem.manualVSlide(manualVSlide);
         outtakeSystem.manualArm(manualArm);
 
         //Presets
-        //Button to State Machine class ************************************************************
+        //Button to State Machine class ***********************************************************~
         if (highSpecimen) {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
@@ -548,7 +548,7 @@ public class NewTeleop {
         }
 
 
-        //State Machine class to movement **********************************************************
+        //State Machine class to movement *********************************************************~
         if (stateMachine.doGoToStore()) {
             if (onceTime) {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -678,7 +678,7 @@ public class NewTeleop {
         }
 
 
-        // Claw Controls ***************************************************************************
+        // Claw Controls **************************************************************************~
         if (clawToggleButton && !clawDebounce) {
             clawToggle = !clawToggle;
             clawDebounce = true;
@@ -729,7 +729,7 @@ public class NewTeleop {
             }
         }
 
-        //Intakes **********************************************************************************
+        //Intakes *********************************************************************************~
         if (gamepad1.touchpad_finger_1) {
             extendHSlide = (int) ((gamepad1.touchpad_finger_1_x + 1)/2.0 * Constants.Intake.maxSlidePos);
             if (gamepad1.touchpad) {
@@ -787,7 +787,7 @@ public class NewTeleop {
             intakeWristTime = 2000000000;
         }
 
-        //Unjamming intake *************************************************************************
+        //Unjamming intake ************************************************************************~
         if (unjamAfterIntake) {
             if (elapsedTime.milliseconds() < unjamAfterIntakeTime + Constants.Intake.unjamTimeMillis) {
                 unJam = true;
@@ -831,7 +831,7 @@ public class NewTeleop {
         intakeSystem.update();
         outtakeSystem.update();
 
-        //DEBUG ************************************************************************************
+        //DEBUG ***********************************************************************************~
         if (debugState || debugAll) {
             telemetry.addLine("STATE");
             telemetry.addData("hasInIntake", hasInIntake);

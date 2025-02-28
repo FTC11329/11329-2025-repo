@@ -184,7 +184,6 @@ public class Follower {
         rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
         rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
 
-        // TODO: Make sure that this is the direction your motors need to be reversed in.
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -1076,6 +1075,20 @@ public class Follower {
         poseUpdater.resetIMU();
     }
 
+    public void driveSlam(boolean slam) {
+        if (slam) {
+            useTranslational = false;
+            useCentripetal = false;
+            useDrive = false;
+        } else {
+            useTranslational = true;
+            useCentripetal = true;
+            useDrive = true;
+        }
+        useHeading = true;
+    }
+
+
     //Builds a very simple path
     public Path linearPathBuilder(Pose startPose, Pose endPose) {
         Path tempPath = new Path(new BezierLine(new Point(startPose), new Point(endPose)));
@@ -1090,6 +1103,10 @@ public class Follower {
         tempPose.setY(Math.abs(getPose().getY() - targetPose.getY()));
         tempPose.setHeading(Math.abs(getPose().getHeading() - targetPose.getHeading()));
         return tempPose;
+    }
+
+    public double getErrorDistance(Pose targetPose) {
+        return Point.cartesianToPolar(getError(targetPose).getX(), getError(targetPose).getY())[0];
     }
 
 

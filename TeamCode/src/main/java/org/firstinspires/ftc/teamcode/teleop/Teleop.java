@@ -332,6 +332,8 @@ public class Teleop {
         }
         //unjamming
         //todo: oidwojwq9hejwfuiwefhiuwefhiufhq fix plz tune 350 and 1000
+
+        // but I don't want to so I wont
         if (unjammingIntake) {
             if (elapsedTime.milliseconds() < unjamTime + 50) {
                 intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);

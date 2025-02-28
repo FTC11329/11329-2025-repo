@@ -135,6 +135,16 @@ public class Pose {
         setY(y + pose.getY());
         setHeading(heading + pose.getHeading());
     }
+    /**
+     * This adds all the values of an input Pose to this Pose and returns it.
+     * The input Pose's data will not be changed.
+     *
+     * @param pose the input Pose
+     * @return returns this pose plus the input pose
+     */
+    public Pose addReturn(Pose pose) {
+        return new Pose(x + pose.getX(), y + pose.getY(), heading + pose.getHeading());
+    }
 
     /**
      * This subtracts all the values of an input Pose from this Pose. The input Pose's data will not

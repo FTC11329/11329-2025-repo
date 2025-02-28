@@ -249,4 +249,16 @@ public class Attempt89 {
             return yellowPose;
         }
     }
+
+    public Pose2D getBestSpecimen() {
+        return getBestSpecimen(robotSideEnum);
+    }
+
+    public Pose2D getBestSpecimen(RobotSideEnum robotSide) {
+        if (robotSide == RobotSideEnum.Red) {
+            return getBestBlock(2);
+        } else {
+            return getBestBlock(1);
+        }
+    }
 }
