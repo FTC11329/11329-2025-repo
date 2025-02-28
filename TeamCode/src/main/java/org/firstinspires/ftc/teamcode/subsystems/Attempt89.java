@@ -79,7 +79,7 @@ public class Attempt89 {
         if (result != null) {
             if (result.isValid()) {
                 List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
-
+                boolean isWorking = true;
                 List<Pose2D> frameDistances = new ArrayList<>();
                 int i = 0;
                 for (LLResultTypes.ColorResult cr : colorResults) {

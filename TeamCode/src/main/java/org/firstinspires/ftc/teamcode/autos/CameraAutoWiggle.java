@@ -127,7 +127,7 @@ public class CameraAutoWiggle extends OpMode {
                             intakeSystem.setHSlidesInches(follower.followYourHeadSpike(target));
                             wiggle = true;
                         } else {
-                            intakeSystem.setHSlidesInches(follower.followYourHeadSub(target));
+                            intakeSystem.setHSlidesInches(follower.followYourHead(target));
                         }
                     } else {
                         intakeSystem.setHSlidesInches(target.getY(DistanceUnit.INCH));
