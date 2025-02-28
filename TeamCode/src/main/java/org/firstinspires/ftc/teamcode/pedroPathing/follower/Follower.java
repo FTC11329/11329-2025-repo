@@ -1134,36 +1134,20 @@ public class Follower {
     }
 
     public double followYourHeadSub(Pose2D blockO) {
-        // WARNING: can only run facing a multiple of 90 degrees
         Pose tempPose = getPose();
         Path cameraSearchPath;
         double X = blockO.getX(DistanceUnit.INCH);
         double Y = blockO.getY(DistanceUnit.INCH);
-        double alphaOne = Math.atan(X/Y);
+        double alphaOne = Math.atan2(X, Y);
         double B = 7.7 * Math.sin(alphaOne); // 7.7 aproximates 1/2 width of robot
         if (B <= 1) {B = 1;}
-        double alphaTwo = Math.atan(X / (Y + B));
-
-        if (Math.toRadians(225) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(135)) {
-            //north side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() + B, tempPose.getY(), tempPose.getHeading() - alphaTwo));
-
-        } else if (Math.toRadians(135) > tempPose.getHeading() && tempPose.getHeading() > Math.toRadians(45)) {
-            //east side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() - B, tempPose.getHeading() - alphaTwo));
-
-        } else if (Math.toRadians(315) < tempPose.getHeading() || tempPose.getHeading() < Math.toRadians(45)) {
-            //south side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX() - B, tempPose.getY(), tempPose.getHeading() - alphaTwo));
-
-        } else {
-            //west side
-            cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY() + B, tempPose.getHeading() - alphaTwo));
-        }
-
+        double alphaTwo = Math.atan2(X, (Y + B));
+        Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
+        Pose2D globalPose= RobotToWorld(backDistance, tempPose);
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo));
         followPath(cameraSearchPath);
 
-        return Math.sqrt((X * X)+((Y + B) * (Y + B))); //Extend Hslides
+        return Math.hypot(X, Y + B); //Extend Hslides
     }
     public double followYourHeadSpike(Pose2D blockO) {
         Pose tempPose = getPose();
@@ -1173,5 +1157,15 @@ public class Follower {
 
         followPath(cameraSearchPath);
         return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
+    }
+
+    public Pose2D RobotToWorld(Pose2D target, Pose robotTransform){
+        double oldX = target.getX(DistanceUnit.INCH);
+        double oldY = target.getY(DistanceUnit.INCH);
+        double a = target.getHeading(AngleUnit.RADIANS);
+        double x = (oldX*Math.cos(a)) - (oldY*Math.sin(a));
+        double y = (oldX*Math.sin(a)) + (oldY*Math.cos(a));
+        Pose2D pose = new Pose2D(DistanceUnit.INCH, x + robotTransform.getX(), y + robotTransform.getY(), AngleUnit.RADIANS, robotTransform.getHeading());
+        return pose;
     }
 }
