@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration;
 
+import androidx.annotation.NonNull;
+
 /**
  * This is the Point class. This class handles storing information about vectors, which are
  * basically Points but using polar coordinates as the default. The main reason this class exists
@@ -137,5 +139,10 @@ public class Vector {
      */
     public double getYComponent() {
         return yComponent;
+    }
+
+    @NonNull
+    public String toString() {
+        return "(" + xComponent + ", " + yComponent + ")";
     }
 }

@@ -60,7 +60,7 @@ public class SpecimenAuto6Spec extends OpMode {
     private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(9, -32.5, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(5, -31.5, Math.toRadians(90));
     private final Pose placeSub1 = new Pose(10, -32.5, Math.toRadians(90));
     private final Pose placeSub2 = new Pose(4, -32.5, Math.toRadians(90));
     private final Pose placeSub3 = new Pose(2, -32.5, Math.toRadians(90));
@@ -84,7 +84,7 @@ public class SpecimenAuto6Spec extends OpMode {
     private final Pose frontWall  = new Pose(38.5, -50, Math.toRadians(90));
     private final Pose pickupWall = new Pose(38.5, -60, Math.toRadians(90));
     private final Pose pickupWallRightSide = new Pose(64, -61, Math.toRadians(90));
-    private final Pose frontSubOffset = new Pose(10, 0, Math.toRadians(0));
+    private final Pose frontSubOffset = new Pose(0, -10, Math.toRadians(0));
 
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
@@ -93,7 +93,6 @@ public class SpecimenAuto6Spec extends OpMode {
     private double slamSpeed = 0.8;
     private boolean driveShake = false;
     private boolean drivePlace = false;
-    private Vector currentVelocity;
 
     private boolean recoveryDebounce = false;
     private double recoveryTime = 0;
@@ -202,14 +201,14 @@ public class SpecimenAuto6Spec extends OpMode {
         toFrontWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(frontWall)));
         toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
         //frontWallToWall
-        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(placeSub3.addReturn(frontSubOffset))));
+        placeSub3Path = new Path(new BezierCurve(new Point(pickupWall), new Point(placeSub3.addReturn(frontSubOffset))));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
 
 
         toFrontWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(frontWall)));
         toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
         //frontWallToWall
-        placeSub2Path = new Path(new BezierCurve(new Point(pickupWall), new Point(placeSub4.addReturn(frontSubOffset))));
+        placeSub4Path = new Path(new BezierCurve(new Point(pickupWall), new Point(placeSub4.addReturn(frontSubOffset))));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
 
         parkPath = follower.linearPathBuilder(placeSub4, park);
@@ -289,21 +288,19 @@ public class SpecimenAuto6Spec extends OpMode {
                 }
                 break;
             case waitFrontWall1:
-                if (currentVelocity.getXComponent() < 0.5 && currentVelocity.getYComponent() < 0.5 && pathTimer.getElapsedTimeSeconds() > 0.25) {
+                if (follower.getError(pushedSpike3).getY() < 0.5) {
                     setPathState(Specimen6AutoEnum.pickupWall1);
                 }
                 break;
-            //grab off wall and go to sub
             case pickupWall1:
-//                if (follower.getError(backSpike3).getY() < 1) { todo try this
-                if (currentVelocity.getXComponent() < 0.25 && currentVelocity.getYComponent() < 0.25 && pathTimer.getElapsedTimeSeconds() > 0.25) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                     follower.followPath(toWall1);
                     setPathState(Specimen6AutoEnum.grabWall1);
                 }
                 break;
+            //grab off wall and go to sub
             case grabWall1:
-//                if (follower.getError(pickupWallRightSide).getY() < 1.5) { todo try this then copy to all instances
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getError(pickupWallRightSide).getY() < 1.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen6AutoEnum.goPlaceSub1);
                 }
@@ -317,18 +314,19 @@ public class SpecimenAuto6Spec extends OpMode {
                 }
                 break;
             case drivePlace1:
-                //todo if needed change to velocity
-                if (follower.getError(placeSub1).getX() < 1 && follower.getError(placeSub1).getY() < 1) {
+                if (follower.getErrorDistance(placeSub1.addReturn(frontSubOffset)) < 1.5) {
                     follower.breakFollowing();
                     follower.driveSlam(true);
 
                     driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                    setPathState(Specimen6AutoEnum.dropClaw2);
+                    setPathState(Specimen6AutoEnum.dropClaw1);
                 }
+                break;
             //go Front Wall 2
             case dropClaw1:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getError(placeSub1).getY() < 1) {
+                    follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     follower.followPath(toFrontWall2);
                     setPathState(Specimen6AutoEnum.wallPreset2);
@@ -344,14 +342,14 @@ public class SpecimenAuto6Spec extends OpMode {
             //part 5 placing specimen 3 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall2:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall2);
                 }
                 break;
             //grab off wall and go to sub
             case grabWall2:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(pickupWall) < 1.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen6AutoEnum.goPlaceSub2);
                 }
@@ -365,21 +363,22 @@ public class SpecimenAuto6Spec extends OpMode {
                 }
                 break;
             case drivePlace2:
-                //todo if needed change to velocity
-                if (follower.getError(placeSub1).getX() < 1 && follower.getError(placeSub1).getY() < 1) {
+                if (follower.getErrorDistance(placeSub1.addReturn(frontSubOffset)) < 1.5) {
                     follower.breakFollowing();
                     follower.driveSlam(true);
 
                     driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
                     setPathState(Specimen6AutoEnum.dropClaw2);
                 }
+                break;
                 //go Front Wall 2
             case dropClaw2:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getError(placeSub2).getY() < 1.5) {
+                    follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     follower.followPath(toFrontWall2);
-                    setPathState(Specimen6AutoEnum.wallPreset2);
+                    setPathState(Specimen6AutoEnum.wallPreset3);
                 }
                 break;
             case wallPreset3:
@@ -391,14 +390,14 @@ public class SpecimenAuto6Spec extends OpMode {
             //part 6 placing specimen 4 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall3:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall3);
                 }
                 break;
             //grab off wall and go to sub
             case grabWall3:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(pickupWall) < 1.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen6AutoEnum.goPlaceSub3);
                 }
@@ -412,21 +411,22 @@ public class SpecimenAuto6Spec extends OpMode {
                 }
                 break;
             case drivePlace3:
-                //todo if needed change to velocity
-                if (follower.getError(placeSub1).getX() < 1 && follower.getError(placeSub1).getY() < 1) {
+                if (follower.getErrorDistance(placeSub1.addReturn(frontSubOffset)) < 1.5) {
                     follower.breakFollowing();
                     follower.driveSlam(true);
 
                     driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
                     setPathState(Specimen6AutoEnum.dropClaw3);
                 }
+                break;
                 //go Front Wall 2
             case dropClaw3:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getError(placeSub3).getY() < 1.5) {
+                    follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     follower.followPath(toFrontWall2);
-                    setPathState(Specimen6AutoEnum.wallPreset2);
+                    setPathState(Specimen6AutoEnum.wallPreset4);
                 }
                 break;
             case wallPreset4:
@@ -438,14 +438,14 @@ public class SpecimenAuto6Spec extends OpMode {
             //part 7 placing specimen 5 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall4:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall4);
                 }
                 break;
             //grab off wall and go to sub
             case grabWall4:
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getErrorDistance(pickupWall) < 1.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen6AutoEnum.goPlaceSub4);
                 }
@@ -459,28 +459,29 @@ public class SpecimenAuto6Spec extends OpMode {
                 }
                 break;
             case drivePlace4:
-                //todo if needed change to velocity
-                if (follower.getError(placeSub1).getX() < 1 && follower.getError(placeSub1).getY() < 1) {
+                if (follower.getErrorDistance(placeSub1.addReturn(frontSubOffset)) < 1.5) {
                     follower.breakFollowing();
                     follower.driveSlam(true);
 
                     driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                    setPathState(Specimen6AutoEnum.dropClaw5);
+                    setPathState(Specimen6AutoEnum.dropClaw4);
                 }
+                break;
                 //go Front Wall 2
-            case dropClaw5:
+            case dropClaw4:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (currentVelocity.getYComponent() < 0.1) {
+                if (follower.getError(placeSub4).getY() < 1.5) {
+                    follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     follower.followPath(toFrontWall2);
-                    setPathState(Specimen6AutoEnum.wallPreset2);
+                    setPathState(Specimen6AutoEnum.goPark);
                 }
                 break;
             //Park path
             case goPark:
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.followPath(parkPath);
-                    setPathState(Specimen6AutoEnum.dropClaw4);
+                    setPathState(Specimen6AutoEnum.teleopPreset);
                 }
                 break;
             case teleopPreset:
@@ -489,6 +490,7 @@ public class SpecimenAuto6Spec extends OpMode {
                     outtakeSystem.setVSlidePos(0);
                     setPathState(Specimen6AutoEnum.end);
                 }
+                break;
         }
     }
 
@@ -505,8 +507,6 @@ public class SpecimenAuto6Spec extends OpMode {
         // These loop the movements of the robot
         follower.update();
 
-        currentVelocity = follower.getVelocity();
-
         autonomousPathUpdate();
         if (driveShake && pathTimer.getElapsedTimeSeconds() > 1.2) {
             if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.2) * 2.5) % 2 == 0 ){
@@ -516,33 +516,33 @@ public class SpecimenAuto6Spec extends OpMode {
             }
         }
         //Dumb path recovery
-        if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && pathTimer.getElapsedTimeSeconds() > 3 && !recoveryDebounce) {
-            recoveryTime = opmodeTimer.getElapsedTimeSeconds();
-            recoveryDebounce = true;
-            recoverOnce = false;
-        } else if (currentVelocity.getXComponent() > 0.1 && currentVelocity.getYComponent() > 0.1) {
-            recoveryDebounce = false;
-        }
-
-        if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 3) {
-            recoveryTime = opmodeTimer.getElapsedTimeSeconds();
-            recoveryPath = follower.getCurrentPath();
-            recoveryEnum = pathState;
-            setPathState(Specimen6AutoEnum.end);
-            recovering = true;
-        }
-
-        if (recovering) {
-            if (!recoverOnce) {
-                follower.followPath(parkPath);
-                recoverOnce = true;
-            }
-            if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && pathTimer.getElapsedTimeSeconds() > 1) {
-                setPathState(recoveryEnum);
-                follower.followPath(recoveryPath);
-                recovering = false;
-            }
-        }
+//        if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && pathTimer.getElapsedTimeSeconds() > 3 && !recoveryDebounce) {
+//            recoveryTime = opmodeTimer.getElapsedTimeSeconds();
+//            recoveryDebounce = true;
+//            recoverOnce = false;
+//        } else if (currentVelocity.getXComponent() > 0.1 && currentVelocity.getYComponent() > 0.1) {
+//            recoveryDebounce = false;
+//        }
+//
+//        if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 3) {
+//            recoveryTime = opmodeTimer.getElapsedTimeSeconds();
+//            recoveryPath = follower.getCurrentPath();
+//            recoveryEnum = pathState;
+//            setPathState(Specimen6AutoEnum.end);
+//            recovering = true;
+//        }
+//
+//        if (recovering) {
+//            if (!recoverOnce) {
+//                follower.followPath(parkPath);
+//                recoverOnce = true;
+//            }
+//            if (currentVelocity.getXComponent() < 0.1 && currentVelocity.getYComponent() < 0.1 && pathTimer.getElapsedTimeSeconds() > 1) {
+//                setPathState(recoveryEnum);
+//                follower.followPath(recoveryPath);
+//                recovering = false;
+//            }
+//        }
 
         // Feedback to FTC Dashboard
         Drawing.drawDebug(follower);
