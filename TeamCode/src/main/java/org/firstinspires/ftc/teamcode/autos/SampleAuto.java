@@ -537,7 +537,7 @@ public class SampleAuto {
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
-                        intakeSystem.setHSlidesInches(follower.followYourHeadSub(target2D));
+                        intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
                         setPathState(SampleAutoEnum.spikeSearchWrist);
                         driveSweep = true;
                     } else if (pathTimer.getElapsedTimeSeconds() > 3) {
