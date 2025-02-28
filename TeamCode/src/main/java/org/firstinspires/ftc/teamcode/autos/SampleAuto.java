@@ -429,7 +429,7 @@ public class SampleAuto {
                 }
                 break;
             case visionSearch1:
-                if (follower.getVelocity().getXComponent() < 1 && follower.getVelocity().getYComponent() < 1) {
+                if (follower.getVelocityMagnitude() < 1 && follower.getVelocity().getYComponent() < 1) {
                     Pose2D target2D = attempt89.getBestSample(robotSide);
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
