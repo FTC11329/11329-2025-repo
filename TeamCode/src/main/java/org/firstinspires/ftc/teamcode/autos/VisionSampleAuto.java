@@ -112,7 +112,7 @@ public class VisionSampleAuto {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
         attempt89 = new Attempt89(hardwareMap, robotSide);
-        attempt89.switchPipeline(2);
+        attempt89.switchPipeline(robotSide);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
 
@@ -251,7 +251,6 @@ public class VisionSampleAuto {
 
         //Driving and everything else
         switch (pathState) {
-            //todo: make sure to pass in the color you are intaking for vision
             case scorePreload:
                 follower.setMaxPower(1);
                 follower.followPath(scorePreload);
@@ -285,7 +284,7 @@ public class VisionSampleAuto {
                     if (spikeCounter <= 3) {
                         follower.followPath(intakeSpikeVisionPath);
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                        targetSpike = attempt89.getBlockPosition();
+                        targetSpike = attempt89.getBestSample(robotSide);
                         if (targetSpike.getHeading(AngleUnit.RADIANS) != -1) {
                             intakeSystem.setHSlidesInches(follower.followYourHead(targetSpike));
                             setPathState(SampleAutoEnum.armClearing1);

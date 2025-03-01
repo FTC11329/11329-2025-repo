@@ -221,6 +221,14 @@ public class Attempt89 {
         limelight.pipelineSwitch(pipelineNum);
     }
 
+    public void switchPipeline(RobotSideEnum robotSide){
+        if (robotSide == RobotSideEnum.Blue){
+            limelight.pipelineSwitch(1);
+        } else {
+            limelight.pipelineSwitch(2);
+        }
+    }
+
     public Pose2D getBestBlock(int pipelineNum) {
         // 0 is yellow, 1 is blue, 2 is red
         switchPipeline(pipelineNum);
