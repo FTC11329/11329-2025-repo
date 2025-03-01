@@ -179,6 +179,12 @@ public class Drivetrain {
         };
     }
 
+    public boolean isStalled(double tripCurrent) {
+        double[] currentList = getDriveCurrent();
+        double current = Math.min(Math.max(currentList[0], currentList[1]), Math.max(currentList[2], currentList[3]));
+        return current > tripCurrent;
+    }
+
     public void stopDrive() {
         drive(0, 0, 0, DriveSpeedEnum.Slow);
     }

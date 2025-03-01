@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
@@ -33,6 +34,9 @@ public class StraightBackAndForth extends OpMode {
 
     public static double DISTANCE = 40;
 
+    private Pose start = new Pose(0,0,0);
+    private Pose end = new Pose(DISTANCE,0,0);
+
     private boolean forward = true;
 
     private Follower follower;
@@ -48,9 +52,9 @@ public class StraightBackAndForth extends OpMode {
     public void init() {
         follower = new Follower(hardwareMap);
 
-        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));
+        forwards = new Path(new BezierLine(new Point(start), new Point(end)));
         forwards.setConstantHeadingInterpolation(0);
-        backwards = new Path(new BezierLine(new Point(DISTANCE,0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
+        backwards = new Path(new BezierLine(new Point(start), new Point(end)));
         backwards.setConstantHeadingInterpolation(0);
 
         follower.followPath(forwards);

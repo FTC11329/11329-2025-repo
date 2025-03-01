@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
  * @version 1.0, 3/12/2024
  */
 @Config
-@Autonomous (name = "Fancy Back And Forth", group = " Autonomous Pathing Tuning")
+@Autonomous (name = " Fancy Back And Forth", group = "Autonomous Pathing Tuning")
 public class FancyBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
