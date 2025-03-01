@@ -87,8 +87,8 @@ public class SpecimenAuto6Spec {
     private final Pose pushedSpike3 = new Pose(63, -50, Math.toRadians(90));
 
     private final Pose frontWall  = new Pose(38.5, -53, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(38.5, -59.5, Math.toRadians(90));
-    private final Pose pickupWallRightSide = new Pose(64, -59.5, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(38.5, -58, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(64, -58, Math.toRadians(90));
     private final Pose frontSubOffset = new Pose(0, -10, Math.toRadians(0));
 
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
@@ -259,7 +259,7 @@ public class SpecimenAuto6Spec {
                 setPathState(Specimen6AutoEnum.driveGoScorePreload);
                 break;
             case driveGoScorePreload:
-                if (pathTimer.getElapsedTimeSeconds() > 0.6) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.65) {
                     follower.followPath(scorePreload);
                     setPathState(Specimen6AutoEnum.armGoScorePreload);
                 }
@@ -271,7 +271,7 @@ public class SpecimenAuto6Spec {
                 break;
             case slideGoScorePreload:
                 if (pathTimer.getElapsedTimeSeconds() > 0.05) {
-                    outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 100);
                     setPathState(Specimen6AutoEnum.placePreload);
                 }
                 break;
@@ -280,17 +280,18 @@ public class SpecimenAuto6Spec {
                 //Checks if you are less than 1 inch away from target pos
                 if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
                     follower.followPath(pickupSpike1Path);
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(Specimen6AutoEnum.droppedClaw0);
                 }
                 break;
             //go to pickup wall preset
             case droppedClaw0:
                 if (pathTimer.getElapsedTimeSeconds() > 0.17) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
                     setPathState(Specimen6AutoEnum.pushSpike1);
                 }
+                break;
             //go to pickup spike2
             case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
@@ -359,13 +360,13 @@ public class SpecimenAuto6Spec {
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.driveSlam(false);
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(Specimen6AutoEnum.visionLook);
                 }
                 break;
             case visionLook:
                 visionResult = blockVision.getBestSpecimen();
                 if (visionResult.getHeading(AngleUnit.DEGREES) == -1 || pathTimer.getElapsedTimeSeconds() > 0.75) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     follower.followPath(toFrontWall2);
                     setPathState(Specimen6AutoEnum.wallPreset2);
                 }
@@ -419,8 +420,8 @@ public class SpecimenAuto6Spec {
                 if (follower.getError(placeSub2).getY() < 1.5) {
                     follower.driveSlam(false);
 
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         doStore = true;
                         setStoreState(0);
                     }
@@ -432,6 +433,7 @@ public class SpecimenAuto6Spec {
                     //keep looking
                     visionResult = blockVision.getBestSpecimen();
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1 || pathTimer.getElapsedTimeSeconds() > 0.75) {
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         follower.followPath(toFrontWall3);
                         setPathState(Specimen6AutoEnum.wallPreset3);
                     }
@@ -665,11 +667,12 @@ public class SpecimenAuto6Spec {
         if (doStore) {
             switch (storeState) {
                 case 0:
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
                     setStoreState(1);
                     break;
                 case 1:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
+                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 200) {
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                         setStoreState(2);
                     }
@@ -861,5 +864,3 @@ public class SpecimenAuto6Spec {
     public void stop() {
     }
 }
-
-

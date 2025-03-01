@@ -37,7 +37,7 @@ public class IntakeClaw {
 
         intakeServo.setPosition(0);
     }
-    //chackes if it has been jammed for more than a certain amoun of time
+    //checks if it has been jammed for more than a certain amount of time
     public boolean isJammed() {
         boolean jamBool = intakeMotor.isOverCurrent();
 
@@ -47,7 +47,7 @@ public class IntakeClaw {
         } else if (!jamBool) {
             overCurrentDe = false;
         }
-        if (jamBool && time.milliseconds() > startJamTime + 500) {
+        if (jamBool && time.milliseconds() > startJamTime + 150) {
             return true;
         }
         return false;

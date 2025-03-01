@@ -114,7 +114,7 @@ public class CameraAutoWiggle extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 1:
-                target = attempt89.getBlockPosition();
+                target = attempt89.getBestSample();
                 telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
                 telemetry.addData("targety", target.getY(DistanceUnit.INCH));
                 telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));

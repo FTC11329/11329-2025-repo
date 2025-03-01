@@ -376,7 +376,7 @@ public class NewTeleop {
                     break;
                 case 1:
                     driveTrain.moveBackWheels();
-                    if (climberTimer.getElapsedTimeSeconds() > 3 && Math.abs(climber.getPos() - climberPos) < 500) {
+                    if (climberTimer.getElapsedTimeSeconds() > 1 && Math.abs(climber.getPos() - climberPos) < 500) {
                         driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
                         climberTimer.resetTimer();
@@ -430,7 +430,7 @@ public class NewTeleop {
                     }
                     break;
                 case 5:
-                    driveTrain.setPTOPower(-0.5);
+                    driveTrain.setPTOPower(-0.9);
                     //Does some things to make sure that the current has been tripped for more than 1 second after one one second
                     if (climberTimer.getElapsedTimeSeconds() > 0.5) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));

@@ -38,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.Intake.wristStore;
+    double testValue = Constants.PTO.PTOServoClimb;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -195,8 +195,9 @@ public class TeleopTesting {
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
 //        intakeSystem.setHSlidePos((int) testValue);
-        intakeSystem.setIntakeServoPos(testValue);
+//        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
+        powerTakeOff.setRightPos(testValue);
         telemetry.addData("testValue H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
@@ -230,7 +231,7 @@ public class TeleopTesting {
         */
 
         //Climber
-        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+//        climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
         telemetry.addData("Current Position", climber.getPos());
 
 

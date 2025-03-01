@@ -12,8 +12,8 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double PTOServoRelease = 0.28;
-        public static double PTOServoClimb = 0.6;
+        public static double PTOServoRelease = 0.33;
+        public static double PTOServoClimb = 0.4269;
         public static double speed = 1;
 
         public static int motorClimb = 1700;
@@ -25,9 +25,9 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -500;
-        public static final int hookPos = 6700;
-        public static final int outPos  = 8000;
+        public static final int inPos = -750;
+        public static final int hookPos = 8100;
+        public static final int outPos  = 9800;
     }
 
     @Config
@@ -44,7 +44,7 @@ public class Constants {
         public static double wristClimb = 0;
         public static double wristStore = 0.05;
         public static double wristClear = 0.25;
-        public static double wristDown = 0.504;
+        public static double wristDown = 0.495;
 
         public static double intakeSpeed = 0.9;
         public static double transferSpeed = 0.9;
@@ -64,11 +64,11 @@ public class Constants {
         public static double initAutoArm = 0.80;
         public static double preTransferArm = 0.690666;
         public static double upArm = 0.43;
-        public static double intakeWallArm = 0.024;
+        public static double intakeWallArm = 0.026;
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.71;
-        public static double basketArm = 0.242;
+        public static double basketArm = 0.25;
         public static double autoArmClimb = 0.628;
         public static double parkArm = 0.609;
 
@@ -99,11 +99,12 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0018, 0.0041, 0.0127, 0.715};
-        public static double[] red = {0.0091, 0.0047, 0.0028, 0.667};
-        public static double[] yellow = {0.0135, 0.0192, 0.0047, 0.91};
-        public static double[] empty = {0.0004, 0.0012, 0.0023, 0.097};
+        public static double[] blue = {0.0014, 0.0035, 0.0094, 0.597};
+        public static double[] red = {0.0075, 0.0047, 0.0028, 0.621};
+        public static double[] redEdge = {0.0157, 0.0108, 0.0065, 0.8877};
+        public static double[] yellow = {0.0123, 0.0197, 0.0046, 0.907};
+        public static double[] empty = {0.0005, 0.0014, 0.002, 0.10};
 
-        public static double hasDistance = 1; //1.44 0.47 0.54 0.62
+        public static double hasDistance = 0.8; //1.27 0.605 0.495 0.463
     }
 }

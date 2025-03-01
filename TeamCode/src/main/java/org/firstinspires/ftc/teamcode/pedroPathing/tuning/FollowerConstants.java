@@ -86,7 +86,7 @@ public class FollowerConstants {
     public static double mass = 14;
 
     // Centripetal force to power scaling
-    public static double centripetalScaling = 0.007;
+    public static double centripetalScaling = 0.003;
 
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
@@ -104,7 +104,7 @@ public class FollowerConstants {
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 1;
+    public static double zeroPowerAccelerationMultiplier = 0.2;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
@@ -151,7 +151,7 @@ public class FollowerConstants {
     // This is the number of times the velocity is recorded for averaging when approximating a first
     // and second derivative for on the fly centripetal correction. The velocity is calculated using
     // half of this number of samples, and the acceleration uses all of this number of samples.
-    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 12;
+    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 32;
 
     // This is the number of steps the binary search for closest point uses. More steps is more
     // accuracy, and this increases at an exponential rate. However, more steps also does take more
@@ -162,7 +162,7 @@ public class FollowerConstants {
     // These activate / deactivate the secondary PIDs. These take over at errors under a set limit for
     // the translational, heading, and drive PIDs.
     public static boolean useSecondaryTranslationalPID = true;
-    public static boolean useSecondaryHeadingPID = false;
+    public static boolean useSecondaryHeadingPID = true;
     public static boolean useSecondaryDrivePID = false;
 
 
@@ -189,13 +189,13 @@ public class FollowerConstants {
 
 
     // the limit at which the heading PIDF switches between the main and secondary heading PIDFs
-    public static double headingPIDFSwitch = Math.PI / 20;
+    public static double headingPIDFSwitch = 0.125;
 
     // Secondary heading error PIDF coefficients
     public static CustomPIDFCoefficients secondaryHeadingPIDFCoefficients = new CustomPIDFCoefficients(
-            5,
+            2.8,
             0,
-            0.08,
+            0.06,
             0);
 
     // Feed forward constant added on to the secondary heading PIDF
