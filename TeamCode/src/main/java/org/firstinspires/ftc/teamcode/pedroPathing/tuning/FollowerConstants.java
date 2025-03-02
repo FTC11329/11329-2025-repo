@@ -86,7 +86,7 @@ public class FollowerConstants {
     public static double mass = 14;
 
     // Centripetal force to power scaling
-    public static double centripetalScaling = 0.003;
+    public static double centripetalScaling = 0.0035;
 
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
@@ -152,7 +152,7 @@ public class FollowerConstants {
     // This is the number of times the velocity is recorded for averaging when approximating a first
     // and second derivative for on the fly centripetal correction. The velocity is calculated using
     // half of this number of samples, and the acceleration uses all of this number of samples.
-    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 100;
+    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 150;
 
     // This is the number of steps the binary search for closest point uses. More steps is more
     // accuracy, and this increases at an exponential rate. However, more steps also does take more
