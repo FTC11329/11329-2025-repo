@@ -7,9 +7,11 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcontroller.external.samples.ConceptAprilTag;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
@@ -111,10 +113,14 @@ public class Attempt89 {
         // Iterate through each block
         for (int block = 0; block < blocks; block++) {
             Pose2D pos = distanceArray.get(block);
-            double time = getReachTime(pos);
-            if (time < minTime) {
-                minTime = time;
-                smallestCoordinates = pos;
+            //if in range
+            if (pos.getY(DistanceUnit.INCH) < (Constants.Intake.maxSlidePos + 100) * (1/Constants.Intake.inchToTick)) {
+
+                double time = getReachTime(pos);
+                if (time < minTime) {
+                    minTime = time;
+                    smallestCoordinates = pos;
+                }
             }
         }
 

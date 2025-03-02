@@ -160,8 +160,8 @@ public class NewTeleop {
 
     public void init() {
         //uncomment if you want telemetry on dashboard
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);

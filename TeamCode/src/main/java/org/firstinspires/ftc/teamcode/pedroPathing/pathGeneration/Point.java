@@ -185,6 +185,10 @@ public class Point {
         return y;
     }
 
+    public Pose toPose() {
+        return new Pose(x, y);
+    }
+
     /**
      * This creates a new Point with the same information as this Point, just pointing to a different
      * memory location. In other words, a deep copy.

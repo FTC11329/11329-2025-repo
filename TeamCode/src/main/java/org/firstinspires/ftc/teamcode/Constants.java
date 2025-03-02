@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
 
+@Config
 public class Constants {
 
     @Config
@@ -39,6 +40,7 @@ public class Constants {
         public static int autoPreExtendSlides = 500;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1450;
+        public static double inchToTick = 1532.0 / 19.0;
         public static double manualSlideSpeed = 75;
 
         public static double wristClimb = 0;
@@ -59,28 +61,29 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.949;
-        public static double initTeleopArm = 0.43;
-        public static double initAutoArm = 0.80;
-        public static double preTransferArm = 0.690666;
-        public static double upArm = 0.43;
-        public static double intakeWallArm = 0.026;
+        public static double intakeArm = 0.9424;
+        public static double initTeleopArm = 0.42;
+        public static double initAutoArm = 0.781;
+        public static double autoArmClear = 0.734;
+        public static double preTransferArm = 0.664;
+        public static double upArm = 0.42;
+        public static double intakeWallArm = 0.005;
         public static double manualArmSpeed = 0.01;
 
-        public static double specimenArm = 0.71;
-        public static double basketArm = 0.25;
+        public static double specimenArm = 0.70;
+        public static double basketArm = 0.222;
         public static double autoArmClimb = 0.628;
-        public static double parkArm = 0.609;
+        public static double parkArm = 0.564;
 
         public static int intakeSlides = 210;
         public static int intakeWaitSlides = 450;
-        public static int intakeWallSlides = 135;
-        public static int intakeWallAutoSlides = 135;
+        public static int intakeWallSlides = 150;
+        public static int intakeWallAutoSlides = 150;
 
         public static int safeFromWallSlides = 360;
         public static int safeFromHSlides = 650;
         public static int safeFromClimberBar = 1300;
-        public static int safeFromSpecBar = 1712;
+        public static int safeFromSpecBar = 1600;
 
         public static int highSpecimenSlides = 1050;
         public static int lowBasketSlides = 625;

@@ -69,7 +69,7 @@ public class FollowerConstants {
     public static CustomFilteredPIDFCoefficients drivePIDFCoefficients = new CustomFilteredPIDFCoefficients(
             0.0045,
             0,
-            0.0005,
+            0.00055,
             0.6,
             0);
 
@@ -101,10 +101,11 @@ public class FollowerConstants {
     // the end of paths.
     // Increasing this will cause the robot to try to decelerate faster, at the risk of overshoots
     // or localization slippage.
+    //BUT IT SOMTIMES DOESNT?!?!?!!?
     // Decreasing this will cause the deceleration at the end of the Path to be slower, making the
     // robot slower but reducing risk of end-of-path overshoots or localization slippage.
     // This can be set individually for each Path, but this is the default.
-    public static double zeroPowerAccelerationMultiplier = 0.2;
+    public static double zeroPowerAccelerationMultiplier = 3.5;
 
 
     // When the robot is at the end of its current Path or PathChain and the velocity goes below
@@ -151,7 +152,7 @@ public class FollowerConstants {
     // This is the number of times the velocity is recorded for averaging when approximating a first
     // and second derivative for on the fly centripetal correction. The velocity is calculated using
     // half of this number of samples, and the acceleration uses all of this number of samples.
-    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 32;
+    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 100;
 
     // This is the number of steps the binary search for closest point uses. More steps is more
     // accuracy, and this increases at an exponential rate. However, more steps also does take more
