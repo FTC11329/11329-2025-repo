@@ -106,14 +106,14 @@ public class Attempt89 {
 
         // Array to store the smallest coordinates for each plane
         Pose2D smallestCoordinates = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, 0);
-        double minTime = Double.MAX_VALUE;
+        double minLoss = Double.MAX_VALUE;
 
         // Iterate through each block
         for (int block = 0; block < blocks; block++) {
             Pose2D pos = distanceArray.get(block);
-            double time = getReachTime(pos);
-            if (time < minTime) {
-                minTime = time;
+            double loss = getLoss(pos);
+            if (loss < minLoss) {
+                minLoss = loss;
                 smallestCoordinates = pos;
             }
         }
@@ -121,8 +121,11 @@ public class Attempt89 {
         return smallestCoordinates;
     }
 
-    public double getReachTime(Pose2D coords){
-        return Math.hypot(coords.getX(DistanceUnit.INCH), coords.getY(DistanceUnit.INCH));
+    public double getLoss(Pose2D coords){
+        double xBias = 0.1;
+        double yBias = 0.9;
+        double loss = coords.getX(DistanceUnit.INCH) * xBias + coords.getY(DistanceUnit.INCH) * yBias;
+        return loss;
     }
 
     public List<Pose> findAverageOfFullFrames(List<List<Pose>> distanceArray) {
