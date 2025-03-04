@@ -267,7 +267,7 @@ public class SpecimenAuto6Spec {
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState(Specimen6AutoEnum.) method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() {
+    public void autonomousPathUpdate() { // todo: deal with all the doTransfer/hasOne/doStore code
         switch (pathState) {
             //go to score preload
             case armClearing:
@@ -311,16 +311,19 @@ public class SpecimenAuto6Spec {
                 break;
             //go to pickup wall preset
             case visionLook:
-                visionResult = blockVision.getBestSpecimen();
-                if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
-                    doStore = true;
-                     intakeSystem.setHSlidesInches(follower.followYourHead(target));
-                    setPathState(Specimen6AutoEnum.drivingVision);
+                if (pathTimer.getElapsedTimeSeconds() > .15) {
+                    //wait for robot to fall & stop bouncing
+                    visionResult = blockVision.getBestSpecimen();
+                    if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        doStore = true;
+                        intakeSystem.setHSlidesInches(follower.followYourHead(visionResult));
+                        setPathState(Specimen6AutoEnum.drivingVision);
 
-                } else if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followPath(toFrontWall2);
-                    setPathState(Specimen6AutoEnum.droppedClaw0);
+                    } else if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                        outtakeSystem.setVSlidePos(0);
+                        setPathState(Specimen6AutoEnum.pushSpike1);
+                    }
                 }
                 break;
             case droppedClaw0:
@@ -331,7 +334,6 @@ public class SpecimenAuto6Spec {
                 }
                 break;
             //go to pickup spike2
-
             case drivingVision:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
@@ -340,7 +342,7 @@ public class SpecimenAuto6Spec {
                 break;
             case intakingVision:
                 if (intakeSystem.intakeUntilColor()) {
-                    doTransfer = true;
+                    doTransfer = true; //todo: swap to drive + spit
                     intakeSystem.storePos();
                     hasOne = true;
 
@@ -352,7 +354,6 @@ public class SpecimenAuto6Spec {
                     intakeSystem.storePos();
                     hasOne = false;
 
-                    follower.followPath(toFrontWall3);
                     setPathState(Specimen6AutoEnum.pushSpike1);
                 }
                 break;
@@ -429,11 +430,9 @@ public class SpecimenAuto6Spec {
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.driveSlam(false);
-                    setPathState(Specimen6AutoEnum.visionLook);
+                    setPathState(Specimen6AutoEnum.wallPreset2);
                 }
                 break;
-
-
             case wallPreset2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
