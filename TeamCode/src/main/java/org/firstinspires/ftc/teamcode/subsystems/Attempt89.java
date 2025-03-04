@@ -30,7 +30,7 @@ public class Attempt89 {
     private Limelight3A limelight;
 
     private final double cameraYOffset = 1.1;
-    private final double cameraXOffset = 2.4; //close enough
+    private final double cameraXOffset = 2.4; //cl  qose enough
 
     //define the height that the center of the camera lens is off the ground
     double height = 10.75;

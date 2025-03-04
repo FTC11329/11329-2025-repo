@@ -1,10 +1,17 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.hardware.bosch.BHI260IMU;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
@@ -67,7 +74,17 @@ public class TeleopTesting {
     }
 
 
+    BHI260IMU imu;
+    IMU.Parameters myIMUparameters;
+
     public void init() {
+        myIMUparameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
+                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
+        ));
+
+        imu.initialize(myIMUparameters);
+
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
@@ -82,6 +99,19 @@ public class TeleopTesting {
 
 
     public void loop() {
+        YawPitchRollAngles robotOrientation;
+        robotOrientation = imu.getRobotYawPitchRollAngles();
+
+        // Now use these simple methods to extract each angle
+        // (Java type double) from the object you just created:
+
+        double Yaw   = robotOrientation.getYaw(AngleUnit.DEGREES);
+        double Pitch = robotOrientation.getPitch(AngleUnit.DEGREES);
+        double Roll  = robotOrientation.getRoll(AngleUnit.DEGREES);
+
+        telemetry.addData("Yaw", Yaw);
+        telemetry.addData("pitch", Pitch);
+        telemetry.addData("Roll", Roll);
         //INPUTS
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;

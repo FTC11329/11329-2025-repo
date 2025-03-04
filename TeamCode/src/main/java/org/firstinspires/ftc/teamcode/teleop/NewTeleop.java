@@ -107,6 +107,8 @@ public class NewTeleop {
     boolean climbDebounce = false;
     boolean lastCurrentTrip = false;
     double lastCurrentTripTime = 2000000000;
+    boolean climbStopPause = false;
+    boolean climbStopPauseOnce = true;
 
     boolean onceTime = true;
     boolean onceState = true;
@@ -297,7 +299,7 @@ public class NewTeleop {
                     break;
                 //front Wall To Wall
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 1.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         follower.followPath(frontWallToWall);
 
                         pathTimer.resetTimer();
@@ -376,7 +378,7 @@ public class NewTeleop {
                     break;
                 case 1:
                     driveTrain.moveBackWheels();
-                    if (climberTimer.getElapsedTimeSeconds() > 1 && Math.abs(climber.getPos() - climberPos) < 500) {
+                    if (climberTimer.getElapsedTimeSeconds() > 0.5 && Math.abs(climber.getPos() - climberPos) < 500) {
                         driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
                         climberTimer.resetTimer();
@@ -386,7 +388,7 @@ public class NewTeleop {
                 case 2:
                     driveTrain.setPTOPower(1);
                     //Does some things to make sure that the current has been tripped for more than 1 second after one one second
-                    if (climberTimer.getElapsedTimeSeconds() > 2.5) {
+                    if (climberTimer.getElapsedTimeSeconds() > 0.75) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
                     } else {
                         current = 0;
@@ -395,7 +397,7 @@ public class NewTeleop {
                     if (current > 5.7 && !lastCurrentTrip) {
                         lastCurrentTripTime = elapsedTime.milliseconds();
                         lastCurrentTrip = true;
-                    } else if (current < 6) {
+                    } else if (current < 5.7) {
                         lastCurrentTrip = false;
                     }
 
@@ -432,7 +434,7 @@ public class NewTeleop {
                 case 5:
                     driveTrain.setPTOPower(-0.9);
                     //Does some things to make sure that the current has been tripped for more than 1 second after one one second
-                    if (climberTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (climberTimer.getElapsedTimeSeconds() > 0.25) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
                     } else {
                         current = 0;
@@ -445,7 +447,7 @@ public class NewTeleop {
                         lastCurrentTrip = false;
                     }
 
-                    if (current > 4 && elapsedTime.milliseconds() > lastCurrentTripTime + 400) {
+                    if (current > 4 && elapsedTime.milliseconds() > lastCurrentTripTime + 300) {
                         //Prevent pto from drawing too much power
                         driveTrain.setPTOPos(driveTrain.getPTOPos());
 
@@ -479,9 +481,25 @@ public class NewTeleop {
             climber.setPos(climberPos);
         }
         if (climbPause) {
-            climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+            if (gamepad1.b) {
+                climbStopPause = true;
+            }
+            if (!climbStopPause) {
+                climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
+                driveTrain.setPTOPower(-gamepad1.left_stick_y);
+            }
 
-            driveTrain.setPTOPower(-gamepad1.left_stick_y);
+            if (climbStopPause && climbStopPauseOnce) {
+                climbStopPauseOnce = false;
+                climber.setPos(climber.getPos());
+            }
+
+            if (climbStopPause) {
+                driveTrain.setPTOPower(-0.2);
+            }
+
+
+
         }
         if (gamepad1.dpad_up || gamepad2.back) {
             climberPos = Constants.Climber.outPos;
