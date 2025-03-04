@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
+import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
 import org.firstinspires.ftc.teamcode.utility.Specimen6AutoEnum;
 
 //Match 1 transfer too long, down with servo then out with intake for 3rd          miss 2
@@ -52,7 +53,7 @@ public class SpecimenAuto6Spec {
     private Specimen6AutoEnum pathState;
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(8.5, -63, Math.toRadians(90));
+    private final Pose startPose = new Pose(7.25, -65.75, Math.toRadians(180));
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-4, -31.5, Math.toRadians(90));
@@ -85,6 +86,8 @@ public class SpecimenAuto6Spec {
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     //Various Variables
+    private  Pose2D target = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
+
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.8;
@@ -118,6 +121,7 @@ public class SpecimenAuto6Spec {
     private Path pushSpike3Path;
 
     private Path frontWallToWall;
+
 
     private Path toWall1;
     private Path placeSub1Path;
@@ -155,7 +159,7 @@ public class SpecimenAuto6Spec {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+//        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -267,20 +271,23 @@ public class SpecimenAuto6Spec {
         switch (pathState) {
             //go to score preload
             case armClearing:
-                outtakeSystem.setArmPos(Constants.Outtake.autoArmClear);
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                blockVision.switchPipeline(robotSide);
+                outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides);
+                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 setPathState(Specimen6AutoEnum.armClearing2);
                 break;
             case armClearing2:
-                if (pathTimer.getElapsedTimeSeconds() > 0.1) {
-                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                    outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
                     setPathState(Specimen6AutoEnum.driveGoScorePreload);
                 }
+                break;
             case driveGoScorePreload:
-                if (pathTimer.getElapsedTimeSeconds() > 0.55) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     follower.followPath(scorePreload);
                     setPathState(Specimen6AutoEnum.armGoScorePreload);
                 }
+                break;
             case armGoScorePreload:
                 if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
                     outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
@@ -296,21 +303,59 @@ public class SpecimenAuto6Spec {
             //go to pickup spike1
             case placePreload:
                 //Checks if you are less than 1 inch away from target pos
-                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1) {
+                if (follower.getError(preloadPlace).getX() < 1 && follower.getError(preloadPlace).getY() < 1 && pathTimer.getElapsedTimeSeconds() > .17) {
                     follower.followPath(pickupSpike1Path);
-                    setPathState(Specimen6AutoEnum.droppedClaw0);
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    setPathState(Specimen6AutoEnum.visionLook);
                 }
                 break;
             //go to pickup wall preset
+            case visionLook:
+                visionResult = blockVision.getBestSpecimen();
+                if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                    doStore = true;
+                     intakeSystem.setHSlidesInches(follower.followYourHead(target));
+                    setPathState(Specimen6AutoEnum.drivingVision);
+
+                } else if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    follower.followPath(toFrontWall2);
+                    setPathState(Specimen6AutoEnum.droppedClaw0);
+                }
+                break;
             case droppedClaw0:
                 if (pathTimer.getElapsedTimeSeconds() > 0.17) {
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
-                    setPathState(Specimen6AutoEnum.pushSpike1);
+                    setPathState(Specimen6AutoEnum.drivingVision);
                 }
                 break;
             //go to pickup spike2
+
+            case drivingVision:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    setPathState(Specimen6AutoEnum.intakingVision);
+                }
+                break;
+            case intakingVision:
+                if (intakeSystem.intakeUntilColor()) {
+                    doTransfer = true;
+                    intakeSystem.storePos();
+                    hasOne = true;
+
+                    follower.followPath(toFrontWall3);
+                    setPathState(Specimen6AutoEnum.pushSpike1);
+
+                } else if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    doGoWall = true;
+                    intakeSystem.storePos();
+                    hasOne = false;
+
+                    follower.followPath(toFrontWall3);
+                    setPathState(Specimen6AutoEnum.pushSpike1);
+                }
+                break;
             case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
                     follower.followPath(pushSpike1Path);
@@ -385,46 +430,6 @@ public class SpecimenAuto6Spec {
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.driveSlam(false);
                     setPathState(Specimen6AutoEnum.visionLook);
-                }
-                break;
-            case visionLook:
-                visionResult = blockVision.getBestSpecimen();
-                if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
-                    doStore = true;
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followYourHeart(visionResult.getX(DistanceUnit.INCH));
-                    intakeSystem.setHSlidesInches(visionResult.getY(DistanceUnit.INCH));
-                    setPathState(Specimen6AutoEnum.drivingVision);
-
-                } else if (pathTimer.getElapsedTimeSeconds() > 1) {
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followPath(toFrontWall2);
-                    setPathState(Specimen6AutoEnum.wallPreset2);
-                }
-                break;
-
-            case drivingVision:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                    setPathState(Specimen6AutoEnum.intakingVision);
-                }
-                break;
-            case intakingVision:
-                if (intakeSystem.intakeUntilColor()) {
-                    doTransfer = true;
-                    intakeSystem.storePos();
-                    hasOne = true;
-
-                    follower.followPath(toFrontWall3);
-                    setPathState(Specimen6AutoEnum.frontWallToWall2);
-
-                } else if (pathTimer.getElapsedTimeSeconds() > 2) {
-                    doGoWall = true;
-                    intakeSystem.storePos();
-                    hasOne = false;
-
-                    follower.followPath(toFrontWall3);
-                    setPathState(Specimen6AutoEnum.frontWallToWall2);
                 }
                 break;
 

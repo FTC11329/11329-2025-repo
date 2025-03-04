@@ -1157,8 +1157,10 @@ public class Follower {
     public double followYourHeadSpike(Pose2D blockO) {
         Pose tempPose = getPose();
         // just initialized
+        double theta = Math.atan2(blockO.getX(DistanceUnit.INCH), blockO.getY(DistanceUnit.INCH));
+        if (Math.toDegrees(theta) < -1) {theta = Math.toRadians(Math.toDegrees(theta) - 25);}
         Path cameraSearchPath;
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - Math.atan2(blockO.getX(DistanceUnit.INCH), blockO.getY(DistanceUnit.INCH))));
+        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - theta));
 
         followPath(cameraSearchPath);
         return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
