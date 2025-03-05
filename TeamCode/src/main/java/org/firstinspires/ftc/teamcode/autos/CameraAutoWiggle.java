@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -75,7 +76,7 @@ public class CameraAutoWiggle extends OpMode {
         outtakeSystem = new OuttakeSystem(hardwareMap);
         multiDistanceCalculator = new MultiDistanceCalculator(hardwareMap);
         attempt89 = new Attempt89(hardwareMap, RobotSideEnum.Blue);
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
         pathTimer = new Timer();
         opmodeTimer = new Timer();
 
@@ -142,7 +143,8 @@ public class CameraAutoWiggle extends OpMode {
 
             case 2:
                 //puts the wrist down after the slides are in the sub
-                if (pathTimer.getElapsedTimeSeconds() > .25) {
+                if (pathTimer.getElapsedTimeSeconds() > .5) {
+                    follower.telemetryDebug(telemetry);
                     wiggle = false;
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(3);

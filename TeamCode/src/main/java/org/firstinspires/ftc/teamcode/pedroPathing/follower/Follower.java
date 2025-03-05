@@ -1151,10 +1151,12 @@ public class Follower {
         double alphaTwo = Math.atan2(X, (Y + B + halfL));
         Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
         Pose2D globalPose = robotToWorld(backDistance, tempPose);
-        cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo + Math.toRadians(5)));
+        if (alphaTwo < Math.toRadians(-1) && -1 > X && X > -2) {alphaTwo = (alphaTwo + Math.toRadians(5));}
+        else if (alphaTwo < Math.toRadians(-1)) {alphaTwo = (1.6 * alphaTwo);}
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - (alphaTwo)));
         followPath(cameraSearchPath);
 
-        return Math.hypot(X, Y + B); //Extend Hslides
+        return (Math.hypot(X, Y + B)-2); //Extend Hslides
     }
     public double followYourHeadSpike(Pose2D blockO) {
         // this code is NOT used
