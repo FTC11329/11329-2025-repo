@@ -193,7 +193,7 @@ public class VisionSampleAuto {
                     transferState = 0;
                     break;
                 case 0:
-                    if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillis / 1000.0) {
+                    if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisTeleop / 1000.0) {
                         intakeSystem.setIntakePower(0);
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setTransferState(1);

@@ -59,7 +59,6 @@ public class SpecimenAuto5Spec extends OpMode {
     private final Pose placeSub2 = new Pose(7.25, -31.5, Math.toRadians(90));
     private final Pose placeSub3 = new Pose(8.5, -31.5, Math.toRadians(90));
     private final Pose placeSub4 = new Pose(9.75, -31.5, Math.toRadians(90));
-    private final Pose placeSub5 = new Pose(10, -31.5, Math.toRadians(90));
 
     private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
@@ -81,6 +80,7 @@ public class SpecimenAuto5Spec extends OpMode {
     private final Pose pickupWallRightSide = new Pose(64, -61.5, Math.toRadians(90));
     private final Pose frontSubOffset = new Pose(0, -5, Math.toRadians(0));
 
+    private final Pose parkSpit = new Pose(18, -48, Math.toRadians(-45));
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     //Various Variables
@@ -133,10 +133,8 @@ public class SpecimenAuto5Spec extends OpMode {
     private Path toFrontWall4;
     private Path placeSub4Path;
 
-    private Path toFrontWall5;
-    private Path placeSub5Path;
-
     private Path parkPath; //IS THAT A BTD REFERENCE?
+    private Path parkPathSpit;
 
 
     /** This method is called once at the init of the OpMode. **/
@@ -246,22 +244,15 @@ public class SpecimenAuto5Spec extends OpMode {
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
         placeSub4Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
-        toFrontWall5 = follower.linearPathBuilder(placeSub4, frontWall);
-        toFrontWall5.setConstantHeadingInterpolation(placeSub4.getHeading());
-        toFrontWall5.setZeroPowerAccelerationMultiplier(zeroMultSlow);
-        //frontWallToWall
-        placeSub5Path = follower.linearPathBuilder(pickupWall, placeSub5.addReturn(frontSubOffset));
-        placeSub5Path.setConstantHeadingInterpolation(placeSub5.getHeading());
-        placeSub5Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
-
-        parkPath = follower.linearPathBuilder(placeSub5, park);
+        parkPathSpit = follower.linearPathBuilder(placeSub4, parkSpit);
+        parkPath = follower.linearPathBuilder(placeSub4, park);
 
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState(Specimen5AutoEnum.) method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() { // todo: deal with all the doTransfer/hasOne/doStore code
+    public void autonomousPathUpdate() {
         switch (pathState) {
             //go to score preload
             case driveGoScorePreload:
@@ -528,17 +519,76 @@ public class SpecimenAuto5Spec extends OpMode {
                 if (follower.getError(placeSub4).getY() < 1.5) {
                     follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followPath(toFrontWall5);
 
-                    setPathState(Specimen5AutoEnum.goPark);
+                    setPathState(Specimen5AutoEnum.visionLook);
                 }
                 break;
-            //Park path
-            case goPark:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                    follower.followPath(parkPath);
-                    setPathState(Specimen5AutoEnum.teleopPreset);
+            case visionLook:
+                if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                    visionResult = blockVision.getBestSpecimen();
+                    if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        intakeSystem.setHSlidesInches(follower.followYourHead(visionResult));
+                        setPathState(Specimen5AutoEnum.visionDropIntake);
+                    }
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                    setPathState(Specimen5AutoEnum.goParkNoSpit);
                 }
+                break;
+            case visionDropIntake:
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    setPathState(Specimen5AutoEnum.visionIntake);
+                }
+                break;
+            case visionIntake:
+                if (intakeSystem.intakeUntil()) {
+                    intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
+                    setPathState(Specimen5AutoEnum.intakeUnjam);
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                    intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
+                    setPathState(Specimen5AutoEnum.goParkNoSpit);
+                }
+                break;
+            case intakeUnjam:
+                if (pathTimer.getElapsedTime() > Constants.Intake.unjamTimeMillisAuto) {
+                    intakeSystem.setIntakePower(0);
+                    setPathState(Specimen5AutoEnum.goParkSpit);
+                }
+                break;
+                //Park path
+            case goParkSpit:
+                follower.followPath(parkPathSpit);
+                setPathState(Specimen5AutoEnum.teleopPresetSpit);
+                break;
+            case teleopPresetSpit:
+                if (follower.getError(parkSpit).getHeading() < Math.toRadians(90)) {
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    outtakeSystem.setVSlidePos(0);
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
+                    setPathState(Specimen5AutoEnum.spit);
+                }
+                break;
+            case spit:
+                if (follower.getError(parkSpit).getHeading() < Math.toRadians(7)) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                    intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
+                    setPathState(Specimen5AutoEnum.stopSpit);
+                }
+                break;
+            case stopSpit:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    intakeSystem.storePos();
+                    follower.followPath(parkPath);
+                    setPathState(Specimen5AutoEnum.end);
+                }
+                break;
+
+            case goParkNoSpit:
+                follower.followPath(parkPath);
+                intakeSystem.storePos();
+                setPathState(Specimen5AutoEnum.teleopPreset);
                 break;
             case teleopPreset:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
@@ -547,117 +597,6 @@ public class SpecimenAuto5Spec extends OpMode {
                     setPathState(Specimen5AutoEnum.end);
                 }
                 break;
-        }
-        // State Machine **************************************************************************~
-        if (doStore) {
-            switch (storeState) {
-                case 0:
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
-                    setStoreState(1);
-                    break;
-                case 1:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                        setStoreState(2);
-                    }
-                    break;
-                case 2:
-                    if (storeTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
-                        setStoreState(3);
-                    }
-                    break;
-                case 3:
-                    if (intakeSystem.readyToTranfer() && Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 500) {
-                        setStoreState(0);
-                        doStore = false;
-                    }
-                    break;
-            }
-        }
-
-        if (doTransfer && !doStore) {
-            switch (transferState) {
-                case 0:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.45) {
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                        setTransferState(1);
-                    }
-                    break;
-                case 1:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
-                        setTransferState(2);
-                    }
-                    break;
-                case 2:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.35) {
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-                        intakeSystem.setIntakePower(0);
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        setTransferState(3);
-                    }
-                    break;
-                case 3:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                        setTransferState(4);
-                    }
-                    break;
-                case 4:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                        setTransferState(5);
-                    }
-                    break;
-                case 5:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.15) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
-                        setTransferState(6);
-                    }
-                    break;
-                case 6:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 600) {
-                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                        setTransferState(7);
-                    }
-                    break;
-                case 7:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        setTransferState(0);
-                        doTransfer = false;
-                    }
-                    break;
-            }
-        }
-
-        if (doGoWall) {
-            switch (wallState) {
-                case 0:
-                    doStore = false;
-                    doTransfer = false;
-                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                    setWallState(1);
-                    break;
-                case 1:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                        setWallState(2);
-                    }
-                    break;
-                case 2:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
-                        setWallState(3);
-                    }
-                    break;
-                case 3:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        doGoWall = false;
-                        setWallState(0);
-                    }
-            }
         }
     }
 

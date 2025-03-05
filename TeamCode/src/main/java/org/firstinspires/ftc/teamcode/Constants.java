@@ -53,7 +53,8 @@ public class Constants {
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillis = 150; //todo make an auto vs teleop times
+        public static double unjamTimeMillisTeleop = 150; //todo make an auto vs teleop times
+        public static double unjamTimeMillisAuto = 125; //todo make an auto vs teleop times
     }
 
     @Config

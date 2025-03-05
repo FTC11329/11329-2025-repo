@@ -204,6 +204,7 @@ public class SpecimenAuto6Spec {
         spitFirstPath = follower.linearPathBuilder(preloadPlace, spitFirstPose);
 
         pickupSpike1PathAfterSpit = new Path(new BezierCurve(new Point(spitFirstPose), new Point(spike1AfterSpitControlPoint1), new Point(backSpike1)));
+        pickupSpike1PathAfterSpit.setLinearHeadingInterpolation(spitFirstPose.getHeading(), backSpike1.getHeading(), 0.2);
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
@@ -307,15 +308,10 @@ public class SpecimenAuto6Spec {
                     } else if (pathTimer.getElapsedTimeSeconds() > 1) {
                         outtakeSystem.setArmPos(Constants.Outtake.upArm);
                         outtakeSystem.setVSlidePos(0);
+                        hasOne = false;
+                        follower.followPath(pickupSpike1Path);
                         setPathState(Specimen6AutoEnum.pushSpike1);
                     }
-                }
-                break;
-            case droppedClaw0:
-                if (pathTimer.getElapsedTimeSeconds() > 0.17) {
-                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
-                    outtakeSystem.setVSlidePos(0);
-                    setPathState(Specimen6AutoEnum.drivingVision);
                 }
                 break;
             //go to pickup spike2
@@ -342,21 +338,33 @@ public class SpecimenAuto6Spec {
                 }
                 break;
             case extendHSlidesSpit:
-                if (follower.getError(spitFirstPose).getHeading() < Math.toRadians(45)) {
+                if (follower.getError(spitFirstPose).getHeading() < Math.toRadians(90)) {
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
 
                     setPathState(Specimen6AutoEnum.spitThePickup);
                 }
                 break;
             case spitThePickup:
-                if (follower.getError(spitFirstPose).getX() < 1.5 && follower.getError(spitFirstPose).getY() < 1.5 && follower.getError(spitFirstPose).getHeading() < Math.toRadians(10)) {
+                if (follower.getError(spitFirstPose).getHeading() < Math.toRadians(7)) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
 
                     setPathState(Specimen6AutoEnum.pushSpike2);
                 }
                 break;
+            case stopSpit:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    intakeSystem.storePos();
+
+                    follower.followPath(pickupSpike1PathAfterSpit);
+                    setPathState(Specimen6AutoEnum.pushSpike1);
+                }
+                break;
+
             case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    outtakeSystem.setVSlidePos(0);
                     follower.followPath(pushSpike1Path);
                     setPathState(Specimen6AutoEnum.pushSpike2);
                 }

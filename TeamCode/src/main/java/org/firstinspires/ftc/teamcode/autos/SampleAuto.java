@@ -193,7 +193,7 @@ public class SampleAuto {
                     transferState = 0;
                     break;
                 case 0:
-                    if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillis / 1000.0) {
+                    if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisTeleop / 1000.0) {
                         intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
                         setTransferState(1);
                     }

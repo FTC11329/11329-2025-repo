@@ -807,10 +807,10 @@ public class NewTeleop {
 
         //Unjamming intake ************************************************************************~
         if (unjamAfterIntake) {
-            if (elapsedTime.milliseconds() < unjamAfterIntakeTime + Constants.Intake.unjamTimeMillis) {
+            if (elapsedTime.milliseconds() < unjamAfterIntakeTime + Constants.Intake.unjamTimeMillisTeleop) {
                 unJam = true;
             }
-            if (elapsedTime.milliseconds() > unjamAfterIntakeTime + Constants.Intake.unjamTimeMillis) {
+            if (elapsedTime.milliseconds() > unjamAfterIntakeTime + Constants.Intake.unjamTimeMillisTeleop) {
                 unjamAfterIntake = false;
             }
         }
