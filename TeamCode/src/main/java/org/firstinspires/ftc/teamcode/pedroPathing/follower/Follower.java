@@ -1144,13 +1144,12 @@ public class Follower {
         double X = blockO.getX(DistanceUnit.INCH);
         double Y = blockO.getY(DistanceUnit.INCH);
         double alphaOne = Math.atan2(X, Y);
-        double B = 7.7 * Math.sin(alphaOne); // 7.7 aproximates 1/2 width of robot
+        double B = Math.abs(7.7 * Math.sin(alphaOne)); // 7.7 aproximates 1/2 width of robot
         if (B <= 1) {B = 1;}
         double alphaTwo = Math.atan2(X, (Y + B));
-        if (alphaTwo < -1) {alphaTwo = alphaTwo - Math.toRadians(5);}
         Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
-        Pose2D globalPose= robotToWorld(backDistance, tempPose);
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo));
+        Pose2D globalPose = robotToWorld(backDistance, tempPose);
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo));
         followPath(cameraSearchPath);
 
         return Math.hypot(X, Y + B); //Extend Hslides
@@ -1160,7 +1159,7 @@ public class Follower {
         Pose tempPose = getPose();
         // just initialized
         double theta = Math.atan2(blockO.getX(DistanceUnit.INCH), blockO.getY(DistanceUnit.INCH));
-        if (Math.toDegrees(theta) < -1) {theta = Math.toRadians(Math.toDegrees(theta) - 25);}
+        if (Math.toDegrees(theta) < -1) {theta = Math.toRadians(Math.toDegrees(theta));}
         Path cameraSearchPath;
         cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - theta));
 
@@ -1171,7 +1170,7 @@ public class Follower {
     public Pose2D robotToWorld(Pose2D target, Pose robotTransform){
         double oldX = target.getX(DistanceUnit.INCH);
         double oldY = target.getY(DistanceUnit.INCH);
-        double a = -target.getHeading(AngleUnit.RADIANS);
+        double a = robotTransform.getHeading();
         double x = (oldX*Math.cos(a)) - (oldY*Math.sin(a));
         double y = (oldX*Math.sin(a)) + (oldY*Math.cos(a));
         Pose2D pose = new Pose2D(DistanceUnit.INCH, x + robotTransform.getX(), y + robotTransform.getY(), AngleUnit.DEGREES, target.getHeading(AngleUnit.DEGREES));
