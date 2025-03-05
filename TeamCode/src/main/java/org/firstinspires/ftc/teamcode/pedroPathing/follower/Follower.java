@@ -1141,12 +1141,14 @@ public class Follower {
     public double followYourHead(Pose2D blockO) {
         Pose tempPose = getPose();
         Path cameraSearchPath;
+        double halfW = 7.25;
+        double halfL = 7.5;
         double X = blockO.getX(DistanceUnit.INCH);
         double Y = blockO.getY(DistanceUnit.INCH);
-        double alphaOne = Math.atan2(X, Y);
-        double B = Math.abs(7.7 * Math.sin(alphaOne)); // 7.7 aproximates 1/2 width of robot
+        double alphaOne = Math.atan2(X, Y + halfL);
+        double B = Math.abs(halfW * Math.sin(alphaOne)); // 7.7 aproximates 1/2 width of robot
         if (B <= 1) {B = 1;}
-        double alphaTwo = Math.atan2(X, (Y + B));
+        double alphaTwo = Math.atan2(X, (Y + B + halfL));
         Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
         Pose2D globalPose = robotToWorld(backDistance, tempPose);
         cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo + Math.toRadians(5)));
