@@ -80,15 +80,15 @@ public class StateMachine {
 
     //Functions that return when we should do certain things on robot
     public boolean doGoToStore() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos;
+        return (goingLowBasket || goingHighBasket || goingStore || goingTransfer) && hasInIntake && !atStorePos;
     }
 
     public boolean doTransfer() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingTransfer) && hasInIntake && atStorePos;
+        return (goingLowBasket || goingHighBasket || goingTransfer) && hasInIntake && atStorePos;
     }
 
     public boolean doUnStore() {
-        return (goingLowBasket || goingHighBasket || goingWall || goingHighSpecimen) && !hasInIntake && atStorePos;
+        return (goingLowBasket || goingHighBasket || goingHighSpecimen) && !hasInIntake && atStorePos || (goingWall && atStorePos);
     }
 
     public boolean doHighSpecimen() {
@@ -104,19 +104,13 @@ public class StateMachine {
     }
 
     public boolean doWall() {
-        return goingWall       && (!hasInIntake || transferred) && !atStorePos;
+        return goingWall       && !atStorePos;
     }
 
 
 
     //Functions to finish one thing and start the next
     public void finishGoToStoreFromSpec() {
-        goingStore = false;
-
-        atStorePos = true;
-    }
-
-    public void finishGoToStore() {
         goingStore = false;
 
         atStorePos = true;

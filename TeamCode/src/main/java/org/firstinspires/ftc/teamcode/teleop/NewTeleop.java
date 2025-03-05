@@ -615,6 +615,8 @@ public class NewTeleop {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                hasInOuttake = true;
+                hasInIntake = false;
                 clawToggle = true;
             }
             if (elapsedTime.milliseconds() > transferTime + 1250 && elapsedTime.milliseconds() < transferTime + 1350) {
@@ -622,8 +624,6 @@ public class NewTeleop {
             }
             if (elapsedTime.milliseconds() > transferTime + 1500 && elapsedTime.milliseconds() < transferTime + 1600) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
-                hasInIntake = false;
-                hasInOuttake = true;
                 onceState = true;
                 onceTime = true;
                 stateMachine.finishTransfer();
@@ -898,6 +898,8 @@ public class NewTeleop {
             telemetry.addData("Climber Var", climberPos);
             telemetry.addData("Climber Pos", climber.getPos());
             telemetry.addData("Climber err", Math.abs(climber.getPos() - climber.getTargetPos()));
+            telemetry.addData("Climber once", climbStopPauseOnce);
+            telemetry.addData("Climber once", climbStopPause);
             telemetry.addData("Current", Math.max(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3])));
             telemetry.addLine();
         }
@@ -937,11 +939,11 @@ public class NewTeleop {
             //TODO add more Things here
             telemetry.addLine();
         }
-        telemetry.addData("leftFront", driveTrain.getDriveCurrent()[0]);
-        telemetry.addData("leftBack", driveTrain.getDriveCurrent()[1]);
-        telemetry.addData("rightFront", driveTrain.getDriveCurrent()[2]);
-        telemetry.addData("rightBack", driveTrain.getDriveCurrent()[3]);
-        telemetry.addData("climber", climber.getCurrentAmp());
+//        telemetry.addData("leftFront", driveTrain.getDriveCurrent()[0]);
+//        telemetry.addData("leftBack", driveTrain.getDriveCurrent()[1]);
+//        telemetry.addData("rightFront", driveTrain.getDriveCurrent()[2]);
+//        telemetry.addData("rightBack", driveTrain.getDriveCurrent()[3]);
+//        telemetry.addData("climber", climber.getCurrentAmp());
         telemetry.update();
     }
 

@@ -28,7 +28,7 @@ public class ClimberReset extends OpMode {
         outtakeSystem = new OuttakeSystem(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
     }
 
     @Override

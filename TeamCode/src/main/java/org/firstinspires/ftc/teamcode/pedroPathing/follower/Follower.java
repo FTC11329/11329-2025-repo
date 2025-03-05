@@ -1149,7 +1149,7 @@ public class Follower {
         double alphaTwo = Math.atan2(X, (Y + B));
         Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
         Pose2D globalPose = robotToWorld(backDistance, tempPose);
-        cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo));
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - alphaTwo + Math.toRadians(5)));
         followPath(cameraSearchPath);
 
         return Math.hypot(X, Y + B); //Extend Hslides
