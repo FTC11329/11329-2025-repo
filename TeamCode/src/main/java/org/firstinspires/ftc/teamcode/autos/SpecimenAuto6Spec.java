@@ -49,9 +49,9 @@ public class SpecimenAuto6Spec {
     private Specimen6AutoEnum pathState;
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7.25, -65.75, Math.toRadians(180));
-    //measures 7.75, 62.5
-
+    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
+    //measures 8 , 63.3
+//             +1x
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-4, -31.5, Math.toRadians(90));
     private final Pose placeSub1 = new Pose(6, -31.5, Math.toRadians(90));
@@ -71,7 +71,7 @@ public class SpecimenAuto6Spec {
 
     private final Pose spike2ControlPoint1 = new Pose(41, -6, 0);
     private final Pose spike2ControlPoint2 = new Pose(68, -6, 0);
-    private final Pose pushedSpike2 = new Pose(57, -53, Math.toRadians(90));
+    private final Pose pushedSpike2 = new Pose(57, -51, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
     private final Pose backSpike3 = new Pose(63, -15, Math.toRadians(90));
@@ -189,6 +189,8 @@ public class SpecimenAuto6Spec {
         opmodeTimer.resetTimer();
 
         outtakeSystem = new OuttakeSystem(hardwareMap);
+
+        outtakeSystem.setArmPos(Constants.Outtake.upArm);
 
         setPathState(Specimen6AutoEnum.driveGoScorePreload);
     }

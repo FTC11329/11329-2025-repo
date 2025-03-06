@@ -34,8 +34,7 @@ import org.firstinspires.ftc.teamcode.utility.Specimen5AutoEnum;
 //match 5 down with servo then out with intake for 3rd, grabbed to early x2        miss 2
 //Tournament miss one from arm not coming down early                               miss 1
 
-@Autonomous(name = "5 Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Red")
-public class SpecimenAuto5Spec extends OpMode {
+public class SpecimenAuto5Spec {
     Climber climber;
     Follower follower;
     Attempt89 blockVision;
@@ -44,62 +43,50 @@ public class SpecimenAuto5Spec extends OpMode {
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
 
-    private Timer pathTimer, storeTimer, transferTimer, wallTimer, opmodeTimer;
+    private Timer pathTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
      * It is used by the pathUpdate method. */
     private Specimen5AutoEnum pathState;
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(7.5, -63.75, Math.toRadians(180));
+    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(-4, -31.5, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(6, -31.5, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(7.25, -31.5, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(8.5, -31.5, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(9.75, -31.5, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(5, -32.5, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(9, -32.5, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(8, -32.5, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(7, -32.5, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(6, -32.5, Math.toRadians(90));
 
-    private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
+    private final Pose spike1ControlPoint1 = new Pose(65, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
     private final Pose backSpike1 = new Pose(48, -17, Math.toRadians(90));
 
-    private final Pose pushedSpike1 = new Pose(48.5, -50, Math.toRadians(90));
+    private final Pose pushedSpike1 = new Pose(47, -50, Math.toRadians(90));
 
-    private final Pose spike2ControlPoint1 = new Pose(41, -6, 0);
-    private final Pose spike2ControlPoint2 = new Pose(68, -6, 0);
-    private final Pose pushedSpike2 = new Pose(57, -53, Math.toRadians(90));
+    private final Pose spike2ControlPoint1 = new Pose(41, -2, 0);
+    private final Pose spike2ControlPoint2 = new Pose(68, -2, 0);
+    private final Pose pushedSpike2 = new Pose(58, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(63, -15, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(63.1, -15, Math.toRadians(90));
 
-    private final Pose pushedSpike3 = new Pose(63, -50, Math.toRadians(90));
+    private final Pose pushedSpike3 = new Pose(63.1, -48, Math.toRadians(90));
 
-    private final Pose frontWall  = new Pose(45, -53, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(45, -62, Math.toRadians(90));
-    private final Pose pickupWallRightSide = new Pose(64, -61.5, Math.toRadians(90));
-    private final Pose frontSubOffset = new Pose(0, -5, Math.toRadians(0));
+    private final Pose frontWall  = new Pose(39, -53, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(39, -62.75, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(64, -62.5, Math.toRadians(90));
+    private final Pose frontSubOffset = new Pose(0, -15, Math.toRadians(0));
 
-    private final Pose parkSpit = new Pose(18, -48, Math.toRadians(-45));
+    private final Pose parkSpit = new Pose(36, -52, Math.toRadians(-45));
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
     //Various Variables
-    private  Pose2D target = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
-
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.8;
     private boolean driveShake = false;
-    private boolean drivePlace = false;
-
-    private boolean doStore = false;
-    private boolean doTransfer = false;
-    private boolean doGoWall = false;
-    private boolean hasOne = false;
-    private int storeState = 0;
-    private int transferState = 0;
-    private int wallState = 0;
-
     private boolean recoveryDebounce = false;
     private double recoveryTime = 0;
     private boolean recovering = false;
@@ -107,7 +94,6 @@ public class SpecimenAuto5Spec extends OpMode {
     private Specimen5AutoEnum recoveryEnum;
     private Path recoveryPath;
 
-    // These are our Paths and PathChains that we will define in buildPaths()
     private Path scorePreload;
 
     private Path pickupSpike1Path;
@@ -137,23 +123,27 @@ public class SpecimenAuto5Spec extends OpMode {
     private Path parkPathSpit;
 
 
+    RobotSideEnum robotSide;
+    Telemetry telemetry;
+    HardwareMap hardwareMap;
+
+    public SpecimenAuto5Spec(HardwareMap hardwareMap, Telemetry telemetry, RobotSideEnum robotSide) {
+        this.robotSide = robotSide;
+        this.telemetry = telemetry;
+        this.hardwareMap = hardwareMap;
+    }
     /** This method is called once at the init of the OpMode. **/
-    @Override
     public void init() {
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
-        blockVision = new Attempt89(hardwareMap, RobotSideEnum.Auto);
+        blockVision = new Attempt89(hardwareMap, robotSide);
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
+        intakeSystem = new IntakeSystem(hardwareMap, robotSide);
 
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
-
-        storeTimer = new Timer();
-        transferTimer = new Timer();
-        wallTimer = new Timer();
 
         opmodeTimer.resetTimer();
 
@@ -163,7 +153,6 @@ public class SpecimenAuto5Spec extends OpMode {
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
-    @Override
     public void init_loop() {
         Pose2D sample = blockVision.getBestSpecimen();
         telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
@@ -173,11 +162,12 @@ public class SpecimenAuto5Spec extends OpMode {
 
     /** This method is called once at the start of the OpMode.
      * It runs all the setup actions, including building paths and starting the path system **/
-    @Override
     public void start() {
         opmodeTimer.resetTimer();
 
         outtakeSystem = new OuttakeSystem(hardwareMap);
+
+        outtakeSystem.setArmPos(Constants.Outtake.upArm);
 
         setPathState(Specimen5AutoEnum.driveGoScorePreload);
     }
@@ -186,9 +176,10 @@ public class SpecimenAuto5Spec extends OpMode {
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
         scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preloadPlace.getHeading(), 0.25);
 
         double zeroMultFast = 10;
-        double zeroMultSlow = 0.4;
+        double zeroMultSlow = 0.000001;
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
@@ -206,12 +197,13 @@ public class SpecimenAuto5Spec extends OpMode {
         pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pushSpike3Path   = follower.linearPathBuilder(backSpike3, pushedSpike3);
-        pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
+        frontWallToWall.setZeroPowerAccelerationMultiplier(zeroMultSlow);
 
         toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
+        toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub1Path = follower.linearPathBuilder(pickupWallRightSide, placeSub1.addReturn(frontSubOffset));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
@@ -295,7 +287,7 @@ public class SpecimenAuto5Spec extends OpMode {
                 break;
             //go to pickup spike3
             case goBackSpike3:
-                if (follower.getError(pushedSpike2).getX() < 2 && follower.getError(pushedSpike2).getY() < 2) {
+                if (follower.getError(pushedSpike2).getX() < 4 && follower.getError(pushedSpike2).getY() < 4) {
                     follower.followPath(pickupSpike3Path);
                     setPathState(Specimen5AutoEnum.pushSpike3);
                 }
@@ -304,6 +296,7 @@ public class SpecimenAuto5Spec extends OpMode {
             case pushSpike3:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
+                    follower.setMaxPower(0.8);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
                     setPathState(Specimen5AutoEnum.waitFrontWall1);
                 }
@@ -314,14 +307,14 @@ public class SpecimenAuto5Spec extends OpMode {
                 }
                 break;
             case pickupWall1:
-                if (pathTimer.getElapsedTimeSeconds() > 0.1) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     follower.followPath(toWall1);
                     setPathState(Specimen5AutoEnum.grabWall1);
                 }
                 break;
             //grab off wall and go to sub
             case grabWall1:
-                if (follower.getError(pickupWallRightSide).getY() < 1.5) {
+                if (follower.getError(pickupWallRightSide).getY() < 2) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5AutoEnum.goPlaceSub1);
                 }
@@ -329,6 +322,7 @@ public class SpecimenAuto5Spec extends OpMode {
             //outtake to specimen place pos
             case goPlaceSub1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    follower.setMaxPower(1);
                     follower.followPath(placeSub1Path);
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                     setPathState(Specimen5AutoEnum.specPreset1);
@@ -354,6 +348,9 @@ public class SpecimenAuto5Spec extends OpMode {
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
                 if (follower.getError(placeSub1).getY() < 1) {
                     follower.driveSlam(false);
+
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    follower.followPath(toFrontWall2);
                     setPathState(Specimen5AutoEnum.wallPreset2);
                 }
                 break;
@@ -366,7 +363,7 @@ public class SpecimenAuto5Spec extends OpMode {
             //part 5 placing specimen 3 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall2:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doTransfer) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall2);
                 }
@@ -421,7 +418,7 @@ public class SpecimenAuto5Spec extends OpMode {
             //part 6 placing specimen 4 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall3:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doGoWall && !doTransfer) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall3);
                 }
@@ -478,7 +475,7 @@ public class SpecimenAuto5Spec extends OpMode {
             //part 7 placing specimen 5 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall4:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doGoWall && !doTransfer) {
+                if (follower.getErrorDistance(frontWall) < 1.5) {
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall4);
                 }
@@ -516,7 +513,7 @@ public class SpecimenAuto5Spec extends OpMode {
             //go Front Wall 2
             case dropClaw4:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub4).getY() < 1.5) {
+                if (follower.getError(placeSub4).getY() < 2.5) {
                     follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
 
@@ -527,10 +524,11 @@ public class SpecimenAuto5Spec extends OpMode {
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
                     visionResult = blockVision.getBestSpecimen();
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
-                        intakeSystem.setHSlidesInches(follower.followYourHead(visionResult));
+                        follower.followYourHeart(visionResult.getX(DistanceUnit.INCH));
+                        intakeSystem.setHSlidesInches(visionResult.getY(DistanceUnit.INCH));
                         setPathState(Specimen5AutoEnum.visionDropIntake);
                     }
-                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 28.5) {
                     setPathState(Specimen5AutoEnum.goParkNoSpit);
                 }
                 break;
@@ -545,7 +543,7 @@ public class SpecimenAuto5Spec extends OpMode {
                     intakeSystem.storePos();
                     intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     setPathState(Specimen5AutoEnum.intakeUnjam);
-                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 28.5) {
                     intakeSystem.storePos();
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     setPathState(Specimen5AutoEnum.goParkNoSpit);
@@ -563,7 +561,7 @@ public class SpecimenAuto5Spec extends OpMode {
                 setPathState(Specimen5AutoEnum.teleopPresetSpit);
                 break;
             case teleopPresetSpit:
-                if (follower.getError(parkSpit).getHeading() < Math.toRadians(90)) {
+                if (follower.getError(parkSpit).getHeading() < Math.toRadians(100)) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
@@ -571,14 +569,14 @@ public class SpecimenAuto5Spec extends OpMode {
                 }
                 break;
             case spit:
-                if (follower.getError(parkSpit).getHeading() < Math.toRadians(7)) {
+                if (follower.getError(parkSpit).getHeading() < Math.toRadians(7) && Math.abs(intakeSystem.getHSlidePos() - intakeSystem.getHSlideTargetPos()) < 300) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     setPathState(Specimen5AutoEnum.stopSpit);
                 }
                 break;
             case stopSpit:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.5 && opmodeTimer.getElapsedTimeSeconds() < 29) {
                     intakeSystem.storePos();
                     follower.followPath(parkPath);
                     setPathState(Specimen5AutoEnum.end);
@@ -607,23 +605,7 @@ public class SpecimenAuto5Spec extends OpMode {
         pathTimer.resetTimer();
     }
 
-    public void setStoreState(int sState) {
-        storeState = sState;
-        storeTimer.resetTimer();
-    }
-
-    public void setTransferState(int tState) {
-        transferState = tState;
-        transferTimer.resetTimer();
-    }
-
-    public void setWallState(int wState) {
-        wallState = wState;
-        wallTimer.resetTimer();
-    }
-
     /** This is the main loop of the OpMode, it will run repeatedly after clicking "Play". **/
-    @Override
     public void loop() {
         // These loop the movements of the robot
         follower.update();
@@ -637,7 +619,7 @@ public class SpecimenAuto5Spec extends OpMode {
             }
         }
         //Dumb path recovery
-        if (pathTimer.getElapsedTimeSeconds() > 1 && driveTrain.isStalled(4) && !recoveryDebounce) {
+        if (pathTimer.getElapsedTimeSeconds() > 1 && driveTrain.isStalled(3) && !recoveryDebounce) {
             recoveryTime = opmodeTimer.getElapsedTimeSeconds();
             recoveryDebounce = true;
             recoverOnce = false;
@@ -645,7 +627,7 @@ public class SpecimenAuto5Spec extends OpMode {
             recoveryDebounce = false;
         }
 
-        if (recoveryDebounce && driveTrain.isStalled(4) && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 3) {
+        if (recoveryDebounce && driveTrain.isStalled(3) && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 2) {
             recoveryTime = opmodeTimer.getElapsedTimeSeconds();
             recoveryPath = follower.getCurrentPath();
             recoveryEnum = pathState;
@@ -686,7 +668,6 @@ public class SpecimenAuto5Spec extends OpMode {
 
     }
     /** We do not use this because everything should automatically disable **/
-    @Override
     public void stop() {
     }
 }

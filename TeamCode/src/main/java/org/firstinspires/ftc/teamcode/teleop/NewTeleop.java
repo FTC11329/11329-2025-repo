@@ -38,10 +38,10 @@ public class NewTeleop {
     FtcDashboard dashboard;
 
     //Debug Variables
-    boolean debugAll = true;
+    boolean debugAll = false;
     boolean debugState = false;
     boolean debugStateMachine = false;
-    boolean debugPos = false;
+    boolean debugPos = true;
     boolean debugClimber = false;
     boolean debugAuto = false;
     boolean debugMisc = false;

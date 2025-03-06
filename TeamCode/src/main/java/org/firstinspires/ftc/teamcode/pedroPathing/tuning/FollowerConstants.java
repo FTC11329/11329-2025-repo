@@ -83,19 +83,19 @@ public class FollowerConstants {
 
 
     // Mass of robot in kilograms
-    public static double mass = 14;
+    public static double mass = 14.64;
 
     // Centripetal force to power scaling
-    public static double centripetalScaling = 0.0035;
+    public static double centripetalScaling = 0.001;
 
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double forwardZeroPowerAcceleration = -33;
+    public static double forwardZeroPowerAcceleration = -28;
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double lateralZeroPowerAcceleration = -80;
+    public static double lateralZeroPowerAcceleration = -72.6; //73 72.8 71.7 73.2 72.4
 
     // A multiplier for the zero power acceleration to change the speed the robot decelerates at
     // the end of paths.
@@ -152,7 +152,7 @@ public class FollowerConstants {
     // This is the number of times the velocity is recorded for averaging when approximating a first
     // and second derivative for on the fly centripetal correction. The velocity is calculated using
     // half of this number of samples, and the acceleration uses all of this number of samples.
-    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 150;
+    public static int AVERAGED_VELOCITY_SAMPLE_NUMBER = 50;
 
     // This is the number of steps the binary search for closest point uses. More steps is more
     // accuracy, and this increases at an exponential rate. However, more steps also does take more
