@@ -1144,18 +1144,19 @@ public class Follower {
         double halfW = 7.25;
         double halfL = 7.5;
         double X = blockO.getX(DistanceUnit.INCH);
-        double Y = blockO.getY(DistanceUnit.INCH) + halfL;
-        double alphaOne = Math.atan2(Y, X);
+        double Y = blockO.getY(DistanceUnit.INCH);
+        double alphaOne = Math.atan2(X, Y + halfL);
         double B = Math.abs(halfW * Math.sin(alphaOne)); // 7.7 aproximates 1/2 width of robot
         if (B <= 1) {B = 1;}
-        double alphaTwo = Math.atan2((Y + B), X);
+        double alphaTwo = Math.atan2(X, (Y + B + halfL));
         Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
         Pose2D globalPose = robotToWorld(backDistance, tempPose);
-        Pose2D blockGlobal = robotToWorld(blockO, tempPose);
+        if (alphaTwo < Math.toRadians(-1) && -1 > X && X > -2) {alphaTwo = (alphaTwo + Math.toRadians(5));}
+        else if (alphaTwo < Math.toRadians(-1)) {alphaTwo = (1.6 * alphaTwo);}
         cameraSearchPath = linearPathBuilder(tempPose, new Pose (globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - (alphaTwo)));
         followPath(cameraSearchPath);
 
-        return (Math.hypot(Math.abs(blockGlobal.getX(DistanceUnit.INCH) - globalPose.getX(DistanceUnit.INCH)), Math.abs(blockGlobal.getY(DistanceUnit.INCH) - globalPose.getY(DistanceUnit.INCH)))-halfL); //Extend Hslides
+        return (Math.hypot(X, Y + B)-2); //Extend Hslides
     }
     public double followYourHeadSpike(Pose2D blockO) {
         // this code is NOT used
