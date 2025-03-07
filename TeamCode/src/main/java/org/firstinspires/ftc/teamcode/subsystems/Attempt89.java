@@ -115,7 +115,6 @@ public class Attempt89 {
             Pose2D pos = distanceArray.get(block);
             //if in range
             if (pos.getY(DistanceUnit.INCH) < (Constants.Intake.maxSlidePos + 100) * (1/Constants.Intake.inchToTick)) {
-
                 double time = getReachTime(pos);
                 if (time < minTime) {
                     minTime = time;
