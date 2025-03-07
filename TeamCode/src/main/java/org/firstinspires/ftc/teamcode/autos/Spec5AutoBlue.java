@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Blue 5 Specimen Auto", group = " Comp", preselectTeleOp = "New Tele-op Blue")
+@Autonomous(name = "Blue 5 Specimen Auto", group = " B0Comp", preselectTeleOp = "New Tele-op Blue")
 public class Spec5AutoBlue extends OpMode {
     SpecimenAuto5Spec specimenAuto;
     @Override

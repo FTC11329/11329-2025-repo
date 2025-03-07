@@ -50,49 +50,49 @@ public class SpecimenAuto6Spec {
 
     /** Start Pose of our robot */
     private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
-    //measures 8 , 63.3
-//             +1x
+
+
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(-4, -31.5, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(6, -31.5, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(7.25, -31.5, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(8.5, -31.5, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(9.75, -31.5, Math.toRadians(90));
-    private final Pose placeSub5 = new Pose(10, -31.5, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(6, -32.5, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(10, -32.5, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(8.5, -32.5, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(7, -32.5, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(5.5, -32.5, Math.toRadians(90));
+    private final Pose placeSub5 = new Pose(4, -31.5, Math.toRadians(90));
 
-    private final Pose spitFirstPose = new Pose(18, -48, Math.toRadians(-45));
     private final Pose spike1AfterSpitControlPoint1 = new Pose(30, -12, 0);
+    private final Pose spitFirstPose = new Pose(36, -52, Math.toRadians(-45));
 
-    private final Pose spike1ControlPoint1 = new Pose(55, -62, 0);
+    private final Pose spike1ControlPoint1 = new Pose(65, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
     private final Pose backSpike1 = new Pose(48, -17, Math.toRadians(90));
 
-    private final Pose pushedSpike1 = new Pose(48.5, -50, Math.toRadians(90));
+    private final Pose pushedSpike1 = new Pose(47, -50, Math.toRadians(90));
 
-    private final Pose spike2ControlPoint1 = new Pose(41, -6, 0);
-    private final Pose spike2ControlPoint2 = new Pose(68, -6, 0);
-    private final Pose pushedSpike2 = new Pose(57, -51, Math.toRadians(90));
+    private final Pose spike2ControlPoint1 = new Pose(41, -2, 0);
+    private final Pose spike2ControlPoint2 = new Pose(68, -2, 0);
+    private final Pose pushedSpike2 = new Pose(58, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(63, -15, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(63.1, -15, Math.toRadians(90));
 
-    private final Pose pushedSpike3 = new Pose(63, -50, Math.toRadians(90));
+    private final Pose pushedSpike3 = new Pose(63.1, -48, Math.toRadians(90));
 
-    private final Pose frontWall  = new Pose(45, -53, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(45, -62, Math.toRadians(90));
-    private final Pose pickupWallRightSide = new Pose(64, -61.5, Math.toRadians(90));
-    private final Pose frontSubOffset = new Pose(0, -5, Math.toRadians(0));
+    private final Pose pickupWall = new Pose(39, -62.75, Math.toRadians(90));
+    private final Pose pickupWallControlPoint = new Pose(43, -54, Math.toRadians(90));
+
+    private final Pose pickupWallRightSide = new Pose(64, -62.5, Math.toRadians(90));
+    private final Pose frontSubOffset = new Pose(0, -15, Math.toRadians(0));
 
     private final Pose park = new Pose(58, -58, Math.toRadians(90));
 
+
     //Various Variables
-    private  Pose2D target = new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.RADIANS, 0);
 
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.8;
     private boolean driveShake = false;
-    private boolean drivePlace = false;
 
     private boolean doStore = false;
     private boolean doTransfer = false;
@@ -128,16 +128,16 @@ public class SpecimenAuto6Spec {
     private Path toWall1;
     private Path placeSub1Path;
 
-    private Path toFrontWall2;
+    private Path toWall2;
     private Path placeSub2Path;
 
-    private Path toFrontWall3;
+    private Path toWall3;
     private Path placeSub3Path;
 
-    private Path toFrontWall4;
+    private Path toWall4;
     private Path placeSub4Path;
 
-    private Path toFrontWall5;
+    private Path toWall5;
     private Path placeSub5Path;
 
     private Path parkPath; //IS THAT A BTD REFERENCE?
@@ -201,7 +201,7 @@ public class SpecimenAuto6Spec {
         scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
 
         double zeroMultFast = 10;
-        double zeroMultSlow = 0.4;
+        double zeroMultSlow = 6;
 
         spitFirstPath = follower.linearPathBuilder(preloadPlace, spitFirstPose);
 
@@ -227,8 +227,6 @@ public class SpecimenAuto6Spec {
         pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
-
         toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
         //frontWallToWall
         placeSub1Path = follower.linearPathBuilder(pickupWallRightSide, placeSub1.addReturn(frontSubOffset));
@@ -236,35 +234,35 @@ public class SpecimenAuto6Spec {
         placeSub1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall2 = follower.linearPathBuilder(placeSub1, frontWall);
-        toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
-        toFrontWall2.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        toWall2 = new Path(new BezierCurve(new Point(placeSub1), new Point(pickupWallControlPoint), new Point(pickupWall)));
+        toWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
+        toWall2.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub2Path = follower.linearPathBuilder(pickupWall, placeSub2.addReturn(frontSubOffset));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
         placeSub2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall3 = follower.linearPathBuilder(placeSub2, frontWall);
-        toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
-        toFrontWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        toWall3 = new Path(new BezierCurve(new Point(placeSub2), new Point(pickupWallControlPoint), new Point(pickupWall)));
+        toWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
+        toWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub3Path = follower.linearPathBuilder(pickupWall, placeSub3.addReturn(frontSubOffset));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
         placeSub3Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall4 = follower.linearPathBuilder(placeSub3, frontWall);
-        toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
-        toFrontWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        toWall4 = new Path(new BezierCurve(new Point(placeSub3), new Point(pickupWallControlPoint), new Point(pickupWall)));
+        toWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
+        toWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub4Path = follower.linearPathBuilder(pickupWall, placeSub4.addReturn(frontSubOffset));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
         placeSub4Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
-        toFrontWall5 = follower.linearPathBuilder(placeSub4, frontWall);
-        toFrontWall5.setConstantHeadingInterpolation(placeSub4.getHeading());
-        toFrontWall5.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        toWall5 = new Path(new BezierCurve(new Point(placeSub4), new Point(pickupWallControlPoint), new Point(pickupWall)));
+        toWall5.setConstantHeadingInterpolation(placeSub4.getHeading());
+        toWall5.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub5Path = follower.linearPathBuilder(pickupWall, placeSub5.addReturn(frontSubOffset));
         placeSub5Path.setConstantHeadingInterpolation(placeSub5.getHeading());
@@ -277,7 +275,7 @@ public class SpecimenAuto6Spec {
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState(Specimen6AutoEnum.) method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() { // todo: deal with all the doTransfer/hasOne/doStore code
+    public void autonomousPathUpdate() {
         switch (pathState) {
             //go to score preload
             case driveGoScorePreload:
@@ -336,11 +334,12 @@ public class SpecimenAuto6Spec {
                     intakeSystem.storePos();
                     hasOne = false;
 
+                    follower.followPath(pickupSpike1Path);
                     setPathState(Specimen6AutoEnum.pushSpike1);
                 }
                 break;
             case extendHSlidesSpit:
-                if (follower.getError(spitFirstPose).getHeading() < Math.toRadians(90)) {
+                if (follower.getError(spitFirstPose).getHeading() < Math.toRadians(130)) {
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
 
                     setPathState(Specimen6AutoEnum.spitThePickup);
@@ -351,7 +350,7 @@ public class SpecimenAuto6Spec {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
 
-                    setPathState(Specimen6AutoEnum.pushSpike2);
+                    setPathState(Specimen6AutoEnum.stopSpit);
                 }
                 break;
             case stopSpit:
@@ -393,12 +392,12 @@ public class SpecimenAuto6Spec {
                 }
                 break;
             case waitFrontWall1:
-                if (follower.getError(pushedSpike3).getY() < 1.5) {
+                if (follower.getError(pushedSpike3).getY() < 2.5) {
                     setPathState(Specimen6AutoEnum.pickupWall1);
                 }
                 break;
             case pickupWall1:
-                if (pathTimer.getElapsedTimeSeconds() > 0.1) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                     follower.followPath(toWall1);
                     setPathState(Specimen6AutoEnum.grabWall1);
                 }
@@ -436,26 +435,22 @@ public class SpecimenAuto6Spec {
             //go Front Wall 2
             case dropClaw1:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (follower.getError(placeSub2).getY() < 1.5) {
                     follower.driveSlam(false);
+
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    follower.followPath(toWall2);
                     setPathState(Specimen6AutoEnum.wallPreset2);
                 }
                 break;
+
             case wallPreset2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(Specimen6AutoEnum.frontWallToWall2);
-                }
-                break;
-            //part 5 placing specimen 3 ***********************************************************~
-            //front Wall To Wall
-            case frontWallToWall2:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doTransfer) {
-                    follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall2);
                 }
                 break;
-            //grab off wall and go to sub
+            //part 5 placing specimen 3 ***********************************************************~
             case grabWall2:
                 if (follower.getErrorDistance(pickupWall) < 1.5) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
@@ -492,24 +487,17 @@ public class SpecimenAuto6Spec {
                     follower.driveSlam(false);
 
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followPath(toFrontWall3);
+                    follower.followPath(toWall3);
                     setPathState(Specimen6AutoEnum.wallPreset3);
                 }
                 break;
             case wallPreset3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(Specimen6AutoEnum.frontWallToWall3);
-                }
-                break;
-            //part 6 placing specimen 4 ***********************************************************~
-            //front Wall To Wall
-            case frontWallToWall3:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doGoWall && !doTransfer) {
-                    follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall3);
                 }
                 break;
+            //part 6 placing specimen 4 ***********************************************************~
             //grab off wall and go to sub
             case grabWall3:
                 if (follower.getErrorDistance(pickupWall) < 1.5) {
@@ -548,7 +536,7 @@ public class SpecimenAuto6Spec {
 
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
 
-                    follower.followPath(toFrontWall4);
+                    follower.followPath(toWall4);
                     setPathState(Specimen6AutoEnum.wallPreset4);
 
                 }
@@ -556,17 +544,10 @@ public class SpecimenAuto6Spec {
             case wallPreset4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(Specimen6AutoEnum.frontWallToWall4);
-                }
-                break;
-            //part 7 placing specimen 5 ***********************************************************~
-            //front Wall To Wall
-            case frontWallToWall4:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doGoWall && !doTransfer) {
-                    follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall4);
                 }
                 break;
+            //part 7 placing specimen 5 ***********************************************************~
             //grab off wall and go to sub
             case grabWall4:
                 if (follower.getErrorDistance(pickupWall) < 1.5) {
@@ -603,7 +584,7 @@ public class SpecimenAuto6Spec {
                 if (follower.getError(placeSub4).getY() < 1.5) {
                     follower.driveSlam(false);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    follower.followPath(toFrontWall5);
+                    follower.followPath(toWall5);
                     if (hasOne) {
                         setPathState(Specimen6AutoEnum.wallPreset5);
                     } else {
@@ -615,17 +596,10 @@ public class SpecimenAuto6Spec {
             case wallPreset5:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                    setPathState(Specimen6AutoEnum.frontWallToWall5);
-                }
-                break;
-            //part 8 placing specimen 6?!?!?!?!? **************************************************~
-            //front Wall To Wall
-            case frontWallToWall5:
-                if (follower.getErrorDistance(frontWall) < 1.5 && !doGoWall && !doTransfer) {
-                    follower.followPath(frontWallToWall);
                     setPathState(Specimen6AutoEnum.grabWall5);
                 }
                 break;
+            //part 8 placing specimen 6?!?!?!?!? **************************************************~
             //grab off wall and go to sub
             case grabWall5:
                 if (follower.getErrorDistance(pickupWall) < 1.5) {
@@ -680,121 +654,6 @@ public class SpecimenAuto6Spec {
                 }
                 break;
         }
-        // State Machine **************************************************************************~
-        if (doStore) {
-            switch (storeState) {
-                case 0:
-                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
-                    setStoreState(1);
-                    break;
-                case 1:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                        setStoreState(2);
-                    }
-                    break;
-                case 2:
-                    if (storeTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWaitSlides);
-                        setStoreState(3);
-                    }
-                    break;
-                case 3:
-                    if (intakeSystem.readyToTranfer() && Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 500) {
-                        setStoreState(0);
-                        doStore = false;
-                    }
-                    break;
-            }
-        }
-
-        if (doTransfer && !doStore) {
-            switch (transferState) {
-                case 0:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.45) {
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                        setTransferState(1);
-                    }
-                    break;
-                case 1:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
-                        setTransferState(2);
-                    }
-                    break;
-                case 2:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.35) {
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-                        intakeSystem.setIntakePower(0);
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        setTransferState(3);
-                    }
-                    break;
-                case 3:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                        setTransferState(4);
-                    }
-                    break;
-                case 4:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                        setTransferState(5);
-                    }
-                    break;
-                case 5:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.15) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
-                        setTransferState(6);
-                    }
-                    break;
-                case 6:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 600) {
-                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                        setTransferState(7);
-                    }
-                    break;
-                case 7:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        setTransferState(0);
-                        doTransfer = false;
-                    }
-                    break;
-            }
-        }
-
-        if (doGoWall) {
-            switch (wallState) {
-                case 0:
-                    doStore = false;
-                    doTransfer = false;
-                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                    setWallState(1);
-                    break;
-                case 1:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                        setWallState(2);
-                    }
-                    break;
-                case 2:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
-                        setWallState(3);
-                    }
-                    break;
-                case 3:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 300) {
-                        doGoWall = false;
-                        setWallState(0);
-                    }
-            }
-        }
-
-
-
-
     }
 
     /** These change the states of the paths and actions

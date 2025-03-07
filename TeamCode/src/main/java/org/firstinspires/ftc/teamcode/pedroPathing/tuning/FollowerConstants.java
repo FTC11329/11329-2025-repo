@@ -112,7 +112,7 @@ public class FollowerConstants {
     // this value, then end the Path. This is in inches/second.
     // This can be custom set for each Path.
     // Unused
-    public static double pathEndVelocityConstraint = 0.1;
+    public static double pathEndVelocityConstraint = 2;
 
     // When the robot is at the end of its current Path or PathChain and the translational error
     // goes below this value, then end the Path. This is in inches.
