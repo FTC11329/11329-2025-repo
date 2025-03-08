@@ -625,7 +625,7 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700 && transferFirstTime) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
             }
-            if (elapsedTime.milliseconds() > transferTime + 950 && intakeSystem.readyToTranfer() && transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 1100 && intakeSystem.readyToTranfer() && transferFirstTime) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
