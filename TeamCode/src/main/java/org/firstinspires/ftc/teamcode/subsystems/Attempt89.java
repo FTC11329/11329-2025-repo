@@ -30,12 +30,12 @@ public class Attempt89 {
     private Limelight3A limelight;
 
     private final double cameraYOffset = 1.1;
-    private final double cameraXOffset = 2.4; //cl  qose enough
+    private final double cameraXOffset = 3; //cl  qose enough
 
     //define the height that the center of the camera lens is off the ground
-    double height = 10.75;
+    double height = 11;
     //define the angle that the camera is pointing (90 deg = directly forward)
-    double cameraAngle = Math.toRadians(60.0);
+    double cameraAngle = Math.toRadians(62);
     // define the range of blocks that the robot can grab inches
     double yMaxExtension = 28.0;
     double xMaxTurn = 18.0;

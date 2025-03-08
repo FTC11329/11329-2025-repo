@@ -22,8 +22,8 @@ public class PowerTakeOff {
         PTOLeft.setDirection(Servo.Direction.FORWARD);
         PTORight.setDirection(Servo.Direction.FORWARD);
 
-        PTOLeft.setPosition(Constants.PTO.PTOServoReleaseRight);
-        PTORight.setPosition(Constants.PTO.PTOServoReleaseLeft);
+        PTORight.setPosition(Constants.PTO.PTOServoReleaseRight);
+        PTOLeft.setPosition(Constants.PTO.PTOServoReleaseLeft);
     }
 
     public void enable() {

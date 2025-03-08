@@ -54,10 +54,10 @@ public class SpecimenAuto5Spec {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(6, -32.5, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(10, -32.5, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(8.5, -32.5, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(7, -32.5, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(5.5, -32.5, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(15, -32.5, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(12, -33, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(9.5, -33.5, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(6.5, -33.5, Math.toRadians(90));
 
     private final Pose spike1ControlPoint1 = new Pose(65, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
@@ -65,8 +65,8 @@ public class SpecimenAuto5Spec {
 
     private final Pose pushedSpike1 = new Pose(47, -50, Math.toRadians(90));
 
-    private final Pose spike2ControlPoint1 = new Pose(41, -2, 0);
-    private final Pose spike2ControlPoint2 = new Pose(68, -2, 0);
+    private final Pose spike2ControlPoint1 = new Pose(41, 0, 0);
+    private final Pose spike2ControlPoint2 = new Pose(68, 0, 0);
     private final Pose pushedSpike2 = new Pose(58, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
@@ -74,8 +74,8 @@ public class SpecimenAuto5Spec {
 
     private final Pose pushedSpike3 = new Pose(63.1, -48, Math.toRadians(90));
 
-    private final Pose frontWall  = new Pose(39, -53, Math.toRadians(90));
-    private final Pose pickupWall = new Pose(39, -62.75, Math.toRadians(90));
+    private final Pose frontWall  = new Pose(40, -57, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(40, -62.75, Math.toRadians(90));
     private final Pose pickupWallRightSide = new Pose(64, -62.5, Math.toRadians(90));
     private final Pose frontSubOffset = new Pose(0, -15, Math.toRadians(0));
 
@@ -87,6 +87,7 @@ public class SpecimenAuto5Spec {
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.8;
+    private double humanWait = 0.675;
     private boolean driveShake = false;
     private boolean recoveryDebounce = false;
     private double recoveryTime = 0;
@@ -151,11 +152,12 @@ public class SpecimenAuto5Spec {
         follower.setStartingPose(startPose);
 
         buildPaths();
+        blockVision.switchPipeline(robotSide);
     }
 
     /** This method is called continuously after Init while waiting for "play". **/
     public void init_loop() {
-        Pose2D sample = blockVision.getBestSpecimen();
+        Pose2D sample = blockVision.getBlockPosition();
         telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
         telemetry.addData("Test Block Y", sample.getY(DistanceUnit.INCH));
         telemetry.addData("Test Block H", sample.getHeading(AngleUnit.DEGREES));
@@ -182,7 +184,7 @@ public class SpecimenAuto5Spec {
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preloadPlace.getHeading(), 0.25);
 
         double zeroMultFast = 10;
-        double zeroMultSlow = 2;
+        double zeroMultSlow = 4.5;
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
@@ -200,11 +202,11 @@ public class SpecimenAuto5Spec {
         pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pushSpike3Path   = follower.linearPathBuilder(backSpike3, pushedSpike3);
-        pushSpike3Path.setZeroPowerAccelerationMultiplier(3.5);
+        pushSpike3Path.setZeroPowerAccelerationMultiplier(zeroMultSlow);
 
 
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
-        frontWallToWall.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        frontWallToWall.setZeroPowerAccelerationMultiplier(3.5);
 
         toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
         toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
@@ -214,7 +216,7 @@ public class SpecimenAuto5Spec {
         placeSub1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall2 = follower.linearPathBuilder(placeSub1, frontWall);
+        toFrontWall2 = follower.linearPathBuilder(placeSub1.addReturn(new Pose(0,-2,0)), frontWall);
         toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
         toFrontWall2.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
@@ -223,7 +225,7 @@ public class SpecimenAuto5Spec {
         placeSub2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall3 = follower.linearPathBuilder(placeSub2, frontWall);
+        toFrontWall3 = follower.linearPathBuilder(placeSub2.addReturn(new Pose(0,-2,0)), frontWall);
         toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
         toFrontWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
@@ -232,7 +234,7 @@ public class SpecimenAuto5Spec {
         placeSub3Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall4 = follower.linearPathBuilder(placeSub3, frontWall);
+        toFrontWall4 = follower.linearPathBuilder(placeSub3.addReturn(new Pose(0,-2,0)), frontWall);
         toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
         toFrontWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
@@ -302,7 +304,7 @@ public class SpecimenAuto5Spec {
             case pushSpike3:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
-                    follower.setMaxPower(0.8);
+                    follower.setMaxPower(0.4);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
                     setPathState(Specimen5AutoEnum.waitFrontWall1);
                 }
@@ -352,7 +354,7 @@ public class SpecimenAuto5Spec {
             //go Front Wall 2
             case dropClaw1:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub1).getY() < 1) {
+                if (follower.getError(placeSub1).getY() < 2 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                     follower.driveSlam(false);
 
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -369,8 +371,13 @@ public class SpecimenAuto5Spec {
             //part 5 placing specimen 3 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall2:
-                if (follower.getErrorDistance(frontWall) < 1.5) {
-                    follower.setMaxPower(0.8);
+                if (follower.getErrorDistance(frontWall) < 1) {
+                    setPathState(Specimen5AutoEnum.waitFrontWall2);
+                }
+                break;
+            case waitFrontWall2:
+                if (pathTimer.getElapsedTimeSeconds() > humanWait) {
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall2);
                 }
@@ -409,7 +416,7 @@ public class SpecimenAuto5Spec {
             //go Front Wall 2
             case dropClaw2:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub2).getY() < 1.5) {
+                if (follower.getError(placeSub2).getY() < 2 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                     follower.driveSlam(false);
 
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -426,8 +433,13 @@ public class SpecimenAuto5Spec {
             //part 6 placing specimen 4 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall3:
-                if (follower.getErrorDistance(frontWall) < 1.5) {
-                    follower.setMaxPower(0.8);
+                if (follower.getErrorDistance(frontWall) < 1) {
+                    setPathState(Specimen5AutoEnum.waitFrontWall3);
+                }
+                break;
+            case waitFrontWall3:
+                if (pathTimer.getElapsedTimeSeconds() > humanWait) {
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall3);
                 }
@@ -466,7 +478,7 @@ public class SpecimenAuto5Spec {
             //go Front Wall 2
             case dropClaw3:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub3).getY() < 1.5) {
+                if (follower.getError(placeSub3).getY() < 2 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                     follower.driveSlam(false);
 
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -485,8 +497,13 @@ public class SpecimenAuto5Spec {
             //part 7 placing specimen 5 ***********************************************************~
             //front Wall To Wall
             case frontWallToWall4:
-                if (follower.getErrorDistance(frontWall) < 1.5) {
-                    follower.setMaxPower(0.8);
+                if (follower.getErrorDistance(frontWall) < 1) {
+                    setPathState(Specimen5AutoEnum.waitFrontWall4);
+                }
+                break;
+            case waitFrontWall4:
+                if (pathTimer.getElapsedTimeSeconds() > humanWait) {
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall4);
                 }
@@ -525,8 +542,9 @@ public class SpecimenAuto5Spec {
             //go Front Wall 2
             case dropClaw4:
                 driveTrain.drive(slamSpeed,0,0, DriveSpeedEnum.Auto);
-                if (follower.getError(placeSub4).getY() < 2.5) {
+                if (follower.getError(placeSub4).getY() < 3 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                     follower.driveSlam(false);
+                    driveTrain.drive(0,0,0, DriveSpeedEnum.Auto);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
 
                     setPathState(Specimen5AutoEnum.visionLook);
@@ -534,18 +552,18 @@ public class SpecimenAuto5Spec {
                 break;
             case visionLook:
                 if (pathTimer.getElapsedTimeSeconds() > 0.2) {
-                    visionResult = blockVision.getBestSpecimen();
-                    if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
-                        telemetry.addData("targetx", visionResult.getX(DistanceUnit.INCH));
-                        telemetry.addData("targety", visionResult.getY(DistanceUnit.INCH));
-                        telemetry.addData("target", visionResult.getHeading(AngleUnit.DEGREES));
-                        telemetry.update();
-
-                        follower.followYourHeart(visionResult.getX(DistanceUnit.INCH));
-                        intakeSystem.setHSlidesInches(visionResult.getY(DistanceUnit.INCH));
-                        setPathState(Specimen5AutoEnum.visionDropIntake);
-                    }
-                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+//                    visionResult = blockVision.getBlockPosition();
+//                    if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+//                        telemetry.addData("targetx", visionResult.getX(DistanceUnit.INCH));
+//                        telemetry.addData("targety", visionResult.getY(DistanceUnit.INCH));
+//                        telemetry.addData("target", visionResult.getHeading(AngleUnit.DEGREES));
+//                        telemetry.update();
+//
+//                        follower.followYourHeart(visionResult.getX(DistanceUnit.INCH));
+//                        intakeSystem.setHSlidesInches(visionResult.getY(DistanceUnit.INCH));
+//                        setPathState(Specimen5AutoEnum.visionDropIntake);
+//                    }
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 27) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setVSlidePos(0);
                     setPathState(Specimen5AutoEnum.goParkNoSpit);
@@ -565,7 +583,7 @@ public class SpecimenAuto5Spec {
                     intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                     setPathState(Specimen5AutoEnum.intakeUnjam);
 
-                } else if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                } else if (opmodeTimer.getElapsedTimeSeconds() > 27) {
                     intakeSystem.storePos();
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     setPathState(Specimen5AutoEnum.goParkNoSpit);
@@ -598,7 +616,7 @@ public class SpecimenAuto5Spec {
                 }
                 break;
             case stopSpit:
-                if (pathTimer.getElapsedTimeSeconds() > 0.5 && opmodeTimer.getElapsedTimeSeconds() < 29) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.5 && opmodeTimer.getElapsedTimeSeconds() < 29.25) {
                     intakeSystem.storePos();
                     follower.followPath(parkPath);
                     setPathState(Specimen5AutoEnum.end);

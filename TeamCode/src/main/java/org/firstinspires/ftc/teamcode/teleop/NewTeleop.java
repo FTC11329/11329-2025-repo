@@ -42,7 +42,7 @@ public class NewTeleop {
     boolean debugState = false;
     boolean debugStateMachine = false;
     boolean debugPos = false;
-    boolean debugClimber = true;
+    boolean debugClimber = false;
     boolean debugAuto = false;
     boolean debugMisc = false;
 
@@ -622,23 +622,23 @@ public class NewTeleop {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             }
-            if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700 && transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 600 && intakeSystem.readyToTranfer() && transferFirstTime) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                transferFirstTime = false;
+                transferTime = elapsedTime.milliseconds();
             }
-            if (elapsedTime.milliseconds() > transferTime + 1100 && intakeSystem.readyToTranfer() && transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 200 && elapsedTime.milliseconds() < transferTime + 300 && !transferFirstTime) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                transferFirstTime = false;
                 hasInOuttake = true;
                 hasInIntake = false;
                 clawToggle = true;
-                transferTime = elapsedTime.milliseconds();
-            }
-            if (elapsedTime.milliseconds() > transferTime + 300 && elapsedTime.milliseconds() < transferTime + 400 && !transferFirstTime) {
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
             }
             if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 600 && !transferFirstTime) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 700 && elapsedTime.milliseconds() < transferTime + 800 && !transferFirstTime) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 onceState = true;
                 onceTime = true;

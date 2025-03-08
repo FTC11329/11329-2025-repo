@@ -59,13 +59,13 @@ public class SampleAuto {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-56.5, -55.5, Math.toRadians(54));
-    private final Pose intakeSpike1 = new Pose(-55, -52, Math.toRadians(75.5));
+    private final Pose intakeSpike1 = new Pose(-54.5, -52, Math.toRadians(75.5));
     private final Pose placeSpike1 = new Pose(-61.7, -53, Math.toRadians(80));
 
     private final Pose intakeSpike2 = new Pose(-59, -51.9, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-62.3, -53, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-59.6, -50, Math.toRadians(115));
+    private final Pose intakeSpike3 = new Pose(-58, -50, Math.toRadians(115));
     private final Pose placeSpike3 = new Pose(-62.5, -54, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
@@ -330,6 +330,7 @@ public class SampleAuto {
                     transferSample = true;
                     setPathState(SampleAutoEnum.placeSample3);
                 } else if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    intakeSystem.storePos();
                     driveShake = false;
                     intakeFail = true;
                     setPathState(SampleAutoEnum.goSub1);
@@ -404,7 +405,7 @@ public class SampleAuto {
                 }
                 break;
             case dropClaw4:
-                if (pathTimer.getElapsedTimeSeconds() > 0.35) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.45) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     if (opmodeTimer.getElapsedTimeSeconds() > 25) {
                         //Break loop
@@ -532,7 +533,7 @@ public class SampleAuto {
                     }
                     break;
                 case 2:
-                    if (actionTimer.getElapsedTimeSeconds() > .2){
+                    if (actionTimer.getElapsedTimeSeconds() > .3){
                         intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
 
                         setTransferState(3);

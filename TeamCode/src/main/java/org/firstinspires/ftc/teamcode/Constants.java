@@ -15,7 +15,7 @@ public class Constants {
     public static class PTO {
         public static double PTOServoReleaseRight = 0.3348;
         public static double PTOServoReleaseLeft = 0.317;
-        public static double PTOServoClimbRight = 0.4121;
+        public static double PTOServoClimbRight = 0.4127;
         public static double PTOServoClimbLeft = 0.4035;
         public static double speed = 1;
 
@@ -36,7 +36,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 75;
+        public static int safeTransferSlide = 50;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
@@ -55,7 +55,7 @@ public class Constants {
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillisTeleop = 150; //todo make an auto vs teleop times
+        public static double unjamTimeMillisTeleop = 125; //todo make an auto vs teleop times
         public static double unjamTimeMillisAuto = 125; //todo make an auto vs teleop times
     }
 
@@ -70,7 +70,7 @@ public class Constants {
         public static double autoArmClear = 0.734;
         public static double preTransferArm = 0.664;
         public static double upArm = 0.42;
-        public static double intakeWallArm = 0;
+        public static double intakeWallArm = 0.003;
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.70;
@@ -81,8 +81,8 @@ public class Constants {
 
         public static int intakeSlides = 210;
         public static int intakeWaitSlides = 450;
-        public static int intakeWallSlides = 150;
-        public static int intakeWallAutoSlides = 150;
+        public static int intakeWallSlides = 100;
+        public static int intakeWallAutoSlides = 100;
 
         public static int safeFromWallSlides = 360;
         public static int safeFromHSlides = 650;
