@@ -41,8 +41,8 @@ public class NewTeleop {
     boolean debugAll = false;
     boolean debugState = false;
     boolean debugStateMachine = false;
-    boolean debugPos = true;
-    boolean debugClimber = false;
+    boolean debugPos = false;
+    boolean debugClimber = true;
     boolean debugAuto = false;
     boolean debugMisc = false;
 
@@ -74,6 +74,7 @@ public class NewTeleop {
     boolean highSpecimen;
     boolean highBasket;
     boolean lowBasket;
+    boolean frontBasket;
     boolean wallPreset;
     boolean storePos;
     boolean transfer;
@@ -115,6 +116,8 @@ public class NewTeleop {
     double storeTime = 2000000000;
     double transferTime = 2000000000;
     double unStoringTime = 2000000000;
+
+    boolean transferFirstTime = true;
 
     boolean clawToggle = false;
     boolean clawDebounce = false;
@@ -223,6 +226,7 @@ public class NewTeleop {
         highSpecimen = gamepad2.dpad_up;
         highBasket = gamepad2.dpad_right;
         lowBasket = gamepad2.dpad_down;
+        frontBasket = gamepad2.touchpad;
         wallPreset = gamepad2.dpad_left;
         storePos = gamepad2.triangle;//y
         transfer = gamepad2.left_bumper;
@@ -378,7 +382,7 @@ public class NewTeleop {
                     break;
                 case 1:
                     driveTrain.moveBackWheels();
-                    if (climberTimer.getElapsedTimeSeconds() > 0.5 && Math.abs(climber.getPos() - climberPos) < 500) {
+                    if (climberTimer.getElapsedTimeSeconds() > 1.5 && Math.abs(climber.getPos() - climberPos) < 500) {
                         driveTrain.setPTOPos(Constants.PTO.motorClimb);
 
                         climberTimer.resetTimer();
@@ -519,6 +523,15 @@ public class NewTeleop {
             }
             stateMachine.goHighSpecimen(atStorePos);
         }
+        if (lowBasket) {
+            if (!stateMachine.doTransfer()) {
+                onceTime = true;
+            }
+            intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
+            stateMachine.goLowBasket(hasInIntake, hasInOuttake, atStorePos);
+        }
         if (highBasket) {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
@@ -528,14 +541,14 @@ public class NewTeleop {
             intakeing = false;
             stateMachine.goHighBasket(hasInIntake, hasInOuttake, atStorePos);
         }
-        if (lowBasket) {
+        if (frontBasket) {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
             intakeSystem.storePos();
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goLowBasket(hasInIntake, hasInOuttake, atStorePos);
+            stateMachine.goFrontBasket(hasInIntake, hasInOuttake, atStorePos);
         }
         if (wallPreset) {
             if (!stateMachine.doTransfer()) {
@@ -600,32 +613,36 @@ public class NewTeleop {
             if (onceTime) {
                 transferTime = elapsedTime.milliseconds();
                 onceTime = false;
-            }
-            if (elapsedTime.milliseconds() > transferTime + 450 && elapsedTime.milliseconds() < transferTime + 550) {
-                intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                if (intakeSystem.getHSlidePos() > 150) {
-                    transferTime = elapsedTime.milliseconds() - 500;
+                transferFirstTime = true;
+                if (intakeSystem.readyToTranfer()) {
+                    transferTime = elapsedTime.milliseconds() - 300;
                 }
             }
-            if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700) {
+            if (elapsedTime.milliseconds() > transferTime + 450 && elapsedTime.milliseconds() < transferTime + 550 && transferFirstTime) {
+                intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+            }
+            if (elapsedTime.milliseconds() > transferTime + 600 && elapsedTime.milliseconds() < transferTime + 700 && transferFirstTime) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
             }
-            if (elapsedTime.milliseconds() > transferTime + 950 && elapsedTime.milliseconds() < transferTime + 1050) {
+            if (elapsedTime.milliseconds() > transferTime + 950 && intakeSystem.readyToTranfer() && transferFirstTime) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                transferFirstTime = false;
                 hasInOuttake = true;
                 hasInIntake = false;
                 clawToggle = true;
+                transferTime = elapsedTime.milliseconds();
             }
-            if (elapsedTime.milliseconds() > transferTime + 1250 && elapsedTime.milliseconds() < transferTime + 1350) {
+            if (elapsedTime.milliseconds() > transferTime + 300 && elapsedTime.milliseconds() < transferTime + 400 && !transferFirstTime) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
             }
-            if (elapsedTime.milliseconds() > transferTime + 1500 && elapsedTime.milliseconds() < transferTime + 1600) {
+            if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 600 && !transferFirstTime) {
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 onceState = true;
                 onceTime = true;
+                transferFirstTime = true;
                 stateMachine.finishTransfer();
             }
         }
@@ -638,6 +655,7 @@ public class NewTeleop {
                 onceTime = false;
             }
             if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100 && onceState) {
+                atStorePos = false;
                 outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
                 unStoringTime = elapsedTime.milliseconds();
                 onceState = false;
@@ -681,6 +699,20 @@ public class NewTeleop {
             if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
                 outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                 stateMachine.finishHighBasket();
+                onceTime = true;
+            }
+        }
+
+        if (stateMachine.doFrontBasket()) {
+            if (onceTime) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                whereAmI = PlacePosEnum.highBasket;
+                onceTime = false;
+            }
+            if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
+                outtakeSystem.setArmPos(Constants.Outtake.frontBasketArm);
+                stateMachine.finishFrontBasket();
                 onceTime = true;
             }
         }
@@ -871,6 +903,7 @@ public class NewTeleop {
             telemetry.addData("hasInIntake", stateMachine.debug()[0]);
             telemetry.addData("transferred", stateMachine.debug()[1]);
             telemetry.addData("atStore", stateMachine.debug()[2]);
+            telemetry.addData("onceTime", onceTime);
             telemetry.addLine();
         }
         if (debugPos || debugAll) {
@@ -901,6 +934,7 @@ public class NewTeleop {
             telemetry.addData("Climber once", climbStopPauseOnce);
             telemetry.addData("Climber once", climbStopPause);
             telemetry.addData("Current", Math.max(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3])));
+            telemetry.addData("climberDistance", climber.getDistance());
             telemetry.addLine();
         }
         if (debugAuto || debugAll) {
@@ -922,19 +956,6 @@ public class NewTeleop {
             telemetry.addData("extendHSlide", extendHSlide);
             telemetry.addData("unjamming", unjamming);
             telemetry.addData("unjamAfterIntake", unjamAfterIntake);
-
-            NormalizedRGBA color = intakeSystem.directColor();
-
-            if (color != lastColor && changedLastFrame) {
-                lastColorTime = elapsedTime.milliseconds();
-                changedLastFrame = false;
-            } else if (color != lastColor) {
-                lastColorTimePrint = elapsedTime.milliseconds() - lastColorTime;
-                changedLastFrame = true;
-            }
-
-            lastColor = color;
-            telemetry.addData("lastColorTimePrint", lastColorTimePrint);
 
             //TODO add more Things here
             telemetry.addLine();

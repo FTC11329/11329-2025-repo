@@ -40,7 +40,7 @@ public class CameraAutoWiggle extends OpMode {
     Attempt89 attempt89;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = true; // determines if you rotate the robot or if you move horizontally
+    boolean polar = false; // determines if you rotate the robot or if you move horizontally
     boolean wiggle = false; // This makes the robot move while true
     boolean wiggleBot = false; // This makes the robot try wiggle pathing
     /** This is the variable where we store the state of our auto.

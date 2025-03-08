@@ -1,19 +1,23 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class Climber {
 
     DcMotorEx climberMotor;
+    Rev2mDistanceSensor climberDistance;
     int lastClimberPos;
 
     public Climber(HardwareMap hardwareMap) {
         climberMotor = hardwareMap.get(DcMotorEx.class, "climber");
+        climberDistance = hardwareMap.get(Rev2mDistanceSensor.class, "climbDistance");
 
         climberMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         climberMotor.setTargetPosition(0);
@@ -45,6 +49,8 @@ public class Climber {
         return climberMotor.getCurrent(CurrentUnit.AMPS);
     }
 
-
+    public double getDistance() {
+        return climberDistance.getDistance(DistanceUnit.INCH);
+    }
 
 }

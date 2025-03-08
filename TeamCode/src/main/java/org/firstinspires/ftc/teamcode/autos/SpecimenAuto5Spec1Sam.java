@@ -212,7 +212,7 @@ public class SpecimenAuto5Spec1Sam {
 
 
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
-        frontWallToWall.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+        frontWallToWall.setZeroPowerAccelerationMultiplier(3.5);
 
         toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
         toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
@@ -378,6 +378,7 @@ public class SpecimenAuto5Spec1Sam {
             //front Wall To Wall
             case frontWallToWall2:
                 if (follower.getErrorDistance(frontWall) < 1.5) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5Sam1AutoEnum.grabWall2);
                 }
@@ -385,6 +386,7 @@ public class SpecimenAuto5Spec1Sam {
             //grab off wall and go to sub
             case grabWall2:
                 if (follower.getErrorDistance(pickupWall) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    follower.setMaxPower(1);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5Sam1AutoEnum.goPlaceSub2);
                 }
@@ -433,6 +435,7 @@ public class SpecimenAuto5Spec1Sam {
             //front Wall To Wall
             case frontWallToWall3:
                 if (follower.getErrorDistance(frontWall) < 1.5) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5Sam1AutoEnum.grabWall3);
                 }
@@ -440,6 +443,7 @@ public class SpecimenAuto5Spec1Sam {
             //grab off wall and go to sub
             case grabWall3:
                 if (follower.getErrorDistance(pickupWall) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
+                    follower.setMaxPower(1);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5Sam1AutoEnum.goPlaceSub3);
                 }
@@ -490,6 +494,7 @@ public class SpecimenAuto5Spec1Sam {
             //front Wall To Wall
             case frontWallToWall4:
                 if (follower.getErrorDistance(frontWall) < 1.5) {
+                    follower.setMaxPower(0.8);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5Sam1AutoEnum.grabWall4);
                 }
@@ -749,7 +754,7 @@ public class SpecimenAuto5Spec1Sam {
         Drawing.drawDebug(follower);
 
         // Feedback to Driver Hub
-        if (true) {
+        if (false) {
             telemetry.addData("path state", pathState);
             telemetry.addData("x", follower.getPose().getX());
             telemetry.addData("y", follower.getPose().getY());

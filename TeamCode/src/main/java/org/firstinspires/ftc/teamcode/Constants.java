@@ -13,8 +13,10 @@ public class Constants {
 
     @Config
     public static class PTO {
-        public static double PTOServoRelease = 0.33;
-        public static double PTOServoClimb = 0.4269;
+        public static double PTOServoReleaseRight = 0.3348;
+        public static double PTOServoReleaseLeft = 0.317;
+        public static double PTOServoClimbRight = 0.4121;
+        public static double PTOServoClimbLeft = 0.4035;
         public static double speed = 1;
 
         public static int motorClimb = 1700;
@@ -34,7 +36,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 130;
+        public static int safeTransferSlide = 75;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
@@ -49,7 +51,7 @@ public class Constants {
         public static double wristDown = 0.495;
 
         public static double intakeSpeed = 0.9;
-        public static double transferSpeed = 0.9;
+        public static double transferSpeed = 1;
         public static double unjamSpeed = -0.7;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
@@ -62,7 +64,7 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.9326;
+        public static double intakeArm = 0.929;
         public static double initTeleopArm = 0.42;
         public static double initAutoArm = 0.781;
         public static double autoArmClear = 0.734;
@@ -73,6 +75,7 @@ public class Constants {
 
         public static double specimenArm = 0.70;
         public static double basketArm = 0.222;
+        public static double frontBasketArm = 0.5785;
         public static double autoArmClimb = 0.628;
         public static double parkArm = 0.70;
 

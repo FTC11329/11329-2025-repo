@@ -4,6 +4,7 @@ public class StateMachine {
     boolean goingHighSpecimen = false;
     boolean goingLowBasket  = false;
     boolean goingHighBasket = false;
+    boolean goingFrontBasket = false;
     boolean goingWall = false;
 
     boolean goingStore = false;
@@ -15,8 +16,9 @@ public class StateMachine {
 
     public void resetValues() {
         goingHighSpecimen = false;
-        goingLowBasket  = false;
-        goingHighBasket = false;
+        goingLowBasket   = false;
+        goingHighBasket  = false;
+        goingFrontBasket = false;
         goingWall = false;
 
         goingStore = false;
@@ -35,7 +37,6 @@ public class StateMachine {
         this.transferred = true;
         this.atStorePos = atStorePos;
     }
-
     public void goLowBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
         resetValues();
         goingLowBasket = true;
@@ -51,6 +52,14 @@ public class StateMachine {
         this.transferred = transferred;
         this.atStorePos = atStorePos;
     }
+    public void goFrontBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
+        resetValues();
+        goingFrontBasket = true;
+        this.hasInIntake = hasInIntake;
+        this.transferred = transferred;
+        this.atStorePos = atStorePos;
+    }
+
 
     public void goWall(boolean hasInIntake, boolean transferred, boolean atStorePos) {
         resetValues();
@@ -80,15 +89,15 @@ public class StateMachine {
 
     //Functions that return when we should do certain things on robot
     public boolean doGoToStore() {
-        return (goingLowBasket || goingHighBasket || goingStore || goingTransfer) && hasInIntake && !atStorePos;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingStore || goingTransfer) && hasInIntake && !atStorePos;
     }
 
     public boolean doTransfer() {
-        return (goingLowBasket || goingHighBasket || goingTransfer) && hasInIntake && atStorePos;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingTransfer) && hasInIntake && atStorePos;
     }
 
     public boolean doUnStore() {
-        return (goingLowBasket || goingHighBasket || goingHighSpecimen) && !hasInIntake && atStorePos || (goingWall && atStorePos);
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingHighSpecimen) && !hasInIntake && atStorePos || (goingWall && atStorePos);
     }
 
     public boolean doHighSpecimen() {
@@ -96,11 +105,15 @@ public class StateMachine {
     }
 
     public boolean doLowBasket() {
-        return goingLowBasket  && (!hasInIntake || transferred) && !atStorePos;
+        return goingLowBasket   && (!hasInIntake || transferred) && !atStorePos;
     }
 
     public boolean doHighBasket() {
-        return goingHighBasket && (!hasInIntake || transferred) && !atStorePos;
+        return goingHighBasket  && (!hasInIntake || transferred) && !atStorePos;
+    }
+
+    public boolean doFrontBasket() {
+        return goingFrontBasket && (!hasInIntake || transferred) && !atStorePos;
     }
 
     public boolean doWall() {
@@ -137,6 +150,9 @@ public class StateMachine {
 
     public void finishHighBasket() {
         goingHighBasket = false;
+    }
+    public void finishFrontBasket() {
+        goingFrontBasket = false;
     }
 
     public void finishWall() {

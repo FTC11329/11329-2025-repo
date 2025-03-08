@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
+@Disabled
 @Autonomous(name = "Red 6 Specimen Auto", group = " R2Comp", preselectTeleOp = "New Tele-op Red")
 public class Spec6AutoRed extends OpMode {
     SpecimenAuto6Spec specimenAuto;

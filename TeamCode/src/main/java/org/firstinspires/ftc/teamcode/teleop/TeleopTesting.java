@@ -45,7 +45,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.PTO.PTOServoClimb;
+    double testValue = Constants.PTO.PTOServoClimbRight;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -74,17 +74,7 @@ public class TeleopTesting {
     }
 
 
-    BHI260IMU imu;
-    IMU.Parameters myIMUparameters;
-
     public void init() {
-        myIMUparameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.DOWN,
-                RevHubOrientationOnRobot.UsbFacingDirection.RIGHT
-        ));
-
-        imu.initialize(myIMUparameters);
-
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
@@ -99,19 +89,19 @@ public class TeleopTesting {
 
 
     public void loop() {
-        YawPitchRollAngles robotOrientation;
-        robotOrientation = imu.getRobotYawPitchRollAngles();
-
-        // Now use these simple methods to extract each angle
-        // (Java type double) from the object you just created:
-
-        double Yaw   = robotOrientation.getYaw(AngleUnit.DEGREES);
-        double Pitch = robotOrientation.getPitch(AngleUnit.DEGREES);
-        double Roll  = robotOrientation.getRoll(AngleUnit.DEGREES);
-
-        telemetry.addData("Yaw", Yaw);
-        telemetry.addData("pitch", Pitch);
-        telemetry.addData("Roll", Roll);
+//        YawPitchRollAngles robotOrientation;
+//        robotOrientation = imu.getRobotYawPitchRollAngles();
+//
+//        // Now use these simple methods to extract each angle
+//        // (Java type double) from the object you just created:
+//
+//        double Yaw   = robotOrientation.getYaw(AngleUnit.DEGREES);
+//        double Pitch = robotOrientation.getPitch(AngleUnit.DEGREES);
+//        double Roll  = robotOrientation.getRoll(AngleUnit.DEGREES);
+//
+//        telemetry.addData("Yaw", Yaw);
+//        telemetry.addData("pitch", Pitch);
+//        telemetry.addData("Roll", Roll);
         //INPUTS
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
@@ -227,7 +217,7 @@ public class TeleopTesting {
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
-        powerTakeOff.setRightPos(testValue);
+        powerTakeOff.setLeftPos(testValue);
         telemetry.addData("testValue H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);

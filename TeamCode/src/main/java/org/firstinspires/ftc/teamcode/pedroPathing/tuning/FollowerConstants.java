@@ -91,11 +91,11 @@ public class FollowerConstants {
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double forwardZeroPowerAcceleration = -28;
+    public static double forwardZeroPowerAcceleration = -27;
 
     // Acceleration of the drivetrain when power is cut in inches/second^2 (should be negative)
     // if not negative, then the robot thinks that its going to go faster under 0 power
-    public static double lateralZeroPowerAcceleration = -72.6; //73 72.8 71.7 73.2 72.4
+    public static double lateralZeroPowerAcceleration = -69; //68 69 69.5 71
 
     // A multiplier for the zero power acceleration to change the speed the robot decelerates at
     // the end of paths.

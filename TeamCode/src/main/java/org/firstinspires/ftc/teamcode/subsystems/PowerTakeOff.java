@@ -22,18 +22,18 @@ public class PowerTakeOff {
         PTOLeft.setDirection(Servo.Direction.FORWARD);
         PTORight.setDirection(Servo.Direction.FORWARD);
 
-        PTOLeft.setPosition(Constants.PTO.PTOServoRelease);
-        PTORight.setPosition(Constants.PTO.PTOServoRelease);
+        PTOLeft.setPosition(Constants.PTO.PTOServoReleaseRight);
+        PTORight.setPosition(Constants.PTO.PTOServoReleaseLeft);
     }
 
     public void enable() {
-        setRightPos(Constants.PTO.PTOServoClimb);
-        setLeftPos(Constants.PTO.PTOServoClimb);
+        setRightPos(Constants.PTO.PTOServoClimbRight);
+        setLeftPos(Constants.PTO.PTOServoClimbLeft);
         enabled = true;
     }
     public void disable() {
-        setRightPos(Constants.PTO.PTOServoRelease);
-        setLeftPos(Constants.PTO.PTOServoRelease);
+        setRightPos(Constants.PTO.PTOServoReleaseRight);
+        setLeftPos(Constants.PTO.PTOServoReleaseLeft);
         enabled = false;
     }
 
