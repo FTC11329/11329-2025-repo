@@ -3,13 +3,13 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.*;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.Timer;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.*;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 
 //Match 1 transfer too long, down with servo then out with intake for 3rd          miss 2
 //Match 2 Wiring                                                                   miss 4
