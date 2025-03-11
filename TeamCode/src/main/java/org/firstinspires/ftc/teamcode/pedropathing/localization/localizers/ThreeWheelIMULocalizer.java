@@ -5,18 +5,18 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 
-import static com.pedropathing.localization.constants.ThreeWheelIMUConstants.*;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.ThreeWheelIMUConstants.*;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import com.pedropathing.localization.Encoder;
-import com.pedropathing.localization.Localizer;
-import com.pedropathing.localization.Matrix;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.MathFunctions;
-import com.pedropathing.pathgen.Vector;
-import com.pedropathing.util.NanoTimer;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Encoder;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Matrix;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Vector;
+import org.firstinspires.ftc.teamcode.pedropathing.util.NanoTimer;
 
 /**
  * This is the ThreeWheelIMULocalizer class. This class extends the Localizer superclass and is a

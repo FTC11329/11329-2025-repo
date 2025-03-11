@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.pedroPathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.tuning.FollowerConstants;
-import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
+import org.firstinspires.ftc.teamcode.pedropathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
