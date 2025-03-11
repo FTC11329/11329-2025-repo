@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
@@ -1402,4 +1403,49 @@ public class Follower {
         followPath(cameraSearchPath);
         return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
     }
+
+    public double followYourHead(Pose2D blockO) {
+        Pose tempPose = getPose();
+        Path cameraSearchPath;
+        double halfW = 7.25;
+        double halfL = 7.5;
+        double X = blockO.getX(DistanceUnit.INCH);
+        double Y = blockO.getY(DistanceUnit.INCH);
+        double alphaOne = Math.atan2(X, Y + halfL);
+        double B = Math.abs(halfW * Math.sin(alphaOne)); // 7.7 aproximates 1/2 width of robot
+        if (B <= 1) {
+            B = 1;
+        }
+        double alphaTwo = Math.atan2(X, (Y + B + halfL));
+        Pose2D backDistance = new Pose2D(DistanceUnit.INCH, 0, -B, AngleUnit.RADIANS, 0);
+        Pose2D globalPose = robotToWorld(backDistance, tempPose);
+        if (alphaTwo < Math.toRadians(-1) && -1 > X && X > -2) {
+            alphaTwo = (alphaTwo + Math.toRadians(5));
+        } else if (alphaTwo < Math.toRadians(-1)) {
+            alphaTwo = (1.6 * alphaTwo);
+        }
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose(globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - (alphaTwo)));
+        followPath(cameraSearchPath);
+        return (Math.hypot(X, Y + B) - 2); //Extend Hslides
+    }
+
+    public Pose2D robotToWorld(Pose2D target, Pose robotTransform){
+        double oldX = target.getX(DistanceUnit.INCH);
+        double oldY = target.getY(DistanceUnit.INCH);
+        double a = robotTransform.getHeading();
+        double x = (oldX*Math.cos(a)) - (oldY*Math.sin(a));
+        double y = (oldX*Math.sin(a)) + (oldY*Math.cos(a));
+        Pose2D pose = new Pose2D(DistanceUnit.INCH, x + robotTransform.getX(), y + robotTransform.getY(), AngleUnit.DEGREES, target.getHeading(AngleUnit.DEGREES));
+        return pose;
+    }
+    public Pose2D robotToWorldKeepY(Pose2D target, Pose robotTransform){
+        double oldX = target.getX(DistanceUnit.INCH);
+        double oldY = target.getY(DistanceUnit.INCH);
+        double a = -target.getHeading(AngleUnit.RADIANS);
+        double x = (oldX*Math.cos(a)) - (oldY*Math.sin(a));
+        double y = (oldX*Math.sin(a)) + (oldY*Math.cos(a));
+        Pose2D pose = new Pose2D(DistanceUnit.INCH, x + robotTransform.getX(), target.getY(DistanceUnit.INCH), AngleUnit.DEGREES, target.getHeading(AngleUnit.DEGREES));
+        return pose;
+    }
+    
 }

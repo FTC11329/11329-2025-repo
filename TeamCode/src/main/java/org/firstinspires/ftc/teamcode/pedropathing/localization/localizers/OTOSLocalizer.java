@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.pedropathing.localization.localizers;
 
-import org.firstinspires.ftc.teamcode.pedropathing.localization.SparkFunOTOSCorrected;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
@@ -68,8 +67,10 @@ public class OTOSLocalizer extends Localizer {
     public OTOSLocalizer(HardwareMap map, Pose setStartPose) {
         hardwareMap = map;
 
-        if(useCorrectedOTOSClass) {
-            otos = hardwareMap.get(SparkFunOTOSCorrected.class, hardwareMapName);
+        if(useCorrectedOTOSClass && false) {
+//            TODO: Figure out why we cant use the corrected version
+//            import org.firstinspires.ftc.teamcode.pedropathing.localization.SparkFunOTOSCorrected;
+//            otos = hardwareMap.get(SparkFunOTOSCorrected.class, hardwareMapName);
         } else {
             otos = hardwareMap.get(SparkFunOTOS.class, hardwareMapName);
         }

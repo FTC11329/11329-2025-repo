@@ -28,7 +28,7 @@ public class FollowerConstants {
 
     /** The Localizer that the Follower & Pose Updater will use
      *  Default Value: Localizers.THREE_WHEEL */
-    public static Localizers localizers = Localizers.THREE_WHEEL;
+    public static Localizers localizers = Localizers.OTOS;
 
     /** The name of the left front motor
      *  Default Value: "leftFront" */

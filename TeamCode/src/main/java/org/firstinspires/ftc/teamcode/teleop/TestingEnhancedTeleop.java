@@ -66,6 +66,7 @@ public class TestingEnhancedTeleop extends OpMode {
 
         //limelight
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
+        follower.startTeleopDrive();
     }
 
     public void start() {
@@ -169,7 +170,7 @@ public class TestingEnhancedTeleop extends OpMode {
 
         //limelight
         if (!gamepad1.y) {
-            follower.TeleopDrive(driveForward, driveStrafe, driveRotation, driveSpeed);
+            follower.setTeleOpMovementVectors(driveForward, driveStrafe, driveRotation);
         } else {
             follower.followYourHeart(blockOffset.getX(DistanceUnit.INCH));
             intakeSystem.setHSlidesInches(blockOffset.getY(DistanceUnit.INCH));
