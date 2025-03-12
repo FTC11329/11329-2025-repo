@@ -1394,17 +1394,26 @@ public class Follower {
         return Math.sqrt((X * X)+((Y + B) * (Y + B))); //Extend Hslides
     }
 
-    public double followYourHeadSpike(Pose2D blockO) {
+    public double followYourHead(Pose2D blockO) {
+        // this code moves backward the maximum amount necessary
         Pose tempPose = getPose();
-        // just initialized
         Path cameraSearchPath;
-        cameraSearchPath        = linearPathBuilder(tempPose, new Pose (tempPose.getX(), tempPose.getY(), tempPose.getHeading() - Math.atan(blockO.getX(DistanceUnit.INCH)/blockO.getY(DistanceUnit.INCH))));
-
+        double blockX = blockO.getX(DistanceUnit.INCH);
+        double blockY = blockO.getY(DistanceUnit.INCH);
+        double halfRobotWidth = 14.35/2;
+        double halfRobotLength = 15.11/2;
+        double robotToBlock = Math.atan2(blockX, blockY);
+        // maximum amount of clearence the robot will need
+        double moveBackDistance = (Math.hypot(halfRobotLength, halfRobotWidth) - halfRobotLength);
+        double backX = moveBackDistance * Math.sin(tempPose.getHeading() - robotToBlock);
+        double backY = moveBackDistance * Math.cos(tempPose.getHeading() - robotToBlock);
+        double finalRotation = Math.atan2(blockX, blockY + moveBackDistance);
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX() - backX, tempPose.getY() - backY, tempPose.getHeading() - finalRotation));
         followPath(cameraSearchPath);
-        return Math.sqrt((blockO.getX(DistanceUnit.INCH)*blockO.getX(DistanceUnit.INCH))+(blockO.getY(DistanceUnit.INCH)*blockO.getY(DistanceUnit.INCH)));
+        return Math.hypot(blockX, blockY + moveBackDistance);
     }
 
-    public double followYourHead(Pose2D blockO) {
+    public double followYourHeadTwo(Pose2D blockO) {
         Pose tempPose = getPose();
         Path cameraSearchPath;
         double halfW = 7.25;

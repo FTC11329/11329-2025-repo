@@ -125,7 +125,7 @@ public class CameraAutoWiggle extends OpMode {
                     if (polar) {
                         //Thanks Mr. Raney
                         if (wiggleBot) {
-                            intakeSystem.setHSlidesInches(follower.followYourHeadSpike(target));
+                            intakeSystem.setHSlidesInches(follower.followYourHeadTwo(target));
                             wiggle = true;
                         } else {
                             intakeSystem.setHSlidesInches(follower.followYourHead(target));
@@ -143,7 +143,7 @@ public class CameraAutoWiggle extends OpMode {
 
             case 2:
                 //puts the wrist down after the slides are in the sub
-                if (pathTimer.getElapsedTimeSeconds() > .5) {
+                if (follower.getHeadingOffset() < Math.toRadians(1) || pathTimer.getElapsedTimeSeconds() > 8) { // hopefully this will activate when heading error small
                     follower.telemetryDebug(telemetry);
                     wiggle = false;
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
