@@ -38,7 +38,6 @@ import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants
  */
 public class OTOSLocalizer extends Localizer {
     private HardwareMap hardwareMap;
-    private Pose startPose;
     private SparkFunOTOS otos;
     private SparkFunOTOS.Pose2D otosPose;
     private SparkFunOTOS.Pose2D otosVel;
@@ -90,7 +89,7 @@ public class OTOSLocalizer extends Localizer {
         otosVel = new SparkFunOTOS.Pose2D();
         otosAcc = new SparkFunOTOS.Pose2D();
         totalHeading = 0;
-        previousHeading = startPose.getHeading();
+        previousHeading = otos.getPosition().h;
 
         resetOTOS();
     }
@@ -107,9 +106,8 @@ public class OTOSLocalizer extends Localizer {
         Pose pose = new Pose(otosPose.x, otosPose.y, otosPose.h);
 
         Vector vec = pose.getVector();
-        vec.rotateVector(startPose.getHeading());
 
-        return MathFunctions.addPoses(startPose, new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading()));
+        return new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading());
     }
 
     /**
@@ -140,7 +138,7 @@ public class OTOSLocalizer extends Localizer {
      */
     @Override
     public void setStartPose(Pose setStart) {
-        startPose = setStart;
+        otos.setPosition(new SparkFunOTOS.Pose2D(setStart.getX(), setStart.getY(), setStart.getHeading()));
     }
 
     /**
@@ -152,8 +150,7 @@ public class OTOSLocalizer extends Localizer {
     @Override
     public void setPose(Pose setPose) {
         resetOTOS();
-        Pose setOTOSPose = MathFunctions.subtractPoses(setPose, startPose);
-        otos.setPosition(new SparkFunOTOS.Pose2D(setOTOSPose.getX(), setOTOSPose.getY(), setOTOSPose.getHeading()));
+        otos.setPosition(new SparkFunOTOS.Pose2D(setPose.getX(), setPose.getY(), setPose.getHeading()));
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.autos;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -44,6 +45,7 @@ public class SpecimenAuto5Spec {
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
 
+    FtcDashboard dashboard;
     private Timer pathTimer, opmodeTimer;
 
     /** This is the variable where we store the state of our auto.
@@ -110,16 +112,16 @@ public class SpecimenAuto5Spec {
     private Path frontWallToWall;
 
 
-    private PathChain toWall1;
+    private Path toWall1;
     private Path placeSub1Path;
 
-    private PathChain toFrontWall2;
+    private Path toFrontWall2;
     private Path placeSub2Path;
 
-    private PathChain toFrontWall3;
+    private Path toFrontWall3;
     private Path placeSub3Path;
 
-    private PathChain toFrontWall4;
+    private Path toFrontWall4;
     private Path placeSub4Path;
 
     private Path parkPath; //IS THAT A BTD REFERENCE?
@@ -144,6 +146,8 @@ public class SpecimenAuto5Spec {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
 
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -184,8 +188,8 @@ public class SpecimenAuto5Spec {
         scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preloadPlace.getHeading(), 0.25);
 
-        double zeroMultFast = 10;
-        double zeroMultSlow = 4.5;
+        double zeroMultFast = 1;
+        double zeroMultSlow = 0.01;
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
@@ -209,40 +213,38 @@ public class SpecimenAuto5Spec {
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
         frontWallToWall.setZeroPowerAccelerationMultiplier(3.5);
 
-        toWall1 = follower.pathBuilder()
-            .addPath(follower.linearPathBuilder(pushedSpike3, pickupWallRightSide))
-            .setZeroPowerAccelerationMultiplier(zeroMultSlow)
-            .build();
+        toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
+        toWall1.setConstantHeadingInterpolation(pushedSpike3.getHeading());
+        toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+
         //frontWallToWall
         placeSub1Path = follower.linearPathBuilder(pickupWallRightSide, placeSub1.addReturn(frontSubOffset));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
         placeSub1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall2 = follower.pathBuilder().addPath(follower.linearPathBuilder(placeSub1.addReturn(new Pose(0,-3,0)), frontWall))
-            .setConstantHeadingInterpolation(placeSub1.getHeading())
-            .setZeroPowerAccelerationMultiplier(zeroMultSlow)
-            .build();
+        toFrontWall2 = follower.linearPathBuilder(placeSub1.addReturn(new Pose(0,-3,0)), frontWall);
+        toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
+        toFrontWall2.setZeroPowerAccelerationMultiplier(4);
         //frontWallToWall
         placeSub2Path = follower.linearPathBuilder(pickupWall, placeSub2.addReturn(frontSubOffset));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
         placeSub2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall3 = follower.pathBuilder().addPath(follower.linearPathBuilder(placeSub2.addReturn(new Pose(0,-3,0)), frontWall))
-            .setConstantHeadingInterpolation(placeSub2.getHeading())
-            .setZeroPowerAccelerationMultiplier(zeroMultSlow)
-            .build();
+        toFrontWall3 = follower.linearPathBuilder(placeSub2.addReturn(new Pose(0,-3,0)), frontWall);
+        toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
+        toFrontWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+
         //frontWallToWall
         placeSub3Path = follower.linearPathBuilder(pickupWall, placeSub3.addReturn(frontSubOffset));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
         placeSub3Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
-        toFrontWall4 = follower.pathBuilder().addPath(follower.linearPathBuilder(placeSub3.addReturn(new Pose(0,-3,0)), frontWall))
-            .setConstantHeadingInterpolation(placeSub3.getHeading())
-            .setZeroPowerAccelerationMultiplier(zeroMultSlow)
-            .build();
+        toFrontWall4 = follower.linearPathBuilder(placeSub3.addReturn(new Pose(0,-3,0)), frontWall);
+        toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
+        toFrontWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub4Path = follower.linearPathBuilder(pickupWall, placeSub4.addReturn(frontSubOffset));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
@@ -310,7 +312,6 @@ public class SpecimenAuto5Spec {
             case pushSpike3:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
                     follower.followPath(pushSpike3Path);
-                    follower.setMaxPower(0.7);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
                     setPathState(Specimen5AutoEnum.waitFrontWall1);
                 }
@@ -322,6 +323,7 @@ public class SpecimenAuto5Spec {
                 break;
             case pickupWall1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    follower.setMaxPower(0.4);
                     follower.followPath(toWall1);
                     setPathState(Specimen5AutoEnum.grabWall1);
                 }
@@ -336,7 +338,7 @@ public class SpecimenAuto5Spec {
             //outtake to specimen place pos
             case goPlaceSub1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(1);
                     follower.followPath(placeSub1Path);
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                     setPathState(Specimen5AutoEnum.specPreset1);
@@ -383,7 +385,7 @@ public class SpecimenAuto5Spec {
                 break;
             case waitFrontWall2:
                 if (pathTimer.getElapsedTimeSeconds() > humanWait) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall2);
                 }
@@ -391,7 +393,7 @@ public class SpecimenAuto5Spec {
             //grab off wall and go to sub
             case grabWall2:
                 if (follower.getErrorDistance(pickupWall) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(1);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5AutoEnum.goPlaceSub2);
                 }
@@ -445,7 +447,7 @@ public class SpecimenAuto5Spec {
                 break;
             case waitFrontWall3:
                 if (pathTimer.getElapsedTimeSeconds() > humanWait) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall3);
                 }
@@ -453,7 +455,7 @@ public class SpecimenAuto5Spec {
             //grab off wall and go to sub
             case grabWall3:
                 if (follower.getErrorDistance(pickupWall) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(1);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5AutoEnum.goPlaceSub3);
                 }
@@ -509,7 +511,7 @@ public class SpecimenAuto5Spec {
                 break;
             case waitFrontWall4:
                 if (pathTimer.getElapsedTimeSeconds() > humanWait) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(0.4);
                     follower.followPath(frontWallToWall);
                     setPathState(Specimen5AutoEnum.grabWall4);
                 }
@@ -517,7 +519,7 @@ public class SpecimenAuto5Spec {
             //grab off wall and go to sub
             case grabWall4:
                 if (follower.getErrorDistance(pickupWall) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
-//                    follower.setMaxPower(0.4);
+                    follower.setMaxPower(1);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen5AutoEnum.goPlaceSub4);
                 }
@@ -711,7 +713,9 @@ public class SpecimenAuto5Spec {
             telemetry.update();
         }
 
-
+        telemetry.addData("loopTime", loopTime - opmodeTimer.getElapsedTime());
+        loopTime = opmodeTimer.getElapsedTime();
+        telemetry.update();
     }
     /** We do not use this because everything should automatically disable **/
     public void stop() {

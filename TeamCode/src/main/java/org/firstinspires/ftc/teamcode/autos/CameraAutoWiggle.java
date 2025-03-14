@@ -3,22 +3,19 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
-import org.firstinspires.ftc.teamcode.subsystems.MultiDistanceCalculator;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
@@ -33,14 +30,13 @@ public class CameraAutoWiggle extends OpMode {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
-    MultiDistanceCalculator multiDistanceCalculator;
 
     RobotSideEnum robotSideEnum;
 
     Attempt89 attempt89;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = false; // determines if you rotate the robot or if you move horizontally
+    boolean polar = true; // determines if you rotate the robot or if you move horizontally
     boolean wiggle = false; // This makes the robot move while true
     boolean wiggleBot = false; // This makes the robot try wiggle pathing
     /** This is the variable where we store the state of our auto.
@@ -74,7 +70,6 @@ public class CameraAutoWiggle extends OpMode {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem = new OuttakeSystem(hardwareMap);
-        multiDistanceCalculator = new MultiDistanceCalculator(hardwareMap);
         attempt89 = new Attempt89(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
         pathTimer = new Timer();
@@ -83,7 +78,7 @@ public class CameraAutoWiggle extends OpMode {
         opmodeTimer.resetTimer();
 
         follower.setStartingPose(startPose);
-        attempt89.switchPipeline(1);
+        attempt89.switchPipeline(0);
 
     }
 
@@ -115,7 +110,7 @@ public class CameraAutoWiggle extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 1:
-                target = attempt89.getBestSample();
+                target = attempt89.getBlockPosition();
                 telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
                 telemetry.addData("targety", target.getY(DistanceUnit.INCH));
                 telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
@@ -143,7 +138,7 @@ public class CameraAutoWiggle extends OpMode {
 
             case 2:
                 //puts the wrist down after the slides are in the sub
-                if (follower.getHeadingOffset() < Math.toRadians(1) || pathTimer.getElapsedTimeSeconds() > 8) { // hopefully this will activate when heading error small
+                if (follower.getHeadingOffset() < Math.toRadians(1) && pathTimer.getElapsedTimeSeconds() > 2.5) { // hopefully this will activate when heading error small
                     follower.telemetryDebug(telemetry);
                     wiggle = false;
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
@@ -152,9 +147,12 @@ public class CameraAutoWiggle extends OpMode {
                 break;
             case 3:
                 // intakes and moves to store pos
-                if (intakeSystem.intakeUntilColor()) {
-                    intakeSystem.storePos();
-                    setPathState(4);
+                if (pathTimer.getElapsedTimeSeconds() > .2) {
+
+                    if (intakeSystem.intakeUntil()) {
+                        intakeSystem.storePos();
+                        setPathState(4);
+                    }
                 }
                 break;
         }
@@ -173,6 +171,7 @@ public class CameraAutoWiggle extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
+        Drawing.drawDebug(follower);
         autonomousPathUpdate();
         if (wiggle && pathTimer.getElapsedTimeSeconds() < .25) {driveTrain.drive(0,0.5, 0, DriveSpeedEnum.Auto);}
     }

@@ -48,7 +48,7 @@ public class Constants {
         public static double wristClimb = 0;
         public static double wristStore = 0.05;
         public static double wristClear = 0.25;
-        public static double wristDown = 0.495;
+        public static double wristDown = 0.450;
 
         public static double intakeSpeed = 0.9;
         public static double transferSpeed = 1;

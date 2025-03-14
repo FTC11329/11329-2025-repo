@@ -177,7 +177,7 @@ public class FollowerConstants {
     // milliseconds to further correct by default.
     // This can be custom set for each Path.
     // Unused
-    public static double pathEndTimeoutConstraint = 500;
+    public static double pathEndTimeoutConstraint = 2000;
 
     // This is how many steps the BezierCurve class uses to approximate the length of a BezierCurve.
     public static int APPROXIMATION_STEPS = 1000;

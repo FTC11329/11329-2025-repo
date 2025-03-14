@@ -3,15 +3,20 @@ package org.firstinspires.ftc.teamcode.pedropathing.tuners_tests.pid;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierLine;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
 
 /**
  * This is the StraightBackAndForth autonomous OpMode. It runs the robot in a specified distance
@@ -37,8 +42,16 @@ public class StraightBackAndForth extends OpMode {
 
     private Follower follower;
 
+    FtcDashboard dashboard;
     private Path forwards;
     private Path backwards;
+    ElapsedTime time = new ElapsedTime();
+
+    double loopTime = time.milliseconds();
+    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(0));
+    private final Pose placeSub1 = new Pose(15, -32.5, Math.toRadians(90));
+    private final Pose frontWall  = new Pose(40, -57, Math.toRadians(90));
+
 
     /**
      * This initializes the Follower and creates the forward and backward Paths. Additionally, this
@@ -46,12 +59,20 @@ public class StraightBackAndForth extends OpMode {
      */
     @Override
     public void init() {
-        follower = new Follower(hardwareMap);
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
 
-        forwards = new Path(new BezierLine(new Point(0,0, Point.CARTESIAN), new Point(DISTANCE,0, Point.CARTESIAN)));
-        forwards.setConstantHeadingInterpolation(0);
-        backwards = new Path(new BezierLine(new Point(DISTANCE,0, Point.CARTESIAN), new Point(0,0, Point.CARTESIAN)));
-        backwards.setConstantHeadingInterpolation(0);
+
+        follower = new Follower(hardwareMap);
+        follower.setStartingPose(startPose);
+
+        forwards = follower.linearPathBuilder(placeSub1.addReturn(new Pose(0,-3,0)), frontWall);
+        forwards.setConstantHeadingInterpolation(placeSub1.getHeading());
+        forwards.setZeroPowerAccelerationMultiplier(4);
+
+        backwards = follower.linearPathBuilder(frontWall, placeSub1.addReturn(new Pose(0,-3,0)));
+        backwards.setConstantHeadingInterpolation(placeSub1.getHeading());
+        backwards.setZeroPowerAccelerationMultiplier(4);
 
         follower.followPath(forwards);
 
@@ -79,7 +100,10 @@ public class StraightBackAndForth extends OpMode {
             }
         }
 
-        telemetryA.addData("going forward", forward);
-        follower.telemetryDebug(telemetryA);
+        Drawing.drawDebug(follower);
+
+        telemetry.addData("loopTime", loopTime - time.milliseconds());
+        loopTime = time.milliseconds();
+        telemetry.update();
     }
 }

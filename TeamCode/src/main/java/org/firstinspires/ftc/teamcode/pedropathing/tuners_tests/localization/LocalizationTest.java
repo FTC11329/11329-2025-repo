@@ -8,16 +8,27 @@ import static org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConst
 import static org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants.leftRearMotorDirection;
 import static org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants.rightFrontMotorDirection;
 import static org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants.rightRearMotorDirection;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.angleUnit;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.angularScalar;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.hardwareMapName;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.linearScalar;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.linearUnit;
+import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.offset;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Constants;
+
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.PoseUpdater;
@@ -41,18 +52,39 @@ public class LocalizationTest extends OpMode {
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
     private Telemetry telemetryA;
-
+    private ElapsedTime time = new ElapsedTime();
+    private Pose lastPose = new Pose();
+    private double lastTime = 0;
+    private Pose velocityPose = new Pose();
+    private Pose lastVelocityPose = new Pose();
+    private Pose accelerationPose = new Pose();
     private DcMotorEx leftFront;
     private DcMotorEx leftRear;
     private DcMotorEx rightFront;
     private DcMotorEx rightRear;
     private List<DcMotorEx> motors;
 
+    private SparkFunOTOS otos;
+
     /**
      * This initializes the PoseUpdater, the mecanum drive motors, and the FTC Dashboard telemetry.
      */
     @Override
     public void init() {
+        //DELETE ME
+        otos = hardwareMap.get(SparkFunOTOS.class, hardwareMapName);
+
+        otos.setLinearUnit(linearUnit);
+        otos.setAngularUnit(angleUnit);
+        otos.setOffset(offset);
+        otos.setLinearScalar(linearScalar);
+        otos.setAngularScalar(angularScalar);
+
+        otos.calibrateImu();
+        otos.resetTracking();
+
+        otos.resetTracking();
+
         poseUpdater = new PoseUpdater(hardwareMap);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
@@ -118,7 +150,34 @@ public class LocalizationTest extends OpMode {
         telemetryA.addData("y", poseUpdater.getPose().getY());
         telemetryA.addData("heading", poseUpdater.getPose().getHeading());
         telemetryA.addData("total heading", poseUpdater.getTotalHeading());
+
+        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
+        telemetryA.addData("Their Velocity Y", poseUpdater.getVelocity().getYComponent());
+        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
+        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
+        telemetryA.addLine();
+        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
+        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
+        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
+        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
+        telemetryA.addLine();
+
+
+        velocityPose.setX((poseUpdater.getPose().getX() - lastPose.getX()) / (time.milliseconds() - lastTime));
+        velocityPose.setY((poseUpdater.getPose().getY() - lastPose.getY()) / (time.milliseconds() - lastTime));
+
+        accelerationPose.setX((velocityPose.getX() - lastVelocityPose.getX()) / (time.milliseconds() - lastTime));
+        accelerationPose.setY((velocityPose.getY() - lastVelocityPose.getY()) / (time.milliseconds() - lastTime));
+
+        telemetryA.addData("New Velocity X", velocityPose.getX());
+        telemetryA.addData("New Velocity Y", velocityPose.getY());
+        telemetryA.addData("New Acceleration X", accelerationPose.getX());
+        telemetryA.addData("New Acceleration Y", accelerationPose.getY());
         telemetryA.update();
+
+        lastVelocityPose = velocityPose;
+        lastPose = poseUpdater.getPose();
+        lastTime = time.milliseconds();
 
         Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");

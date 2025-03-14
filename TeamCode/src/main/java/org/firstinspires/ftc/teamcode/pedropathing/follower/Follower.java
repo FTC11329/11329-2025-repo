@@ -1405,10 +1405,10 @@ public class Follower {
         double robotToBlock = Math.atan2(blockX, blockY);
         // maximum amount of clearence the robot will need
         double moveBackDistance = (Math.hypot(halfRobotLength, halfRobotWidth) - halfRobotLength);
-        double backX = moveBackDistance * Math.sin(tempPose.getHeading() - robotToBlock);
-        double backY = moveBackDistance * Math.cos(tempPose.getHeading() - robotToBlock);
+        double backX = moveBackDistance * Math.sin(tempPose.getHeading());
+        double backY = moveBackDistance * Math.cos(tempPose.getHeading());
         double finalRotation = Math.atan2(blockX, blockY + moveBackDistance);
-        cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX() - backX, tempPose.getY() - backY, tempPose.getHeading() - finalRotation));
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX() - backY, tempPose.getY() - backX, tempPose.getHeading() - finalRotation));
         followPath(cameraSearchPath);
         return Math.hypot(blockX, blockY + moveBackDistance);
     }
