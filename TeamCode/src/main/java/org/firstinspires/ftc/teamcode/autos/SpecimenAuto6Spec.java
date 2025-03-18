@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
@@ -73,11 +74,12 @@ public class SpecimenAuto6Spec {
     private final Pose pushedSpike2 = new Pose(58, -50, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(62.75, -15, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(63, -15, Math.toRadians(90));
 
-    private final Pose pickupWall = new Pose(39, -62.25, Math.toRadians(90));
+    private final Pose pickupWall = new Pose(39, -62.6, Math.toRadians(90));
+    private final Pose pickupWallControlPoint = new Pose(40, -59, Math.toRadians(90));
 
-    private final Pose pickupWallRightSide = new Pose(62.75, -63, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(63, -62.5, Math.toRadians(90));
     private final Pose frontSubPlaceOffset = new Pose(0, -15, Math.toRadians(0));
     private final Pose frontSubToWallOffset = new Pose(0, -5, Math.toRadians(0));
 
@@ -194,6 +196,7 @@ public class SpecimenAuto6Spec {
 
         double fastZeroPower = 25;
         double medFastZeroPower = 13;
+        double slowZeroPower = 6;
 
         scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
         scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), preloadPlace.getHeading(), 0.25);
@@ -222,37 +225,42 @@ public class SpecimenAuto6Spec {
         pickupSpike3Path.setConstantHeadingInterpolation(Math.toRadians(90));
 
         toWall1 = follower.linearPathBuilder(backSpike3, pickupWallRightSide);
+        toWall1.setZeroPowerAccelerationMultiplier(medFastZeroPower);
         //frontWallToWall
         placeSub1Path = follower.linearPathBuilder(pickupWallRightSide, placeSub1.addReturn(frontSubPlaceOffset));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
         placeSub1Path.setZeroPowerAccelerationMultiplier(medFastZeroPower);
 
 
-        toWall2 = follower.linearPathBuilder(placeSub1.addReturn(frontSubToWallOffset), pickupWall);
+        toWall2 = new Path(new BezierCurve(new Point(placeSub1.addReturn(frontSubToWallOffset)), new Point(pickupWallControlPoint), new Point(pickupWall)));
         toWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
+        toWall2.setZeroPowerAccelerationMultiplier(slowZeroPower);
         //frontWallToWall
         placeSub2Path = follower.linearPathBuilder(pickupWall, placeSub2.addReturn(frontSubPlaceOffset));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
         placeSub2Path.setZeroPowerAccelerationMultiplier(medFastZeroPower);
 
 
-        toWall3 = follower.linearPathBuilder(placeSub2.addReturn(frontSubToWallOffset), pickupWall);
+        toWall3 = new Path(new BezierCurve(new Point(placeSub2.addReturn(frontSubToWallOffset)), new Point(pickupWallControlPoint), new Point(pickupWall)));
         toWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
+        toWall3.setZeroPowerAccelerationMultiplier(slowZeroPower);
         //frontWallToWall
         placeSub3Path = follower.linearPathBuilder(pickupWall, placeSub3.addReturn(frontSubPlaceOffset));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
         placeSub3Path.setZeroPowerAccelerationMultiplier(medFastZeroPower);
 
 
-        toWall4 = follower.linearPathBuilder(placeSub3.addReturn(frontSubToWallOffset), pickupWall);
+        toWall4 = new Path(new BezierCurve(new Point(placeSub3.addReturn(frontSubToWallOffset)), new Point(pickupWallControlPoint), new Point(pickupWall)));
         toWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
+        toWall4.setZeroPowerAccelerationMultiplier(slowZeroPower);
         //frontWallToWall
         placeSub4Path = follower.linearPathBuilder(pickupWall, placeSub4.addReturn(frontSubPlaceOffset));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
         placeSub4Path.setZeroPowerAccelerationMultiplier(medFastZeroPower);
 
-        toWall5 = follower.linearPathBuilder(placeSub4.addReturn(frontSubToWallOffset), pickupWall);
+        toWall5 = new Path(new BezierCurve(new Point(placeSub4.addReturn(frontSubToWallOffset)), new Point(pickupWallControlPoint), new Point(pickupWall)));
         toWall5.setConstantHeadingInterpolation(placeSub4.getHeading());
+        toWall5.setZeroPowerAccelerationMultiplier(slowZeroPower);
         //frontWallToWall
         placeSub5Path = follower.linearPathBuilder(pickupWall, placeSub5.addReturn(frontSubPlaceOffset));
         placeSub5Path.setConstantHeadingInterpolation(placeSub5.getHeading());
@@ -302,6 +310,7 @@ public class SpecimenAuto6Spec {
                         outtakeSystem.setArmPos(Constants.Outtake.upArm);
                         outtakeSystem.setVSlidePos(0);
                         hasOne = false;
+                        follower.setCentripetalScaling(0.0007);
                         follower.followPath(pickupSpike1Path);
                         setPathState(Specimen6AutoEnum.pushSpike1);
                     }
@@ -325,8 +334,10 @@ public class SpecimenAuto6Spec {
                 } else if (pathTimer.getElapsedTimeSeconds() > 2) {
                     doGoWall = true;
                     intakeSystem.storePos();
+                    intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     hasOne = false;
 
+                    follower.setCentripetalScaling(0.0007);
                     follower.followPath(pickupSpike1Path);
                     setPathState(Specimen6AutoEnum.pushSpike1);
                 }
@@ -352,17 +363,20 @@ public class SpecimenAuto6Spec {
 
                     follower.followPath(pickupSpike1PathAfterSpit);
                     setPathState(Specimen6AutoEnum.pushSpike1);
-                }
+                } 
                 break;
 
             case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
+                    intakeSystem.setIntakePower(0);
+                    follower.setCentripetalScaling(FollowerConstants.centripetalScaling);
                     follower.followPath(pushSpike1Path);
                     setPathState(Specimen6AutoEnum.pushSpike2);
                 }
                 break;
             case pushSpike2:
                 if (follower.getError(pushedSpike1).getX() < 2 && follower.getError(pushedSpike1).getY() < 2) {
+                    follower.setCentripetalScaling(0.0007);
                     follower.followPath(pickupSpike2Path);
                     setPathState(Specimen6AutoEnum.goBackSpike3);
                 }
@@ -377,22 +391,12 @@ public class SpecimenAuto6Spec {
             //go to front pickup wall
             case pushSpike3:
                 if (follower.getError(backSpike3).getX() < 4 && follower.getError(backSpike3).getY() < 4) {
+                    follower.setCentripetalScaling(FollowerConstants.centripetalScaling);
                     follower.followPath(toWall1);
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
                     setPathState(Specimen6AutoEnum.grabWall1);
                 }
                 break;
-//            case waitFrontWall1:
-//                if (follower.getError(pushedSpike3).getY() < 2.5) {
-//                    setPathState(Specimen6AutoEnum.pickupWall1);
-//                }
-//                break;
-//            case pickupWall1:
-//                if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-//                    follower.followPath(toWall1);
-//                    setPathState(Specimen6AutoEnum.grabWall1);
-//                }
-//                break;
             //grab off wall and go to sub
             case grabWall1:
                 if (follower.getError(pickupWallRightSide).getY() < 1.5) {
@@ -691,7 +695,7 @@ public class SpecimenAuto6Spec {
             recoveryDebounce = false;
         }
 
-        if (recoveryDebounce && driveTrain.isStalled(4) && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 3) {
+        if (recoveryDebounce && driveTrain.isStalled(4) && opmodeTimer.getElapsedTimeSeconds() > recoveryTime + 2) {
             recoveryTime = opmodeTimer.getElapsedTimeSeconds();
             recoveryPath = follower.getCurrentPath();
             recoveryEnum = pathState;
@@ -704,7 +708,7 @@ public class SpecimenAuto6Spec {
                 follower.followPath(parkPath);
                 recoverOnce = true;
             }
-            if (follower.getErrorDistance(park) < 3 && pathTimer.getElapsedTimeSeconds() > 1) {
+            if (follower.getErrorDistance(park) < 3 && pathTimer.getElapsedTimeSeconds() > 0.75) {
                 setPathState(recoveryEnum);
                 follower.followPath(recoveryPath);
                 recovering = false;

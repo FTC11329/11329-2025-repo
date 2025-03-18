@@ -15,19 +15,27 @@ public class OuttakeArm {
     Servo armServo2;
     double lastArmPos = Constants.Outtake.initTeleopArm;
 
-    public OuttakeArm(HardwareMap hardwareMap) {
+    HardwareMap hardwareMap;
+
+    public OuttakeArm(HardwareMap hardwareMap, boolean initArm) {
+        this.hardwareMap = hardwareMap;
         clawServo = hardwareMap.get(Servo.class, "clawServo");
+        clawServo.setDirection(Servo.Direction.FORWARD);
+        clawServo.setPosition(Constants.Outtake.grabClaw);
+        if (initArm) {
+            initArm();
+        }
+    }
+
+    public void initArm() {
         armServo1 = hardwareMap.get(Servo.class, "armServo1");
         armServo2 = hardwareMap.get(Servo.class, "armServo2");
 
-        clawServo.setDirection(Servo.Direction.FORWARD);
         armServo1.setDirection(Servo.Direction.FORWARD);
         armServo2.setDirection(Servo.Direction.FORWARD);
 
-        clawServo.setPosition(Constants.Outtake.dropClaw);
         armServo1.setPosition(Constants.Outtake.initTeleopArm);
         armServo2.setPosition(Constants.Outtake.initTeleopArm);
-
     }
 
     public void manualArmPos(double power) {
