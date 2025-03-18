@@ -98,6 +98,9 @@ public class Constants {
 
         public static double manualSlideSpeed = 60;
 
+        public static double wallDistance = 1;
+        public static double inClawDistance = 1;
+        public static double transferClawDistance = ?;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

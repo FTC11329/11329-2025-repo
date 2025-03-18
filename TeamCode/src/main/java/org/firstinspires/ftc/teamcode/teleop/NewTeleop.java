@@ -44,7 +44,7 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugClimber = false;
     boolean debugAuto = false;
-    boolean debugMisc = false;
+    boolean debugMisc = true;
 
     //Auto Variables
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
@@ -119,7 +119,7 @@ public class NewTeleop {
 
     boolean transferFirstTime = true;
 
-    boolean clawToggle = false;
+    boolean clawToggle = true;
     boolean clawDebounce = false;
 
     boolean grabbingOffWall = false;
@@ -650,6 +650,7 @@ public class NewTeleop {
         if (stateMachine.doUnStore()) {
             if (onceTime) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 onceState = true;
 
                 onceTime = false;
@@ -657,6 +658,7 @@ public class NewTeleop {
             if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 100 && onceState) {
                 atStorePos = false;
                 outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 unStoringTime = elapsedTime.milliseconds();
                 onceState = false;
             }
@@ -956,6 +958,7 @@ public class NewTeleop {
             telemetry.addData("extendHSlide", extendHSlide);
             telemetry.addData("unjamming", unjamming);
             telemetry.addData("unjamAfterIntake", unjamAfterIntake);
+            telemetry.addData("outtake distance", outtakeSystem.getClawDistance());
 
             //TODO add more Things here
             telemetry.addLine();

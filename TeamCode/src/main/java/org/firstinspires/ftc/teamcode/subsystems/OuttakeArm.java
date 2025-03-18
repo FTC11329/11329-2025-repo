@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 
@@ -15,10 +17,13 @@ public class OuttakeArm {
     Servo armServo2;
     double lastArmPos = Constants.Outtake.initTeleopArm;
 
+    RevColorSensorV3 clawSensor;
+
     HardwareMap hardwareMap;
 
     public OuttakeArm(HardwareMap hardwareMap, boolean initArm) {
         this.hardwareMap = hardwareMap;
+        clawSensor = hardwareMap.get(RevColorSensorV3.class, "clawSensor");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
         clawServo.setDirection(Servo.Direction.FORWARD);
         clawServo.setPosition(Constants.Outtake.grabClaw);
@@ -59,7 +64,10 @@ public class OuttakeArm {
             clawServo.setPosition(newClawPos);
         }
     }
-    public double getClawPos () {
+    public double getClawPos() {
         return clawServo.getPosition();
+    }
+    public double getSensorDistance() {
+        return clawSensor.getDistance(DistanceUnit.INCH);
     }
 }

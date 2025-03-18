@@ -57,6 +57,10 @@ public class OuttakeSystem {
         return vSlides.nearlyTuchyWuchyed();
     }
 
+    public double getClawDistance() {
+        return outtakeArm.getSensorDistance();
+    }
+
     public void storePos() {
         setClawPos(Constants.Outtake.dropClaw);
         setVSlidePos(Constants.Outtake.intakeSlides);
