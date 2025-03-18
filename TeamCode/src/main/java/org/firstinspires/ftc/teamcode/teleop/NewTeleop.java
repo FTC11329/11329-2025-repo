@@ -189,7 +189,7 @@ public class NewTeleop {
     public void start() {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        outtakeSystem = new OuttakeSystem(hardwareMap);
+        outtakeSystem = new OuttakeSystem(hardwareMap, true);
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
         elapsedTime.reset();
     }

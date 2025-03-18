@@ -173,7 +173,7 @@ public class SpecimenAuto5Spec {
     public void start() {
         opmodeTimer.resetTimer();
 
-        outtakeSystem = new OuttakeSystem(hardwareMap);
+        outtakeSystem = new OuttakeSystem(hardwareMap, true);
 
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
 
@@ -193,62 +193,62 @@ public class SpecimenAuto5Spec {
 
         pickupSpike1Path = new Path(new BezierCurve(new Point(preloadPlace), new Point(spike1ControlPoint1), new Point(spike1ControlPoint2), new Point(backSpike1)));
         pickupSpike1Path.setConstantHeadingInterpolation(Math.toRadians(90));
-        pickupSpike1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        pickupSpike1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pushSpike1Path   = follower.linearPathBuilder(backSpike1, pushedSpike1);
-        pushSpike1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        pushSpike1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pickupSpike2Path = new Path(new BezierCurve(new Point(pushedSpike1), new Point(spike2ControlPoint1), new Point(spike2ControlPoint2), new Point(pushedSpike2)));
         pickupSpike2Path.setConstantHeadingInterpolation(Math.toRadians(90));
-        pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pickupSpike3Path = new Path(new BezierCurve(new Point(pushedSpike2), new Point(spike3ControlPoint1), new Point(backSpike3)));
         pickupSpike3Path.setConstantHeadingInterpolation(Math.toRadians(90));
-        pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        pickupSpike2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         pushSpike3Path   = follower.linearPathBuilder(backSpike3, pushedSpike3);
-        pushSpike3Path.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+//        pushSpike3Path.setZeroPowerAccelerationMultiplier(zeroMultSlow);
 
 
         frontWallToWall  = follower.linearPathBuilder(frontWall, pickupWall);
-        frontWallToWall.setZeroPowerAccelerationMultiplier(3.5);
+//        frontWallToWall.setZeroPowerAccelerationMultiplier(3.5);
 
         toWall1 = follower.linearPathBuilder(pushedSpike3, pickupWallRightSide);
         toWall1.setConstantHeadingInterpolation(pushedSpike3.getHeading());
-        toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+//        toWall1.setZeroPowerAccelerationMultiplier(zeroMultSlow);
 
         //frontWallToWall
         placeSub1Path = follower.linearPathBuilder(pickupWallRightSide, placeSub1.addReturn(frontSubOffset));
         placeSub1Path.setConstantHeadingInterpolation(placeSub1.getHeading());
-        placeSub1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        placeSub1Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
         toFrontWall2 = follower.linearPathBuilder(placeSub1.addReturn(new Pose(0,-3,0)), frontWall);
         toFrontWall2.setConstantHeadingInterpolation(placeSub1.getHeading());
-        toFrontWall2.setZeroPowerAccelerationMultiplier(4);
+//        toFrontWall2.setZeroPowerAccelerationMultiplier(4);
         //frontWallToWall
         placeSub2Path = follower.linearPathBuilder(pickupWall, placeSub2.addReturn(frontSubOffset));
         placeSub2Path.setConstantHeadingInterpolation(placeSub2.getHeading());
-        placeSub2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        placeSub2Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
         toFrontWall3 = follower.linearPathBuilder(placeSub2.addReturn(new Pose(0,-3,0)), frontWall);
         toFrontWall3.setConstantHeadingInterpolation(placeSub2.getHeading());
-        toFrontWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+//        toFrontWall3.setZeroPowerAccelerationMultiplier(zeroMultSlow);
 
         //frontWallToWall
         placeSub3Path = follower.linearPathBuilder(pickupWall, placeSub3.addReturn(frontSubOffset));
         placeSub3Path.setConstantHeadingInterpolation(placeSub3.getHeading());
-        placeSub3Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        placeSub3Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
 
         toFrontWall4 = follower.linearPathBuilder(placeSub3.addReturn(new Pose(0,-3,0)), frontWall);
         toFrontWall4.setConstantHeadingInterpolation(placeSub3.getHeading());
-        toFrontWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
+//        toFrontWall4.setZeroPowerAccelerationMultiplier(zeroMultSlow);
         //frontWallToWall
         placeSub4Path = follower.linearPathBuilder(pickupWall, placeSub4.addReturn(frontSubOffset));
         placeSub4Path.setConstantHeadingInterpolation(placeSub4.getHeading());
-        placeSub4Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
+//        placeSub4Path.setZeroPowerAccelerationMultiplier(zeroMultFast);
 
         parkPathSpit = new Path(new BezierCurve(new Point(placeSub4), new Point(parkControlPoint), new Point(parkSpit)));
         parkPathSpit.setLinearHeadingInterpolation(placeSub4.getHeading(), parkSpit.getHeading());

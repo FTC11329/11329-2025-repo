@@ -176,7 +176,7 @@ public class SpecimenAuto5Spec1Sam {
     public void start() {
         opmodeTimer.resetTimer();
 
-        outtakeSystem = new OuttakeSystem(hardwareMap);
+        outtakeSystem = new OuttakeSystem(hardwareMap, true);
 
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
 

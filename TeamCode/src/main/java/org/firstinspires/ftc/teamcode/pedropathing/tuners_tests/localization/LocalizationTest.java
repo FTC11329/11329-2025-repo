@@ -128,9 +128,9 @@ public class LocalizationTest extends OpMode {
         poseUpdater.update();
         dashboardPoseTracker.update();
 
-        double y = -gamepad1.left_stick_y; // Remember, this is reversed!
-        double x = gamepad1.left_stick_x; // this is strafing
-        double rx = gamepad1.right_stick_x;
+        double y = -gamepad1.left_stick_y * 0.5; // Remember, this is reversed!
+        double x = gamepad1.left_stick_x * 0.5; // this is strafing
+        double rx = gamepad1.right_stick_x * 0.5;
 
         // Denominator is the largest motor power (absolute value) or 1
         // This ensures all the powers maintain the same ratio, but only when
@@ -151,34 +151,34 @@ public class LocalizationTest extends OpMode {
         telemetryA.addData("heading", poseUpdater.getPose().getHeading());
         telemetryA.addData("total heading", poseUpdater.getTotalHeading());
 
-        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
-        telemetryA.addData("Their Velocity Y", poseUpdater.getVelocity().getYComponent());
-        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
-        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
-        telemetryA.addLine();
-        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
-        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
-        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
-        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
-        telemetryA.addLine();
-
-
-        velocityPose.setX((poseUpdater.getPose().getX() - lastPose.getX()) / (time.milliseconds() - lastTime));
-        velocityPose.setY((poseUpdater.getPose().getY() - lastPose.getY()) / (time.milliseconds() - lastTime));
-
-        accelerationPose.setX((velocityPose.getX() - lastVelocityPose.getX()) / (time.milliseconds() - lastTime));
-        accelerationPose.setY((velocityPose.getY() - lastVelocityPose.getY()) / (time.milliseconds() - lastTime));
-
-        telemetryA.addData("New Velocity X", velocityPose.getX());
-        telemetryA.addData("New Velocity Y", velocityPose.getY());
-        telemetryA.addData("New Acceleration X", accelerationPose.getX());
-        telemetryA.addData("New Acceleration Y", accelerationPose.getY());
-        telemetryA.update();
-
-        lastVelocityPose = velocityPose;
-        lastPose = poseUpdater.getPose();
-        lastTime = time.milliseconds();
-
+//        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
+//        telemetryA.addData("Their Velocity Y", poseUpdater.getVelocity().getYComponent());
+//        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
+//        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
+//        telemetryA.addLine();
+//        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
+//        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
+//        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
+//        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
+//        telemetryA.addLine();
+//
+//
+//        velocityPose.setX((poseUpdater.getPose().getX() - lastPose.getX()) / (time.milliseconds() - lastTime));
+//        velocityPose.setY((poseUpdater.getPose().getY() - lastPose.getY()) / (time.milliseconds() - lastTime));
+//
+//        accelerationPose.setX((velocityPose.getX() - lastVelocityPose.getX()) / (time.milliseconds() - lastTime));
+//        accelerationPose.setY((velocityPose.getY() - lastVelocityPose.getY()) / (time.milliseconds() - lastTime));
+//
+//        telemetryA.addData("New Velocity X", velocityPose.getX());
+//        telemetryA.addData("New Velocity Y", velocityPose.getY());
+//        telemetryA.addData("New Acceleration X", accelerationPose.getX());
+//        telemetryA.addData("New Acceleration Y", accelerationPose.getY());
+//        telemetryA.update();
+//
+//        lastVelocityPose = velocityPose;
+//        lastPose = poseUpdater.getPose();
+//        lastTime = time.milliseconds();
+//
         Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();

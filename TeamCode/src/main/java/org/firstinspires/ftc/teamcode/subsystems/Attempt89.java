@@ -72,6 +72,11 @@ public class Attempt89 {
             return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1);
         }
 
+        //Returns an empty pose2d if 0,0,0
+        if (finalResult.getX(DistanceUnit.INCH) == 0 && finalResult.getY(DistanceUnit.INCH) == 0) {
+            return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1);
+        }
+
         return finalResult;
     }
 

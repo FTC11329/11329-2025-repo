@@ -84,6 +84,4 @@ public class VerticalSlides {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         disabled = false;
     }
-
-
 }

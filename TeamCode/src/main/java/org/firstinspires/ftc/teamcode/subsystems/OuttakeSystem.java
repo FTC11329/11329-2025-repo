@@ -11,12 +11,19 @@ public class OuttakeSystem {
 
     public OuttakeArm outtakeArm;
     public VerticalSlides vSlides;
+    HardwareMap hardwareMap;
 
-    public OuttakeSystem(HardwareMap hardwareMap) {
-        outtakeArm = new OuttakeArm(hardwareMap);
+    public OuttakeSystem(HardwareMap hardwareMap, boolean initArm) {
+        if (initArm) {
+            outtakeArm = new OuttakeArm(hardwareMap);
+            setClawPos(Constants.Outtake.grabClaw);
+        }
+        this.hardwareMap = hardwareMap;
         vSlides = new VerticalSlides(hardwareMap);
+    }
 
-        setClawPos(Constants.Outtake.grabClaw);
+    public void initArm() {
+        outtakeArm = new OuttakeArm(hardwareMap);
     }
 
     public void manualArm(double power) {
