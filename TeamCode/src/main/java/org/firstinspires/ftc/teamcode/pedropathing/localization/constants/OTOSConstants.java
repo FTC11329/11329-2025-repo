@@ -33,13 +33,13 @@ public class OTOSConstants {
      * For the OTOS, left/right is the y axis and forward/backward is the x axis, with left being positive y and forward being positive x.
      * PI/2 radians is facing forward, and clockwise rotation is negative rotation.
      * Default Value: new Pose2D(0, 0, Math.PI / 2) */
-    public static SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, Math.toRadians(-90));
+    public static SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, 0, Math.toRadians(90));
 
     /** The linear scalar of the OTOS sensor
      * Default Value: 1.0 */
-    public static double linearScalar = 0.977736426;
+    public static double linearScalar = 1; //103 / 103.76 105 / 104.95
 
     /** The angular scalar of the OTOS sensor
      * Default Value: 1.0 */
-    public static double angularScalar = 0.9946017839;
+    public static double angularScalar = 1;
 }

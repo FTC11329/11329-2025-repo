@@ -1318,6 +1318,13 @@ public class Follower {
         turn(Math.toRadians(degrees), isLeft);
     }
 
+    /** Returns the heading error
+     * @return The heading error
+     */
+    public double getHeadingError() {
+        return headingError;
+    }
+
     //Builds a very simple path
     public Path linearPathBuilder(Pose startPose, Pose endPose) {
         Path tempPath = new Path(new BezierLine(new Point(startPose), new Point(endPose)));
