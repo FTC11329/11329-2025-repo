@@ -36,7 +36,8 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeTransferSlide = 50;
+        public static int safeToTransferSlide = 320;
+        public static int transferSlides = 385;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
@@ -46,7 +47,7 @@ public class Constants {
         public static double manualSlideSpeed = 75;
 
         public static double wristClimb = 0;
-        public static double wristStore = 0.05;
+        public static double wristStore = 0;
         public static double wristClear = 0.25;
         public static double wristDown = 0.450;
 
@@ -64,24 +65,23 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.929;
-        public static double initTeleopArm = 0.42;
-        public static double initAutoArm = 0.781;
-        public static double autoArmClear = 0.734;
-        public static double preTransferArm = 0.664;
-        public static double upArm = 0.42;
-        public static double intakeWallArm = 0.003;
+        public static double intakeArm = 0.9677; //0.938
+        public static double initTeleopArm = 0.5;
+        public static double initAutoArm = 0.861;
+        public static double autoArmClear = 0.814;
+        public static double preTransferArm = 0.744;
+        public static double upArm = 0.5;
+        public static double intakeWallArm = 0.09;
         public static double manualArmSpeed = 0.01;
 
-        public static double specimenArm = 0.70;
-        public static double basketArm = 0.222;
-        public static double frontBasketArm = 0.5785;
-        public static double autoArmClimb = 0.628;
-        public static double parkArm = 0.70;
+        public static double specimenArm = 0.78;
+        public static double basketArm = 0.302;
+        public static double frontBasketArm = 0.6585;
+        public static double parkArm = 0.78;
 
-        public static int intakeSlides = 210;
-        public static int intakeWaitSlides = 450;
-        public static int intakeWallSlides = 100;
+        public static int intakeSlides = 180; //278
+        public static int intakeWaitSlides = 450; //not used anymore
+        public static int intakeWallSlides = 185;
         public static int intakeWallAutoSlides = 100;
 
         public static int safeFromWallSlides = 360;
@@ -100,7 +100,7 @@ public class Constants {
 
         public static double wallDistance = 1;
         public static double inClawDistance = 1;
-        public static double transferClawDistance = ?;
+        public static double transferClawDistance = 0.5;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

@@ -111,7 +111,7 @@ public class IntakeSystem {
     }
 
     public void storeOutPos() {
-        setHSlidePos(Constants.Intake.minWhileDownPos);
+        setHSlidePos(Constants.Intake.transferSlides);
         setIntakeServoPos(Constants.Intake.wristStore);
         setIntakePower(0);
     }
@@ -200,7 +200,7 @@ public class IntakeSystem {
     }
 
     public boolean readyToTranfer() {
-        return getHSlidePos() < Constants.Intake.safeTransferSlide;
+        return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 18 && getIntakeServoPos() < Constants.Intake.wristClear;
     }
 
     public NormalizedRGBA directColor() {

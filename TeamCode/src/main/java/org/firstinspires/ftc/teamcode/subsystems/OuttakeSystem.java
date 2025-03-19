@@ -93,6 +93,10 @@ public class OuttakeSystem {
         }
     }
 
+    public boolean readyToTransfer() {
+        return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 20 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1;
+    }
+
     public void update() {
         vSlides.update();
     }
