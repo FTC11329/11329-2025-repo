@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class VerticalSlides {
@@ -33,6 +34,7 @@ public class VerticalSlides {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
     public void manualPos(double power) {
@@ -54,6 +56,14 @@ public class VerticalSlides {
     }
     public int getPos() {
         return slideMotor.getCurrentPosition();
+    }
+
+    public double getAmp() {
+        return slideMotor.getCurrent(CurrentUnit.AMPS);
+    }
+
+    public boolean overAmp() {
+        return slideMotor.isOverCurrent();
     }
 
     public boolean nearlyTuchyWuchyed() {

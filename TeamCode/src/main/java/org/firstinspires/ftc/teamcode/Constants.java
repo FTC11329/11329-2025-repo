@@ -36,8 +36,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int safeToTransferSlide = 320;
-        public static int transferSlides = 385;
+        public static int transferSlides = 275;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
@@ -65,7 +64,7 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.9677; //0.938
+        public static double intakeArm = 0.9823;
         public static double initTeleopArm = 0.5;
         public static double initAutoArm = 0.861;
         public static double autoArmClear = 0.814;
@@ -79,7 +78,7 @@ public class Constants {
         public static double frontBasketArm = 0.6585;
         public static double parkArm = 0.78;
 
-        public static int intakeSlides = 180; //278
+        public static int intakeSlides = 197;
         public static int intakeWaitSlides = 450; //not used anymore
         public static int intakeWallSlides = 185;
         public static int intakeWallAutoSlides = 100;
@@ -98,9 +97,8 @@ public class Constants {
 
         public static double manualSlideSpeed = 60;
 
-        public static double wallDistance = 1;
-        public static double inClawDistance = 1;
-        public static double transferClawDistance = 0.5;
+        public static double seesWallDistance = 1.25;
+        public static double seesTransferDistance = 0.95;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

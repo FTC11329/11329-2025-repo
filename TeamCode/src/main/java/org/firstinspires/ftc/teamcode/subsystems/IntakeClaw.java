@@ -23,9 +23,13 @@ public class IntakeClaw {
     Servo intakeServo;
     double lastWristPos = 0;
 
+    Servo depoServo;
+    double lastDepoPos = 0;
+
     public IntakeClaw(HardwareMap hardwareMap) {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
+        depoServo = hardwareMap.get(Servo.class, "depoServo");
 
         intakeMotor.setCurrentAlert(3, CurrentUnit.AMPS);
 
@@ -33,8 +37,10 @@ public class IntakeClaw {
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        depoServo.setDirection(Servo.Direction.FORWARD);
         intakeServo.setDirection(Servo.Direction.REVERSE);
 
+        depoServo.setPosition(0);
         intakeServo.setPosition(0);
     }
     //checks if it has been jammed for more than a certain amount of time
@@ -76,8 +82,17 @@ public class IntakeClaw {
             intakeServo.setPosition(newPos);
         }
     }
+    public void setDepoServoPos(double newPos) {
+        if (lastDepoPos != newPos) {
+            lastDepoPos  = newPos;
+            depoServo.setPosition(newPos);
+        }
+    }
     public double getIntakeServoPos() {
-        return intakeServo.getPosition();
+        return lastWristPos;
+    }
+    public double getDepoServoPos() {
+        return lastDepoPos;
     }
 
     public void stopIntake() {

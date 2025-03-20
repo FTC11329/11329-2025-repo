@@ -90,11 +90,29 @@ public class OuttakeSystem {
         } else if (posEnum == PlacePosEnum.wallAuto) {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
+
+        } else if (posEnum == PlacePosEnum.intake) {
+            setArmPos(Constants.Outtake.intakeArm);
+            setVSlidePos(Constants.Outtake.intakeSlides);
         }
     }
 
+    public double getAmp() {
+        return vSlides.getAmp();
+    }
+
+    public boolean overAmp() {
+        return vSlides.overAmp();
+    }
+
     public boolean readyToTransfer() {
-        return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 20 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1;
+        return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 40 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1 && outtakeArm.seesTransfer();
+    }
+    public boolean seesWall() {
+        return outtakeArm.seesWall();
+    }
+    public boolean seesTransfer() {
+        return outtakeArm.seesWall();
     }
 
     public void update() {

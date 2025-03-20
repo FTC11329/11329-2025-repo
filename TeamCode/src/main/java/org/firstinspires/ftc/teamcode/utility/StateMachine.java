@@ -136,6 +136,10 @@ public class StateMachine {
         transferred = true;
     }
 
+    public void failTransfer() {
+        resetValues();
+    }
+
     public void finishUnStore() {
         atStorePos = false;
     }

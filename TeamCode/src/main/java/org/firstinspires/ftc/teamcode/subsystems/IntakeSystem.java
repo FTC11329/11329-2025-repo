@@ -46,9 +46,15 @@ public class IntakeSystem {
     public void setIntakeServoPos(double newPos) {
         intakeClaw.setIntakeServoPos(newPos);
     }
+    public void setDepoServoPos(double newPos) {
+        intakeClaw.setDepoServoPos(newPos);
+    }
 
     public double getIntakeServoPos() {
         return intakeClaw.getIntakeServoPos();
+    }
+    public double getDepoServoPos() {
+        return intakeClaw.getDepoServoPos();
     }
 
     public boolean isJammed() {
@@ -200,7 +206,7 @@ public class IntakeSystem {
     }
 
     public boolean readyToTranfer() {
-        return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 18 && getIntakeServoPos() < Constants.Intake.wristClear;
+        return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && getIntakeServoPos() < Constants.Intake.wristClear;
     }
 
     public NormalizedRGBA directColor() {

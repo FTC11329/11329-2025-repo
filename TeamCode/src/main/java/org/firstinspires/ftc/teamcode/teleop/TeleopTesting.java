@@ -1,17 +1,10 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.hardware.bosch.BHI260IMU;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
@@ -28,7 +21,7 @@ public class TeleopTesting {
 
     Climber climber;
     Drivetrain driveTrain;
-    Attempt89 blockvision;
+    Attempt89 blockVision;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
@@ -45,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.PTO.PTOServoClimbRight;
+    double testValue = 0;
     double testValue2 = Constants.Outtake.intakeWallArm;
     double testValue3 = Constants.Outtake.initTeleopArm;
     boolean intakeingColor = false;
@@ -203,6 +196,8 @@ public class TeleopTesting {
                 intakeingColor = false;
             }
         }
+
+
 //        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
         testValue += 0.002 * (gamepad2.right_trigger - gamepad2.left_trigger);
         testValue2 += 5 * (-gamepad2.left_stick_y);
@@ -217,7 +212,7 @@ public class TeleopTesting {
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
-        powerTakeOff.setLeftPos(testValue);
+        intakeSystem.setDepoServoPos(testValue);
         telemetry.addData("testValue H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);

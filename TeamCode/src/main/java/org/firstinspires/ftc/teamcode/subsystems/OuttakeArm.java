@@ -70,4 +70,11 @@ public class OuttakeArm {
     public double getSensorDistance() {
         return clawSensor.getDistance(DistanceUnit.INCH);
     }
+
+    public boolean seesWall() {
+        return getSensorDistance() < Constants.Outtake.seesWallDistance;
+    }
+    public boolean seesTransfer() {
+        return getSensorDistance() < Constants.Outtake.seesTransferDistance;
+    }
 }
