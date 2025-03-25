@@ -17,9 +17,6 @@ public class IntakeSystem {
     boolean intakeOnce = false;
     double intakeTime = 2000000000;
 
-    boolean unjamOnce = false;
-    double unJamTime = 2000000000;
-
     public IntakeClaw intakeClaw;
     private HorizontalSlides hSlides;
     private RevColorSensorV3 intakeSensor;
@@ -113,16 +110,18 @@ public class IntakeSystem {
     public void storePos() {
         setHSlidePos(Constants.Intake.minSlidePos);
         setIntakeServoPos(Constants.Intake.wristStore);
+        setDepoServoPos(Constants.Intake.depoStore);
         setIntakePower(0);
     }
 
     public void storeOutPos() {
         setHSlidePos(Constants.Intake.transferSlides);
         setIntakeServoPos(Constants.Intake.wristStore);
+        setDepoServoPos(Constants.Intake.depoStore);
         setIntakePower(0);
     }
 
-
+    //Artifact
     public void intakeBitMore() {
         intakeClaw.bitMore();
     }
@@ -189,6 +188,7 @@ public class IntakeSystem {
         }
     }
 
+    //Artifact
     public boolean unjam() {
         setIntakePower(Constants.Intake.unjamSpeed);
         if (intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance && !unjamP2) {
@@ -205,7 +205,7 @@ public class IntakeSystem {
         return false;
     }
 
-    public boolean readyToTranfer() {
+    public boolean readyToTransfer() {
         return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && getIntakeServoPos() < Constants.Intake.wristClear;
     }
 

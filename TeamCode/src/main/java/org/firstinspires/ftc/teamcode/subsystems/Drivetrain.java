@@ -37,6 +37,11 @@ public class Drivetrain {
     public SimplePIDControl pidControl;
 
     public boolean isAtPTOPosition = false;
+    public double lastLeftFrontPower = 0;
+    public double lastLeftBackPower = 0;
+    public double lastRightBackPower = 0;
+    public double lastRightFrontPower = 0;
+
 
     public Drivetrain(HardwareMap hardwareMap) {
 
@@ -155,10 +160,28 @@ public class Drivetrain {
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
-        leftFront.setPower(wheelVels.leftFront.get(0) / maxPowerMag);
-        leftBack.setPower(wheelVels.leftBack.get(0) / maxPowerMag);
-        rightBack.setPower(wheelVels.rightBack.get(0) / maxPowerMag);
-        rightFront.setPower(wheelVels.rightFront.get(0) / maxPowerMag);
+        //Optimizing loop times
+        double leftFrontPower = wheelVels.leftFront.get(0) / maxPowerMag;
+        double leftBackPower = wheelVels.leftBack.get(0) / maxPowerMag;
+        double rightBackPower = wheelVels.rightBack.get(0) / maxPowerMag;
+        double rightFrontPower = wheelVels.rightFront.get(0) / maxPowerMag;
+
+        if (lastLeftFrontPower != leftFrontPower) {
+            lastLeftFrontPower = leftFrontPower;
+            leftFront.setPower(leftFrontPower);
+        }
+        if (lastLeftBackPower != leftBackPower) {
+            lastLeftBackPower = leftBackPower;
+            leftBack.setPower(leftBackPower);
+        }
+        if (lastRightBackPower != rightBackPower) {
+            lastRightBackPower = rightBackPower;
+            rightBack.setPower(rightBackPower);
+        }
+        if (lastRightFrontPower != rightFrontPower) {
+            lastRightFrontPower = rightFrontPower;
+            rightFront.setPower(rightFrontPower);
+        }
     }
 
     public double[] getDrivePowers() {

@@ -206,7 +206,7 @@ public class VisionSampleAuto {
                     }
                     break;
                 case 3:
-                    if (intakeSystem.readyToTranfer()){
+                    if (intakeSystem.readyToTransfer()){
                         outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
                         setTransferState(4);

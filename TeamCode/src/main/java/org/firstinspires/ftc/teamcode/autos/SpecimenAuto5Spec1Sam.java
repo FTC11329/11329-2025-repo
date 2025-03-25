@@ -627,7 +627,7 @@ public class SpecimenAuto5Spec1Sam {
                     }
                     break;
                 case 3:
-                    if (intakeSystem.readyToTranfer() && Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 500) {
+                    if (intakeSystem.readyToTransfer() && Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 500) {
                         setStoreState(0);
                         doStore = false;
                     }

@@ -37,11 +37,11 @@ public class IntakeClaw {
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        depoServo.setDirection(Servo.Direction.FORWARD);
+        depoServo.setDirection(Servo.Direction.REVERSE);
         intakeServo.setDirection(Servo.Direction.REVERSE);
 
-        depoServo.setPosition(0);
-        intakeServo.setPosition(0);
+        depoServo.setPosition(Constants.Intake.depoStore);
+        intakeServo.setPosition(Constants.Intake.wristStore);
     }
     //checks if it has been jammed for more than a certain amount of time
     public boolean isJammed() {

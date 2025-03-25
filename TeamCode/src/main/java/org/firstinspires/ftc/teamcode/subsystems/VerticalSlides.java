@@ -70,17 +70,25 @@ public class VerticalSlides {
         return touchSensor.isPressed();
     }
 
-    public void update() {
+    public void update(boolean limit) {
         touched = touchSensor.isPressed();
         if (disabled) {
             return;
         }
-        if (touched && time.milliseconds() > lastPressedTime + 100 && lastSlidePos < getPos()) {
-            lastPressedTime = time.milliseconds();
-            slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            slideMotor.setTargetPosition(0);
-            lastSlidePos = 0;
+        if (limit) {
+            if (touched && time.milliseconds() > lastPressedTime + 100 && lastSlidePos < getPos()) {
+                lastPressedTime = time.milliseconds();
+                slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideMotor.setTargetPosition(0);
+                lastSlidePos = 0;
+            }
+        } else {
+            if (touched) {
+                slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                slideMotor.setTargetPosition(0);
+                lastSlidePos = 0;
+            }
         }
     }
 

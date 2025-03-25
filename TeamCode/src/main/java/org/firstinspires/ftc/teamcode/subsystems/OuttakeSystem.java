@@ -115,8 +115,8 @@ public class OuttakeSystem {
         return outtakeArm.seesWall();
     }
 
-    public void update() {
-        vSlides.update();
+    public void update(boolean limit) {
+        vSlides.update(limit);
     }
 
     public void disable() {

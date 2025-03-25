@@ -159,9 +159,11 @@ public class TeleopTesting {
 
 
         if (gamepad1.left_bumper) {
-            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+//            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+            intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
         } else {
-            outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+//            outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+            intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
         }
         if (gamepad1.dpad_right) {
             intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
@@ -212,7 +214,7 @@ public class TeleopTesting {
 //        intakeSystem.setHSlidePos((int) testValue);
 //        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
-        intakeSystem.setDepoServoPos(testValue);
+//        intakeSystem.setDepoServoPos(testValue);
         telemetry.addData("testValue H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
@@ -285,7 +287,7 @@ public class TeleopTesting {
 
 
         intakeSystem.update();
-        outtakeSystem.update();
+        outtakeSystem.update(false);
         telemetry.update();
     }
 
