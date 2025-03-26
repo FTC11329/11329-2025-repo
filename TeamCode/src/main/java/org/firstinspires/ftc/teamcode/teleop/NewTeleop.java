@@ -70,6 +70,8 @@ public class NewTeleop {
     double manualArm;
     double manualClimber;
 
+    boolean sideDepo;
+
     boolean highSpecimen;
     boolean highBasket;
     boolean lowBasket;
@@ -129,6 +131,11 @@ public class NewTeleop {
     double grabbingOffWallTime = 2000000000;
     boolean droppingBasket = false;
     double droppingBasketTime = 2000000000;
+    double sideDepoTime = 2000000000;
+    boolean sideDepoFirst = false;
+    boolean sideDepoDebounce = false;
+
+    boolean sideDepoing = false;
 
     boolean intakeingColor = false;
     boolean intakeing = false;
@@ -217,10 +224,12 @@ public class NewTeleop {
             manualClimber = 0;
         }
 
+        sideDepo = gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0;
+
         highSpecimen = gamepad2.dpad_up;
         highBasket = gamepad2.dpad_right;
         lowBasket = gamepad2.dpad_down;
-        frontBasket = gamepad2.touchpad;
+        frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
         wallPreset = gamepad2.dpad_left;
         storePos = gamepad2.triangle;//y
         transfer = gamepad2.left_bumper;
@@ -736,6 +745,7 @@ public class NewTeleop {
             // Grab
             if (clawToggle && whereAmI == PlacePosEnum.wall) {
                 grabbingOffWall = true;
+                wallOnce = true;
             } else if (clawToggle) {
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
             }
@@ -749,9 +759,6 @@ public class NewTeleop {
             } else if (!clawToggle && whereAmI == PlacePosEnum.highSpecimen) {
                 hasInOuttake = false;
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                if (intakeing || intakeingColor) {
-//                    stateMachine.goStore();
-                }
             } else if (!clawToggle) {
                 hasInOuttake = false;
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -762,23 +769,12 @@ public class NewTeleop {
         }
 
         if (grabbingOffWall) {
-            //for depo
-            if (Math.abs(intakeSystem.getHSlidePos() - Constants.Intake.minSlidePos) < 20 && hasInTray && onceTime) {
-                intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
-                grabbingOffWallTime = elapsedTime.milliseconds();
-                onceTime = false;
-            }
-            if (elapsedTime.milliseconds() > grabbingOffWallTime + 500 && wallOnce) {
-                intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
-                hasInTray = false;
-                onceTime = true;
-            }
-            if (outtakeSystem.seesWall() && (wallOnce && !hasInTray && !hasInIntake)) {
+            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 hasInOuttake = true;
 
-                wallOnce = false;
                 grabbingOffWallTime = elapsedTime.milliseconds();
+                wallOnce = false;
             }
             if (elapsedTime.milliseconds() > grabbingOffWallTime + 300 && !wallOnce) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
@@ -867,6 +863,44 @@ public class NewTeleop {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
+        }
+
+        //SIDE DEPOSIT*****************************************************************************~
+        if (sideDepo && !sideDepoDebounce) {
+            sideDepoing = true;
+            sideDepoFirst = true;
+            sideDepoDebounce = true;
+            sideDepoTime = elapsedTime.milliseconds();
+            if (whereAmI != PlacePosEnum.wall) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+            }
+        }
+        if (!sideDepo) {
+            sideDepoDebounce = false;
+        }
+
+        if (sideDepoing) {
+            intakeSystem.setHSlidePos(0);
+            if (whereAmI != PlacePosEnum.wall) {
+                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+            }
+            if (elapsedTime.milliseconds() < sideDepoTime + 100 && sideDepoFirst) {
+                intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+            }
+            if (elapsedTime.milliseconds() > sideDepoTime + 400 && elapsedTime.milliseconds() < sideDepoTime + 500 && sideDepoFirst) {
+                intakeSystem.setIntakePower(0);
+            }
+            if (elapsedTime.milliseconds() > sideDepoTime + 400 && !sideDepo && sideDepoFirst) {
+                sideDepoTime = elapsedTime.milliseconds();
+                sideDepoFirst = false;
+            }
+            if (elapsedTime.milliseconds() < sideDepoTime + 100 && !sideDepoFirst) {
+                intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
+            }
+            if (elapsedTime.milliseconds() > sideDepoTime + 400 && !sideDepoFirst) {
+                intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
+                sideDepoing = false;
+            }
         }
 
         //Unjamming intake ************************************************************************~
