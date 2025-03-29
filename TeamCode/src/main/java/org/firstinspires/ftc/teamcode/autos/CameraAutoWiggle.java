@@ -78,7 +78,7 @@ public class CameraAutoWiggle extends OpMode {
         opmodeTimer.resetTimer();
 
         follower.setStartingPose(startPose);
-        attempt89.switchPipeline(0);
+        attempt89.switchPipeline(2);
 
     }
 

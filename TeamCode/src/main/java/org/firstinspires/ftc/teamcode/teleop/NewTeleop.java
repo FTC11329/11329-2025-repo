@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
@@ -24,6 +26,8 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 public class NewTeleop {
+    //Delete me
+    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
     Follower follower;
     Drivetrain driveTrain;
@@ -43,7 +47,7 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugClimber = false;
     boolean debugAuto = false;
-    boolean debugMisc = true;
+    boolean debugMisc = false;
 
     //Auto Variables
     private final Pose frontWall  = new Pose(38, -54, Math.toRadians(90));
@@ -165,9 +169,18 @@ public class NewTeleop {
     }
 
     public void init() {
+        //delete me
+        motor1 = hardwareMap.get(DcMotorEx.class, "leftFront");
+        motor2 = hardwareMap.get(DcMotorEx.class, "rightFront");
+        motor3 = hardwareMap.get(DcMotorEx.class, "rightBack");
+        motor4 = hardwareMap.get(DcMotorEx.class, "leftBack");
+        motor5 = hardwareMap.get(DcMotorEx.class, "hSlides");
+        motor6 = hardwareMap.get(DcMotorEx.class, "vSlides");
+        motor7 = hardwareMap.get(DcMotorEx.class, "climber");
+        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         //uncomment if you want telemetry on dashboard
-//        dashboard = FtcDashboard.getInstance();
-//        telemetry = dashboard.getTelemetry();
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
@@ -364,9 +377,10 @@ public class NewTeleop {
                 case 0:
                     //puts arm to safe space
                     if (outtakeSystem.getArmPos() > 0.6) {
-                        outtakeSystem.setVSlidePos(1400);
+                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     } else {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
                     }
 
@@ -393,21 +407,7 @@ public class NewTeleop {
                     break;
                 case 2:
                     driveTrain.setPTOPower(1);
-                    //Does some things to make sure that the current has been tripped for more than 1 second after one one second
-                    if (climberTimer.getElapsedTimeSeconds() > 0.75) {
-                        current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
-                    } else {
-                        current = 0;
-                    }
-
-                    if (current > 5.7 && !lastCurrentTrip) {
-                        lastCurrentTripTime = elapsedTime.milliseconds();
-                        lastCurrentTrip = true;
-                    } else if (current < 5.7) {
-                        lastCurrentTrip = false;
-                    }
-
-                    if (current > 5.7 && elapsedTime.milliseconds() > lastCurrentTripTime + 400) {
+                    if (climber.getDistance() > 10.5) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         //Prevent pto from drawing too much power
@@ -418,7 +418,7 @@ public class NewTeleop {
                     }
                     break;
                 case 3:
-                    driveTrain.setPTOPower(0.1);
+                    driveTrain.setPTOPower(0.8);
                     if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 100) {
                         //disable PTO to conserve power
                         driveTrain.setPTOPower(0);
@@ -866,7 +866,7 @@ public class NewTeleop {
         }
 
         //SIDE DEPOSIT*****************************************************************************~
-        if (sideDepo && !sideDepoDebounce) {
+        if (sideDepo && !sideDepoDebounce && !intakeing && !intakeingColor && !unjamAfterIntake && !unjamming && !intakeColor && !intake) {
             sideDepoing = true;
             sideDepoFirst = true;
             sideDepoDebounce = true;
@@ -1038,6 +1038,17 @@ public class NewTeleop {
         if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState) {
             telemetry.update();
         }
+
+        telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("leftBack", motor4.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
+
         telemetry.update();
     }
 

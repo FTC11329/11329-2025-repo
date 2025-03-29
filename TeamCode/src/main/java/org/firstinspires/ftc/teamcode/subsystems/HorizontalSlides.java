@@ -78,6 +78,11 @@ public class HorizontalSlides {
             slideMotor.setTargetPosition(0);
             lastSlidePos = 0;
         }
+        if (touched && getTargetPos() == 0) {
+            slideMotor.setPower(0);
+        } else if (slideMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
+            slideMotor.setPower(1);
+        }
     }
 
     public void disable() {

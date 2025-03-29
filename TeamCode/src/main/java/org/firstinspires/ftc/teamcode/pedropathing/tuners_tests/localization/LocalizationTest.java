@@ -49,6 +49,7 @@ import java.util.List;
 @Config
 @TeleOp(group = "Teleop Test", name = "Localization Test")
 public class LocalizationTest extends OpMode {
+    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
     private Telemetry telemetryA;
@@ -82,6 +83,7 @@ public class LocalizationTest extends OpMode {
 
         otos.calibrateImu();
         otos.resetTracking();
+        otos.setPosition(new SparkFunOTOS.Pose2D(startPose.getX(), startPose.getY(), startPose.getHeading()));
 
         otos.resetTracking();
 
@@ -109,6 +111,7 @@ public class LocalizationTest extends OpMode {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         }
+        poseUpdater.setStartingPose(startPose);
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("This will print your robot's position to telemetry while "
