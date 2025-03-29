@@ -1442,7 +1442,7 @@ public class Follower {
         }
         cameraSearchPath = linearPathBuilder(tempPose, new Pose(globalPose.getX(DistanceUnit.INCH), globalPose.getY(DistanceUnit.INCH), tempPose.getHeading() - (alphaTwo)));
         followPath(cameraSearchPath);
-        return (Math.hypot(X, Y + B) - 2); //Extend Hslides
+        return (Math.hypot(X, Y + B)); //Extend Hslides
     }
 
     public Pose2D robotToWorld(Pose2D target, Pose robotTransform){

@@ -21,6 +21,8 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
+import java.util.List;
+
 @Autonomous(name = "Camera Auto Wiggle", group = "Test")
 public class CameraAutoWiggle extends OpMode {
 
@@ -36,7 +38,7 @@ public class CameraAutoWiggle extends OpMode {
     Attempt89 attempt89;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = true; // determines if you rotate the robot or if you move horizontally
+    boolean polar = false; // determines if you rotate the robot or if you move horizontally
     boolean wiggle = false; // This makes the robot move while true
     boolean wiggleBot = false; // This makes the robot try wiggle pathing
     /** This is the variable where we store the state of our auto.
@@ -68,7 +70,7 @@ public class CameraAutoWiggle extends OpMode {
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
+        intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Red);
         outtakeSystem = new OuttakeSystem(hardwareMap, true);
         attempt89 = new Attempt89(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
@@ -147,7 +149,7 @@ public class CameraAutoWiggle extends OpMode {
                 break;
             case 3:
                 // intakes and moves to store pos
-                if (pathTimer.getElapsedTimeSeconds() > .2) {
+                if (pathTimer.getElapsedTimeSeconds() > .6) {
 
                     if (intakeSystem.intakeUntil()) {
                         intakeSystem.storePos();

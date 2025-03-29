@@ -30,12 +30,12 @@ public class Attempt89 {
     private Limelight3A limelight;
 
     private final double cameraYOffset = 1.1;
-    private final double cameraXOffset = 2;
+    private final double cameraXOffset = Math.PI - 1;
 
     //define the height that the center of the camera lens is off the ground
     double height = 10;
     //define the angle that the camera is pointing (90 deg = directly forward)
-    double cameraAngle = Math.toRadians(62);
+    double cameraAngle = Math.toRadians(62.6);
     // define the range of blocks that the robot can grab inches
     double yMaxExtension = 28.0;
     double xMaxTurn = 18.0;
@@ -98,7 +98,7 @@ public class Attempt89 {
                     double distanceY = (height * (Math.tan(cameraAngleY)));
                     double distanceX = (distanceY * (Math.tan(trialAngleX)));
                     //Added distanceY - 1 so we will hit the block with the front rollers
-                    Pose2D distance = new Pose2D(DistanceUnit.INCH, distanceX - cameraXOffset, distanceY - 1, AngleUnit.DEGREES, 0);
+                    Pose2D distance = new Pose2D(DistanceUnit.INCH, (1.25 * distanceX) - cameraXOffset, distanceY - cameraYOffset, AngleUnit.DEGREES, 0);
                     frameDistances.add(distance);
                     i++;
                 }
