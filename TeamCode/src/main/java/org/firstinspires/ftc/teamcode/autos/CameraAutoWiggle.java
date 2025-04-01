@@ -38,7 +38,7 @@ public class CameraAutoWiggle extends OpMode {
     Attempt89 attempt89;
     private Timer pathTimer, actionTimer, opmodeTimer;
 
-    boolean polar = false; // determines if you rotate the robot or if you move horizontally
+    boolean polar = true; // determines if you rotate the robot or if you move horizontally
     boolean wiggle = false; // This makes the robot move while true
     boolean wiggleBot = false; // This makes the robot try wiggle pathing
     /** This is the variable where we store the state of our auto.
@@ -150,7 +150,7 @@ public class CameraAutoWiggle extends OpMode {
             case 3:
                 // intakes and moves to store pos
                 if (pathTimer.getElapsedTimeSeconds() > .6) {
-
+                    intakeSystem.update();
                     if (intakeSystem.intakeUntil()) {
                         intakeSystem.storePos();
                         setPathState(4);

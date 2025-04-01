@@ -1405,7 +1405,7 @@ public class Follower {
         // this code moves backward the maximum amount necessary
         Pose tempPose = getPose();
         Path cameraSearchPath;
-        double blockX = blockO.getX(DistanceUnit.INCH);
+        double blockX = ((blockO.getX(DistanceUnit.INCH) + (Math.PI - 1)) * 1/1.25) - (Math.PI - 1);
         double blockY = blockO.getY(DistanceUnit.INCH);
         double halfRobotWidth = 14.35/2;
         double halfRobotLength = 15.11/2;
