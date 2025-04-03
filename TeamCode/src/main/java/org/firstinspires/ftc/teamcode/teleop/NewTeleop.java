@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 public class NewTeleop {
     //Delete me
-    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
+//    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
     Follower follower;
     Drivetrain driveTrain;
@@ -47,6 +47,8 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugClimber = false;
     boolean debugAuto = false;
+    boolean debugPower = false;
+    //Requires ^ uncommenting things
     boolean debugMisc = false;
 
     //Auto Variables
@@ -170,17 +172,17 @@ public class NewTeleop {
 
     public void init() {
         //delete me
-        motor1 = hardwareMap.get(DcMotorEx.class, "leftFront");
-        motor2 = hardwareMap.get(DcMotorEx.class, "rightFront");
-        motor3 = hardwareMap.get(DcMotorEx.class, "rightBack");
-        motor4 = hardwareMap.get(DcMotorEx.class, "leftBack");
-        motor5 = hardwareMap.get(DcMotorEx.class, "hSlides");
-        motor6 = hardwareMap.get(DcMotorEx.class, "vSlides");
-        motor7 = hardwareMap.get(DcMotorEx.class, "climber");
-        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+//        motor1 = hardwareMap.get(DcMotorEx.class, "leftFront");
+//        motor2 = hardwareMap.get(DcMotorEx.class, "rightFront");
+//        motor3 = hardwareMap.get(DcMotorEx.class, "rightBack");
+//        motor4 = hardwareMap.get(DcMotorEx.class, "leftBack");
+//        motor5 = hardwareMap.get(DcMotorEx.class, "hSlides");
+//        motor6 = hardwareMap.get(DcMotorEx.class, "vSlides");
+//        motor7 = hardwareMap.get(DcMotorEx.class, "climber");
+//        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         //uncomment if you want telemetry on dashboard
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
@@ -635,7 +637,11 @@ public class NewTeleop {
 
         if (stateMachine.doUnStore()) {
             if (onceTime) {
-                outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                if (stateMachine.goingHighBasket()) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                } else {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                }
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 onceState = true;
 
@@ -1010,6 +1016,17 @@ public class NewTeleop {
             telemetry.addData("Pose", follower.getPose());
             telemetry.addLine();
         }
+        if (debugPower || debugAll) {
+//            telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("leftBack", motor4.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
+        }
         if (debugMisc || debugAll) {
             telemetry.addLine("MISCELLANEOUS");
             telemetry.addData("onceTime", onceTime);
@@ -1022,7 +1039,6 @@ public class NewTeleop {
             telemetry.addData("unjamAfterIntake", unjamAfterIntake);
             telemetry.addData("outtake distance", outtakeSystem.getClawDistance());
             telemetry.addData("grabbing off wall", grabbingOffWall);
-            telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
             telemetry.addData("power", outtakeSystem.getAmp());
             telemetry.addData("outtakeSystem.readyToTransfer", outtakeSystem.readyToTransfer());
             telemetry.addData("intakeSystem.readyToTransfer",  intakeSystem.readyToTransfer());
@@ -1030,26 +1046,15 @@ public class NewTeleop {
             telemetry.addData("thing",  elapsedTime.milliseconds() > grabbingOffWallTime + 250);
             telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
-            lastTime = elapsedTime.milliseconds();
 
             //TODO add more Things here
             telemetry.addLine();
         }
-        if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState) {
+        if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower) {
             telemetry.update();
         }
-
-        telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("leftBack", motor4.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
-
-        telemetry.update();
+        telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
+        lastTime = elapsedTime.milliseconds();
     }
 
     public void stop() {

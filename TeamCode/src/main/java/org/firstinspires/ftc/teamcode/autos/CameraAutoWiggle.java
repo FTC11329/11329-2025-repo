@@ -115,7 +115,7 @@ public class CameraAutoWiggle extends OpMode {
                 target = attempt89.getBlockPosition();
                 telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
                 telemetry.addData("targety", target.getY(DistanceUnit.INCH));
-                telemetry.addData("target", target.getHeading(AngleUnit.DEGREES));
+                telemetry.addData("target ", target.getHeading(AngleUnit.DEGREES));
                 telemetry.update();
                 //camera takes photo and starts intake
                 if (target != null && target.getHeading(AngleUnit.DEGREES) != -1){

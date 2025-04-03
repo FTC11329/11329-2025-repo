@@ -163,6 +163,9 @@ public class StateMachine {
         goingWall = false;
     }
 
+    public boolean goingHighBasket() {
+        return goingHighBasket;
+    }
     public boolean[] debug() {
         boolean[] temp = new boolean[3];
         temp[0] = hasInIntake;

@@ -53,7 +53,7 @@ public class IntakeClaw {
         } else if (!jamBool) {
             overCurrentDe = false;
         }
-        if (jamBool && time.milliseconds() > startJamTime + 300) {
+        if (jamBool && time.milliseconds() > startJamTime + 700) {
             return true;
         }
         return false;

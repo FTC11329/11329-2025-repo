@@ -69,23 +69,23 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.9823;
-        public static double initTeleopArm = 0.5;
+        public static double intakeArm = 0.9666;
+        public static double initTeleopArm = 0.49;
         public static double initAutoArm = 0.861;
         public static double autoArmClear = 0.814;
-        public static double preTransferArm = 0.744;
-        public static double upArm = 0.5;
-        public static double intakeWallArm = 0.08;
+        public static double preTransferArm = 0.744; // Depreciated
+        public static double upArm = 0.49;
+        public static double intakeWallArm = 0.0665;
         public static double manualArmSpeed = 0.01;
 
-        public static double specimenArm = 0.78;
-        public static double basketArm = 0.302;
-        public static double frontBasketArm = 0.6585;
-        public static double parkArm = 0.78;
+        public static double specimenArm = 0.7654;
+        public static double basketArm = 0.2825;
+        public static double frontBasketArm = 0.6585; // needs updated
+        public static double parkArm = 0.7654;
 
         public static int intakeSlides = 220;
         public static int intakeWaitSlides = 450; //not used anymore
-        public static int intakeWallSlides = 185;
+        public static int intakeWallSlides = 170;
         public static int intakeWallAutoSlides = 180;
 
         public static int safeFromWallSlides = 360;
