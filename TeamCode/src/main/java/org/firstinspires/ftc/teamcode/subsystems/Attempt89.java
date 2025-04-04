@@ -57,10 +57,13 @@ public class Attempt89 {
         }
         limelight.start();
     }
-
     public Pose2D getBlockPosition() {
+        return getBlockPosition(false);
+    }
 
-        List<Pose2D> distanceArray = fillImageArray();
+    public Pose2D getBlockPosition(boolean polar) {
+
+        List<Pose2D> distanceArray = fillImageArray(polar);
         //Returns an empty pose2d if nothing is there
         if (distanceArray == null || distanceArray.isEmpty()){
             return new Pose2D(DistanceUnit.INCH, 0, 0, AngleUnit.DEGREES, -1);
@@ -80,7 +83,7 @@ public class Attempt89 {
         return finalResult;
     }
 
-    public List<Pose2D> fillImageArray() {
+    public List<Pose2D> fillImageArray(boolean polar) {
         //Creating a 3d array to store the distances of each block for comparison
         LLResult result = limelight.getLatestResult();
         if (result != null) {
@@ -88,7 +91,6 @@ public class Attempt89 {
                 List<LLResultTypes.ColorResult> colorResults = result.getColorResults();
                 boolean isWorking = true;
                 List<Pose2D> frameDistances = new ArrayList<>();
-                int i = 0;
                 for (LLResultTypes.ColorResult cr : colorResults) {
                     //put the angles that are being used in a better variable
                     double cameraAngleY = (Math.toRadians(cr.getTargetYDegrees()) + cameraAngle);
@@ -97,10 +99,15 @@ public class Attempt89 {
                     //calculate the real distances X&Y away from the camera
                     double distanceY = (height * (Math.tan(cameraAngleY)));
                     double distanceX = (distanceY * (Math.tan(trialAngleX)));
-                    //Added distanceY - 1 so we will hit the block with the front rollers
+
                     Pose2D distance = new Pose2D(DistanceUnit.INCH, (1.25 * distanceX) - cameraXOffset, distanceY - cameraYOffset, AngleUnit.DEGREES, 0);
-                    frameDistances.add(distance);
-                    i++;
+                    if (polar) {
+                        if (Math.hypot(distanceX - cameraXOffset, distanceY - cameraYOffset) < (Constants.Intake.maxSlidePos * Constants.Intake.tickToInch)) {
+                            frameDistances.add(distance);
+                        }
+                    } else {
+                        frameDistances.add(distance);
+                    }
                 }
                 return frameDistances;
             }

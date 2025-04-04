@@ -43,6 +43,7 @@ public class Constants {
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1450;
         public static double inchToTick = 1532.0 / 19.0;
+        public static double tickToInch = 19.0 / 1532.0;
         public static double manualSlideSpeed = 75;
 
         public static double wristClimb = 0;
@@ -69,16 +70,16 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.9666;
+        public static double intakeArm = 0.962;
         public static double initTeleopArm = 0.49;
         public static double initAutoArm = 0.861;
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.0665;
+        public static double intakeWallArm = 0.066;
         public static double manualArmSpeed = 0.01;
 
-        public static double specimenArm = 0.7654;
+        public static double specimenArm = 0.76;
         public static double basketArm = 0.2825;
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
@@ -103,7 +104,7 @@ public class Constants {
         public static double manualSlideSpeed = 60;
 
         public static double seesWallDistance = 1.25;
-        public static double seesTransferDistance = 1.2;
+        public static double seesTransferDistance = 1.1;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

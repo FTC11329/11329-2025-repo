@@ -66,15 +66,15 @@ public class SampleAuto {
     private final Pose intakeSpike2 = new Pose(-59, -51.2, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-62.3, -53, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-59, -49, Math.toRadians(118));
-    private final Pose placeSpike3 = new Pose(-64, -55, Math.toRadians(45));
+    private final Pose intakeSpike3 = new Pose(-59, -49, Math.toRadians(117));
+    private final Pose placeSpike3 = new Pose(-54.5, -56, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
     private final Pose subControlPointTo = new Pose(-57, -14, Math.toRadians(0));
     private final Pose subControlPointFrom = new Pose(-57, -14, Math.toRadians(0));
 //    private final Pose subControlPointFrom = new Pose(-53, -14, Math.toRadians(0));
 
-    private final Pose afterSubPlace = new Pose(-6, -58, Math.toRadians(45));
+    private final Pose afterSubPlace = new Pose(-55, -56.5, Math.toRadians(45));
 
     private final Pose spikeSearch = new Pose(-59, -50.3, Math.toRadians(90));
 
@@ -147,6 +147,7 @@ public class SampleAuto {
     public void start() {
         opmodeTimer.resetTimer();
         setPathState(SampleAutoEnum.scorePreload);
+        attempt89.switchPipeline(0);
     }
 
     public void buildPaths() {
@@ -359,20 +360,18 @@ public class SampleAuto {
             //Loop Starts here
             case goSub1:
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
-                    follower.followPath(intakeSubPath, false);
+                    follower.followPath(intakeSubPath);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     setPathState(SampleAutoEnum.visionSearch1);
                 }
                 break;
             case visionSearch1:
                 if (follower.getVelocityMagnitude() < 1 && follower.getVelocity().getYComponent() < 1) {
-                    Pose2D target2D = attempt89.getBestSample(robotSide);
+                    Pose2D target2D = attempt89.getBlockPosition(true);
                     telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
                     telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
-                        target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
-                        intakeSystem.setHSlidesInches(target.getY()); //leave this in cartesian because slow intake slides
-                        follower.followYourHeart(target.getX());
+                        intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
                         setPathState(SampleAutoEnum.subIntake1);
                         driveSweep = true;
                     }
@@ -381,13 +380,14 @@ public class SampleAuto {
             case subIntake1:
                 if (pathTimer.getElapsedTimeSeconds() > .35) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-
+                }
+                if (pathTimer.getElapsedTimeSeconds() > 0.9) {
                     setPathState(SampleAutoEnum.transferSample4);
                 }
                 break;
             case transferSample4:
                 intakeSystem.update();
-                if (opmodeTimer.getElapsedTimeSeconds() > 27.5) {
+                if (opmodeTimer.getElapsedTimeSeconds() > 28) {
                     //Break loop
                     setPathState(SampleAutoEnum.park);
                 }

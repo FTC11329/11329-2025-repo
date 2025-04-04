@@ -1415,8 +1415,9 @@ public class Follower {
         double backX = moveBackDistance * Math.sin(tempPose.getHeading());
         double backY = moveBackDistance * Math.cos(tempPose.getHeading());
         double finalRotation = Math.atan2(blockX, blockY + moveBackDistance);
-        cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX() - backY, tempPose.getY() - backX, tempPose.getHeading() - finalRotation));
+        cameraSearchPath = linearPathBuilder(tempPose, new Pose (tempPose.getX() - backY, tempPose.getY() - backX, tempPose.getHeading() - (.9 * finalRotation)));
         followPath(cameraSearchPath);
+        if (blockY < 9) return (Math.hypot(blockX, blockY + moveBackDistance) - 2);
         return Math.hypot(blockX, blockY + moveBackDistance);
     }
 

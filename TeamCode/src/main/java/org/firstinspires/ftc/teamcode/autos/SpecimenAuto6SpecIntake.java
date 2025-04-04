@@ -52,7 +52,7 @@ public class SpecimenAuto6SpecIntake {
 
 
     // Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(8, -33.5, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(6.5, -33.5, Math.toRadians(90));
     private final Pose placeSub1 = new Pose(11, -33, Math.toRadians(90));
     private final Pose placeSub2 = new Pose(8.5, -33, Math.toRadians(90));
     private final Pose placeSub3 = new Pose(7, -32.5, Math.toRadians(90));

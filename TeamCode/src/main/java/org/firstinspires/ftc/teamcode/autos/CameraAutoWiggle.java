@@ -87,7 +87,7 @@ public class CameraAutoWiggle extends OpMode {
     /** This method is called continuously after Init while waiting for "play". **/
     @Override
     public void init_loop() {
-        target = attempt89.getBlockPosition();
+        target = attempt89.getBlockPosition(polar);
         if (target != null) {
             telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
             telemetry.addData("targety", target.getY(DistanceUnit.INCH));
@@ -112,7 +112,7 @@ public class CameraAutoWiggle extends OpMode {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case 1:
-                target = attempt89.getBlockPosition();
+                target = attempt89.getBlockPosition(polar);
                 telemetry.addData("targetx", target.getX(DistanceUnit.INCH));
                 telemetry.addData("targety", target.getY(DistanceUnit.INCH));
                 telemetry.addData("target ", target.getHeading(AngleUnit.DEGREES));
