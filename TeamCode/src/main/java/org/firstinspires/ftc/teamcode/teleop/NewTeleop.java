@@ -239,7 +239,7 @@ public class NewTeleop {
             manualClimber = 0;
         }
 
-        sideDepo = gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0;
+        sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0) || (gamepad2.dpad_left && hasInIntake);
 
         highSpecimen = gamepad2.dpad_up;
         highBasket = gamepad2.dpad_right;
@@ -502,7 +502,7 @@ public class NewTeleop {
 
 
         intakeSystem.update();
-        outtakeSystem.update(Math.abs(manualVSlide) > 0.05 || outtakeSystem.overAmp());
+        outtakeSystem.update(Math.abs(manualVSlide) > 0.05);
 
         //Presets
         //Button to State Machine class ***********************************************************~
@@ -931,7 +931,11 @@ public class NewTeleop {
 
         if (unjamming && !unJam) {
             if (!(intakeing || intakeingColor)) {
-                intakeSystem.setIntakePower(0);
+                if (atStorePos) {
+                    intakeSystem.storeOutPos();
+                } else {
+                    intakeSystem.storePos();
+                }
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
             if (intakeSystem.intakeUntil()) {

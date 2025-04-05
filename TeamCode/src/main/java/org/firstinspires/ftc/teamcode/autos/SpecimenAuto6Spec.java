@@ -52,12 +52,12 @@ public class SpecimenAuto6Spec {
 
 
     // Scoring Poses of our robot.
-    private final Pose preloadPlace = new Pose(7, -33.25, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose(10.5, -32.75, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(10.75, -32.75, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(7.75, -32.25, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(5.25, -32.25, Math.toRadians(90));
-    private final Pose placeSub5 = new Pose(3.25, -32, Math.toRadians(90));
+    private final Pose preloadPlace = new Pose(7.25, -33.25, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose(10.25, -32.75, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(9.75, -32.75, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(6.5, -32.25, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(4.25, -32.25, Math.toRadians(90));
+    private final Pose placeSub5 = new Pose(1.75, -32, Math.toRadians(90));
 
     private final Pose pickupWallFirst = new Pose(37.75, -61.2, Math.toRadians(90));
     private final Pose pickupWallControlPointFirst = new Pose(40, -58, Math.toRadians(90));

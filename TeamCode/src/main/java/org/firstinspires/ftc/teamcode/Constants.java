@@ -51,7 +51,7 @@ public class Constants {
         public static double wristClear = 0.25;
         public static double wristDown = 0.450;
 
-        public static double depoStore = 0.065;
+        public static double depoStore = 0.0645;
         public static double depoDepo = 0.444;
 
         public static double intakeSpeed = 0.9;
@@ -76,7 +76,7 @@ public class Constants {
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.065;
+        public static double intakeWallArm = 0.0657;
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.76;
@@ -84,7 +84,7 @@ public class Constants {
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
-        public static int intakeSlides = 220;
+        public static int intakeSlides = 195;
         public static int intakeWaitSlides = 450; //not used anymore
         public static int intakeWallSlides = 170;
         public static int intakeWallAutoSlides = 180;

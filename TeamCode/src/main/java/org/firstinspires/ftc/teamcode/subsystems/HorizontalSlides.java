@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 
 public class HorizontalSlides {
@@ -33,6 +34,7 @@ public class HorizontalSlides {
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotor.setCurrentAlert(4, CurrentUnit.AMPS);
     }
 
     public void manualPos(double power) {
@@ -59,6 +61,9 @@ public class HorizontalSlides {
         return slideMotor.getCurrentPosition();
     }
 
+    public boolean overAmp() {
+        return slideMotor.isOverCurrent();
+    }
     public boolean tuchyWuchy() {
         return touchSensor.isPressed();
     }
@@ -78,10 +83,11 @@ public class HorizontalSlides {
             slideMotor.setTargetPosition(0);
             lastSlidePos = 0;
         }
-        if (touched && getTargetPos() == 0) {
-            slideMotor.setPower(0);
-        } else if (slideMotor.getMode() == DcMotor.RunMode.RUN_TO_POSITION) {
-            slideMotor.setPower(1);
+        if (overAmp() && touched && getTargetPos() < getPos()) {
+            // if stalling into the robot
+            slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            slideMotor.setTargetPosition(0);
         }
     }
 

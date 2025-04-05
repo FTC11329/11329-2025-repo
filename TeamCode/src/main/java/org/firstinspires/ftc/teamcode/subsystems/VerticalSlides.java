@@ -84,10 +84,11 @@ public class VerticalSlides {
                 lastSlidePos = 0;
             }
         } else {
-            if (touched) {
+            if (overAmp() && touched && getTargetPos() < getPos()) {
+                // if stalling into the robot
+                slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 slideMotor.setTargetPosition(0);
-                lastSlidePos = 0;
             }
         }
     }
