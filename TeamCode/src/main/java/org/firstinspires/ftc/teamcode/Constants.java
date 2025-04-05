@@ -60,7 +60,7 @@ public class Constants {
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
         public static double unjamTimeMillisTeleop = 125;
-        public static double unjamTimeMillisAuto = 75;
+        public static double unjamTimeMillisAuto = 100;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
     }
@@ -76,7 +76,7 @@ public class Constants {
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.066;
+        public static double intakeWallArm = 0.065;
         public static double manualArmSpeed = 0.01;
 
         public static double specimenArm = 0.76;
@@ -94,7 +94,7 @@ public class Constants {
         public static int safeFromClimberBar = 1300;
         public static int safeFromSpecBar = 1600;
 
-        public static int highSpecimenSlides = 1050;
+        public static int highSpecimenSlides = 1020;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
 
@@ -103,7 +103,7 @@ public class Constants {
 
         public static double manualSlideSpeed = 60;
 
-        public static double seesWallDistance = 1.25;
+        public static double seesWallDistance = 1.35;
         public static double seesTransferDistance = 1.1;
         public static double p = 0.03;
         public static double i = 0;
