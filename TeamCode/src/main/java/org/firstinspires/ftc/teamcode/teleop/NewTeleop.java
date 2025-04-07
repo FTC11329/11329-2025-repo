@@ -76,6 +76,8 @@ public class NewTeleop {
     double manualArm;
     double manualClimber;
 
+    boolean gamepad1B;
+
     boolean sideDepo;
 
     boolean highSpecimen;
@@ -120,6 +122,7 @@ public class NewTeleop {
     boolean climbStopPauseOnce = true;
 
     boolean onceTime = true;
+    boolean onceWall = true;
     boolean onceState = true;
     boolean wallOnce = true;
     double storeTime = 2000000000;
@@ -146,6 +149,7 @@ public class NewTeleop {
     boolean intakeingColor = false;
     boolean intakeing = false;
     boolean intakeingDebounce = false;
+    double intakeTime = 2000000000;
     double intakeWristTime = 2000000000;
     int extendHSlide = Constants.Intake.intakeSlidePos;
 
@@ -213,6 +217,8 @@ public class NewTeleop {
 
     public void loop() {
         // Inputs
+        gamepad1B = gamepad1.b;
+
         debugAll = gamepad1.a;
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
@@ -246,14 +252,14 @@ public class NewTeleop {
         lowBasket = gamepad2.dpad_down;
         frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
         wallPreset = gamepad2.dpad_left;
-        storePos = gamepad2.triangle;//y
+        storePos = gamepad2.y;//triangle
         transfer = gamepad2.left_bumper;
 
         clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
 
-        intake = gamepad2.cross;//a
-        intakeColor = gamepad2.square;//x
-        unJam = gamepad2.circle;//b
+        intake = gamepad2.a;//cross
+        intakeColor = gamepad2.x;//square
+        unJam = gamepad2.b;//circle
 
         //Drivetrain ******************************************************************************~
         if (!climberActive && !autoMovement && !climbPause) {
@@ -284,7 +290,7 @@ public class NewTeleop {
                 autoToWall = true;
             }
         }
-        if (gamepad1.b) {
+        if (gamepad1B) {
             autoMovement = false;
             autoMovementOnce = true;
             follower.breakFollowing();
@@ -472,7 +478,7 @@ public class NewTeleop {
             climber.setPos(climberPos);
         }
         if (climbPause) {
-            if (gamepad1.b) {
+            if (gamepad1B) {
                 climbStopPause = true;
             }
             if (!climbStopPause) {
@@ -612,22 +618,27 @@ public class NewTeleop {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             }
             if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferFirstTime) {
-                intakeSystem.setIntakePower(0);
-                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                clawToggle = true;
-                hasInTray = false;
+                // if we have a piece
+                hasInIntake = false;
+                hasInTray = true;
                 transferFirstTime = false;
                 transferTime = elapsedTime.milliseconds();
             }
             if (elapsedTime.milliseconds() > transferTime + 1500 && transferFirstTime) {
+                // if failed
                 intakeSystem.setIntakePower(0);
                 hasInIntake = false;
                 hasInTray = true;
                 stateMachine.failTransfer();
             }
-            if (elapsedTime.milliseconds() > transferTime + 300 && elapsedTime.milliseconds() < transferTime + 400 && !transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 200 && elapsedTime.milliseconds() < transferTime + 300 && !transferFirstTime) {
+                intakeSystem.setIntakePower(0);
+                outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                hasInTray = false;
                 hasInOuttake = true;
-                hasInIntake = false;
+                clawToggle = true;
+            }
+            if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 600 && !transferFirstTime) {
                 onceState = true;
                 onceTime = true;
                 transferFirstTime = true;
@@ -775,7 +786,11 @@ public class NewTeleop {
         }
 
         if (grabbingOffWall) {
-            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
+            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce && hasInIntake && onceWall) {
+                sideDepo = true;
+                onceWall = false;
+            }
+            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce && !hasInIntake) {
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 hasInOuttake = true;
 
@@ -785,6 +800,7 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > grabbingOffWallTime + 300 && !wallOnce) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                 grabbingOffWall = false;
+                onceWall = true;
                 wallOnce = true;
             }
         }
@@ -803,12 +819,12 @@ public class NewTeleop {
         }
 
         //Intakes *********************************************************************************~
-        if (gamepad1.touchpad_finger_1) {
-            extendHSlide = (int) ((gamepad1.touchpad_finger_1_x + 1)/2.0 * Constants.Intake.maxSlidePos);
-            if (gamepad1.touchpad) {
-                intakeSystem.setHSlidePos(extendHSlide);
-            }
-        }
+//        if (gamepad1.touchpad_finger_1) {
+//            extendHSlide = (int) ((gamepad1.touchpad_finger_1_x + 1)/2.0 * Constants.Intake.maxSlidePos);
+//            if (gamepad1.touchpad) {
+//                intakeSystem.setHSlidePos(extendHSlide);
+//            }
+//        }
 
         if (intakeColor && !intakeingColor && !intakeingDebounce) {
             intakeSystem.setHSlidePos(extendHSlide);
@@ -828,17 +844,21 @@ public class NewTeleop {
             hasInTray = false;
             intakeWristTime = elapsedTime.milliseconds();
         }
+        // For intaking after down
+        if (intake || intakeColor) {
+            intakeTime = elapsedTime.milliseconds();
+        }
 
         if (intakeing) {
-            if (intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear && intakeSystem.intakeUntil()) {
+            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntil()) {
                 if (atStorePos) {
                     stateMachine.goTransfer(true);
                     intakeSystem.storeOutPos();
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(0,1,300);
-                gamepad2.rumble(0,1,300);
+                gamepad1.rumble(1,1,1000);
+                gamepad2.rumble(1,1,1000);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 intakeing = false;
@@ -848,7 +868,7 @@ public class NewTeleop {
         }
 
         if (intakeingColor) {
-            if (intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear && intakeSystem.intakeUntilColor()) {
+            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
                 if (atStorePos) {
                     intakeSystem.storeOutPos();
                 } else {
@@ -905,6 +925,7 @@ public class NewTeleop {
             }
             if (elapsedTime.milliseconds() > sideDepoTime + 400 && !sideDepoFirst) {
                 intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
+                hasInIntake = false;
                 sideDepoing = false;
             }
         }
@@ -949,10 +970,10 @@ public class NewTeleop {
             }
         }
 
-        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91) {
-            gamepad1.rumble(1000);
-            gamepad2.rumble(1000);
-        }
+//        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91) {
+//            gamepad1.rumble(1000);
+//            gamepad2.rumble(1000);
+//        }
 
         //DEBUG ***********************************************************************************~
         if (debugState || debugAll) {

@@ -72,7 +72,8 @@ public class Constants {
 
         public static double intakeArm = 0.962;
         public static double initTeleopArm = 0.49;
-        public static double initAutoArm = 0.861;
+        public static double initAutoSampArm = 0.861;
+        public static double initAutoSpecArm = 0.0326;
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
@@ -94,7 +95,7 @@ public class Constants {
         public static int safeFromClimberBar = 1300;
         public static int safeFromSpecBar = 1600;
 
-        public static int highSpecimenSlides = 1020;
+        public static int highSpecimenSlides = 1017;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
 

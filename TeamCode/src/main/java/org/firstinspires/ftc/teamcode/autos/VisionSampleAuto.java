@@ -114,7 +114,7 @@ public class VisionSampleAuto {
         attempt89 = new Attempt89(hardwareMap, robotSide);
         attempt89.switchPipeline(robotSide);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

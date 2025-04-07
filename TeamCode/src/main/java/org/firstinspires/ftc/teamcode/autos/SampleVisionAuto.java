@@ -123,7 +123,7 @@ public class SampleVisionAuto {
         blockVision = new Attempt89(hardwareMap, robotSide);
         blockVision.switchPipeline(0);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

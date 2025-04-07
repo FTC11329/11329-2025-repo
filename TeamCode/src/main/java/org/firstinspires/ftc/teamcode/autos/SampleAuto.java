@@ -122,7 +122,7 @@ public class SampleAuto {
         attempt89 = new Attempt89(hardwareMap, robotSide);
         attempt89.switchPipeline(0);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

@@ -14,6 +14,9 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 public class IntakeSystem {
     ElapsedTime time = new ElapsedTime();
 
+    // careful about this in auto
+    boolean jammed = false;
+
     boolean intakeOnce = false;
     double intakeTime = 2000000000;
 
@@ -35,7 +38,7 @@ public class IntakeSystem {
     }
 
     public void setIntakePower(double newIntakePower) {
-        if (!isJammed()) {
+        if (!jammed) {
             intakeClaw.setIntakePower(newIntakePower);
         }
     }
@@ -128,7 +131,7 @@ public class IntakeSystem {
 
     public boolean intakeUntilColor() {
         NormalizedRGBA currentColor = intakeSensor.getNormalizedColors();
-        if (!isJammed()) {
+        if (!jammed) {
             setIntakePower(Constants.Intake.intakeSpeed);
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(currentColor) == ColorEnum.blue) {
@@ -159,7 +162,7 @@ public class IntakeSystem {
 
     public boolean intakeUntil() {
         NormalizedRGBA currentColor = intakeSensor.getNormalizedColors();
-        if (!isJammed()) {
+        if (!jammed) {
             setIntakePower(Constants.Intake.intakeSpeed);
             if (robotSide == RobotSideEnum.Blue) {
                 if (ColorFunctions.toColor(currentColor) == ColorEnum.blue || ColorFunctions.toColor(currentColor) == ColorEnum.yellow) {
@@ -226,7 +229,8 @@ public class IntakeSystem {
     }
 
     public void update() {
-        if (isJammed()) {
+        jammed = isJammed();
+        if (jammed) {
             intakeClaw.setIntakePower(Constants.Intake.unjamSpeed);
         }
         hSlides.update();
