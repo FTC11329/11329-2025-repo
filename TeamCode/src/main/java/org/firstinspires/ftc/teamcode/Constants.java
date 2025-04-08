@@ -36,7 +36,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int transferSlides = 275;
+        public static int transferSlides = 355;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 500;
@@ -59,7 +59,7 @@ public class Constants {
         public static double unjamSpeed = -1;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillisTeleop = 125;
+        public static double unjamTimeMillisTeleop = 100;
         public static double unjamTimeMillisAuto = 100;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
@@ -70,22 +70,23 @@ public class Constants {
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.962;
+        public static double intakeArm = 0.948;
         public static double initTeleopArm = 0.49;
         public static double initAutoSampArm = 0.861;
         public static double initAutoSpecArm = 0.0326;
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.0657;
+        public static double intakeWallArm = 0.065;
         public static double manualArmSpeed = 0.01;
 
+        public static double downArm = 1;
         public static double specimenArm = 0.76;
         public static double basketArm = 0.2825;
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
-        public static int intakeSlides = 195;
+        public static int intakeSlides = 169;
         public static int intakeWaitSlides = 450; //not used anymore
         public static int intakeWallSlides = 170;
         public static int intakeWallAutoSlides = 180;
@@ -105,7 +106,7 @@ public class Constants {
         public static double manualSlideSpeed = 60;
 
         public static double seesWallDistance = 1.35;
-        public static double seesTransferDistance = 1.1;
+        public static double seesTransferDistance = 1.5;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

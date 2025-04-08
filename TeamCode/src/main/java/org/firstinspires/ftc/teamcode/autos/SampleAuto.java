@@ -546,30 +546,36 @@ public class SampleAuto {
                     }
                     break;
                 case 4:
-                    if ((outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer()) || actionTimer.getElapsedTimeSeconds() > 2){
-                        intakeSystem.setIntakePower(0);
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    if ((outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer()) || actionTimer.getElapsedTimeSeconds() > 1){
 
                         setTransferState(5);
                     }
                     break;
                 case 5:
-                    if (actionTimer.getElapsedTimeSeconds() > .3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                    if (actionTimer.getElapsedTimeSeconds() > 3) {
+                        intakeSystem.setIntakePower(0);
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
 
                         setTransferState(6);
                     }
                     break;
                 case 6:
-                    if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
-                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    if (actionTimer.getElapsedTimeSeconds() > .3) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
 
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                         setTransferState(7);
                     }
                     break;
                 case 7:
+                    if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
+                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                        setTransferState(8);
+                    }
+                    break;
+                case 8:
                     if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 200) {
                         outtakeSystem.setArmPos(Constants.Outtake.basketArm);
 

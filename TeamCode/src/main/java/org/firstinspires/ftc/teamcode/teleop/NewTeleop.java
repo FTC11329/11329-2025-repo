@@ -619,8 +619,6 @@ public class NewTeleop {
             }
             if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferFirstTime) {
                 // if we have a piece
-                hasInIntake = false;
-                hasInTray = true;
                 transferFirstTime = false;
                 transferTime = elapsedTime.milliseconds();
             }
@@ -634,11 +632,12 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > transferTime + 200 && elapsedTime.milliseconds() < transferTime + 300 && !transferFirstTime) {
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                hasInTray = false;
-                hasInOuttake = true;
                 clawToggle = true;
             }
             if (elapsedTime.milliseconds() > transferTime + 500 && elapsedTime.milliseconds() < transferTime + 600 && !transferFirstTime) {
+                hasInIntake = false;
+                hasInTray = false;
+                hasInOuttake = true;
                 onceState = true;
                 onceTime = true;
                 transferFirstTime = true;
@@ -654,6 +653,8 @@ public class NewTeleop {
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                 }
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                outtakeSystem.setArmPos(Constants.Outtake.downArm);
+
                 onceState = true;
 
                 onceTime = false;

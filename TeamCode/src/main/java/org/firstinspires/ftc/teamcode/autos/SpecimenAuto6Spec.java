@@ -92,9 +92,9 @@ public class SpecimenAuto6Spec {
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.9;
-    private double firstWallWait = 0.15;
+    private double firstWallWait = 0.17;
     private double secondWallWait = 0.02;
-    private double wallWait = 0.125;
+    private double wallWait = 0.15;
     private double visionSlidePos = Constants.Intake.intakeSlidePos;
     private boolean driveShake = false;
     private boolean driveSlam = false;
