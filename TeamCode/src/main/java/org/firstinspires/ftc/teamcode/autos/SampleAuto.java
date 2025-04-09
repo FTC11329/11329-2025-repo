@@ -70,9 +70,9 @@ public class SampleAuto {
     private final Pose placeSpike3 = new Pose(-54.5, -56, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -7.5, Math.toRadians(0));
-    private final Pose subControlPointTo = new Pose(-57, -14, Math.toRadians(0));
-    private final Pose subControlPointFrom = new Pose(-57, -14, Math.toRadians(0));
-//    private final Pose subControlPointFrom = new Pose(-53, -14, Math.toRadians(0));
+    private final Pose subControlPointTo = new Pose(-52, -14, Math.toRadians(0));
+//    private final Pose subControlPointFrom = new Pose(-57, -14, Math.toRadians(0));
+    private final Pose subControlPointFrom = new Pose(-53, -14, Math.toRadians(0));
 
     private final Pose afterSubPlace = new Pose(-55, -56.5, Math.toRadians(45));
 
@@ -183,6 +183,7 @@ public class SampleAuto {
         failSpike1Path = follower.linearPathBuilder(intakeSpike1, intakeSpike2);
         failSpike2Path = follower.linearPathBuilder(intakeSpike2, intakeSpike3);
         failSpike3Path = follower.linearPathBuilder(intakeSpike3, spikeSearch);
+        failSpike1Path.getSecondControlPoint();
 
         intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subControlPointTo), new Point(subIntake)));
         intakeSubPath.setLinearHeadingInterpolation(placeSpike3.getHeading(), subIntake.getHeading());
@@ -208,7 +209,7 @@ public class SampleAuto {
                 }
             case placePreload:
                 if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 225);
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     setPathState(SampleAutoEnum.dropClaw0);
                 }
@@ -254,7 +255,7 @@ public class SampleAuto {
                 break;
             case placeSample:
                 if (!transferSample) {
-                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 200);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
                     setPathState(SampleAutoEnum.dropClaw1);
                 }
                 break;
@@ -404,7 +405,7 @@ public class SampleAuto {
                 }
                 break;
             case placeSample4:
-                if (!transferSample && follower.getError(afterSubPlace).getX() < 1 && follower.getError(afterSubPlace).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 2) {
+                if (!transferSample && follower.getError(afterSubPlace).getX() < 1 && follower.getError(afterSubPlace).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 5) {
                     setPathState(SampleAutoEnum.dropClaw4);
                 }
                 break;
@@ -539,7 +540,7 @@ public class SampleAuto {
                     }
                     break;
                 case 2:
-                    if (actionTimer.getElapsedTimeSeconds() > .3){
+                    if (actionTimer.getElapsedTimeSeconds() > .4){
                         intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
 
                         setTransferState(4);
@@ -552,7 +553,7 @@ public class SampleAuto {
                     }
                     break;
                 case 5:
-                    if (actionTimer.getElapsedTimeSeconds() > 3) {
+                    if (actionTimer.getElapsedTimeSeconds() > 0.15) {
                         intakeSystem.setIntakePower(0);
                         intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);

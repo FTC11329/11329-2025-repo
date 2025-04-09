@@ -39,7 +39,7 @@ public class Constants {
         public static int transferSlides = 355;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
-        public static int autoPreExtendSlides = 500;
+        public static int autoPreExtendSlides = 900;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1450;
         public static double inchToTick = 1532.0 / 19.0;
@@ -77,12 +77,12 @@ public class Constants {
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.065;
+        public static double intakeWallArm = 0.064;
         public static double manualArmSpeed = 0.01;
 
         public static double downArm = 1;
         public static double specimenArm = 0.76;
-        public static double basketArm = 0.2825;
+        public static double basketArm = 0.288;
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
@@ -106,7 +106,7 @@ public class Constants {
         public static double manualSlideSpeed = 60;
 
         public static double seesWallDistance = 1.35;
-        public static double seesTransferDistance = 1.5;
+        public static double seesTransferDistance = 1.385;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

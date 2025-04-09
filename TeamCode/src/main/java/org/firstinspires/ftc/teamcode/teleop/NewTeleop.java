@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 public class NewTeleop {
-    //Delete me
+    //comment me out V
 //    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
     Follower follower;
@@ -175,7 +175,7 @@ public class NewTeleop {
     }
 
     public void init() {
-        //delete me
+        //comment me out
 //        motor1 = hardwareMap.get(DcMotorEx.class, "leftFront");
 //        motor2 = hardwareMap.get(DcMotorEx.class, "rightFront");
 //        motor3 = hardwareMap.get(DcMotorEx.class, "rightBack");
@@ -193,7 +193,6 @@ public class NewTeleop {
         driveTrain = new Drivetrain(hardwareMap);
 
         stateMachine = new StateMachine();
-
 
         //Building paths
         toFrontWall = new Path(new BezierCurve(new Point(placeSub), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
@@ -415,7 +414,7 @@ public class NewTeleop {
                     break;
                 case 2:
                     driveTrain.setPTOPower(1);
-                    if (climber.getDistance() > 10.5) {
+                    if (climber.getDistance() > 11) {
                         climberPos = Constants.Climber.hookPos;
                         outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
                         //Prevent pto from drawing too much power
@@ -426,7 +425,7 @@ public class NewTeleop {
                     }
                     break;
                 case 3:
-                    driveTrain.setPTOPower(0.8);
+                    driveTrain.setPTOPower(0.5);
                     if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 100) {
                         //disable PTO to conserve power
                         driveTrain.setPTOPower(0);
@@ -471,6 +470,7 @@ public class NewTeleop {
                     break;
                 case 6:
                     driveTrain.setPTOPower(-0.2);
+                    break;
             }
 
             //manual movement
@@ -629,7 +629,7 @@ public class NewTeleop {
                 hasInTray = true;
                 stateMachine.failTransfer();
             }
-            if (elapsedTime.milliseconds() > transferTime + 200 && elapsedTime.milliseconds() < transferTime + 300 && !transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 175 && elapsedTime.milliseconds() < transferTime + 275 && !transferFirstTime) {
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 clawToggle = true;
@@ -1079,8 +1079,10 @@ public class NewTeleop {
         if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower) {
             telemetry.update();
         }
-        telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
-        lastTime = elapsedTime.milliseconds();
+        if (false) {
+            telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
+            lastTime = elapsedTime.milliseconds();
+        }
     }
 
     public void stop() {

@@ -54,10 +54,10 @@ public class SpecimenAuto6Spec {
     // Scoring Poses of our robot.
     private final Pose preloadPlace = new Pose(6.25, -33.25, Math.toRadians(90));
     private final Pose placeSub1 = new Pose (10.25, -32.75, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(9, -32.75, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(6.25, -32.25, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(4, -32.25, Math.toRadians(90));
-    private final Pose placeSub5 = new Pose(1.25, -32, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(10, -32.5, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(6.25, -32, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(4, -31.75, Math.toRadians(90));
+    private final Pose placeSub5 = new Pose(1.25, -31.5, Math.toRadians(90));
 
     private final Pose pickupWallFirst = new Pose(37.75, -61.2, Math.toRadians(90));
     private final Pose pickupWallControlPointFirst = new Pose(40, -58, Math.toRadians(90));
@@ -92,8 +92,8 @@ public class SpecimenAuto6Spec {
     Pose2D visionResult = new Pose2D(DistanceUnit.INCH,0,0, AngleUnit.DEGREES,-1);
     private double loopTime = 0;
     private double slamSpeed = 0.9;
-    private double firstWallWait = 0.17;
-    private double secondWallWait = 0.02;
+    private double firstWallWait = 0.15;
+    private double secondWallWait = 0.10;
     private double wallWait = 0.15;
     private double visionSlidePos = Constants.Intake.intakeSlidePos;
     private boolean driveShake = false;
@@ -196,7 +196,7 @@ public class SpecimenAuto6Spec {
         double pushingZPAM = 31;
         double firstPlaceZPAM = 50;
         double toPlaceZPAM = 19;
-        double firstWallZPAM = 13;
+        double firstWallZPAM = 4;
         double toWallZPAM = 3;
 
         scorePreload     = follower.linearPathBuilder(startPose, preloadPlace);
@@ -307,7 +307,7 @@ public class SpecimenAuto6Spec {
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
                         outtakeSystem.placePos(PlacePosEnum.wall);
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                        intakeSystem.setHSlidesInches(follower.followYourHead(visionResult) - 0.3);
+                        intakeSystem.setHSlidesInches(follower.followYourHead(visionResult));
                         setPathState(Specimen6AutoEnum.drivingVision);
 
                     } else if (pathTimer.getElapsedTimeSeconds() > 1) {
@@ -366,7 +366,7 @@ public class SpecimenAuto6Spec {
                     setPathState(Specimen6AutoEnum.transferToTray);
                 }
             case transferToTray:
-                if (actionTimer.getElapsedTimeSeconds() > 0.3) {
+                if (actionTimer.getElapsedTimeSeconds() > 0.5) {
                     intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
 
                     setPathState(Specimen6AutoEnum.wallPreset2);
