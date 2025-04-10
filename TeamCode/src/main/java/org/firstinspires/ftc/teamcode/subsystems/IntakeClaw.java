@@ -31,7 +31,7 @@ public class IntakeClaw {
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         depoServo = hardwareMap.get(Servo.class, "depoServo");
 
-        intakeMotor.setCurrentAlert(3, CurrentUnit.AMPS);
+        intakeMotor.setCurrentAlert(4.5, CurrentUnit.AMPS);
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -53,7 +53,7 @@ public class IntakeClaw {
         } else if (!jamBool) {
             overCurrentDe = false;
         }
-        if (jamBool && time.milliseconds() > startJamTime + 700) {
+        if (jamBool && time.milliseconds() > startJamTime + 1000) {
             return true;
         }
         return false;

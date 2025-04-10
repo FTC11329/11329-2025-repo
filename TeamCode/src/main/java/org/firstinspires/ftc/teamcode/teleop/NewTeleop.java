@@ -29,7 +29,6 @@ public class NewTeleop {
     //comment me out V
 //    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
-    Follower follower;
     Drivetrain driveTrain;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
@@ -46,7 +45,6 @@ public class NewTeleop {
     boolean debugStateMachine = false;
     boolean debugPos = false;
     boolean debugClimber = false;
-    boolean debugAuto = false;
     boolean debugPower = false;
     //Requires ^ uncommenting things
     boolean debugMisc = false;
@@ -106,13 +104,6 @@ public class NewTeleop {
     Timer climberTimer = new Timer();
     int climberPos = 0;
 
-    Timer pathTimer = new Timer();
-    boolean autoMovement = false;
-    boolean autoMovementOnce = true;
-    boolean autoToWall = false;
-    boolean autoToSub = false;
-    int autoState = 0;
-
     boolean climberActive = false;
     boolean climbPause = false;
     boolean climbDebounce = false;
@@ -158,6 +149,12 @@ public class NewTeleop {
     boolean unjamAfterIntake = false;
     double unjamAfterIntakeTime = 2000000000;
 
+    double tempTime1 = 0;
+    double tempTime2 = 0;
+    double tempTime3 = 0;
+    double tempTime4 = 0;
+    double tempTime5 = 0;
+
 
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
@@ -175,6 +172,7 @@ public class NewTeleop {
     }
 
     public void init() {
+        elapsedTime.reset();
         //comment me out
 //        motor1 = hardwareMap.get(DcMotorEx.class, "leftFront");
 //        motor2 = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -188,29 +186,28 @@ public class NewTeleop {
 //        dashboard = FtcDashboard.getInstance();
 //        telemetry = dashboard.getTelemetry();
 
+        tempTime1 = elapsedTime.milliseconds();
         climber = new Climber(hardwareMap);
-        follower = new Follower(hardwareMap);
+        tempTime2 = elapsedTime.milliseconds();
         driveTrain = new Drivetrain(hardwareMap);
-
+        tempTime3 = elapsedTime.milliseconds();
         stateMachine = new StateMachine();
-
-        //Building paths
-        toFrontWall = new Path(new BezierCurve(new Point(placeSub), new Point(controlPointForWall1), new Point(controlPointForWall2), new Point(frontWall)));
-        toFrontWall.setConstantHeadingInterpolation(placeSub.getHeading());
-
-        frontWallToWall = follower.linearPathBuilder(frontWall, pickupWall);
-
-        placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
-        placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
-
     }
 
     public void start() {
+        tempTime4 = elapsedTime.milliseconds();
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap, true);
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
+        tempTime5 = elapsedTime.milliseconds();
         elapsedTime.reset();
+        telemetry.addData("1", tempTime1);
+        telemetry.addData("2", tempTime2);
+        telemetry.addData("3", tempTime3);
+        telemetry.addData("4", tempTime4);
+        telemetry.addData("5", tempTime5);
+        telemetry.update();
     }
 
 
@@ -261,7 +258,7 @@ public class NewTeleop {
         unJam = gamepad2.b;//circle
 
         //Drivetrain ******************************************************************************~
-        if (!climberActive && !autoMovement && !climbPause) {
+        if (!climberActive && !climbPause) {
             if (climbToggButton) {
                 climberActive = true;
                 climbDebounce = true;
@@ -273,100 +270,6 @@ public class NewTeleop {
                 driveTrain.setRunToPos();
                 climberTimer.resetTimer();
             }
-            //Autos
-            if (gamepad1.x) {
-                autoMovement = true;
-                autoMovementOnce = true;
-
-                autoToSub = true;
-                autoToWall = false;
-            }
-            if (gamepad1.y) {
-                autoMovement = true;
-                autoMovementOnce = true;
-
-                autoToSub = false;
-                autoToWall = true;
-            }
-        }
-        if (gamepad1B) {
-            autoMovement = false;
-            autoMovementOnce = true;
-            follower.breakFollowing();
-        }
-        //Auto drive ******************************************************************************~
-        if (autoMovement) {
-            if (autoMovementOnce) {
-                if (autoToSub) {
-                    follower.setPose(new Pose(pickupWall.getY() + 1.5, pickupWall.getX(), pickupWall.getHeading()));
-                    autoState = 3;
-                }
-                if (autoToWall) {
-                    autoState = 0;
-                }
-                autoMovementOnce = false;
-            }
-            //back to front wall
-            switch (autoState) {
-                case 0:
-                    follower.followPath(toFrontWall);
-
-                    pathTimer.resetTimer();
-                    autoState = 1;
-                    break;
-                case 1:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                        whereAmI = PlacePosEnum.wall;
-
-                        pathTimer.resetTimer();
-                        autoState = 2;
-                    }
-                    break;
-                //front Wall To Wall
-                case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        follower.followPath(frontWallToWall);
-
-                        pathTimer.resetTimer();
-                        autoState = 3;
-                    }
-                    break;
-                //grab off wall and go to sub
-                case 3:
-                    if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        clawToggle = true;
-                        hasInOuttake = true;
-
-                        pathTimer.resetTimer();
-                        autoState = 4;
-                    }
-                    break;
-                //outtake to specimen place pos
-                case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        follower.followPath(placeSubPath);
-                        outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                        whereAmI = PlacePosEnum.highSpecimen;
-
-                        pathTimer.resetTimer();
-                        autoState = 5;
-                    }
-                    break;
-                //drop specimen
-                case 5:
-                    if (follower.getError(placeSub).getY() < 1) {
-                        follower.breakFollowing();
-                        autoMovement = false;
-                        autoMovementOnce = true;
-
-                        pathTimer.resetTimer();
-                        autoState = 6;
-                    }
-                    break;
-            }
-            follower.update();
         }
         //Auto Climb ******************************************************************************~
         if (climberActive && !climbPause) {
@@ -787,11 +690,7 @@ public class NewTeleop {
         }
 
         if (grabbingOffWall) {
-            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce && hasInIntake && onceWall) {
-                sideDepo = true;
-                onceWall = false;
-            }
-            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce && !hasInIntake) {
+            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 hasInOuttake = true;
 
@@ -851,7 +750,7 @@ public class NewTeleop {
         }
 
         if (intakeing) {
-            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntil()) {
+            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntil()) {
                 if (atStorePos) {
                     stateMachine.goTransfer(true);
                     intakeSystem.storeOutPos();
@@ -869,7 +768,7 @@ public class NewTeleop {
         }
 
         if (intakeingColor) {
-            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
                 if (atStorePos) {
                     intakeSystem.storeOutPos();
                 } else {
@@ -1033,15 +932,6 @@ public class NewTeleop {
             telemetry.addData("climberDistance", climber.getDistance());
             telemetry.addLine();
         }
-        if (debugAuto || debugAll) {
-            follower.updatePose();
-            telemetry.addLine("AUTO");
-            telemetry.addData("autoMovement", autoMovement);
-            telemetry.addData("autoMovementOnce", autoMovementOnce);
-            telemetry.addData("autoState", autoState);
-            telemetry.addData("Pose", follower.getPose());
-            telemetry.addLine();
-        }
         if (debugPower || debugAll) {
 //            telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
@@ -1076,7 +966,7 @@ public class NewTeleop {
             //TODO add more Things here
             telemetry.addLine();
         }
-        if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower) {
+        if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower) {
             telemetry.update();
         }
         if (false) {
