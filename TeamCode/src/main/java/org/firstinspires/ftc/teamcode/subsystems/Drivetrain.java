@@ -154,17 +154,20 @@ public class Drivetrain {
     public void setDrivePowers(PoseVelocity2d powers) {
         MecanumKinematics.WheelVelocities<Time> wheelVels = new MecanumKinematics(1).inverse(
                 PoseVelocity2dDual.constant(powers, 1));
-
+        double rightBackScalar = 1;
+        double leftBackScalar = 1;
+        double rightFrontScalar = 1;
+        double leftFrontScalar = 1;
         double maxPowerMag = 1;
         for (DualNum<Time> power : wheelVels.all()) {
             maxPowerMag = Math.max(maxPowerMag, power.value());
         }
 
         //Optimizing loop times
-        double leftFrontPower = wheelVels.leftFront.get(0) / maxPowerMag;
-        double leftBackPower = wheelVels.leftBack.get(0) / maxPowerMag;
-        double rightBackPower = wheelVels.rightBack.get(0) / maxPowerMag;
-        double rightFrontPower = wheelVels.rightFront.get(0) / maxPowerMag;
+        double leftFrontPower = (wheelVels.leftFront.get(0) / maxPowerMag) / leftFrontScalar;
+        double leftBackPower = (wheelVels.leftBack.get(0) / maxPowerMag) / leftBackScalar;
+        double rightBackPower = (wheelVels.rightBack.get(0) / maxPowerMag) / rightBackScalar;
+        double rightFrontPower = (wheelVels.rightFront.get(0) / maxPowerMag) / rightFrontScalar;
 
         if (lastLeftFrontPower != leftFrontPower) {
             lastLeftFrontPower = leftFrontPower;

@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "CalibrateDriveScalars", group = "Calibration")
-public class CalibrateDriveScalars extends LinearOpMode {
+@TeleOp(name = "CalibrateDriveScalarsFloor", group = "Calibration")
+public class CalibrateDriveScalarsFloor extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
 
@@ -26,40 +26,43 @@ public class CalibrateDriveScalars extends LinearOpMode {
 
         waitForStart();
 
-        // Run each motor individually for a set time
-        double testPower = 0.8;
-        long runTimeMs = 5000;
+        double testPower = 1; // set to 1 because that is what we drive at
+        long runTimeMs = 3000;
 
         double[] distances = new double[4];
 
+        for (int i = 0; i < 4; i++) motors[i].setPower(testPower);
+
+        sleep(runTimeMs);
+
         for (int i = 0; i < 4; i++) {
-            telemetry.addLine("Testing motor " + i);
-            telemetry.update();
-
-            motors[i].setPower(testPower);
-            sleep(runTimeMs);
             motors[i].setPower(0);
-
             distances[i] = Math.abs(motors[i].getCurrentPosition());
-
-            // Reset for the next motor
-            motors[i].setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motors[i].setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            sleep(500);
         }
 
         // Step 1: Find the max distance (fastest motor)
-        double maxDist = Double.MAX_VALUE;
+        double maxDist = 0;
         for (double d : distances) {
             if (d > maxDist) maxDist = d;
         }
 
-        // Step 2: Compute scalars as ratios to the max (will all be ≤ 1)
-        double[] scalars = new double[4];
+        // Step 2: Compute ratio to the max (will all be ≤ 1)
+        double[] percentSpeed = new double[4];
         for (int i = 0; i < 4; i++) {
-            scalars[i] = distances[i] / maxDist;  // 0 < scalar ≤ 1
+            percentSpeed[i] = distances[i] / maxDist;
         }
 
+        // Step 3: Find slowest motor
+        double minSpeed = Double.MAX_VALUE;
+        for (double n : percentSpeed) {
+            if (n < minSpeed) minSpeed = n;
+        }
+
+        //Step 4: Convert speed ratio to scalar multiplier to make all motors run at speed of the slowest motor
+        double[] scalars = new double[4];
+        for (int i = 0; i < 4; i++) {
+            scalars[i] = minSpeed / percentSpeed[i];  // 0 < scalar ≤ 1
+        }
 
         telemetry.addLine("Calibration complete:");
         telemetry.addData("Left Front Scalar", scalars[0]);
