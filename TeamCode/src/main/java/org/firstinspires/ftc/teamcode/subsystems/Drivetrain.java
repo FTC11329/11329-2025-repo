@@ -164,10 +164,10 @@ public class Drivetrain {
         }
 
         //Optimizing loop times
-        double leftFrontPower = (wheelVels.leftFront.get(0) / maxPowerMag) / leftFrontScalar;
-        double leftBackPower = (wheelVels.leftBack.get(0) / maxPowerMag) / leftBackScalar;
-        double rightBackPower = (wheelVels.rightBack.get(0) / maxPowerMag) / rightBackScalar;
-        double rightFrontPower = (wheelVels.rightFront.get(0) / maxPowerMag) / rightFrontScalar;
+        double leftFrontPower = (wheelVels.leftFront.get(0) / maxPowerMag) * leftFrontScalar;
+        double leftBackPower = (wheelVels.leftBack.get(0) / maxPowerMag) * leftBackScalar;
+        double rightBackPower = (wheelVels.rightBack.get(0) / maxPowerMag) * rightBackScalar;
+        double rightFrontPower = (wheelVels.rightFront.get(0) / maxPowerMag) * rightFrontScalar;
 
         if (lastLeftFrontPower != leftFrontPower) {
             lastLeftFrontPower = leftFrontPower;
