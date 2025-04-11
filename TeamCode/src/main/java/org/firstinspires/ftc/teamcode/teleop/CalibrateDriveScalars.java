@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-@TeleOp(name = "CalibrateDriveScalars", group = "Calibration")
+@TeleOp(name = "CalibrateDriveScalars", group = "zCalibration")
 public class CalibrateDriveScalars extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;

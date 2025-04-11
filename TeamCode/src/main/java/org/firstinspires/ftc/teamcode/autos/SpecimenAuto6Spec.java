@@ -53,14 +53,14 @@ public class SpecimenAuto6Spec {
 
     // Scoring Poses of our robot.
     private final Pose preloadPlace = new Pose(6.25, -33.25, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose (10.25, -32, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose (9.75, -32, Math.toRadians(90));
     private final Pose placeSub2 = new Pose(10, -31.75, Math.toRadians(90));
     private final Pose placeSub3 = new Pose(6.25, -31.25, Math.toRadians(90));
     private final Pose placeSub4 = new Pose(4, -31, Math.toRadians(90));
     private final Pose placeSub5 = new Pose(1.25, -30.25, Math.toRadians(90));
 
-    private final Pose pickupWallControlPointFirst = new Pose(37.75, -49.2, Math.toRadians(90));
-    private final Pose pickupWallFirst = new Pose(37.75, -61.2, Math.toRadians(90));
+    private final Pose pickupWallControlPointFirst = new Pose(38, -49.2, Math.toRadians(90));
+    private final Pose pickupWallFirst = new Pose(38, -61.2, Math.toRadians(90));
 
     private final Pose spike1ControlPoint1 = new Pose(65, -62, 0);
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
@@ -371,7 +371,7 @@ public class SpecimenAuto6Spec {
                     setPathState(Specimen6AutoEnum.transferToTray);
                 }
             case transferToTray:
-                if (actionTimer.getElapsedTimeSeconds() > 0.5) {
+                if (actionTimer.getElapsedTimeSeconds() > 0.65) {
                     intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
 
                     setPathState(Specimen6AutoEnum.wallPreset2);
@@ -781,7 +781,7 @@ public class SpecimenAuto6Spec {
         }
     }
 
-    /** We do not use this because everything should automatically disable **/
     public void stop() {
+        driveTrain.stopDrive();
     }
 }

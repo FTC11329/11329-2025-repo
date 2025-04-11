@@ -29,4 +29,9 @@ public class Spec6AutoBlue extends OpMode {
     public void start() {
         specimenAuto.start();
     }
+
+    @Override
+    public void stop() {
+        specimenAuto.stop();
+    }
 }

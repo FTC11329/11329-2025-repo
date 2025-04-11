@@ -3,8 +3,9 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp(name = "CalibrateDriveScalarsFloor", group = "Calibration")
+@TeleOp(name = "CalibrateDriveScalarsFloor", group = "zCalibration")
 public class CalibrateDriveScalarsFloor extends LinearOpMode {
 
     private DcMotor leftFront, rightFront, leftBack, rightBack;
@@ -17,6 +18,9 @@ public class CalibrateDriveScalarsFloor extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
         DcMotor[] motors = {leftFront, rightFront, leftBack, rightBack};
+
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         for (DcMotor motor : motors) {
             motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
