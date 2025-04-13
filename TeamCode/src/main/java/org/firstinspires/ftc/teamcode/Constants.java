@@ -61,7 +61,7 @@ public class Constants {
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
         public static double unjamTimeMillisTeleop = 100;
-        public static double unjamTimeMillisAuto = 120;
+        public static double unjamTimeMillisAuto = 130;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
     }

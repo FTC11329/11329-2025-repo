@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 public class NewTeleop {
     //comment me out V
-//    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
+    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
     Drivetrain driveTrain;
     PowerTakeOff powerTakeOff;
@@ -47,7 +47,7 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugColor = false;
     boolean debugClimber = false;
-    boolean debugPower = false;
+    boolean debugPower = true;
     //Requires ^ uncommenting things
     boolean debugMisc = false;
 
@@ -170,10 +170,10 @@ public class NewTeleop {
 //        motor5 = hardwareMap.get(DcMotorEx.class, "hSlides");
 //        motor6 = hardwareMap.get(DcMotorEx.class, "vSlides");
 //        motor7 = hardwareMap.get(DcMotorEx.class, "climber");
-//        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         //uncomment if you want telemetry on dashboard
-//        dashboard = FtcDashboard.getInstance();
-//        telemetry = dashboard.getTelemetry();
+        dashboard = FtcDashboard.getInstance();
+        telemetry = dashboard.getTelemetry();
 
         tempTime1 = elapsedTime.milliseconds();
         climber = new Climber(hardwareMap);
@@ -966,7 +966,7 @@ public class NewTeleop {
 //            telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
-//            telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
+            telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
         }
         if (debugMisc || debugAll) {

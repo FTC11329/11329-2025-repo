@@ -553,7 +553,7 @@ public class SampleVisionAuto {
                 break;
             case failSpikeSearch:
                 if (follower.getError(spikeSearch).getX() < 1 && follower.getError(spikeSearch).getY() < 1) {
-                    Pose2D target2D = attempt89.getBestSample();
+                    Pose2D target2D = blockVision.getBestSample();
                     driveSee = true;
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         driveSee = false;

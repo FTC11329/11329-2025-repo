@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
+import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
@@ -36,7 +37,7 @@ public class SampleAuto {
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
-    Attempt89 attempt89;
+    Attempt89 blockVision;
 
     private Timer pathTimer, actionTimer, opmodeTimer;
 
@@ -46,7 +47,7 @@ public class SampleAuto {
     private int transferState = -1;
 
     // this variable will tell us if we failed to intake a sample
-    private boolean intakeFail = false;
+    private boolean missedSpike = false;
 
     /** Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -67,7 +68,7 @@ public class SampleAuto {
     private final Pose intakeSpike2 = new Pose(-58.3, -51.2, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-62, -52.7, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(117));
+    private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(115));
     private final Pose placeSpike3 = new Pose(-54.2, -55.7, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
@@ -75,9 +76,9 @@ public class SampleAuto {
 
     private final Pose afterSubPlace = new Pose(-54.5, -56, Math.toRadians(45));
 
-    private final Pose spikeSearch = new Pose(-59, -50.3, Math.toRadians(90));
+    private final Pose spikeSearch = new Pose(-59, -46, Math.toRadians(40));
 
-    private Pose target = new Pose();
+    private Pose2D target2D;
     private boolean driveShake = false;
     private boolean driveSee = false;
     private boolean transferSample = false;
@@ -103,7 +104,7 @@ public class SampleAuto {
 
     private Path failSpike1Path;
     private Path failSpike2Path;
-    private Path failSpike3Path;
+    private Path toSearchSpikes;
 
     public SampleAuto(HardwareMap hardwareMap, Telemetry telemetry, RobotSideEnum robotSide) {
         this.robotSide = robotSide;
@@ -118,8 +119,8 @@ public class SampleAuto {
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         outtakeSystem = new OuttakeSystem(hardwareMap, true);
-        attempt89 = new Attempt89(hardwareMap, robotSide);
-        attempt89.switchPipeline(0);
+        blockVision = new Attempt89(hardwareMap, robotSide);
+        blockVision.switchPipeline(0);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
 
@@ -135,7 +136,7 @@ public class SampleAuto {
     }
 
     public void init_loop() {
-        Pose2D sample = attempt89.getBestSample(robotSide);
+        Pose2D sample = blockVision.getBestSample(robotSide);
         telemetry.addData("Test Block X", sample.getX(DistanceUnit.INCH));
         telemetry.addData("Test Block Y", sample.getY(DistanceUnit.INCH));
         telemetry.addData("Test Block H", sample.getHeading(AngleUnit.DEGREES));
@@ -146,7 +147,7 @@ public class SampleAuto {
     public void start() {
         opmodeTimer.resetTimer();
         setPathState(SampleAutoEnum.scorePreload);
-        attempt89.switchPipeline(0);
+        blockVision.switchPipeline(0);
     }
 
     public void buildPaths() {
@@ -181,8 +182,8 @@ public class SampleAuto {
 
         failSpike1Path = follower.linearPathBuilder(intakeSpike1, intakeSpike2);
         failSpike2Path = follower.linearPathBuilder(intakeSpike2, intakeSpike3);
-        failSpike3Path = follower.linearPathBuilder(intakeSpike3, spikeSearch);
-        failSpike1Path.getSecondControlPoint();
+
+        toSearchSpikes = follower.linearPathBuilder(placeSpike3, spikeSearch);
 
         intakeSubPath = new Path(new BezierCurve(new Point(placeSpike3), new Point(subControlPoint), new Point(subIntake)));
         intakeSubPath.setLinearHeadingInterpolation(placeSpike3.getHeading(), subIntake.getHeading());
@@ -233,6 +234,7 @@ public class SampleAuto {
                 break;
             case armClearing1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SampleAutoEnum.spike1Transfer);
                     driveShake = true;
@@ -254,6 +256,7 @@ public class SampleAuto {
                     follower.followPath(failSpike1Path);
                     intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
                     setPathState(SampleAutoEnum.armClearing2);
+                    missedSpike = true;
                 }
                 break;
             case placeSample:
@@ -280,6 +283,7 @@ public class SampleAuto {
                 break;
             case armClearing2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     driveShake = true;
                     setPathState(SampleAutoEnum.spike2Transfer);
@@ -302,6 +306,7 @@ public class SampleAuto {
                     follower.followPath(failSpike2Path);
                     intakeSystem.setHSlidePos(Constants.Intake.minWhileDownPos);
                     setPathState(SampleAutoEnum.armClearing3);
+                    missedSpike = true;
                 }
                 break;
             case placeSample2:
@@ -323,12 +328,12 @@ public class SampleAuto {
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
-                    driveShake = true;
                     setPathState(SampleAutoEnum.armClearing3);
                 }
                 break;
             case armClearing3:
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     driveShake = true;
                     setPathState(SampleAutoEnum.spike3Transfer);
@@ -349,7 +354,7 @@ public class SampleAuto {
                 } else if (pathTimer.getElapsedTimeSeconds() > 2) {
                     intakeSystem.storeOutPos();
                     driveShake = false;
-                    setPathState(SampleAutoEnum.goSub1);
+                    setPathState(SampleAutoEnum.toFailSpike);
                 }
                 break;
             case placeSample3:
@@ -367,35 +372,109 @@ public class SampleAuto {
             case intakeArm:
                 if (pathTimer.getElapsedTimeSeconds() > .2) {
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    if (missedSpike) {
+                        setPathState(SampleAutoEnum.toFailSpike);
+                    } else {
+                        setPathState(SampleAutoEnum.goSub1);
+                    }
+                }
+                break;
+
+            //If failed any spike
+            case toFailSpike:
+                follower.followPath(toSearchSpikes);
+                intakeSystem.storeOutPos();
+                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                    setPathState(SampleAutoEnum.startLookFailSpike);
+                }
+                break;
+            case startLookFailSpike:
+                if (follower.getError(spikeSearch).getX() < 0.5 && follower.getError(spikeSearch).getY() < 0.5 && follower.getError(spikeSearch).getHeading() < Math.toRadians(4)) {
+                    setPathState(SampleAutoEnum.lookFailSpike);
+                }
+            case lookFailSpike:
+                if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    follower.startTeleopDrive();
+                    follower.setTeleOpMovementVectors(0,0,0.4);
+                }
+                target2D = blockVision.getBlockPosition(true);
+                if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
+                    intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
+                    setPathState(SampleAutoEnum.drivingVisionFail);
+                } else if (pathTimer.getElapsedTimeSeconds() > 2.25) {
+                    intakeSystem.storeOutPos();
                     setPathState(SampleAutoEnum.goSub1);
                 }
                 break;
+            case drivingVisionFail:
+                if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < 250 && follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                    setPathState(SampleAutoEnum.startIntake);
+                }
+                break;
+            case startIntakeFail:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    driveShake = true;
+                    intakeSystem.intakeUntil();
+                    setPathState(SampleAutoEnum.intakingWithVisionFail);
+                }
+                break;
+            case intakingWithVisionFail:
+                intakeSystem.update();
+                if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    follower.startTeleopDrive();
+                }
+                if (intakeSystem.intakeUntil()) {
+                    driveShake = false;
+                    follower.followPath(placeSpike3Path);
+                    intakeSystem.storeOutPos();
+                    intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
+                    transferSample = true;
+                    setPathState(SampleAutoEnum.placeSample3);
+
+                } else if (pathTimer.getElapsedTimeSeconds() > 2) {
+                    intakeSystem.storeOutPos();
+                    intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
+                    follower.breakFollowing();
+                    driveShake = false;
+
+                    setPathState(SampleAutoEnum.goSub1);
+                }
+                break;
+
             //Loop Starts here
             case goSub1:
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     follower.followPath(intakeSubPath);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
-                    setPathState(SampleAutoEnum.visionSearch1);
+                    setPathState(SampleAutoEnum.waitSearch);
                 }
                 break;
             case waitSearch:
-                if (follower.getError(subIntake).getX() < 2) {
+                if (follower.getErrorDistance(subIntake) < 3) {
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.visionSearch1);
                 }
                 break;
             case visionSearch1:
-                if (pathTimer.getElapsedTimeSeconds() > 1.5) {
-                    Pose2D target2D = attempt89.getBlockPosition(true);
-                    telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
-                    telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    target2D = blockVision.getBlockPosition(true);
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
                         setPathState(SampleAutoEnum.drivingVision);
+                    }
+                    if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                        //Break loop
+                        setPathState(SampleAutoEnum.park);
                     }
                 }
                 break;
             case drivingVision:
                 if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < 250 && follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    //I don't exist shh
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     setPathState(SampleAutoEnum.startIntake);
                 }
@@ -403,7 +482,6 @@ public class SampleAuto {
             case startIntake:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     driveShake = true;
-                    follower.startTeleopDrive();
                     intakeSystem.intakeUntilColor();
                     setPathState(SampleAutoEnum.transferSample4);
                 }
@@ -444,11 +522,11 @@ public class SampleAuto {
                 break;
             case intakeArm2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                    follower.followPath(intakeSubPath, false);
+                    follower.followPath(intakeSubPath);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
-                    setPathState(SampleAutoEnum.visionSearch1);
+                    setPathState(SampleAutoEnum.waitSearch);
                     //Go loop
                 }
                 break;
@@ -496,7 +574,7 @@ public class SampleAuto {
                 break;
             case failSpikeSearch:
                 if (follower.getError(spikeSearch).getX() < 1 && follower.getError(spikeSearch).getY() < 1) {
-                    Pose2D target2D = attempt89.getBestSample();
+                    Pose2D target2D = blockVision.getBestSample();
                     driveSee = true;
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         driveSee = false;
@@ -641,10 +719,10 @@ public class SampleAuto {
         follower.update();
         autonomousPathUpdate();
         if (driveShake && !doIntakeWhilePark && pathTimer.getElapsedTimeSeconds() > 1.1) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.1) * 4.5) % 2 == 0 ){
-                follower.setTeleOpMovementVectors(0,0, 0.8);
+            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.1) * 3.5) % 2 == 0 ){
+                follower.setTeleOpMovementVectors(0,0, 0.9);
             } else {
-                follower.setTeleOpMovementVectors(0,0, -0.8);
+                follower.setTeleOpMovementVectors(0,0, -0.9);
             }
         }
 
@@ -655,6 +733,9 @@ public class SampleAuto {
                 driveTrain.drive(0.05,0, -0.2, DriveSpeedEnum.Auto);
             }
         }
+        if (pathTimer.getElapsedTimeSeconds() > 6.5 && !doIntakeWhilePark) {
+            setPathState(SampleAutoEnum.goSub1);
+        }
 
         // Feedback to FTC Dashboard
         Drawing.drawDebug(follower);
@@ -662,11 +743,9 @@ public class SampleAuto {
         // Feedback to Driver Hub
         if (true) {
             telemetry.addData("state", pathState);
-            telemetry.addData("target", target);
-            telemetry.addData("path state", pathState);
-            telemetry.addData("x", follower.getPose().getX());
-            telemetry.addData("y", follower.getPose().getY());
-            telemetry.addData("heading", follower.getPose().getHeading());
+//            telemetry.addData("x", follower.getPose().getX());
+//            telemetry.addData("y", follower.getPose().getY());
+//            telemetry.addData("heading", follower.getPose().getHeading());
             telemetry.update();
         }
     }
