@@ -349,21 +349,26 @@ public class VisionSampleAuto {
             case visionSearch1:
                 if (follower.getErrorDistance(subIntake) < 1.5) {
                     Pose2D target2D = attempt89.getBlockPosition();
-//                    telemetry.addData("X", target2D.getX(DistanceUnit.INCH));
-//                    telemetry.addData("Y", target2D.getY(DistanceUnit.INCH));
                     if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                         target = new Pose(target2D.getX(DistanceUnit.INCH), target2D.getY(DistanceUnit.INCH));
-                        intakeSystem.setHSlidesInches(target.getY()); //leave this in cartesian because slow intake slides
+                        intakeSystem.setHSlidesInches(target.getY()); //no
                         follower.followYourHeart(target.getX());
-                        setPathState(SampleAutoEnum.subIntake1);
+                        setPathState(SampleAutoEnum.drivingVision);
                         driveSweep = true;
                     }
                 }
                 break;
-            case subIntake1:
-                if (pathTimer.getElapsedTimeSeconds() > .35) {
+            case drivingVision:
+                if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(intakeSystem.getHSlideTargetPos() - intakeSystem.getHSlidePos()) < 250 && follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-
+                    setPathState(SampleAutoEnum.startIntake);
+                }
+                break;
+            case startIntake:
+                if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    driveShake = true;
+                    follower.startTeleopDrive();
+                    intakeSystem.intakeUntilColor();
                     setPathState(SampleAutoEnum.transferSample4);
                 }
                 break;

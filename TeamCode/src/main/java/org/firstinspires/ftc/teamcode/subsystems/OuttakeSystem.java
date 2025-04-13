@@ -106,7 +106,14 @@ public class OuttakeSystem {
     }
 
     public boolean readyToTransfer() {
-        return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 40 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1 && outtakeArm.seesTransfer();
+        return readyToTransfer(true);
+    }
+    public boolean readyToTransfer(boolean useSensor) {
+        if (useSensor) {
+            return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 40 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1 && outtakeArm.seesTransfer();
+        } else {
+            return Math.abs(getVSlidePos() - Constants.Outtake.intakeSlides) < 40 && Math.abs(getArmPos() - Constants.Outtake.intakeArm) < 0.1;
+        }
     }
     public boolean seesWall() {
         return outtakeArm.seesWall();

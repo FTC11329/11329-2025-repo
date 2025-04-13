@@ -53,11 +53,11 @@ public class SpecimenAuto6Spec {
 
     // Scoring Poses of our robot.
     private final Pose preloadPlace = new Pose(6.25, -33.25, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose (9.75, -32, Math.toRadians(90));
-    private final Pose placeSub2 = new Pose(10, -31.75, Math.toRadians(90));
-    private final Pose placeSub3 = new Pose(6.25, -31.25, Math.toRadians(90));
-    private final Pose placeSub4 = new Pose(4, -31, Math.toRadians(90));
-    private final Pose placeSub5 = new Pose(1.25, -30.25, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose (9.5, -32, Math.toRadians(90));
+    private final Pose placeSub2 = new Pose(10.25, -31.75, Math.toRadians(90));
+    private final Pose placeSub3 = new Pose(6.5, -31.25, Math.toRadians(90));
+    private final Pose placeSub4 = new Pose(4.25, -31, Math.toRadians(90));
+    private final Pose placeSub5 = new Pose(1.5, -30.25, Math.toRadians(90));
 
     private final Pose pickupWallControlPointFirst = new Pose(38, -49.2, Math.toRadians(90));
     private final Pose pickupWallFirst = new Pose(38, -61.2, Math.toRadians(90));
@@ -283,7 +283,7 @@ public class SpecimenAuto6Spec {
                 outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
-                intakeSystem.setHSlidePos(800);
+                intakeSystem.setHSlidePos(400);
 
                 setPathState(Specimen6AutoEnum.placePreload);
                 break;

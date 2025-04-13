@@ -31,7 +31,7 @@ public class IntakeClaw {
         intakeServo = hardwareMap.get(Servo.class, "intakeServo");
         depoServo = hardwareMap.get(Servo.class, "depoServo");
 
-        intakeMotor.setCurrentAlert(5.5, CurrentUnit.AMPS);
+        intakeMotor.setCurrentAlert(6, CurrentUnit.AMPS);
 
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
