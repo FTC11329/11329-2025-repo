@@ -124,6 +124,7 @@ public class NewTeleop {
     boolean sideDepoFirst = false;
     boolean sideDepoDebounce = false;
 
+    boolean downOnce = true;
     boolean sideDepoing = false;
 
     boolean intakeingColor = false;
@@ -343,7 +344,7 @@ public class NewTeleop {
                     break;
                 case 4:
                     driveTrain.setPTOPower(0);
-                    if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 6000) {
+                    if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 1000) {
                         outtakeSystem.disable();
 
                         climberTimer.resetTimer();
@@ -351,7 +352,7 @@ public class NewTeleop {
                     }
                     break;
                 case 5:
-                    driveTrain.setPTOPower(-0.6);
+                    driveTrain.setPTOPower(-1);
                     //Does some things to make sure that the current has been tripped for more than 1 second after one one second
                     if (climberTimer.getElapsedTimeSeconds() > 0.1) {
                         current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
@@ -446,8 +447,6 @@ public class NewTeleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
-            intakeingColor = false;
-            intakeing = false;
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (storePos) {
@@ -742,6 +741,7 @@ public class NewTeleop {
 //        }
 
         if (intakeColor && !intakeingColor && !intakeingDebounce) {
+            downOnce = true;
             intakeSystem.setHSlidePos(extendHSlide);
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
             intakeingColor = true;
@@ -751,6 +751,7 @@ public class NewTeleop {
             intakeWristTime = elapsedTime.milliseconds();
         }
         if (intake && !intakeing && !intakeingDebounce) {
+            downOnce = true;
             intakeSystem.setHSlidePos(extendHSlide);
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
             intakeingColor = false;
@@ -819,10 +820,11 @@ public class NewTeleop {
             }
         }
         //makes the intake wrist not hit the robot while coming out
-        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !hasInOuttake) {
+        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !hasInOuttake && downOnce) {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
+            downOnce = false;
         }
 
         //SIDE DEPOSIT***************************************************************************~SD
@@ -843,7 +845,7 @@ public class NewTeleop {
         }
 
         if (sideDepoing) {
-            intakeSystem.setHSlidePos(0);
+            intakeSystem.setHSlidePos(35);
             if (whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
             }

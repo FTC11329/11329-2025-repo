@@ -59,7 +59,8 @@ public class Constants {
         public static double transferSpeed = 1;
         public static double unjamSpeed = -0.9;
         public static double spitSpeed = -0.75;
-        public static int bitMore = 80;
+        public static int unjamTicksShort = -150;
+        public static int unjamTicksLong = -150;
         public static double unjamTimeMillisTeleop = 110;
         public static double unjamTimeMillisAuto = 105;
         public static double intakeServoSpeedTime = 600;
@@ -119,8 +120,9 @@ public class Constants {
     public static class Color {
         public static double[] blue = {0.0016, 0.0041, 0.0114, 0.6806};
         public static double[] red = {0.0067, 0.0042, 0.0025, 0.5654};
-        public static double[] redEdge = {0.0157, 0.0108, 0.0065, 0.8877};
+        public static double[] redEdge = {0.016, 0.0122, 0.0078, 0.9037};
         public static double[] yellow = {0.0123, 0.0189, 0.0046, 0.903};
+        public static double[] yellowEdge = {0.0239, 0.0481, 0.0134, 0.2503};
         public static double[] empty = {0.0004, 0.0013, 0.002, 0.091};
 
         public static double hasDistance = 0.75; //1.27 0.605 0.495 0.463

@@ -72,7 +72,7 @@ public class IntakeClaw {
         intakeMotor.setPower(1);
         intakeMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        intakeMotor.setTargetPosition(Constants.Intake.bitMore);
+        intakeMotor.setTargetPosition(Constants.Intake.unjamTicksShort);
     }
 
 
