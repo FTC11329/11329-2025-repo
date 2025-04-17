@@ -62,10 +62,10 @@ public class SampleAuto {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-55.6, -54.6, Math.toRadians(54));
-    private final Pose intakeSpike1 = new Pose(-53.5, -51, Math.toRadians(81));
+    private final Pose intakeSpike1 = new Pose(-52.5, -51, Math.toRadians(81));
     private final Pose placeSpike1 = new Pose(-61.3, -52.7, Math.toRadians(80));
 
-    private final Pose intakeSpike2 = new Pose(-58.3, -51.2, Math.toRadians(90));
+    private final Pose intakeSpike2 = new Pose(-57, -51.2, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-62, -52.7, Math.toRadians(80));
 
     private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(115));
@@ -118,7 +118,7 @@ public class SampleAuto {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
         blockVision = new Attempt89(hardwareMap, robotSide);
         blockVision.switchPipeline(0);
 
@@ -666,7 +666,7 @@ public class SampleAuto {
                     }
                     break;
                 case 4:
-                    if ((outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer()) || actionTimer.getElapsedTimeSeconds() > 1){
+                    if ((outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer()) || actionTimer.getElapsedTimeSeconds() > 0.75){
                         setTransferState(5);
                     }
                     break;

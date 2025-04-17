@@ -127,7 +127,7 @@ public class Teleop {
 
     public void start() {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
     }
 
     public void loop() {

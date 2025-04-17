@@ -226,4 +226,8 @@ public class OTOSLocalizer extends Localizer {
     public boolean isNAN() {
         return Double.isNaN(getPose().getX()) || Double.isNaN(getPose().getY()) || Double.isNaN(getPose().getHeading());
     }
+
+    public SparkFunOTOS.Status getStatus() {
+        return otos.getStatus();
+    }
 }

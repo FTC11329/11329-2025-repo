@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
+import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 public class OuttakeSystem {
     ElapsedTime time = new ElapsedTime();
@@ -12,9 +13,9 @@ public class OuttakeSystem {
     public OuttakeArm outtakeArm;
     public VerticalSlides vSlides;
 
-    public OuttakeSystem(HardwareMap hardwareMap, boolean initArm) {
+    public OuttakeSystem(HardwareMap hardwareMap, RobotSideEnum robotSide, boolean initArm) {
         vSlides = new VerticalSlides(hardwareMap);
-        outtakeArm = new OuttakeArm(hardwareMap, initArm);
+        outtakeArm = new OuttakeArm(hardwareMap, robotSide, initArm);
     }
 
     public void initArm() {

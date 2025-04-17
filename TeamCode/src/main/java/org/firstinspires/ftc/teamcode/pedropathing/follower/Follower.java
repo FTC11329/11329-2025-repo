@@ -32,6 +32,7 @@ import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -1463,6 +1464,10 @@ public class Follower {
         double y = (oldX*Math.sin(a)) + (oldY*Math.cos(a));
         Pose2D pose = new Pose2D(DistanceUnit.INCH, x + robotTransform.getX(), target.getY(DistanceUnit.INCH), AngleUnit.DEGREES, target.getHeading(AngleUnit.DEGREES));
         return pose;
+    }
+
+    public SparkFunOTOS.Status getStatus() {
+        return poseUpdater.getStatus();
     }
     
 }

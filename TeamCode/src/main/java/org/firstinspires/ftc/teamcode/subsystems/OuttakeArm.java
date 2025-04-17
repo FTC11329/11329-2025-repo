@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 
 public class OuttakeArm {
@@ -21,7 +22,9 @@ public class OuttakeArm {
 
     HardwareMap hardwareMap;
 
-    public OuttakeArm(HardwareMap hardwareMap, boolean initArm) {
+    RobotSideEnum robotSide;
+
+    public OuttakeArm(HardwareMap hardwareMap, RobotSideEnum robotSide, boolean initArm) {
         this.hardwareMap = hardwareMap;
         clawSensor = hardwareMap.get(RevColorSensorV3.class, "clawSensor");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
@@ -30,6 +33,7 @@ public class OuttakeArm {
         if (initArm) {
             initArm();
         }
+        this.robotSide = robotSide;
     }
 
     public void initArm() {
@@ -72,7 +76,11 @@ public class OuttakeArm {
     }
 
     public boolean seesWall() {
-        return getSensorDistance() < Constants.Outtake.seesWallDistance;
+        if (robotSide == RobotSideEnum.Red) {
+            return getSensorDistance() < Constants.Outtake.seesWallDistanceRed;
+        } else {
+            return getSensorDistance() < Constants.Outtake.seesWallDistanceBlue;
+        }
     }
     public boolean seesTransfer() {
         return getSensorDistance() < Constants.Outtake.seesTransferDistance;

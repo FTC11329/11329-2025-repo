@@ -49,7 +49,8 @@ import java.util.List;
 @Config
 @TeleOp(group = " STeleop Test", name = "Localization Test")
 public class LocalizationTest extends OpMode {
-    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
+    private final Pose startPose = new Pose(0, 0, Math.toRadians(180));
+//    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
     private Telemetry telemetryA;
@@ -153,6 +154,8 @@ public class LocalizationTest extends OpMode {
         telemetryA.addData("y", poseUpdater.getPose().getY());
         telemetryA.addData("heading", poseUpdater.getPose().getHeading());
         telemetryA.addData("total heading", poseUpdater.getTotalHeading());
+        telemetryA.addData("Status", poseUpdater.getStatus());
+        telemetryA.addData("Status", poseUpdater.getStatus().get());
 
 //        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
 //        telemetryA.addData("Their Velocity Y", poseUpdater.getVelocity().getYComponent());

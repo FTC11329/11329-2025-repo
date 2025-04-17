@@ -28,7 +28,7 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -700;
+        public static final int inPos = -750;
         public static final int hookPos =  8100;
         public static final int outPos  = 10200;
     }
@@ -47,7 +47,7 @@ public class Constants {
         public static double manualSlideSpeed = 75;
 
         public static double wristClimb = 0;
-        public static double wristStore = 0.03;
+        public static double wristStore = 0.01;
         public static double wristDepo = 0.12;
         public static double wristClear = 0.25;
         public static double wristDown = 0.450;
@@ -60,8 +60,8 @@ public class Constants {
         public static double unjamSpeed = -0.9;
         public static double spitSpeed = -0.75;
         public static int bitMore = 80;
-        public static double unjamTimeMillisTeleop = 100;
-        public static double unjamTimeMillisAuto = 130;
+        public static double unjamTimeMillisTeleop = 110;
+        public static double unjamTimeMillisAuto = 105;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
     }
@@ -78,7 +78,7 @@ public class Constants {
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;
-        public static double intakeWallArm = 0.065;
+        public static double intakeWallArm = 0.0655;
         public static double manualArmSpeed = 0.01;
 
         public static double downArm = 1;
@@ -106,8 +106,9 @@ public class Constants {
 
         public static double manualSlideSpeed = 60;
 
-        public static double seesWallDistance = 1.35;
-        public static double seesTransferDistance = 1.25;
+        public static double seesWallDistanceBlue = 1.4;
+        public static double seesWallDistanceRed = 1.15;
+        public static double seesTransferDistance = 1.4;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;
@@ -116,12 +117,12 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0014, 0.0035, 0.0094, 0.597};
-        public static double[] red = {0.0075, 0.0047, 0.0028, 0.621};
+        public static double[] blue = {0.0016, 0.0041, 0.0114, 0.6806};
+        public static double[] red = {0.0067, 0.0042, 0.0025, 0.5654};
         public static double[] redEdge = {0.0157, 0.0108, 0.0065, 0.8877};
-        public static double[] yellow = {0.0123, 0.0197, 0.0046, 0.907};
-        public static double[] empty = {0.0005, 0.0014, 0.002, 0.10};
+        public static double[] yellow = {0.0123, 0.0189, 0.0046, 0.903};
+        public static double[] empty = {0.0004, 0.0013, 0.002, 0.091};
 
-        public static double hasDistance = 1; //1.27 0.605 0.495 0.463
+        public static double hasDistance = 0.75; //1.27 0.605 0.495 0.463
     }
 }

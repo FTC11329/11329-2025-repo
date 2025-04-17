@@ -30,7 +30,7 @@ public class ClimberReset extends OpMode {
     public void init() {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Blue, true);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         powerTakeOff = new PowerTakeOff(hardwareMap);
 

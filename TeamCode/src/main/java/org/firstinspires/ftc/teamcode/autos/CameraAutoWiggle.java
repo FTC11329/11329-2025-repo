@@ -71,7 +71,7 @@ public class CameraAutoWiggle extends OpMode {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Red);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Auto, true);
         attempt89 = new Attempt89(hardwareMap, RobotSideEnum.Blue);
         outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
         pathTimer = new Timer();

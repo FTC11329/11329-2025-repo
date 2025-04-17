@@ -110,7 +110,7 @@ public class VisionSampleAuto {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
         attempt89 = new Attempt89(hardwareMap, robotSide);
         attempt89.switchPipeline(robotSide);
 

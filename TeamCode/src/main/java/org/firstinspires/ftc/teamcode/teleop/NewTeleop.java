@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 public class NewTeleop {
     //comment me out V
-    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
+//    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
     Drivetrain driveTrain;
     PowerTakeOff powerTakeOff;
@@ -47,7 +47,7 @@ public class NewTeleop {
     boolean debugPos = false;
     boolean debugColor = false;
     boolean debugClimber = false;
-    boolean debugPower = true;
+    boolean debugPower = false;
     //Requires ^ uncommenting things
     boolean debugMisc = false;
 
@@ -128,6 +128,10 @@ public class NewTeleop {
 
     boolean intakeingColor = false;
     boolean intakeing = false;
+    boolean afterIntakeingColor = false;
+    boolean afterIntakeing = false;
+    double afterIntakeingColorTime = 2000000000;
+    double afterIntakeingTime = 2000000000;
     boolean intakeingDebounce = false;
     double intakeTime = 2000000000;
     double intakeWristTime = 2000000000;
@@ -170,10 +174,10 @@ public class NewTeleop {
 //        motor5 = hardwareMap.get(DcMotorEx.class, "hSlides");
 //        motor6 = hardwareMap.get(DcMotorEx.class, "vSlides");
 //        motor7 = hardwareMap.get(DcMotorEx.class, "climber");
-        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
+//        motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         //uncomment if you want telemetry on dashboard
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = dashboard.getTelemetry();
 
         tempTime1 = elapsedTime.milliseconds();
         climber = new Climber(hardwareMap);
@@ -187,7 +191,7 @@ public class NewTeleop {
         tempTime4 = elapsedTime.milliseconds();
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
         tempTime5 = elapsedTime.milliseconds();
         elapsedTime.reset();
@@ -702,7 +706,7 @@ public class NewTeleop {
                     wallOnce = true;
                 }
             }
-            if (elapsedTime.milliseconds() > grabbingOffWallTime + 450 && !wallOnce) {
+            if (elapsedTime.milliseconds() > grabbingOffWallTime + 250 && !wallOnce) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                 grabbingOffWall = false;
                 onceWall = true;
@@ -761,7 +765,27 @@ public class NewTeleop {
         }
 
         if (intakeing) {
-            if (/*intakeSystem.getIntakeServoPos() > Constants.Intake.wristClear &&*/ elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntil()) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntil()) {
+                afterIntakeing = true;
+                afterIntakeingTime = elapsedTime.milliseconds();
+
+                intakeSystem.setIntakePower(0);
+                intakeing = false;
+            }
+        }
+
+        if (intakeingColor) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
+                afterIntakeingColor = true;
+                afterIntakeingColorTime = elapsedTime.milliseconds();
+
+                intakeSystem.setIntakePower(0);
+                intakeingColor = false;
+            }
+        }
+
+        if (afterIntakeing) {
+            if (elapsedTime.milliseconds() > afterIntakeingTime + 200) {
                 if (atStorePos) {
                     stateMachine.goTransfer(true);
                     intakeSystem.storeOutPos();
@@ -772,29 +796,28 @@ public class NewTeleop {
                 gamepad2.rumble(1,1,1000);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
-                intakeing = false;
+                afterIntakeing = false;
                 unjamAfterIntakeTime = elapsedTime.milliseconds();
                 unjamAfterIntake = true;
             }
         }
 
-        if (intakeingColor) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
+        if (afterIntakeingColor) {
+            if (elapsedTime.milliseconds() > afterIntakeingColorTime + 200) {
                 if (atStorePos) {
                     intakeSystem.storeOutPos();
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(0, 1, 300);
-                gamepad2.rumble(0, 1, 300);
+                gamepad1.rumble(1, 1, 300);
+                gamepad2.rumble(1, 1, 300);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
-                intakeingColor = false;
+                afterIntakeingColor = false;
                 unjamAfterIntakeTime = elapsedTime.milliseconds();
                 unjamAfterIntake = true;
             }
         }
-
         //makes the intake wrist not hit the robot while coming out
         if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !hasInOuttake) {
             intakeingDebounce = false;
@@ -881,7 +904,7 @@ public class NewTeleop {
                 intakeSystem.setIntakePower(0);
                 unjamming = false;
             }
-            if (elapsedTime.milliseconds() > unjammingTime + 600) {
+            if (elapsedTime.milliseconds() > unjammingTime + 800) {
                 hasInIntake = false;
                 intakeSystem.setIntakePower(0);
                 unjamming = false;
@@ -966,7 +989,7 @@ public class NewTeleop {
 //            telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
-            telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
+//            telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
 //            telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
         }
         if (debugMisc || debugAll) {

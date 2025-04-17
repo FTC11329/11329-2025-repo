@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.pedropathing.localization;
 import static org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants.localizers;
 
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -378,5 +379,9 @@ public class PoseUpdater {
      */
     public void resetIMU() throws InterruptedException {
         localizer.resetIMU();
+    }
+
+    public SparkFunOTOS.Status getStatus() {
+        return new SparkFunOTOS.Status();
     }
 }

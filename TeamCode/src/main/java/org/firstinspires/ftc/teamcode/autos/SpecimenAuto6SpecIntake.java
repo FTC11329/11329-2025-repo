@@ -139,7 +139,7 @@ public class SpecimenAuto6SpecIntake {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, false);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, false);
 
 
         pathTimer = new Timer();

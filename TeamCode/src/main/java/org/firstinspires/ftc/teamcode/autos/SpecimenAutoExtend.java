@@ -129,7 +129,7 @@ public class SpecimenAutoExtend extends OpMode {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Auto, true);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
 

@@ -173,7 +173,7 @@ public class SpecimenAuto5Spec {
     public void start() {
         opmodeTimer.resetTimer();
 
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
 
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
 

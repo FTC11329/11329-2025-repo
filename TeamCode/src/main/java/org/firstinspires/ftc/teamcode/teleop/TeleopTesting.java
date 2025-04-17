@@ -72,7 +72,7 @@ public class TeleopTesting {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, true);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
 
         for (int i = 0; i < 10; i++) {
             builder.addStep(1, 0,10);
