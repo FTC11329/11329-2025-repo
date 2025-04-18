@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.utility;
 
 public enum Specimen6AutoEnum {
     driveGoScorePreload, placePreload,
-    droppedClaw0, drivingVision, startIntake, intakingWithVision, unjam, reIntake, transferToTray, depoThePickup, stopSpit, missFirstIntake, pushSpike1, pushSpike2, pushSpike3, goBackSpike3,
+    droppedClaw0, drivingVision, startIntake, intakingWithVision, unjam, reIntake, transferToTray, depoThePickup, stopSpit, missFirstIntake, pushSpike1, goBackSpike2, backSpike2, pushingSpike2, pushSpike3, goBackSpike3,
     waitFrontWall1, pickupWall1, grabWall1, goPlaceSub1, specPreset1, drivePlace1, dropClaw1, dropClaw0, visionLook, goFrontWall2, wallPreset2,
     frontWallToWall2, grabWall2, goPlaceSub2, specPreset2, drivePlace2, dropClaw2, preloadVision, goFrontWall3, wallPreset3,
     frontWallToWall3, grabWall3, goPlaceSub3, specPreset3, drivePlace3, dropClaw3, drivingVision2, intakingVision2, goFrontWall4, wallPreset4,

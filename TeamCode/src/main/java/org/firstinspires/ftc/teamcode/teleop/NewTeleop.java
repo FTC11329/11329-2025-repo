@@ -396,7 +396,7 @@ public class NewTeleop {
         }
         // Pre-Start Climb
         if (gamepad1.dpad_up || gamepad2.back) {
-            climberPos = Constants.Climber.outPos;
+            climberPos = Constants.Climber.prePos;
             climber.setPos(climberPos);
         }
 
@@ -739,21 +739,22 @@ public class NewTeleop {
 //                intakeSystem.setHSlidePos(extendHSlide);
 //            }
 //        }
-
-        if (intakeColor && !intakeingColor && !intakeingDebounce) {
+        if (intakeColor && !intakeingDebounce) {
             downOnce = true;
             intakeSystem.setHSlidePos(extendHSlide);
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+            intakeSystem.setIntakePower(0);
             intakeingColor = true;
             intakeing = false;
             //do we want this?
             hasInTray = false;
             intakeWristTime = elapsedTime.milliseconds();
         }
-        if (intake && !intakeing && !intakeingDebounce) {
+        if (intake && !intakeingDebounce) {
             downOnce = true;
             intakeSystem.setHSlidePos(extendHSlide);
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+            intakeSystem.setIntakePower(0);
             intakeingColor = false;
             intakeing = true;
             //do we want this?
@@ -845,7 +846,7 @@ public class NewTeleop {
         }
 
         if (sideDepoing) {
-            intakeSystem.setHSlidePos(35);
+            intakeSystem.setHSlidePos(40);
             if (whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
             }
@@ -860,7 +861,7 @@ public class NewTeleop {
             if (elapsedTime.milliseconds() > sideDepoTime + 150 && elapsedTime.milliseconds() < sideDepoTime + 250 && !sideDepoFirst) {
                 intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
             }
-            if (elapsedTime.milliseconds() > sideDepoTime + 550 && !sideDepoFirst) {
+            if (elapsedTime.milliseconds() > sideDepoTime + 850 && !sideDepoFirst) {
                 intakeSystem.setIntakePower(0);
                 intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);

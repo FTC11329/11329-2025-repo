@@ -28,9 +28,10 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -750;
+        public static final int inPos = -825;
         public static final int hookPos =  8100;
         public static final int outPos  = 10200;
+        public static final int prePos  = 8130;
     }
 
     @Config

@@ -53,7 +53,7 @@ public class SpecimenAuto6Spec {
 
     // Scoring Poses of our robot.
     private final Pose preloadPlace = new Pose(6.25, -33.25, Math.toRadians(90));
-    private final Pose placeSub1 = new Pose (9.5, -32, Math.toRadians(90));
+    private final Pose placeSub1 = new Pose (8.25, -32, Math.toRadians(90));
     private final Pose placeSub2 = new Pose(10.25, -31.75, Math.toRadians(90));
     private final Pose placeSub3 = new Pose(6.5, -31.25, Math.toRadians(90));
     private final Pose placeSub4 = new Pose(4.25, -31, Math.toRadians(90));
@@ -73,8 +73,8 @@ public class SpecimenAuto6Spec {
     private final Pose pushedSpike2 = new Pose(58, -49, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(62.5, -15, Math.toRadians(90));
-    private final Pose pickupWallRightSide = new Pose(62.25, -60.5, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(62.7, -15, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(62.5, -60.5, Math.toRadians(90));
 
     private final Pose pickupWallControlPoint = new Pose(39, -48, Math.toRadians(90));
     private final Pose pickupWall = new Pose(39, -60.25, Math.toRadians(90));
@@ -204,7 +204,7 @@ public class SpecimenAuto6Spec {
         scorePreload.setZeroPowerAccelerationMultiplier(firstPlaceZPAM);
 
         toWall1 = follower.pathBuilder()
-                .addPath(new Path(new BezierCurve(new Point(preloadPlace.addReturn(new Pose(0,-10,0))), new Point(halfWayFirstWallPose))))
+                .addPath(new Path(new BezierCurve(new Point(preloadPlace.addReturn(new Pose(0,-13,0))), new Point(halfWayFirstWallPose))))
                 .setConstantHeadingInterpolation(Math.toRadians(135))
                 .setZeroPowerAccelerationMultiplier(toWallZPAM)
                 .addPath(new BezierCurve(new Point(halfWayFirstWallPose), new Point(pickupWallControlPointFirst), new Point(pickupWallFirst)))
@@ -386,25 +386,24 @@ public class SpecimenAuto6Spec {
             case wallPreset2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                     outtakeSystem.placePos(PlacePosEnum.wallAuto);
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristDepo);
                     setPathState(Specimen6AutoEnum.depoThePickup);
                 }
                 break;
             //change to be transfer and dump
             case depoThePickup:
-                if (pathTimer.getElapsedTimeSeconds() > 0.6 || pathTimer.getElapsedTimeSeconds() > 1.75) {
+                if (pathTimer.getElapsedTimeSeconds() > 0.4) {
                     intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
-                    intakeSystem.setIntakePower(0);
 
                     setPathState(Specimen6AutoEnum.grabWall2);
                 }
                 break;
             case grabWall2:
-                if ((follower.getErrorDistance(pickupWallFirst) < 2 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 2) {
-                    intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
-                } else {
+                if (!((follower.getErrorDistance(pickupWallFirst) < 2 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 2)) {
                     actionTimer.resetTimer();
                 }
                 if (actionTimer.getElapsedTimeSeconds() > firstWallWait) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     setPathState(Specimen6AutoEnum.goPlaceSub2);
                 }
@@ -412,6 +411,7 @@ public class SpecimenAuto6Spec {
             //outtake to specimen place pos
             case goPlaceSub2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     follower.followPath(placeSub1Path);
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                     setPathState(Specimen6AutoEnum.specPreset2);
@@ -419,12 +419,16 @@ public class SpecimenAuto6Spec {
                 break;
             case specPreset2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                    intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                     outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                     setPathState(Specimen6AutoEnum.drivePlace2);
                 }
                 break;
             case drivePlace2:
                 if (follower.getErrorDistance(placeSub1.addReturn(frontSubPlaceOffset)) < 1.5) {
+                    intakeSystem.setIntakePower(0);
+
                     follower.startTeleopDrive();
                     driveSlam = true;
 
@@ -450,20 +454,33 @@ public class SpecimenAuto6Spec {
 
             case pushSpike1:
                 if (follower.getError(backSpike1).getX() < 4 && follower.getError(backSpike1).getY() < 4) {
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     follower.followPath(pushSpike1Path);
-                    setPathState(Specimen6AutoEnum.pushSpike2);
+                    setPathState(Specimen6AutoEnum.goBackSpike2);
                 }
                 break;
-            case pushSpike2:
+            case goBackSpike2:
                 if (follower.getError(pushedSpike1).getX() < 2 && follower.getError(pushedSpike1).getY() < 2) {
-                    intakeSystem.setIntakePower(0);
+                    intakeSystem.storePos();
                     follower.followPath(pickupSpike2Path);
+                    setPathState(Specimen6AutoEnum.backSpike2);
+                }
+                break;
+            case backSpike2:
+                if (follower.getPose().getY() > -21 || pathTimer.getElapsedTimeSeconds() > 1.75) {
+                    setPathState(Specimen6AutoEnum.pushingSpike2);
+                }
+                break;
+            case pushingSpike2:
+                if (follower.getPose().getY() < -20) {
+                    intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(Specimen6AutoEnum.goBackSpike3);
                 }
                 break;
             //go to pickup spike3
             case goBackSpike3:
                 if (follower.getError(pushedSpike2).getX() < 2 && follower.getError(pushedSpike2).getY() < 2) {
+                    intakeSystem.setHSlidePos(0);
                     follower.followPath(pickupSpike3Path);
                     setPathState(Specimen6AutoEnum.pushSpike3);
                 }
@@ -763,14 +780,14 @@ public class SpecimenAuto6Spec {
         Drawing.drawDebug(follower);
 
         // Feedback to Driver Hub
-        if (false) {
+        if (true) {
             telemetry.addData("path state", pathState);
-            telemetry.addData("x", follower.getPose().getX());
-            telemetry.addData("y", follower.getPose().getY());
-            telemetry.addData("heading", follower.getPose().getHeading());
-            telemetry.addData("tripped", driveTrain.isStalled(3));
-            telemetry.addData("opmode", opmodeTimer.getElapsedTimeSeconds());
-            telemetry.addData("loopTime", loopTime - opmodeTimer.getElapsedTime());
+//            telemetry.addData("x", follower.getPose().getX());
+//            telemetry.addData("y", follower.getPose().getY());
+//            telemetry.addData("heading", follower.getPose().getHeading());
+//            telemetry.addData("tripped", driveTrain.isStalled(3));
+//            telemetry.addData("opmode", opmodeTimer.getElapsedTimeSeconds());
+//            telemetry.addData("loopTime", loopTime - opmodeTimer.getElapsedTime());
 //            telemetry.addData("fl", driveTrain.getDrivePowers()[0]);
 //            telemetry.addData("bl", driveTrain.getDrivePowers()[1]);
 //            telemetry.addData("fr", driveTrain.getDrivePowers()[2]);
