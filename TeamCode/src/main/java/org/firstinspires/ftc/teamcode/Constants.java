@@ -28,7 +28,7 @@ public class Constants {
     }
     @Config
     public static class Climber {
-        public static final int inPos = -825;
+        public static final int inPos = -875;
         public static final int hookPos =  8100;
         public static final int outPos  = 10200;
         public static final int prePos  = 8130;
@@ -40,7 +40,7 @@ public class Constants {
         public static int transferSlides = 335;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
-        public static int autoPreExtendSlides = 850;
+        public static int autoPreExtendSlides = 900;
         public static int intakeSlidePos = 1325;
         public static int maxSlidePos = 1450;
         public static double inchToTick = 1532.0 / 19.0;
@@ -86,6 +86,7 @@ public class Constants {
         public static double downArm = 1;
         public static double specimenArm = 0.76;
         public static double basketArm = 0.283;
+        public static double basketArmHigh = 0.288;
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
@@ -110,7 +111,7 @@ public class Constants {
 
         public static double seesWallDistanceBlue = 1.4;
         public static double seesWallDistanceRed = 1.15;
-        public static double seesTransferDistance = 1.35;
+        public static double seesTransferDistance = 1.4;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

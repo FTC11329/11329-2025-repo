@@ -484,7 +484,7 @@ public class NewTeleop {
 
                 onceTime = false;
             }
-            if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 200 && onceState) {
+            if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 200 && onceState) {
                 storeTime = elapsedTime.milliseconds();
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                 onceState = false;
@@ -507,6 +507,7 @@ public class NewTeleop {
 
         if (stateMachine.doTransfer()) {
             if (onceTime) {
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 transferTime = elapsedTime.milliseconds();
                 onceTime = false;
                 transferFirstTime = true;
@@ -519,7 +520,7 @@ public class NewTeleop {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             }
-            if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferFirstTime) {
+            if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferFirstTime && elapsedTime.milliseconds() > transferTime + 100) {
                 // if we have a piece
                 transferFirstTime = false;
                 transferTime = elapsedTime.milliseconds();
@@ -531,7 +532,7 @@ public class NewTeleop {
 //                hasInTray = true;
                 stateMachine.failTransfer();
             }
-            if (elapsedTime.milliseconds() > transferTime + 10 && elapsedTime.milliseconds() < transferTime + 110 && !transferFirstTime) {
+            if (elapsedTime.milliseconds() > transferTime + 50 && elapsedTime.milliseconds() < transferTime + 150 && !transferFirstTime) {
                 intakeSystem.setIntakePower(0);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                 clawToggle = true;
@@ -592,7 +593,7 @@ public class NewTeleop {
                 onceTime = false;
             }
             if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
                 stateMachine.finishLowBasket();
                 onceTime = true;
             }
@@ -606,7 +607,7 @@ public class NewTeleop {
                 onceTime = false;
             }
             if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
-                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
                 stateMachine.finishHighBasket();
                 onceTime = true;
             }
@@ -719,6 +720,7 @@ public class NewTeleop {
                 droppingBasketTime = elapsedTime.milliseconds();
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 300 && elapsedTime.milliseconds() < droppingBasketTime + 400) {
+//                whereAmI = PlacePosEnum.highSpecimen;
                 outtakeSystem.setArmPos(Constants.Outtake.upArm);
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 500 && elapsedTime.milliseconds() < droppingBasketTime + 600) {

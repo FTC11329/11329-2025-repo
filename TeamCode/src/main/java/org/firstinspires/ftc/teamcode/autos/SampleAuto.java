@@ -62,11 +62,11 @@ public class SampleAuto {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-55.6, -54.6, Math.toRadians(54));
-    private final Pose intakeSpike1 = new Pose(-52.175, -51, Math.toRadians(81));
-    private final Pose placeSpike1 = new Pose(-61.3, -52.7, Math.toRadians(80));
+    private final Pose intakeSpike1 = new Pose(-52, -51, Math.toRadians(81));
+    private final Pose placeSpike1 = new Pose(-60.5, -52.7, Math.toRadians(80));
 
-    private final Pose intakeSpike2 = new Pose(-57.5, -51.2, Math.toRadians(90));
-    private final Pose placeSpike2 = new Pose(-62, -52.7, Math.toRadians(80));
+    private final Pose intakeSpike2 = new Pose(-57.9, -51.2, Math.toRadians(90));
+    private final Pose placeSpike2 = new Pose(-60, -52.7, Math.toRadians(80));
 
     private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(115));
     private final Pose placeSpike3 = new Pose(-54.2, -55.7, Math.toRadians(45));
@@ -74,9 +74,9 @@ public class SampleAuto {
     private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
     private final Pose subControlPoint = new Pose(-48.4, -10.3, Math.toRadians(0));
 
-    private final Pose afterSubPlace = new Pose(-52.5, -54, Math.toRadians(45));
+    private final Pose afterSubPlace = new Pose(-53.25, -54.75, Math.toRadians(45));
 
-    private final Pose spikeSearch = new Pose(-59, -43, Math.toRadians(40));
+    private final Pose spikeSearch = new Pose(-59, -40, Math.toRadians(40));
 
     private Pose2D target2D;
     private boolean driveShake = false;
@@ -100,6 +100,7 @@ public class SampleAuto {
 
     private Path intakeSubPath;
     private Path placeSubPath;
+    private Path parkPath; // IS THAT A BTD 6 REFERANCE?!?!?!?
 
 
     private Path failSpike1Path;
@@ -191,6 +192,10 @@ public class SampleAuto {
 
         placeSubPath = new Path(new BezierCurve(new Point(subIntake), new Point(subControlPoint), new Point(afterSubPlace)));
         placeSubPath.setLinearHeadingInterpolation(subIntake.getHeading(), afterSubPlace.getHeading());
+
+        parkPath = new Path(new BezierCurve(new Point(subIntake), new Point(subControlPoint), new Point(afterSubPlace)));
+        parkPath.setLinearHeadingInterpolation(subIntake.getHeading(), afterSubPlace.getHeading());
+        parkPath.setZeroPowerAccelerationMultiplier(4);
     }
     public void autonomousPathUpdate() {
         //Driving and everything else
@@ -652,7 +657,7 @@ public class SampleAuto {
                     }
                     break;
                 case 1:
-                    if (intakeSystem.intakeUntil() || actionTimer.getElapsedTimeSeconds() > 0.5) {
+                    if ((intakeSystem.intakeUntil() && actionTimer.getElapsedTimeSeconds() > 0.1) || actionTimer.getElapsedTimeSeconds() > 0.5) {
                         intakeSystem.setIntakePower(0);
 
                         setTransferState(2);
