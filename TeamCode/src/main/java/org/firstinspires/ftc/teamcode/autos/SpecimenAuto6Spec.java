@@ -66,7 +66,7 @@ public class SpecimenAuto6Spec {
     private final Pose spike1ControlPoint2 = new Pose(22.5, -11, 0);
     private final Pose backSpike1 = new Pose(47.5, -15, Math.toRadians(90));
 
-    private final Pose pushedSpike1 = new Pose(47, -47, Math.toRadians(90));
+    private final Pose pushedSpike1 = new Pose(47, -49, Math.toRadians(90));
 
     private final Pose spike2ControlPoint1 = new Pose(41, -3, 0);
     private final Pose spike2ControlPoint2 = new Pose(68, -3, 0);
@@ -93,8 +93,8 @@ public class SpecimenAuto6Spec {
     private double loopTime = 0;
     private double slamSpeed = 1;
     private double firstWallWait = 0.05;
-    private double secondWallWait = 0.05;
-    private double wallWait = 0.075;
+    private double secondWallWait = 0.10;
+    private double wallWait = 0.05;
     private double visionSlidePos = Constants.Intake.intakeSlidePos;
     private boolean driveShake = false;
     private boolean driveSlam = false;
@@ -204,10 +204,10 @@ public class SpecimenAuto6Spec {
         scorePreload.setZeroPowerAccelerationMultiplier(firstPlaceZPAM);
 
         toWall1 = follower.pathBuilder()
-                .addPath(new Path(new BezierCurve(new Point(preloadPlace.addReturn(new Pose(0,-13,0))), new Point(halfWayFirstWallPose))))
+                .addPath(new Path(new BezierCurve(new Point(preloadPlace.addReturn(new Pose(0,-5,0))), new Point(halfWayFirstWallPose.addReturn(new Pose(0,-5, 0))))))
                 .setConstantHeadingInterpolation(Math.toRadians(135))
                 .setZeroPowerAccelerationMultiplier(toWallZPAM)
-                .addPath(new BezierCurve(new Point(halfWayFirstWallPose), new Point(pickupWallControlPointFirst), new Point(pickupWallFirst)))
+                .addPath(new BezierCurve(new Point(halfWayFirstWallPose.addReturn(new Pose(0,-5, 0))), new Point(pickupWallControlPointFirst), new Point(pickupWallFirst)))
                 .setLinearHeadingInterpolation(Math.toRadians(135), pickupWallFirst.getHeading(), 0.6)
                 .setZeroPowerAccelerationMultiplier(toWallZPAM)
                 .build();
@@ -467,12 +467,12 @@ public class SpecimenAuto6Spec {
                 }
                 break;
             case backSpike2:
-                if (follower.getPose().getY() > -21 || pathTimer.getElapsedTimeSeconds() > 1.75) {
+                if (follower.getPose().getY() > -15 || pathTimer.getElapsedTimeSeconds() > 2) {
                     setPathState(Specimen6AutoEnum.pushingSpike2);
                 }
                 break;
             case pushingSpike2:
-                if (follower.getPose().getY() < -20) {
+                if (follower.getPose().getY() < -14) {
                     intakeSystem.setHSlidePos(Constants.Intake.intakeSlidePos);
                     setPathState(Specimen6AutoEnum.goBackSpike3);
                 }

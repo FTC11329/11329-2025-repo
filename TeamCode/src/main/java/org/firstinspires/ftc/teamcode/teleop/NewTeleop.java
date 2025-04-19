@@ -486,15 +486,16 @@ public class NewTeleop {
             }
             if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 200 && onceState) {
                 storeTime = elapsedTime.milliseconds();
-                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                 onceState = false;
             }
             if (elapsedTime.milliseconds() > storeTime + 500 && elapsedTime.milliseconds() < storeTime + 600) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
             }
-            if (elapsedTime.milliseconds() > storeTime + 800 && elapsedTime.milliseconds() < storeTime + 900) {
+            if (elapsedTime.milliseconds() > storeTime + 700 && elapsedTime.milliseconds() < storeTime + 800) {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+            }
+            if (elapsedTime.milliseconds() > storeTime + 800 && elapsedTime.milliseconds() < storeTime + 900) {
                 clawToggle = false;
                 atStorePos = true;
                 whereAmI = PlacePosEnum.intake;
@@ -527,7 +528,7 @@ public class NewTeleop {
                 // if failed
                 intakeSystem.setIntakePower(0);
                 hasInIntake = false;
-                hasInTray = true;
+//                hasInTray = true;
                 stateMachine.failTransfer();
             }
             if (elapsedTime.milliseconds() > transferTime + 10 && elapsedTime.milliseconds() < transferTime + 110 && !transferFirstTime) {
@@ -741,7 +742,9 @@ public class NewTeleop {
 //        }
         if (intakeColor && !intakeingDebounce) {
             downOnce = true;
-            intakeSystem.setHSlidePos(extendHSlide);
+            if (!intakeingColor) {
+                intakeSystem.setHSlidePos(extendHSlide);
+            }
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
             intakeSystem.setIntakePower(0);
             intakeingColor = true;
@@ -752,7 +755,9 @@ public class NewTeleop {
         }
         if (intake && !intakeingDebounce) {
             downOnce = true;
-            intakeSystem.setHSlidePos(extendHSlide);
+            if (!intakeing) {
+                intakeSystem.setHSlidePos(extendHSlide);
+            }
             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
             intakeSystem.setIntakePower(0);
             intakeingColor = false;
@@ -905,6 +910,7 @@ public class NewTeleop {
             }
             if (intakeSystem.intakeUntil()) {
                 intakeSystem.setIntakePower(0);
+                hasInIntake = true;
                 unjamming = false;
             }
             if (elapsedTime.milliseconds() > unjammingTime + 800) {
@@ -1003,6 +1009,7 @@ public class NewTeleop {
             telemetry.addData("storeTime", storeTime);
             telemetry.addData("walltime", wallTime - elapsedTime.milliseconds());
             telemetry.addData("extendHSlide", extendHSlide);
+            telemetry.addData("unjam", unJam);
             telemetry.addData("unjamming", unjamming);
             telemetry.addData("unjamAfterIntake", unjamAfterIntake);
             telemetry.addData("outtake distance", outtakeSystem.getClawDistance());

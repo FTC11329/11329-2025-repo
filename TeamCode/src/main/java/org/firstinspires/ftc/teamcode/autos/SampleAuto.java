@@ -62,10 +62,10 @@ public class SampleAuto {
 
     /** Scoring Poses of our robot. */
     private final Pose preloadPlace = new Pose(-55.6, -54.6, Math.toRadians(54));
-    private final Pose intakeSpike1 = new Pose(-52.5, -51, Math.toRadians(81));
+    private final Pose intakeSpike1 = new Pose(-52.175, -51, Math.toRadians(81));
     private final Pose placeSpike1 = new Pose(-61.3, -52.7, Math.toRadians(80));
 
-    private final Pose intakeSpike2 = new Pose(-57, -51.2, Math.toRadians(90));
+    private final Pose intakeSpike2 = new Pose(-57.5, -51.2, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-62, -52.7, Math.toRadians(80));
 
     private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(115));
@@ -74,9 +74,9 @@ public class SampleAuto {
     private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
     private final Pose subControlPoint = new Pose(-48.4, -10.3, Math.toRadians(0));
 
-    private final Pose afterSubPlace = new Pose(-54.5, -56, Math.toRadians(45));
+    private final Pose afterSubPlace = new Pose(-52.5, -54, Math.toRadians(45));
 
-    private final Pose spikeSearch = new Pose(-59, -46, Math.toRadians(40));
+    private final Pose spikeSearch = new Pose(-59, -43, Math.toRadians(40));
 
     private Pose2D target2D;
     private boolean driveShake = false;
@@ -225,7 +225,6 @@ public class SampleAuto {
                     follower.followPath(intakeSpike1Path, false);
 
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
                     driveShake = true;
@@ -234,6 +233,7 @@ public class SampleAuto {
                 break;
             case armClearing1:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SampleAutoEnum.spike1Transfer);
@@ -276,13 +276,13 @@ public class SampleAuto {
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
                     follower.followPath(intakeSpike2Path, false);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     driveShake = true;
                     setPathState(SampleAutoEnum.armClearing2);
                 }
                 break;
             case armClearing2:
                 if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     driveShake = true;
@@ -326,13 +326,13 @@ public class SampleAuto {
                 if (pathTimer.getElapsedTimeSeconds() > .3) {
                     follower.followPath(intakeSpike3Path, false);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
                     setPathState(SampleAutoEnum.armClearing3);
                 }
                 break;
             case armClearing3:
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     driveShake = true;
@@ -455,6 +455,7 @@ public class SampleAuto {
                 break;
             case waitSearch:
                 if (follower.getErrorDistance(subIntake) < 3) {
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                     setPathState(SampleAutoEnum.visionSearch1);
                 }
@@ -524,7 +525,6 @@ public class SampleAuto {
                 if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                     follower.followPath(intakeSubPath);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
 
                     setPathState(SampleAutoEnum.waitSearch);
                     //Go loop
@@ -647,13 +647,13 @@ public class SampleAuto {
                 case 0:
                     if (actionTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000.0) {
                         intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setTransferState(1);
                     }
                     break;
                 case 1:
                     if (intakeSystem.intakeUntil() || actionTimer.getElapsedTimeSeconds() > 0.5) {
                         intakeSystem.setIntakePower(0);
-                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
 
                         setTransferState(2);
                     }
@@ -719,10 +719,10 @@ public class SampleAuto {
         follower.update();
         autonomousPathUpdate();
         if (driveShake && !doIntakeWhilePark && pathTimer.getElapsedTimeSeconds() > 1.1) {
-            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.1) * 3.5) % 2 == 0 ){
-                follower.setTeleOpMovementVectors(0,0, 0.9);
+            if (Math.round((pathTimer.getElapsedTimeSeconds() - 1.1) * 2.3) % 2 == 0 ){
+                follower.setTeleOpMovementVectors(0,0, 1);
             } else {
-                follower.setTeleOpMovementVectors(0,0, -0.9);
+                follower.setTeleOpMovementVectors(0,0, -1);
             }
         }
 
