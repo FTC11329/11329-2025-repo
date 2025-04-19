@@ -204,14 +204,20 @@ public class SampleAuto {
                 follower.setMaxPower(1);
                 follower.followPath(scorePreload);
                 outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
-                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                 setPathState(SampleAutoEnum.armClearing0);
                 break;
             case armClearing0:
+                if (outtakeSystem.getVSlidePos() > 200) {
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    setPathState(SampleAutoEnum.armClear);
+                }
+                break;
+            case armClear:
                 if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     setPathState(SampleAutoEnum.placePreload);
                 }
+                break;
             case placePreload:
                 if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
                     intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 225);
