@@ -478,7 +478,7 @@ public class SampleAuto {
                         intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
                         setPathState(SampleAutoEnum.drivingVision);
                     }
-                    if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 1000000/*28*/) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     }
@@ -503,7 +503,7 @@ public class SampleAuto {
                     follower.startTeleopDrive();
                 }
                 intakeSystem.update();
-                if (opmodeTimer.getElapsedTimeSeconds() > 28) {
+                if (opmodeTimer.getElapsedTimeSeconds() > 10000000/*28*/) {
                     //Break loop
                     setPathState(SampleAutoEnum.park);
                 }
@@ -524,7 +524,7 @@ public class SampleAuto {
             case dropClaw4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.45) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    if (opmodeTimer.getElapsedTimeSeconds() > 25) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 10000000/*25*/) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else {
