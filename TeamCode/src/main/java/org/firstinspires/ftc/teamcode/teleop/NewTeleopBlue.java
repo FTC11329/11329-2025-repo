@@ -7,10 +7,10 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @TeleOp(name = "New Tele-op Blue", group = " Comp mode")
 public class NewTeleopBlue extends OpMode {
-    NewTeleop teleop;
+    NewTeleopBlind teleop;
     @Override
     public void init() {
-        teleop = new NewTeleop(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
+        teleop = new NewTeleopBlind(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
         teleop.init();
     }
 

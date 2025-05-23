@@ -37,7 +37,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int transferSlides = 335;
+        public static int transferSlides = 300;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 900;

@@ -743,6 +743,8 @@ public class Follower {
 
         if (robotCentric) {
             teleopDriveVector.rotateVector(getPose().getHeading());
+        } else {
+            teleopDriveVector.rotateVector(Math.toRadians(90));
         }
 
         teleopHeadingVector.setComponents(teleopDriveValues[2], getPose().getHeading());
