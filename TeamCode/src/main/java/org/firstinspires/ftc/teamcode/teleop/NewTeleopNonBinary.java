@@ -847,7 +847,7 @@ public class NewTeleopNonBinary {
             }
         }
         //makes the intake wrist not hit the robot while coming out
-        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !hasInOuttake && downOnce) {
+        if (((intakeingColor && !intakeColor) || (intakeing && !intake) || (intakeingY && gamepad2.y)) && !hasInOuttake && downOnce) {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
@@ -855,7 +855,7 @@ public class NewTeleopNonBinary {
         }
 
         //SIDE DEPOSIT***************************************************************************~SD
-        if (sideDepo && !sideDepoDebounce && !intakeing && !intakeingColor && !unjamAfterIntake && !unjamming && !intakeColor && !intake) {
+        if (sideDepo && !sideDepoDebounce && !intakeing && !intakeingColor && !unjamAfterIntake && !unjamming && !intakeColor && !intake && !intakeingY) {
             sideDepoing = true;
             sideDepoFirst = true;
             sideDepoDebounce = true;
@@ -895,7 +895,7 @@ public class NewTeleopNonBinary {
                 sideDepoing = false;
             }
             // Cancels it
-            if (intake || intakeColor) {
+            if (intake || intakeColor || intakeingY) {
                 sideDepoing = false;
             }
         }

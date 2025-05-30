@@ -117,6 +117,7 @@ public class NewTeleopBlind {
     double unStoringTime = 2000000000;
     double wallTime = 2000000000;
     double lastTime = 2000000000;
+    double lastRumbleTime = 2000000000;
 
     boolean transferFirstTime = true;
 
@@ -291,8 +292,24 @@ public class NewTeleopBlind {
                 targetRotation = Math.toRadians(180);
                 break;
         }
+        double currentRot = follower.getPose().getHeading(); //Radians
+        if (elapsedTime.milliseconds() > lastRumbleTime + 500) {
+            double distanceFromNearest90 = Math.min(
+                    Math.min(
+                            Math.min(
+                                    Math.abs(currentRot - 0),
+                                    Math.abs(currentRot - Math.PI / 2)),
+                            Math.min(
+                                    Math.abs(currentRot - Math.PI),
+                                    Math.abs(currentRot - 3 * Math.PI / 2))),
+                    Math.abs(currentRot - 2 * Math.PI)
+            );
+            double rumblePower = distanceFromNearest90 / Math.PI / 4;
+            gamepad1.rumble(rumblePower, 0, 500);
+            lastRumbleTime = elapsedTime.milliseconds();
+        }
 
-        rotError = follower.getPose().getHeading() - targetRotation;
+        rotError = currentRot - targetRotation;
         //uses the fastest rotation to the goal
         if (rotError > Math.PI) {
             rotError -= 2 * Math.PI;
@@ -720,7 +737,9 @@ public class NewTeleopBlind {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(1,1,3000);
+                gamepad1.stopRumble();
+                gamepad1.rumble(0,1,500);
+                lastRumbleTime = elapsedTime.milliseconds();
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeing = false;
@@ -736,7 +755,9 @@ public class NewTeleopBlind {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(1, 1, 3000);
+                gamepad1.stopRumble();
+                gamepad1.rumble(0, 1, 500);
+                lastRumbleTime = elapsedTime.milliseconds();
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeingColor = false;

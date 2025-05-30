@@ -77,7 +77,7 @@ public class OTOSLocalizer extends Localizer {
         otos.setLinearUnit(linearUnit);
         otos.setAngularUnit(angleUnit);
         otos.setOffset(offset);
-        otos.setLinearScalar(linearScalar);
+        otos.setLinearScalar(1);
         otos.setAngularScalar(angularScalar);
 
         otos.calibrateImu();
@@ -103,7 +103,7 @@ public class OTOSLocalizer extends Localizer {
      */
     @Override
     public Pose getPose() {
-        Pose pose = new Pose(otosPose.x, otosPose.y, otosPose.h);
+        Pose pose = new Pose(otosPose.x * linearScalar, otosPose.y * linearScalar, otosPose.h);
 
         Vector vec = pose.getVector();
 
@@ -138,7 +138,7 @@ public class OTOSLocalizer extends Localizer {
      */
     @Override
     public void setStartPose(Pose setStart) {
-        otos.setPosition(new SparkFunOTOS.Pose2D(setStart.getX(), setStart.getY(), setStart.getHeading()));
+        otos.setPosition(new SparkFunOTOS.Pose2D(setStart.getX() * (1/linearScalar), setStart.getY() * (1/linearScalar), setStart.getHeading()));
     }
 
     /**

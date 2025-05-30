@@ -191,6 +191,10 @@ public class Pose {
         setHeading(heading * scalar);
     }
 
+    public Pose scalarMultiplyReturn(double scalar) {
+        return new Pose((x * scalar), (y * scalar), (heading * scalar));
+    }
+
     /**
      * This divides all the values of this Pose by a scalar.
      *
