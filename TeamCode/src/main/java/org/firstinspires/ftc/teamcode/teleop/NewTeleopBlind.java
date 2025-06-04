@@ -117,7 +117,7 @@ public class NewTeleopBlind {
     double unStoringTime = 2000000000;
     double wallTime = 2000000000;
     double lastTime = 2000000000;
-    double lastRumbleTime = 2000000000;
+    double lastRumbleTime = 0;
 
     boolean transferFirstTime = true;
 
@@ -151,6 +151,9 @@ public class NewTeleopBlind {
     double unjammingTime = 2000000000;
     boolean unjamAfterIntake = false;
     double unjamAfterIntakeTime = 2000000000;
+    double distanceFromNearest90 = 0;
+    double rumblePower = 0;
+
     private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
 
 
@@ -184,7 +187,7 @@ public class NewTeleopBlind {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
-        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
         elapsedTime.reset();
     }
 
@@ -293,8 +296,8 @@ public class NewTeleopBlind {
                 break;
         }
         double currentRot = follower.getPose().getHeading(); //Radians
-        if (elapsedTime.milliseconds() > lastRumbleTime + 500) {
-            double distanceFromNearest90 = Math.min(
+        if (elapsedTime.milliseconds() > lastRumbleTime + 25) {
+            distanceFromNearest90 = Math.min(
                     Math.min(
                             Math.min(
                                     Math.abs(currentRot - 0),
@@ -304,8 +307,8 @@ public class NewTeleopBlind {
                                     Math.abs(currentRot - 3 * Math.PI / 2))),
                     Math.abs(currentRot - 2 * Math.PI)
             );
-            double rumblePower = distanceFromNearest90 / Math.PI / 4;
-            gamepad1.rumble(rumblePower, 0, 500);
+            rumblePower = distanceFromNearest90 / (Math.PI / 4);
+            gamepad1.rumble(Math.pow(rumblePower, 6) * 5, 0, 25);
             lastRumbleTime = elapsedTime.milliseconds();
         }
 
@@ -317,16 +320,15 @@ public class NewTeleopBlind {
             rotError += 2 * Math.PI;
         }
         headingPIDF.updateError(rotError);
-        driveRotation = -headingPIDF.runPIDF();
+//        driveRotation = -headingPIDF.runPIDF();
 
-        if (Math.abs(gamepad1.right_stick_x) > 0.15) {
-            driveRotation = -gamepad1.right_stick_x;
-            if (gamepad1.right_bumper) {
-                driveRotation *= Constants.Drivetrain.fastSpeed;
-            } else {
-                driveRotation *= Constants.Drivetrain.slowSpeed;
-            }
+        driveRotation = -gamepad1.right_stick_x;
+        if (gamepad1.right_bumper) {
+            driveRotation *= Constants.Drivetrain.fastSpeed;
+        } else {
+            driveRotation *= Constants.Drivetrain.slowSpeed;
         }
+
         follower.setTeleOpMovementVectors(driveForward, driveStrafe, driveRotation, false);
         follower.update();
 
@@ -635,6 +637,9 @@ public class NewTeleopBlind {
             if (!wallOnce && (elapsedTime.milliseconds() > grabbingOffWallTime + 250)  && !hasInOuttake) {
                 if (outtakeSystem.seesWall()) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    gamepad1.stopRumble();
+                    gamepad1.rumble(0,1,500);
+                    lastRumbleTime = elapsedTime.milliseconds() + 475;
                     hasInOuttake = true;
                 } else {
                     // Restart
@@ -739,7 +744,7 @@ public class NewTeleopBlind {
                 }
                 gamepad1.stopRumble();
                 gamepad1.rumble(0,1,500);
-                lastRumbleTime = elapsedTime.milliseconds();
+                lastRumbleTime = elapsedTime.milliseconds() + 475;
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeing = false;

@@ -7,35 +7,12 @@ import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Vector;
+
 import static org.firstinspires.ftc.teamcode.pedropathing.localization.constants.OTOSConstants.*;
 
-/**
- * This is the OTOSLocalizer class. This class extends the Localizer superclass and is a
- * localizer that uses the SparkFun OTOS. The diagram below, which is modified from
- * Road Runner, shows a typical set up.
- *
- * The view is from the top of the robot looking downwards.
- *
- * left on robot is the y positive direction
- *
- * forward on robot is the x positive direction
- *
- *                         forward (x positive)
- *                                △
- *                                |
- *                                |
- *                         /--------------\
- *                         |              |
- *                         |              |
- *                         | ||        || |
- *  left (y positive) <--- | ||        || |  
- *                         |     ____     |
- *                         |     ----     |
- *                         \--------------/
- *
- * @author Anyi Lin - 10158 Scott's Bots
- * @version 1.0, 7/20/2024
- */
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class OTOSLocalizer extends Localizer {
     private HardwareMap hardwareMap;
     private SparkFunOTOS otos;
@@ -45,31 +22,24 @@ public class OTOSLocalizer extends Localizer {
     private double previousHeading;
     private double totalHeading;
 
-    /**
-     * This creates a new OTOSLocalizer from a HardwareMap, with a starting Pose at (0,0)
-     * facing 0 heading.
-     *
-     * @param map the HardwareMap
-     */
+    // Rolling history
+    private static final int SAMPLE_COUNT = 3;
+    private final Deque<Pose> poseHistory = new ArrayDeque<>();
+    private final Deque<Long> timeHistory = new ArrayDeque<>();
+    private final Deque<Pose> velocityHistory = new ArrayDeque<>();
+
+    private Pose calculatedVelocity = new Pose();
+    private Pose calculatedAcceleration = new Pose();
+
     public OTOSLocalizer(HardwareMap map) {
         this(map, new Pose());
     }
 
-    /**
-     * This creates a new OTOSLocalizer from a HardwareMap and a Pose, with the Pose
-     * specifying the starting pose of the localizer.
-     *
-     * @param map the HardwareMap
-     * @param setStartPose the Pose to start from
-     */
-
     public OTOSLocalizer(HardwareMap map, Pose setStartPose) {
         hardwareMap = map;
 
-        if(useCorrectedOTOSClass && false) {
-//            TODO: Figure out why we cant use the corrected version
-//            import org.firstinspires.ftc.teamcode.pedropathing.localization.SparkFunOTOSCorrected;
-//            otos = hardwareMap.get(SparkFunOTOSCorrected.class, hardwareMapName);
+        if (useCorrectedOTOSClass && false) {
+            // otos = hardwareMap.get(SparkFunOTOSCorrected.class, hardwareMapName);
         } else {
             otos = hardwareMap.get(SparkFunOTOS.class, hardwareMapName);
         }
@@ -88,143 +58,141 @@ public class OTOSLocalizer extends Localizer {
         otosPose = new SparkFunOTOS.Pose2D();
         otosVel = new SparkFunOTOS.Pose2D();
         otosAcc = new SparkFunOTOS.Pose2D();
+
         totalHeading = 0;
         previousHeading = otos.getPosition().h;
 
         resetOTOS();
     }
 
-
-
-    /**
-     * This returns the current pose estimate.
-     *
-     * @return returns the current pose estimate as a Pose
-     */
     @Override
     public Pose getPose() {
         Pose pose = new Pose(otosPose.x * linearScalar, otosPose.y * linearScalar, otosPose.h);
-
         Vector vec = pose.getVector();
-
         return new Pose(vec.getXComponent(), vec.getYComponent(), pose.getHeading());
     }
 
-    /**
-     * This returns the current velocity estimate.
-     *
-     * @return returns the current velocity estimate as a Pose
-     */
     @Override
     public Pose getVelocity() {
-        return new Pose(otosVel.x, otosVel.y, otosVel.h);
+        return calculatedVelocity;
     }
 
-    /**
-     * This returns the current velocity estimate.
-     *
-     * @return returns the current velocity estimate as a Vector
-     */
     @Override
     public Vector getVelocityVector() {
-        return getVelocity().getVector();
+        return calculatedVelocity.getVector();
     }
 
-    /**
-     * This sets the start pose. Changing the start pose should move the robot as if all its
-     * previous movements were displacing it from its new start pose.
-     *
-     * @param setStart the new start pose
-     */
+    public Pose getAcceleration() {
+        return calculatedAcceleration;
+    }
+
+    public Vector getAccelerationVector() {
+        return calculatedAcceleration.getVector();
+    }
+
     @Override
     public void setStartPose(Pose setStart) {
-        otos.setPosition(new SparkFunOTOS.Pose2D(setStart.getX() * (1/linearScalar), setStart.getY() * (1/linearScalar), setStart.getHeading()));
+        otos.setPosition(new SparkFunOTOS.Pose2D(
+                setStart.getX() * (1 / linearScalar),
+                setStart.getY() * (1 / linearScalar),
+                setStart.getHeading()
+        ));
     }
 
-    /**
-     * This sets the current pose estimate. Changing this should just change the robot's current
-     * pose estimate, not anything to do with the start pose.
-     *
-     * @param setPose the new current pose estimate
-     */
     @Override
     public void setPose(Pose setPose) {
         resetOTOS();
         otos.setPosition(new SparkFunOTOS.Pose2D(setPose.getX(), setPose.getY(), setPose.getHeading()));
     }
 
-    /**
-     * This updates the total heading of the robot. The OTOS handles all other updates itself.
-     */
     @Override
     public void update() {
-        otos.getPosVelAcc(otosPose,otosVel,otosAcc);
+        otos.getPosVelAcc(otosPose, otosVel, otosAcc);
+
+        // Update heading tracking
         totalHeading += MathFunctions.getSmallestAngleDifference(otosPose.h, previousHeading);
         previousHeading = otosPose.h;
+
+        // Current position and time
+        Pose currentPose = new Pose(otosPose.x * linearScalar, otosPose.y * linearScalar, otosPose.h);
+        long currentTime = System.nanoTime();
+
+        // Update history
+        poseHistory.addLast(currentPose);
+        timeHistory.addLast(currentTime);
+
+        if (poseHistory.size() > SAMPLE_COUNT) {
+            poseHistory.removeFirst();
+            timeHistory.removeFirst();
+        }
+
+        // Calculate velocity if enough samples
+        if (poseHistory.size() >= 2) {
+            Pose firstPose = poseHistory.getFirst();
+            Pose lastPose = poseHistory.getLast();
+
+            long firstTime = timeHistory.getFirst();
+            long lastTime = timeHistory.getLast();
+            double deltaTime = (lastTime - firstTime) / 1e9;
+
+            if (deltaTime > 0) {
+                double dx = lastPose.getX() - firstPose.getX();
+                double dy = lastPose.getY() - firstPose.getY();
+                double dh = MathFunctions.getSmallestAngleDifference(lastPose.getHeading(), firstPose.getHeading());
+
+                calculatedVelocity = new Pose(dx / deltaTime, dy / deltaTime, dh / deltaTime);
+
+                // Update velocity history
+                velocityHistory.addLast(calculatedVelocity);
+                if (velocityHistory.size() > SAMPLE_COUNT) {
+                    velocityHistory.removeFirst();
+                }
+
+                // Calculate acceleration
+                if (velocityHistory.size() >= 2) {
+                    Pose firstVel = velocityHistory.getFirst();
+                    Pose lastVel = velocityHistory.getLast();
+
+                    double ddx = lastVel.getX() - firstVel.getX();
+                    double ddy = lastVel.getY() - firstVel.getY();
+                    double ddh = lastVel.getHeading() - firstVel.getHeading();
+
+                    calculatedAcceleration = new Pose(ddx / deltaTime, ddy / deltaTime, ddh / deltaTime);
+                }
+            }
+        }
     }
 
-    /**
-     * This resets the OTOS.
-     */
     public void resetOTOS() {
         otos.resetTracking();
+        poseHistory.clear();
+        timeHistory.clear();
+        velocityHistory.clear();
     }
 
-    /**
-     * This returns how far the robot has turned in radians, in a number not clamped between 0 and
-     * 2 * pi radians. This is used for some tuning things and nothing actually within the following.
-     *
-     * @return returns how far the robot has turned in total, in radians.
-     */
     public double getTotalHeading() {
         return totalHeading;
     }
 
-    /**
-     * This returns the multiplier applied to forward movement measurement to convert from OTOS
-     * ticks to inches. For the OTOS, this value is the same as the lateral multiplier.
-     * This is found empirically through a tuner.
-     *
-     * @return returns the forward ticks to inches multiplier
-     */
     public double getForwardMultiplier() {
         return otos.getLinearScalar();
     }
 
-    /**
-     * This returns the multiplier applied to lateral/strafe movement measurement to convert from
-     * OTOS ticks to inches. For the OTOS, this value is the same as the forward multiplier.
-     * This is found empirically through a tuner.
-     *
-     * @return returns the lateral/strafe ticks to inches multiplier
-     */
     public double getLateralMultiplier() {
         return otos.getLinearScalar();
     }
 
-    /**
-     * This returns the multiplier applied to turning movement measurement to convert from OTOS ticks
-     * to radians. This is found empirically through a tuner.
-     *
-     * @return returns the turning ticks to radians multiplier
-     */
     public double getTurningMultiplier() {
         return otos.getAngularScalar();
     }
 
-    /**
-     * This does nothing since this localizer does not use the IMU.
-     */
     public void resetIMU() {
     }
 
-    /**
-     * This returns whether if any component of robot's position is NaN.
-     *
-     * @return returns whether the robot's position is NaN
-     */
     public boolean isNAN() {
-        return Double.isNaN(getPose().getX()) || Double.isNaN(getPose().getY()) || Double.isNaN(getPose().getHeading());
+        return Double.isNaN(getPose().getX()) ||
+                Double.isNaN(getPose().getY()) ||
+                Double.isNaN(getPose().getHeading());
     }
 
     public SparkFunOTOS.Status getStatus() {

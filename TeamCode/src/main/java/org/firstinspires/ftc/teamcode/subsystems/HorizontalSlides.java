@@ -93,6 +93,7 @@ public class HorizontalSlides {
 
     public void disable() {
         slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor.setPower(0);
         disabled = true;
     }
 

@@ -10,7 +10,7 @@ public class NewTeleopNonBinaryWrapper extends OpMode {
     NewTeleopNonBinary teleop;
     @Override
     public void init() {
-        teleop = new NewTeleopNonBinary(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Red);
+        teleop = new NewTeleopNonBinary(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Auto);
         teleop.init();
     }
 

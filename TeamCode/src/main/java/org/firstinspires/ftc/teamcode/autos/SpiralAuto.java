@@ -41,29 +41,35 @@ public class SpiralAuto {
     private SpiralAutoEnum pathState;
 
     // Moving Poses of our robot.
-    private final Pose startPose = new Pose(-62, 60, Math.toRadians(0));
-    private final Pose almostUp1 = new Pose(50, 60, Math.toRadians(45));
-    private final Pose up1    = new Pose(55, 55, Math.toRadians(45));
-    private final Pose right1 = new Pose(55, -55, Math.toRadians(45));
-    private final Pose down1  = new Pose(-55, -55, Math.toRadians(45));
-    private final Pose left1  = new Pose(-55, 36, Math.toRadians(45));
+    private final Pose startPose = new Pose(-63, 60, Math.toRadians(180));
+    private final Pose almostUp1 = new Pose(25, 58, Math.toRadians(180));
+    private final Pose up1    = new Pose(55, 58, Math.toRadians(-90));
+    private final Pose almostRight1 = new Pose(55, -25, Math.toRadians(-90));
+    private final Pose right1 = new Pose(55, -55, Math.toRadians(180));
+    private final Pose almostDown1  = new Pose(-25, -55, Math.toRadians(180));
+    private final Pose down1  = new Pose(-55, -55, Math.toRadians(90));
+    private final Pose almostLeft1  = new Pose(-55, 15, Math.toRadians(90));
+    private final Pose left1  = new Pose(-55, 36, Math.toRadians(0));
 
-    private final Pose up2    = new Pose(36, 36, Math.toRadians(45));
-    private final Pose right2 = new Pose(36, -36, Math.toRadians(45));
-    private final Pose spit   = new Pose(-24, -36, Math.toRadians(45));
-    private final Pose down2  = new Pose(-36, -36, Math.toRadians(45));
-    private final Pose retract = new Pose(-36, -12, Math.toRadians(45));
-    private final Pose left2  = new Pose(-36, 12, Math.toRadians(45));
+    private final Pose almostUp2    = new Pose(15, 36, Math.toRadians(0));
+    private final Pose up2    = new Pose(36, 36, Math.toRadians(90));
+    private final Pose almostRight2 = new Pose(36, -15, Math.toRadians(90));
+    private final Pose right2 = new Pose(36, -33, Math.toRadians(45));
+    private final Pose spit   = new Pose(-22, -32, Math.toRadians(45));
+    private final Pose down2  = new Pose(-31, -32, Math.toRadians(45));
+    private final Pose retract = new Pose(-31, -24, Math.toRadians(45));
+    private final Pose left2  = new Pose(-31, 12, Math.toRadians(45));
 
     private final Pose up3    = new Pose(12, 12, Math.toRadians(45));
-    private final Pose right3 = new Pose(12, -12, Math.toRadians(45));
+    private final Pose right3 = new Pose(13.75, -10, Math.toRadians(0));
     //Various Variables
     private double loopTime = 0;
-    private double errorDistance = 7;
+    private double errorDistance = 9;
 
     private double endTime = 0;
     // These are our Paths and PathChains that we will define in buildPaths()
-    Path up1Path, right1Path, down1Path, left1Path, up2Path, right2Path, down2Path, spitPath, retractPath, left2Path, up3Path, right3Path;
+    PathChain up1Path, right1Path, down1Path, left1Path, up2Path, right2Path;
+    Path down2Path, left2Path, up3Path, right3Path;
     RobotSideEnum robotSide;
     Telemetry telemetry;
     HardwareMap hardwareMap;
@@ -80,8 +86,14 @@ public class SpiralAuto {
         driveTrain = new Drivetrain(hardwareMap);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
-        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, false);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
 
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+        intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
+
+        intakeSystem.disable();
+        outtakeSystem.disable();
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -101,25 +113,59 @@ public class SpiralAuto {
     public void start() {
         opmodeTimer.resetTimer();
 
+        outtakeSystem.setArmPos(Constants.Outtake.upArm);
+
         setPathState(SpiralAutoEnum.up1);
     }
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
     public void buildPaths() {
-        up1Path = follower.linearPathBuilder(startPose, up1);
-        up1Path.setLinearHeadingInterpolation(startPose.getHeading(), up1.getHeading(), 0.15);
-        right1Path = follower.linearPathBuilder(up1, right1);
-        down1Path = follower.linearPathBuilder(right1, down1);
-        left1Path = follower.linearPathBuilder(down1, left1);
+        double fastSpeedZPAM = 0.05;
+        up1Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(startPose, almostUp1))
+                .setConstantHeadingInterpolation(almostUp1.getHeading())
+                .addPath(follower.linearPathBuilder(almostUp1, up1))
+                .setLinearHeadingInterpolation(almostUp1.getHeading(), up1.getHeading(), 0.5)
+                .build();
+        right1Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(up1, almostRight1))
+                .setConstantHeadingInterpolation(almostRight1.getHeading())
+                .addPath(follower.linearPathBuilder(almostRight1, right1))
+                .setLinearHeadingInterpolation(almostRight1.getHeading(), right1.getHeading(), 0.5)
+                .build();
+        down1Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(right1, almostDown1))
+                .setConstantHeadingInterpolation(almostDown1.getHeading())
+                .addPath(follower.linearPathBuilder(almostDown1, down1))
+                .setLinearHeadingInterpolation(almostDown1.getHeading(), down1.getHeading(), 0.5)
+                .build();
+        left1Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(down1, almostLeft1))
+                .setConstantHeadingInterpolation(almostLeft1.getHeading())
+                .addPath(follower.linearPathBuilder(almostLeft1, left1))
+                .setLinearHeadingInterpolation(almostLeft1.getHeading(), left1.getHeading(), 0.5)
+                .build();
 
-        up2Path = follower.linearPathBuilder(left1, up2);
-        right2Path = follower.linearPathBuilder(up2, right2);
+
+        up2Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(left1, almostUp2))
+                .setConstantHeadingInterpolation(almostUp2.getHeading())
+                .addPath(follower.linearPathBuilder(almostUp2, up2))
+                .setLinearHeadingInterpolation(almostUp2.getHeading(), up2.getHeading(), 0.5)
+                .build();
+        right2Path = follower.pathBuilder()
+                .addPath(follower.linearPathBuilder(up2, almostRight2))
+                .setConstantHeadingInterpolation(almostRight2.getHeading())
+                .addPath(follower.linearPathBuilder(almostRight2, right2))
+                .setLinearHeadingInterpolation(almostRight2.getHeading(), right2.getHeading(), 0.5)
+                .build();
         down2Path = follower.linearPathBuilder(right2, down2);
         left2Path = follower.linearPathBuilder(down2, left2);
 
         up3Path = follower.linearPathBuilder(left2, up3);
         right3Path = follower.linearPathBuilder(up3, right3);
+        right3Path.setLinearHeadingInterpolation(up3.getHeading(), right3.getHeading(), 0.85);
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
@@ -129,14 +175,11 @@ public class SpiralAuto {
         switch (pathState) {
             case up1:
                 follower.followPath(up1Path);
-                intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
                 setPathState(SpiralAutoEnum.right1);
                 break;
 
             case right1:
                 if (follower.getErrorDistance(up1) < errorDistance) {
-                    outtakeSystem.initArm();
-                    outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
                     follower.followPath(right1Path);
                     setPathState(SpiralAutoEnum.down1);
                 }
@@ -173,6 +216,7 @@ public class SpiralAuto {
             case down2:
                 if (follower.getErrorDistance(right2) < errorDistance) {
                     follower.followPath(down2Path);
+                    intakeSystem.reEnable(0);
                     intakeSystem.setHSlidePos(Constants.Intake.maxSlidePos);
                     setPathState(SpiralAutoEnum.extend2);
                 }
@@ -209,6 +253,7 @@ public class SpiralAuto {
 
             case up3:
                 if (follower.getErrorDistance(left2) < errorDistance) {
+                    intakeSystem.setIntakePower(0);
                     follower.followPath(up3Path);
                     setPathState(SpiralAutoEnum.right3);
                 }
@@ -217,7 +262,7 @@ public class SpiralAuto {
             case right3:
                 if (follower.getErrorDistance(up3) < errorDistance) {
                     follower.followPath(right3Path);
-                    setPathState(SpiralAutoEnum.done);
+                    setPathState(SpiralAutoEnum.finish);
                 }
                 break;
 

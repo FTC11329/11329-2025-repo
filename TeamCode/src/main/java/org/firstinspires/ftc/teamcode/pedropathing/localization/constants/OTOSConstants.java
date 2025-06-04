@@ -37,7 +37,7 @@ public class OTOSConstants {
 
     /** The linear scalar of the OTOS sensor
      * Default Value: 1.0 */
-    public static double linearScalar = 1.132;
+    public static double linearScalar = 0.99;
 
     /** The angular scalar of the OTOS sensor
      * Default Value: 1.0 */

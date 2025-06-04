@@ -37,7 +37,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int transferSlides = 300;
+        public static int transferSlides = 270;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 900;
@@ -85,12 +85,12 @@ public class Constants {
 
         public static double downArm = 1;
         public static double specimenArm = 0.76;
-        public static double basketArm = 0.283;
+        public static double basketArm = 0.295;
         public static double basketArmHigh = 0.288;
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
-        public static int intakeSlides = 189;
+        public static int intakeSlides = 195;
         public static int intakeWaitSlides = 450; //not used anymore
         public static int intakeWallSlides = 170;
         public static int intakeWallAutoSlides = 180;

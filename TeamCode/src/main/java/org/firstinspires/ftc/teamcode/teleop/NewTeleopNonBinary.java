@@ -122,7 +122,6 @@ public class NewTeleopNonBinary {
 
     boolean intakeingColor = false;
     boolean intakeing = false;
-    boolean intakeingY = false;
     boolean afterIntakeingColor = false;
     boolean afterIntakeing = false;
     double afterIntakeingColorTime = 2000000000;
@@ -136,6 +135,8 @@ public class NewTeleopNonBinary {
     double unjammingTime = 2000000000;
     boolean unjamAfterIntake = false;
     double unjamAfterIntakeTime = 2000000000;
+
+    boolean lastA = false;
 
     double tempTime1 = 0;
     double tempTime2 = 0;
@@ -174,11 +175,10 @@ public class NewTeleopNonBinary {
 //        dashboard = FtcDashboard.getInstance();
 //        telemetry = dashboard.getTelemetry();
 
-        tempTime1 = elapsedTime.milliseconds();
         climber = new Climber(hardwareMap);
-        tempTime2 = elapsedTime.milliseconds();
         driveTrain = new Drivetrain(hardwareMap);
-        tempTime3 = elapsedTime.milliseconds();
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
         stateMachine = new StateMachine();
     }
 
@@ -186,8 +186,6 @@ public class NewTeleopNonBinary {
         tempTime4 = elapsedTime.milliseconds();
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
-        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
-        outtakeSystem.setArmPos(Constants.Outtake.upArm);
         tempTime5 = elapsedTime.milliseconds();
         elapsedTime.reset();
         telemetry.addData("1", tempTime1);
@@ -236,13 +234,20 @@ public class NewTeleopNonBinary {
         lowBasket = gamepad2.dpad_down;
         frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
         wallPreset = gamepad2.dpad_left;
-        transfer = gamepad2.left_bumper;
+        storePos = gamepad2.left_bumper;//triangle
+        transfer = false;
 
         clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
 
         intake = gamepad2.a;//cross
-        intakeColor = gamepad2.x;//square
+        intakeColor = gamepad2.x || gamepad2.y;//square
         unJam = gamepad2.b;//circle
+
+        if (gamepad2.y) {
+            lastA = true;
+        } else if (gamepad2.x) {
+            lastA = false;
+        }
 
         //Drivetrain *****************************************************************************~D
         if (!climberActive && !climbPause) {
@@ -439,6 +444,8 @@ public class NewTeleopNonBinary {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
+            intakeingColor = false;
+            intakeing = false;
             intakeSystem.storePos();
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
@@ -744,7 +751,6 @@ public class NewTeleopNonBinary {
             intakeSystem.setIntakePower(0);
             intakeingColor = true;
             intakeing = false;
-            intakeingY = false;
             //do we want this?
             hasInTray = false;
             intakeWristTime = elapsedTime.milliseconds();
@@ -758,33 +764,17 @@ public class NewTeleopNonBinary {
             intakeSystem.setIntakePower(0);
             intakeingColor = false;
             intakeing = true;
-            intakeingY = false;
             //do we want this?
             hasInTray = false;
             intakeWristTime = elapsedTime.milliseconds();
         }
-        if (gamepad2.y && !intakeingDebounce) {
-            downOnce = true;
-            if (!intakeingY) {
-                intakeSystem.setHSlidePos(extendHSlide);
-            }
-            intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-            intakeSystem.setIntakePower(0);
-            intakeingColor = false;
-            intakeing = false;
-            intakeingY = true;
-            //do we want this?
-            hasInTray = false;
-            intakeWristTime = elapsedTime.milliseconds();
-        }
-
         // For intaking after down
-        if (intake || intakeColor || gamepad2.y || hasInOuttake) {
+        if (intake || intakeColor || hasInOuttake) {
             intakeTime = elapsedTime.milliseconds();
         }
 
         if (intakeing) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntil()) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntilYellow()) {
                 afterIntakeing = true;
                 afterIntakeingTime = elapsedTime.milliseconds();
 
@@ -794,16 +784,7 @@ public class NewTeleopNonBinary {
         }
 
         if (intakeingColor) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
-                afterIntakeingColor = true;
-                afterIntakeingColorTime = elapsedTime.milliseconds();
-
-                intakeSystem.setIntakePower(0);
-                intakeingColor = false;
-            }
-        }
-        if (intakeingY) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilY()) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColorBinary(lastA)) {
                 afterIntakeingColor = true;
                 afterIntakeingColorTime = elapsedTime.milliseconds();
 
@@ -847,7 +828,7 @@ public class NewTeleopNonBinary {
             }
         }
         //makes the intake wrist not hit the robot while coming out
-        if (((intakeingColor && !intakeColor) || (intakeing && !intake) || (intakeingY && gamepad2.y)) && !hasInOuttake && downOnce) {
+        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !hasInOuttake && downOnce) {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
@@ -855,7 +836,7 @@ public class NewTeleopNonBinary {
         }
 
         //SIDE DEPOSIT***************************************************************************~SD
-        if (sideDepo && !sideDepoDebounce && !intakeing && !intakeingColor && !unjamAfterIntake && !unjamming && !intakeColor && !intake && !intakeingY) {
+        if (sideDepo && !sideDepoDebounce && !intakeing && !intakeingColor && !unjamAfterIntake && !unjamming && !intakeColor && !intake) {
             sideDepoing = true;
             sideDepoFirst = true;
             sideDepoDebounce = true;
@@ -895,7 +876,7 @@ public class NewTeleopNonBinary {
                 sideDepoing = false;
             }
             // Cancels it
-            if (intake || intakeColor || intakeingY) {
+            if (intake || intakeColor) {
                 sideDepoing = false;
             }
         }

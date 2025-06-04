@@ -179,7 +179,7 @@ public class IntakeSystem {
                     return false;
                 }
             } else {
-                if (ColorFunctions.toColor(currentColor) == ColorEnum.yellow) {
+                if (ColorFunctions.toColor(currentColor) == ColorEnum.yellow || ColorFunctions.toColor(currentColor) == ColorEnum.red || ColorFunctions.toColor(currentColor) == ColorEnum.blue) {
                     setIntakePower(0);
                     return true;
                 } else {
@@ -191,19 +191,27 @@ public class IntakeSystem {
         }
     }
 
-    public boolean intakeUntilY() {
+    public boolean intakeUntilYellow() {
         NormalizedRGBA currentColor = intakeSensor.getNormalizedColors();
         if (!jammed) {
             setIntakePower(Constants.Intake.intakeSpeed);
-            if (robotSide == RobotSideEnum.Blue) {
-                if (ColorFunctions.toColor(currentColor) == ColorEnum.blue || ColorFunctions.toColor(currentColor) == ColorEnum.yellow) {
-                    setIntakePower(0);
-                    return true;
-                } else {
-                    return false;
-                }
-            } else if (robotSide == RobotSideEnum.Red) {
-                if (ColorFunctions.toColor(currentColor) == ColorEnum.red || ColorFunctions.toColor(currentColor) == ColorEnum.yellow) {
+            if (ColorFunctions.toColor(currentColor) == ColorEnum.yellow) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public boolean intakeUntilColorBinary(boolean red) {
+        NormalizedRGBA currentColor = intakeSensor.getNormalizedColors();
+        if (!jammed) {
+            setIntakePower(Constants.Intake.intakeSpeed);
+            if (red) {
+                if (ColorFunctions.toColor(currentColor) == ColorEnum.red) {
                     setIntakePower(0);
                     return true;
                 } else {

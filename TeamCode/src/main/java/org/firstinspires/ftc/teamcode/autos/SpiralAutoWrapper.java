@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "Spiral Auto Wrapper", group = "  Spiral")
+@Autonomous(name = "Spiral Auto", group = "  Spiral")
 public class SpiralAutoWrapper extends OpMode {
     SpiralAuto spiralAuto;
     @Override

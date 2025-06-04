@@ -446,7 +446,6 @@ public class NewTeleop {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
-            intakeSystem.storePos();
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (storePos) {

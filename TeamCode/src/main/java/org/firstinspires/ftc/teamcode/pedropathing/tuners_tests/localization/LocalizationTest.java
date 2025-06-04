@@ -157,15 +157,15 @@ public class LocalizationTest extends OpMode {
         telemetryA.addData("Status", poseUpdater.getStatus());
         telemetryA.addData("Status", poseUpdater.getStatus().get());
 
-//        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
-//        telemetryA.addData("Their Velocity Y", poseUpdater.getVelocity().getYComponent());
-//        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
-//        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
-//        telemetryA.addLine();
-//        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
-//        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
-//        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
-//        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
+        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
+        telemetryA.addData("Their Velocity Y",  poseUpdater.getVelocity().getYComponent());
+        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
+        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
+        telemetryA.addLine();
+        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
+        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
+        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
+        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
 //        telemetryA.addLine();
 //
 //
@@ -179,7 +179,7 @@ public class LocalizationTest extends OpMode {
 //        telemetryA.addData("New Velocity Y", velocityPose.getY());
 //        telemetryA.addData("New Acceleration X", accelerationPose.getX());
 //        telemetryA.addData("New Acceleration Y", accelerationPose.getY());
-//        telemetryA.update();
+        telemetryA.update();
 //
 //        lastVelocityPose = velocityPose;
 //        lastPose = poseUpdater.getPose();
