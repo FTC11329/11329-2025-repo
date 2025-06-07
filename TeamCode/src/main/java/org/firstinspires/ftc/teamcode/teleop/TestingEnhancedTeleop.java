@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -19,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utility.PadButton;
 import org.firstinspires.ftc.teamcode.utility.PoseFunctions;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
+@Disabled
 @TeleOp(name = "Tele-op enhansed Blue", group = " Comp mode")
 public class TestingEnhancedTeleop extends OpMode {
     ElapsedTime time = new ElapsedTime();

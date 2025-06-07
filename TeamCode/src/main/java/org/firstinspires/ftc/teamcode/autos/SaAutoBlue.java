@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.autos;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.teleop.Teleop;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @Autonomous(name = "Sample Auto Blue", group = " B3Comp", preselectTeleOp = "New Tele-op Blue")

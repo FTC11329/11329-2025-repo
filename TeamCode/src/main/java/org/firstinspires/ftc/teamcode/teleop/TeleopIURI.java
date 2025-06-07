@@ -8,13 +8,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
-import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedropathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
-import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.IURIIntake0;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
@@ -23,12 +19,11 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
-public class NewTeleopBlind {
+public class TeleopIURI {
     //comment me out V
 //    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
-    Climber climber;
-    Follower follower;
     Drivetrain driveTrain;
+    IURIIntake0 iuriIntake0;
     PowerTakeOff powerTakeOff;
     IntakeSystem intakeSystem;
     OuttakeSystem outtakeSystem;
@@ -36,9 +31,7 @@ public class NewTeleopBlind {
     StateMachine stateMachine;
     ElapsedTime elapsedTime = new ElapsedTime();
 
-    PIDFController headingPIDF = new PIDFController(FollowerConstants.headingPIDFCoefficients);
-
-    double rotError = 0;
+    FtcDashboard dashboard;
 
     //Debug Variables
     boolean debugAll = false;
@@ -56,12 +49,13 @@ public class NewTeleopBlind {
     double driveStrafe;
     double driveRotation;
     DriveSpeedEnum driveSpeed;
-    boolean climbToggButton;
 
     double manualVSlide;
     double manualHSlide;
     double manualArm;
     double manualClimber;
+
+    boolean gamepad1B;
 
     boolean sideDepo;
 
@@ -79,14 +73,8 @@ public class NewTeleopBlind {
     boolean intakeColor;
     boolean unJam;
 
-    boolean rotateLeft;
-    boolean rotateRight;
-
-    boolean rotateRightDebounce = false;
-    boolean rotateLeftDebounce = false;
-
-    int rotateState = 3;
-    double targetRotation;
+    boolean spitBall;
+    boolean intakeBall;
 
     //State Machine Variables
     boolean hasInIntake = false;;
@@ -117,7 +105,6 @@ public class NewTeleopBlind {
     double unStoringTime = 2000000000;
     double wallTime = 2000000000;
     double lastTime = 2000000000;
-    double lastRumbleTime = 0;
 
     boolean transferFirstTime = true;
 
@@ -131,7 +118,6 @@ public class NewTeleopBlind {
     double sideDepoTime = 2000000000;
     boolean sideDepoFirst = false;
     boolean sideDepoDebounce = false;
-    boolean sideDepoingSecond = false;
 
     boolean downOnce = true;
     boolean sideDepoing = false;
@@ -151,11 +137,12 @@ public class NewTeleopBlind {
     double unjammingTime = 2000000000;
     boolean unjamAfterIntake = false;
     double unjamAfterIntakeTime = 2000000000;
-    double distanceFromNearest90 = 0;
-    double rumblePower = 0;
 
-    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));
-
+    double tempTime1 = 0;
+    double tempTime2 = 0;
+    double tempTime3 = 0;
+    double tempTime4 = 0;
+    double tempTime5 = 0;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -165,7 +152,7 @@ public class NewTeleopBlind {
     Gamepad gamepad2;
     RobotSideEnum robotSide;
 
-    public NewTeleopBlind(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
+    public TeleopIURI(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.gamepad1 = gamepad1;
@@ -174,44 +161,35 @@ public class NewTeleopBlind {
     }
 
     public void init() {
-        elapsedTime.reset();
-        climber = new Climber(hardwareMap);
-        follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
-        follower.startTeleopDrive();
         driveTrain = new Drivetrain(hardwareMap);
+        iuriIntake0 = new IURIIntake0(hardwareMap);
         stateMachine = new StateMachine();
-    }
-
-    public void start() {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
         outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+
+    }
+
+    public void start() {
         elapsedTime.reset();
     }
 
-
     public void loop() {
         // Inputs
+        gamepad1B = gamepad1.b;
+
+        debugAll = gamepad1.a;
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
+        driveRotation = -gamepad1.right_stick_x;
         if (gamepad1.right_bumper) {
-            driveForward *= Constants.Drivetrain.fastSpeed;
-            driveStrafe *= Constants.Drivetrain.fastSpeed;
+            driveSpeed = DriveSpeedEnum.Fast;
         } else {
-            driveForward *= Constants.Drivetrain.slowSpeed;
-            driveStrafe *= Constants.Drivetrain.slowSpeed;
+            driveSpeed = DriveSpeedEnum.Slow;
         }
 
-        climbToggButton = false;
-
-        if (Math.abs(gamepad1.right_stick_y) > 0.5) {
-            manualVSlide = -gamepad1.right_stick_y * 1.5;
-        } else {
-            manualVSlide = 0;
-        }
-
+        manualVSlide = -gamepad2.right_stick_y;
         if (!climberActive) {
             manualHSlide = gamepad2.right_trigger + (0.6 *(-gamepad2.left_trigger + gamepad1.right_trigger - gamepad1.left_trigger));
             if (debugAll) {
@@ -225,112 +203,37 @@ public class NewTeleopBlind {
             manualClimber = 0;
         }
 
-        sideDepo = gamepad1.dpad_left;
+        sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0) || (gamepad2.dpad_left && hasInIntake);
 
-        highSpecimen = gamepad1.dpad_up;
-        highBasket = gamepad1.dpad_right;
-        lowBasket = false;
-        frontBasket = false;
-        wallPreset = gamepad1.dpad_left;
-        storePos = gamepad1.dpad_down;
-        transfer = gamepad1.y;
+        highSpecimen = gamepad2.dpad_up;
+        highBasket = gamepad2.dpad_right;
+        lowBasket = gamepad2.dpad_down;
+        frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
+        wallPreset = gamepad2.dpad_left || gamepad2.back;
+        storePos = gamepad2.y;//triangle
+        transfer = gamepad2.left_bumper;
 
-        clawToggleButton = gamepad1.left_bumper;
+        clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
 
-        intake = gamepad1.a;//cross
-        intakeColor = gamepad1.x;//square
-        unJam = gamepad1.b;//circle
+        intake = gamepad2.a;//cross
+        intakeColor = gamepad2.x;//square
+        unJam = gamepad2.b;//circle
 
-//        rotateLeft = gamepad1.dpad_down;
-//        rotateRight = gamepad1.y || gamepad2.b;
+        spitBall = gamepad2.b;
+        intakeBall = gamepad2.back;
 
         //Drivetrain *****************************************************************************~D
+        driveTrain.drive(driveForward, driveStrafe, driveRotation, driveSpeed);
 
-//        if (rotateLeft && !rotateLeftDebounce) {
-//            rotateState += 1;
-//            rotateLeftDebounce = true;
-//        }
-//        if (rotateRight && !rotateRightDebounce) {
-//            rotateState -= 1;
-//            rotateRightDebounce = true;
-//        }
-//
-//
-//        if (rotateLeft) {
-//            rotateRightDebounce = false;
-//        }
-//        if (rotateRight) {
-//            rotateRightDebounce = false;
-//        }
-
-        if (gamepad1.start) {
-            rotateState = 3;
-        }
-        if (gamepad1.touchpad) {
-            rotateState = 2;
-        }
-        if (gamepad1.back) {
-            rotateState = 0;
-        }
-
-        switch (rotateState) {
-            case -1:
-                rotateState = 0;
-                targetRotation = Math.toRadians(0);
-                break;
-            case 0:
-                targetRotation = Math.toRadians(0);
-                break;
-            case 1:
-                targetRotation = Math.toRadians(45);
-                break;
-            case 2:
-                targetRotation = Math.toRadians(90);
-                break;
-            case 3:
-                targetRotation = Math.toRadians(180);
-                break;
-            case 4:
-                rotateState = 3;
-                targetRotation = Math.toRadians(180);
-                break;
-        }
-        double currentRot = follower.getPose().getHeading(); //Radians
-        if (elapsedTime.milliseconds() > lastRumbleTime + 25) {
-            distanceFromNearest90 = Math.min(
-                    Math.min(
-                            Math.min(
-                                    Math.abs(currentRot - 0),
-                                    Math.abs(currentRot - Math.PI / 2)),
-                            Math.min(
-                                    Math.abs(currentRot - Math.PI),
-                                    Math.abs(currentRot - 3 * Math.PI / 2))),
-                    Math.abs(currentRot - 2 * Math.PI)
-            );
-            rumblePower = distanceFromNearest90 / (Math.PI / 4);
-            gamepad1.rumble(Math.pow(rumblePower, 6) * 5, 0, 25);
-            lastRumbleTime = elapsedTime.milliseconds();
-        }
-
-        rotError = currentRot - targetRotation;
-        //uses the fastest rotation to the goal
-        if (rotError > Math.PI) {
-            rotError -= 2 * Math.PI;
-        } else if (rotError < -Math.PI) {
-            rotError += 2 * Math.PI;
-        }
-        headingPIDF.updateError(rotError);
-//        driveRotation = -headingPIDF.runPIDF();
-
-        driveRotation = -gamepad1.right_stick_x;
-        if (gamepad1.right_bumper) {
-            driveRotation *= Constants.Drivetrain.fastSpeed;
+        if (spitBall) {
+            iuriIntake0.spit();
+        } else if (intakeBall) {
+            if (intakeSystem.getHSlidePos() < 100) {
+                iuriIntake0.intake();
+            }
         } else {
-            driveRotation *= Constants.Drivetrain.slowSpeed;
+            iuriIntake0.store();
         }
-
-        follower.setTeleOpMovementVectors(driveForward, driveStrafe, driveRotation, false);
-        follower.update();
 
         //Manual Movements ***********************************************************************~M
         intakeSystem.manualHSlide(manualHSlide);
@@ -344,7 +247,6 @@ public class NewTeleopBlind {
         //Presets
         //Button to State Machine class *********************************************************~BS
         if (highSpecimen) {
-            rotateState = 2;
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -360,7 +262,6 @@ public class NewTeleopBlind {
             stateMachine.goLowBasket(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (highBasket) {
-            rotateState = 1;
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -377,11 +278,11 @@ public class NewTeleopBlind {
             stateMachine.goFrontBasket(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (wallPreset) {
-            rotateState = 2;
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
-            intakeSystem.storePos();
+            intakeingColor = false;
+            intakeing = false;
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (storePos) {
@@ -490,7 +391,7 @@ public class NewTeleopBlind {
                 } else {
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                 }
-//                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 outtakeSystem.setArmPos(Constants.Outtake.downArm);
 
                 onceState = true;
@@ -584,10 +485,9 @@ public class NewTeleopBlind {
                 hasInIntake = false;
                 hasInTray = true;
                 onceTime = true;
-                grabbingOffWall = true;
-                grabbingOffWallTime = elapsedTime.milliseconds();
                 stateMachine.finishWall();
             }
+
         }
 
 
@@ -626,20 +526,16 @@ public class NewTeleopBlind {
         }
 
         if (grabbingOffWall) {
-            if (highSpecimen || highBasket || lowBasket || frontBasket || storePos) {
+            if (highSpecimen || highBasket || lowBasket || frontBasket) {
                 grabbingOffWall = false;
             }
-            if (outtakeSystem.seesWall() && wallOnce) {
-                sideDepoingSecond = true;
+            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
                 grabbingOffWallTime = elapsedTime.milliseconds();
                 wallOnce = false;
             }
-            if (!wallOnce && (elapsedTime.milliseconds() > grabbingOffWallTime + 250)  && !hasInOuttake) {
-                if (outtakeSystem.seesWall()) {
+            if (!clawToggleButton || (elapsedTime.milliseconds() > grabbingOffWallTime + 10) && !wallOnce && !hasInOuttake) {
+                if (!clawToggleButton || outtakeSystem.seesWall()) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                    gamepad1.stopRumble();
-                    gamepad1.rumble(0,1,500);
-                    lastRumbleTime = elapsedTime.milliseconds() + 475;
                     hasInOuttake = true;
                 } else {
                     // Restart
@@ -647,7 +543,7 @@ public class NewTeleopBlind {
                     wallOnce = true;
                 }
             }
-            if (elapsedTime.milliseconds() > grabbingOffWallTime + 550 && !wallOnce && hasInOuttake) {
+            if (elapsedTime.milliseconds() > grabbingOffWallTime + 250 && !wallOnce) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                 grabbingOffWall = false;
                 onceWall = true;
@@ -664,7 +560,6 @@ public class NewTeleopBlind {
                 outtakeSystem.setArmPos(Constants.Outtake.upArm);
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 500 && elapsedTime.milliseconds() < droppingBasketTime + 600) {
-                rotateState = 0;
                 stateMachine.goStore();
             }
             // Fixes a bug
@@ -742,9 +637,8 @@ public class NewTeleopBlind {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.stopRumble();
-                gamepad1.rumble(0,1,500);
-                lastRumbleTime = elapsedTime.milliseconds() + 475;
+                gamepad1.rumble(1,1,1000);
+                gamepad2.rumble(1,1,1000);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeing = false;
@@ -760,9 +654,8 @@ public class NewTeleopBlind {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.stopRumble();
-                gamepad1.rumble(0, 1, 500);
-                lastRumbleTime = elapsedTime.milliseconds();
+                gamepad1.rumble(1, 1, 300);
+                gamepad2.rumble(1, 1, 300);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeingColor = false;
@@ -797,19 +690,15 @@ public class NewTeleopBlind {
 
         if (sideDepoing) {
             intakeSystem.setHSlidePos(40);
-            if (storePos) {
-                sideDepoing = false;
-            }
             if (whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
             }
             if (elapsedTime.milliseconds() < sideDepoTime + 200 && sideDepoFirst) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
             }
-            if (elapsedTime.milliseconds() > sideDepoTime + 500 && sideDepoingSecond && sideDepoFirst) {
+            if (elapsedTime.milliseconds() > sideDepoTime + 500 && !sideDepo && sideDepoFirst) {
                 sideDepoTime = elapsedTime.milliseconds();
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristDepo);
-                sideDepoingSecond = false;
                 sideDepoFirst = false;
             }
             if (elapsedTime.milliseconds() > sideDepoTime + 150 && elapsedTime.milliseconds() < sideDepoTime + 250 && !sideDepoFirst) {
@@ -869,6 +758,11 @@ public class NewTeleopBlind {
             }
         }
 
+//        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91) {
+//            gamepad1.rumble(1000);
+//            gamepad2.rumble(1000);
+//        }
+
         //DEBUG **********************************************************************************~D
         if (debugState || debugAll) {
             telemetry.addLine("STATE");
@@ -911,28 +805,6 @@ public class NewTeleopBlind {
             telemetry.addData("b", color.blue);
             telemetry.addData("a", color.alpha);
             telemetry.addData("dis", intakeSystem.distance());
-        }
-        if (debugClimber || debugAll) {
-            telemetry.addLine("CLIMBER");
-            telemetry.addData("climberActive", climberActive);
-            telemetry.addData("climberStage", climberStage);
-            telemetry.addData("climbPause", climbPause);
-            telemetry.addData("climbDebounce", climbDebounce);
-            telemetry.addData("climberPos", climberPos);
-
-            telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
-            telemetry.addData("PTO Pos", driveTrain.getPTOPos());
-            telemetry.addData("PTO Err", Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos()));
-            telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
-            telemetry.addData("Climber Tar", climber.getTargetPos());
-            telemetry.addData("Climber Var", climberPos);
-            telemetry.addData("Climber Pos", climber.getPos());
-            telemetry.addData("Climber err", Math.abs(climber.getPos() - climber.getTargetPos()));
-            telemetry.addData("Climber once", climbStopPauseOnce);
-            telemetry.addData("Climber once", climbStopPause);
-            telemetry.addData("Current", Math.max(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3])));
-            telemetry.addData("climberDistance", climber.getDistance());
-            telemetry.addLine();
         }
         if (debugPower || debugAll) {
 //            telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));

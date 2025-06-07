@@ -5,12 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@TeleOp(name = "New Tele-op Blue", group = " Comp mode")
-public class NewTeleopBlue extends OpMode {
-    NewTeleop teleop;
+@TeleOp(name = "Tele-op Red", group = "Not Comp mode")
+public class MainTeleopRed extends OpMode {
+    Teleop teleop;
     @Override
     public void init() {
-        teleop = new NewTeleop(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
+        teleop = new Teleop(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Red);
         teleop.init();
     }
 

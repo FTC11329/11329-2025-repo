@@ -47,7 +47,7 @@ import java.util.List;
  * @version 1.0, 5/6/2024
  */
 @Config
-@TeleOp(group = " STeleop Test", name = "Localization Test")
+@TeleOp(name = "Localization Test", group = " Testing")
 public class LocalizationTest extends OpMode {
     private final Pose startPose = new Pose(0, 0, Math.toRadians(180));
 //    private final Pose startPose = new Pose(9, -65.3, Math.toRadians(180));

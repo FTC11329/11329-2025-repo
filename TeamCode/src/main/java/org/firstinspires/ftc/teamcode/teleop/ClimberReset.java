@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@TeleOp(name = "Climber Reset", group = "Comp mode")
+@TeleOp(name = "Climber Reset", group = " Testing")
 public class ClimberReset extends OpMode {
 
     FtcDashboard dashboard;
@@ -36,8 +36,8 @@ public class ClimberReset extends OpMode {
 
         outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
 
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = dashboard.getTelemetry();
         intakeSystem.storePos();
     }
 
