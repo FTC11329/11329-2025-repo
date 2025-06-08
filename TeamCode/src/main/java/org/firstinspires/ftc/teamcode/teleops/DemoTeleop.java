@@ -1,20 +1,13 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;

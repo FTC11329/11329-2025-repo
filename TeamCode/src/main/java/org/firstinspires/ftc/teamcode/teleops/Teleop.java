@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.Gamepad;
@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
-public class TeleopNonBinary {
+public class Teleop {
     //comment me out V
 //    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Climber climber;
@@ -136,8 +136,6 @@ public class TeleopNonBinary {
     boolean unjamAfterIntake = false;
     double unjamAfterIntakeTime = 2000000000;
 
-    boolean lastA = false;
-
     double tempTime1 = 0;
     double tempTime2 = 0;
     double tempTime3 = 0;
@@ -152,7 +150,7 @@ public class TeleopNonBinary {
     Gamepad gamepad2;
     RobotSideEnum robotSide;
 
-    public TeleopNonBinary(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
+    public Teleop(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.gamepad1 = gamepad1;
@@ -175,10 +173,11 @@ public class TeleopNonBinary {
 //        dashboard = FtcDashboard.getInstance();
 //        telemetry = dashboard.getTelemetry();
 
+        tempTime1 = elapsedTime.milliseconds();
         climber = new Climber(hardwareMap);
+        tempTime2 = elapsedTime.milliseconds();
         driveTrain = new Drivetrain(hardwareMap);
-        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        tempTime3 = elapsedTime.milliseconds();
         stateMachine = new StateMachine();
     }
 
@@ -186,6 +185,8 @@ public class TeleopNonBinary {
         tempTime4 = elapsedTime.milliseconds();
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
+        outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
+        outtakeSystem.setArmPos(Constants.Outtake.upArm);
         tempTime5 = elapsedTime.milliseconds();
         elapsedTime.reset();
         telemetry.addData("1", tempTime1);
@@ -234,20 +235,14 @@ public class TeleopNonBinary {
         lowBasket = gamepad2.dpad_down;
         frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
         wallPreset = gamepad2.dpad_left;
-        storePos = gamepad2.left_bumper;//triangle
-        transfer = false;
+        storePos = gamepad2.y;//triangle
+        transfer = gamepad2.left_bumper;
 
         clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
 
         intake = gamepad2.a;//cross
-        intakeColor = gamepad2.x || gamepad2.y;//square
+        intakeColor = gamepad2.x;//square
         unJam = gamepad2.b;//circle
-
-        if (gamepad2.y) {
-            lastA = true;
-        } else if (gamepad2.x) {
-            lastA = false;
-        }
 
         //Drivetrain *****************************************************************************~D
         if (!climberActive && !climbPause) {
@@ -446,7 +441,6 @@ public class TeleopNonBinary {
             }
             intakeingColor = false;
             intakeing = false;
-            intakeSystem.storePos();
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
         if (storePos) {
@@ -774,7 +768,7 @@ public class TeleopNonBinary {
         }
 
         if (intakeing) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntilYellow()) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && !hasInOuttake && intakeSystem.intakeUntil()) {
                 afterIntakeing = true;
                 afterIntakeingTime = elapsedTime.milliseconds();
 
@@ -784,7 +778,7 @@ public class TeleopNonBinary {
         }
 
         if (intakeingColor) {
-            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColorBinary(lastA)) {
+            if (elapsedTime.milliseconds() > intakeTime + 300 && intakeSystem.intakeUntilColor()) {
                 afterIntakeingColor = true;
                 afterIntakeingColorTime = elapsedTime.milliseconds();
 

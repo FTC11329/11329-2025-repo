@@ -42,7 +42,7 @@ public class IURIIntake0 {
     }
 
     public void intake() {
-        setPos(120);
+        setPos(140);
         setRollerPower(1);
     }
 

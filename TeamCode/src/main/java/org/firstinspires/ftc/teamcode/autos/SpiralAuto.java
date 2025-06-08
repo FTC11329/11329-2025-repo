@@ -45,23 +45,23 @@ public class SpiralAuto {
     private final Pose almostUp1 = new Pose(25, 58, Math.toRadians(180));
     private final Pose up1    = new Pose(55, 58, Math.toRadians(-90));
     private final Pose almostRight1 = new Pose(55, -25, Math.toRadians(-90));
-    private final Pose right1 = new Pose(55, -55, Math.toRadians(180));
+    private final Pose right1 = new Pose(55, -59, Math.toRadians(180));
     private final Pose almostDown1  = new Pose(-25, -55, Math.toRadians(180));
-    private final Pose down1  = new Pose(-55, -55, Math.toRadians(90));
-    private final Pose almostLeft1  = new Pose(-55, 15, Math.toRadians(90));
-    private final Pose left1  = new Pose(-55, 36, Math.toRadians(0));
+    private final Pose down1  = new Pose(-53, -55, Math.toRadians(90));
+    private final Pose almostLeft1  = new Pose(-53, 15, Math.toRadians(90));
+    private final Pose left1  = new Pose(-53, 34, Math.toRadians(0));
 
     private final Pose almostUp2    = new Pose(15, 36, Math.toRadians(0));
-    private final Pose up2    = new Pose(36, 36, Math.toRadians(90));
-    private final Pose almostRight2 = new Pose(36, -15, Math.toRadians(90));
-    private final Pose right2 = new Pose(36, -33, Math.toRadians(45));
+    private final Pose up2    = new Pose(27, 36, Math.toRadians(90));
+    private final Pose almostRight2 = new Pose(27, -15, Math.toRadians(90));
+    private final Pose right2 = new Pose(27, -30, Math.toRadians(45));
     private final Pose spit   = new Pose(-22, -32, Math.toRadians(45));
     private final Pose down2  = new Pose(-31, -32, Math.toRadians(45));
     private final Pose retract = new Pose(-31, -24, Math.toRadians(45));
-    private final Pose left2  = new Pose(-31, 12, Math.toRadians(45));
+    private final Pose left2  = new Pose(-31, 10, Math.toRadians(45));
 
-    private final Pose up3    = new Pose(12, 12, Math.toRadians(45));
-    private final Pose right3 = new Pose(13.75, -10, Math.toRadians(0));
+    private final Pose up3    = new Pose(14, 14, Math.toRadians(45));
+    private final Pose right3 = new Pose(10, -5, Math.toRadians(0));
     //Various Variables
     private double loopTime = 0;
     private double errorDistance = 9;
@@ -174,6 +174,7 @@ public class SpiralAuto {
     public void autonomousPathUpdate() {
         switch (pathState) {
             case up1:
+                follower.setMaxPower(0.8);
                 follower.followPath(up1Path);
                 setPathState(SpiralAutoEnum.right1);
                 break;

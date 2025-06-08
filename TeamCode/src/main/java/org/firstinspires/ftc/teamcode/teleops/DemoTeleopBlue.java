@@ -1,16 +1,16 @@
-package org.firstinspires.ftc.teamcode.teleop;
+package org.firstinspires.ftc.teamcode.teleops;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@TeleOp(name = "Tele-op Non Binary", group = " Comp mode")
-public class TeleopNonBinaryWrapper extends OpMode {
-    TeleopNonBinary teleop;
+@TeleOp(name = "Demo Tele-op Blue", group = " Comp mode")
+public class DemoTeleopBlue extends OpMode {
+    DemoTeleop teleop;
     @Override
     public void init() {
-        teleop = new TeleopNonBinary(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Auto);
+        teleop = new DemoTeleop(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
         teleop.init();
     }
 
