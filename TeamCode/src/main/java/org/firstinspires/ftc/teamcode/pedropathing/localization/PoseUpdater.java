@@ -79,7 +79,7 @@ public class PoseUpdater {
         this(hardwareMap, createLocalizer(hardwareMap));
     }
 
-    private static Localizer    createLocalizer(HardwareMap hardwareMap) {
+    private static Localizer createLocalizer(HardwareMap hardwareMap) {
         switch (localizers) {
             case DRIVE_ENCODERS:
                 return new DriveEncoderLocalizer(hardwareMap);

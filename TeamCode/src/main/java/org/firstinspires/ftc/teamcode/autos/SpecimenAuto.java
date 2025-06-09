@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 //Tournament miss one from arm not coming down early                               miss 1
 
 
+@Disabled
 @Autonomous(name = "Specimen Auto", group = "Comp", preselectTeleOp = "New Tele-op Red")
 public class SpecimenAuto extends OpMode {
 
