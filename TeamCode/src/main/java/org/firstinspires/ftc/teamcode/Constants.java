@@ -76,7 +76,7 @@ public class Constants {
         public static double intakeArm = 0.946; //0.95
         public static double initTeleopArm = 0.49;
         public static double initAutoSampArm = 0.861;
-        public static double initAutoSpecArm = 0.0326;
+        public static double initAutoSpecArm = 0.032;
         public static double autoArmClear = 0.814;
         public static double preTransferArm = 0.744; // Depreciated
         public static double upArm = 0.49;

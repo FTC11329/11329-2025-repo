@@ -5,7 +5,7 @@ import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 
 public interface PathPlanner {
     // Run the step, return true when it's done
-    boolean run(Robot robot);
+    boolean run();
 
     // Used to connect paths
     Pose getEndPose();

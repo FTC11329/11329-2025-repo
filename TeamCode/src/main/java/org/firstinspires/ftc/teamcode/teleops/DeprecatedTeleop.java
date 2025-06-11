@@ -332,7 +332,6 @@ public class DeprecatedTeleop {
             autoWristTime = 2000000000;
         }
         //unjamming
-        //todo: oidwojwq9hejwfuiwefhiuwefhiufhq fix plz tune 350 and 1000
 
         // but I don't want to so I wont
         if (unjammingIntake) {

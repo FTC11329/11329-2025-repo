@@ -116,6 +116,7 @@ public class DemoTeleop {
     double sideDepoTime = 2000000000;
     boolean sideDepoFirst = false;
     boolean sideDepoDebounce = false;
+    boolean sideDepoingSecond = false;
 
     boolean downOnce = true;
     boolean sideDepoing = false;
@@ -202,10 +203,10 @@ public class DemoTeleop {
         // Inputs
         gamepad1B = gamepad1.b;
 
-        debugAll = gamepad1.a;
-        driveForward = -gamepad2.left_stick_y;
-        driveStrafe = -gamepad2.left_stick_x;
-        driveRotation = -gamepad2.right_stick_x;
+//        debugAll = gamepad1.a;
+        driveForward = -gamepad1.left_stick_y;
+        driveStrafe = -gamepad1.left_stick_x;
+        driveRotation = -gamepad1.right_stick_x;
         if (gamepad1.right_bumper) {
             driveSpeed = DriveSpeedEnum.Fast;
         } else {
@@ -214,13 +215,17 @@ public class DemoTeleop {
 
         climbToggButton = gamepad1.back;
 
-        manualVSlide = -gamepad1.right_stick_y;
+        if (Math.abs(gamepad1.right_stick_y) > 0.9) {
+            manualVSlide = -gamepad1.right_stick_y * 0.5;
+        } else {
+            manualVSlide = 0;
+        }
         if (!climberActive) {
             manualHSlide = gamepad2.right_trigger + (0.6 *(-gamepad2.left_trigger + gamepad1.right_trigger - gamepad1.left_trigger));
             if (debugAll) {
                 manualHSlide = manualHSlide * 2;
             }
-            manualArm = gamepad1.left_stick_y;
+            manualArm = gamepad2.left_stick_y;
             manualClimber = gamepad1.right_trigger - gamepad1.left_trigger;
         } else {
             manualHSlide = 0;
@@ -228,21 +233,21 @@ public class DemoTeleop {
             manualClimber = 0;
         }
 
-        sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0) || (gamepad2.dpad_left && hasInIntake);
+        sideDepo = gamepad1.dpad_left;
 
-        highSpecimen = gamepad2.dpad_right;
-        highBasket = gamepad2.dpad_up;
-        lowBasket = gamepad2.dpad_left;
-        frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
-        wallPreset = gamepad2.dpad_down;
-        storePos = gamepad2.y;//triangle
-        transfer = gamepad2.left_bumper;
+        highSpecimen = gamepad1.dpad_up;
+        highBasket = gamepad1.dpad_right;
+        lowBasket = false;
+        frontBasket = false;
+        wallPreset = gamepad1.dpad_left;
+        storePos = gamepad1.dpad_down;
+        transfer = gamepad1.y;
 
-        clawToggleButton = gamepad1.left_bumper || gamepad2.right_bumper;
+        clawToggleButton = gamepad1.left_bumper;
 
-        intake = gamepad2.a;//cross
-        intakeColor = gamepad2.x;//square
-        unJam = gamepad2.b;//circle
+        intake = gamepad1.a;//cross
+        intakeColor = gamepad1.x;//square
+        unJam = gamepad1.b;//circle
 
         //Drivetrain *****************************************************************************~D
         if (!climberActive && !climbPause) {
@@ -388,7 +393,7 @@ public class DemoTeleop {
             }
         }
         // Pre-Start Climb
-        if (gamepad1.dpad_up || gamepad2.back) {
+        if (gamepad1.touchpad || gamepad2.back) {
             climberPos = Constants.Climber.prePos;
             climber.setPos(climberPos);
         }
@@ -439,6 +444,8 @@ public class DemoTeleop {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
+            intakeingColor = false;
+            intakeing = false;
             intakeSystem.storePos();
             stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
         }
@@ -548,7 +555,7 @@ public class DemoTeleop {
                 } else {
                     outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                 }
-                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+//                intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                 outtakeSystem.setArmPos(Constants.Outtake.downArm);
 
                 onceState = true;
@@ -642,9 +649,10 @@ public class DemoTeleop {
                 hasInIntake = false;
                 hasInTray = true;
                 onceTime = true;
+                grabbingOffWall = true;
+                grabbingOffWallTime = elapsedTime.milliseconds();
                 stateMachine.finishWall();
             }
-
         }
 
 
@@ -683,16 +691,19 @@ public class DemoTeleop {
         }
 
         if (grabbingOffWall) {
-            if (highSpecimen || highBasket || lowBasket || frontBasket) {
+            if (highSpecimen || highBasket || lowBasket || frontBasket || storePos) {
                 grabbingOffWall = false;
             }
-            if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
+            if (outtakeSystem.seesWall() && wallOnce) {
+                sideDepoingSecond = true;
                 grabbingOffWallTime = elapsedTime.milliseconds();
                 wallOnce = false;
             }
-            if (!clawToggleButton || (elapsedTime.milliseconds() > grabbingOffWallTime + 10) && !wallOnce && !hasInOuttake) {
-                if (!clawToggleButton || outtakeSystem.seesWall()) {
+            if (!wallOnce && (elapsedTime.milliseconds() > grabbingOffWallTime + 250)  && !hasInOuttake) {
+                if (outtakeSystem.seesWall()) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    gamepad1.stopRumble();
+                    gamepad1.rumble(0,1,500);
                     hasInOuttake = true;
                 } else {
                     // Restart
@@ -700,7 +711,7 @@ public class DemoTeleop {
                     wallOnce = true;
                 }
             }
-            if (elapsedTime.milliseconds() > grabbingOffWallTime + 250 && !wallOnce) {
+            if (elapsedTime.milliseconds() > grabbingOffWallTime + 550 && !wallOnce && hasInOuttake) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                 grabbingOffWall = false;
                 onceWall = true;
@@ -794,8 +805,8 @@ public class DemoTeleop {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(1,1,1000);
-                gamepad2.rumble(1,1,1000);
+                gamepad1.stopRumble();
+                gamepad1.rumble(0,1,500);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeing = false;
@@ -811,8 +822,8 @@ public class DemoTeleop {
                 } else {
                     intakeSystem.storePos();
                 }
-                gamepad1.rumble(1, 1, 300);
-                gamepad2.rumble(1, 1, 300);
+                gamepad1.stopRumble();
+                gamepad1.rumble(0, 1, 500);
                 extendHSlide = Constants.Intake.intakeSlidePos;
                 hasInIntake = true;
                 afterIntakeingColor = false;
@@ -847,15 +858,19 @@ public class DemoTeleop {
 
         if (sideDepoing) {
             intakeSystem.setHSlidePos(40);
+            if (storePos) {
+                sideDepoing = false;
+            }
             if (whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
             }
             if (elapsedTime.milliseconds() < sideDepoTime + 200 && sideDepoFirst) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
             }
-            if (elapsedTime.milliseconds() > sideDepoTime + 500 && !sideDepo && sideDepoFirst) {
+            if (elapsedTime.milliseconds() > sideDepoTime + 500 && sideDepoingSecond && sideDepoFirst) {
                 sideDepoTime = elapsedTime.milliseconds();
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristDepo);
+                sideDepoingSecond = false;
                 sideDepoFirst = false;
             }
             if (elapsedTime.milliseconds() > sideDepoTime + 150 && elapsedTime.milliseconds() < sideDepoTime + 250 && !sideDepoFirst) {
@@ -914,11 +929,6 @@ public class DemoTeleop {
                 unjamming = false;
             }
         }
-
-//        if (elapsedTime.seconds() > 90 && elapsedTime.seconds() < 91) {
-//            gamepad1.rumble(1000);
-//            gamepad2.rumble(1000);
-//        }
 
         //DEBUG **********************************************************************************~D
         if (debugState || debugAll) {

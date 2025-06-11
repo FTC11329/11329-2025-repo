@@ -23,7 +23,7 @@ public class OTOSLocalizer extends Localizer {
     private double totalHeading;
 
     // Rolling history
-    private static final int SAMPLE_COUNT = 3;
+    private static final int SAMPLE_COUNT = 2;
     private final Deque<Pose> poseHistory = new ArrayDeque<>();
     private final Deque<Long> timeHistory = new ArrayDeque<>();
     private final Deque<Pose> velocityHistory = new ArrayDeque<>();

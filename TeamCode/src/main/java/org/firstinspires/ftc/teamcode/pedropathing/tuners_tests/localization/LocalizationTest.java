@@ -74,20 +74,6 @@ public class LocalizationTest extends OpMode {
     @Override
     public void init() {
         //DELETE ME
-        otos = hardwareMap.get(SparkFunOTOS.class, hardwareMapName);
-
-        otos.setLinearUnit(linearUnit);
-        otos.setAngularUnit(angleUnit);
-        otos.setOffset(offset);
-        otos.setLinearScalar(linearScalar);
-        otos.setAngularScalar(angularScalar);
-
-        otos.calibrateImu();
-        otos.resetTracking();
-        otos.setPosition(new SparkFunOTOS.Pose2D(startPose.getX(), startPose.getY(), startPose.getHeading()));
-
-        otos.resetTracking();
-
         poseUpdater = new PoseUpdater(hardwareMap);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
@@ -153,19 +139,19 @@ public class LocalizationTest extends OpMode {
         telemetryA.addData("x", poseUpdater.getPose().getX());
         telemetryA.addData("y", poseUpdater.getPose().getY());
         telemetryA.addData("heading", poseUpdater.getPose().getHeading());
-        telemetryA.addData("total heading", poseUpdater.getTotalHeading());
-        telemetryA.addData("Status", poseUpdater.getStatus());
-        telemetryA.addData("Status", poseUpdater.getStatus().get());
+//        telemetryA.addData("total heading", poseUpdater.getTotalHeading());
+//        telemetryA.addData("Status", poseUpdater.getStatus());
+//        telemetryA.addData("Status", poseUpdater.getStatus().get());
 
-        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
-        telemetryA.addData("Their Velocity Y",  poseUpdater.getVelocity().getYComponent());
-        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
-        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
-        telemetryA.addLine();
-        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
-        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
-        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
-        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
+//        telemetryA.addData("Their Velocity X", poseUpdater.getVelocity().getXComponent());
+//        telemetryA.addData("Their Velocity Y",  poseUpdater.getVelocity().getYComponent());
+//        telemetryA.addData("Their Acceleration X", poseUpdater.getAcceleration().getMagnitude());
+//        telemetryA.addData("Their Acceleration Y", poseUpdater.getAcceleration().getMagnitude());
+//        telemetryA.addLine();
+//        telemetryA.addData("Our Velocity X", otos.getVelocity().x);
+//        telemetryA.addData("Our Velocity Y", otos.getVelocity().y);
+//        telemetryA.addData("Our Acceleration X", otos.getAcceleration().x);
+//        telemetryA.addData("Our Acceleration Y", otos.getAcceleration().y);
 //        telemetryA.addLine();
 //
 //
