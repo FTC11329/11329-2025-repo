@@ -20,6 +20,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Constants;
 
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
@@ -73,7 +74,6 @@ public class LocalizationTest extends OpMode {
      */
     @Override
     public void init() {
-        //DELETE ME
         poseUpdater = new PoseUpdater(hardwareMap);
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);

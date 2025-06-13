@@ -3,6 +3,10 @@ package org.firstinspires.ftc.teamcode.pedropathing.tuners_tests.localization;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+
+import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -28,21 +32,27 @@ import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
 @Config
 @Autonomous(name = "Forward Localizer Tuner", group = ".Localization")
 public class ForwardTuner extends OpMode {
+    private Follower follower;
     private PoseUpdater poseUpdater;
     private DashboardPoseTracker dashboardPoseTracker;
 
     private Telemetry telemetryA;
 
-    public static double DISTANCE = 48;
+    public static double DISTANCE = 120;
+    private boolean debounce = false;
+    Path forward;
 
     /**
      * This initializes the PoseUpdater as well as the FTC Dashboard telemetry.
      */
     @Override
     public void init() {
-        poseUpdater = new PoseUpdater(hardwareMap);
+        follower = new Follower(hardwareMap);
+        poseUpdater = follower.poseUpdater;
 
         dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+
+        forward = follower.linearPathBuilder(new Pose(0,0,0), new Pose(DISTANCE,0,0));
 
         telemetryA = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         telemetryA.addLine("Pull your robot forward " + DISTANCE + " inches. Your forward ticks to inches will be shown on the telemetry.");
@@ -58,7 +68,15 @@ public class ForwardTuner extends OpMode {
      */
     @Override
     public void loop() {
-        poseUpdater.update();
+        follower.update();
+        if (gamepad1.right_bumper && !debounce) {
+            follower.setPose(new Pose(0,0,0));
+            follower.followPath(forward);
+            debounce = true;
+        }
+        if (!gamepad1.right_bumper) {
+            debounce = false;
+        }
 
         telemetryA.addData("distance moved", poseUpdater.getPose().getX());
         telemetryA.addLine("The multiplier will display what your forward ticks to inches should be to scale your current distance to " + DISTANCE + " inches.");

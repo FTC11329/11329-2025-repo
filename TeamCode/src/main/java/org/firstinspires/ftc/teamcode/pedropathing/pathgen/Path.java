@@ -90,7 +90,10 @@ public class Path {
         this.startHeading = startHeading;
         this.endHeading = endHeading;
     }
-
+    /// Another way to call the function
+    public void setLinearHeadingInterpolation(Pose startPose, Pose endPose) {
+        setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading());
+    }
     /**
      * This sets the heading interpolation to linear with a specified start heading and end heading
      * for the Path. This will interpolate from the start of the Path to the specified end time.
@@ -109,6 +112,10 @@ public class Path {
         isTangentHeadingInterpolation = false;
         this.startHeading = startHeading;
         this.endHeading = endHeading;
+    }
+    /// Another way to call the function
+    public void setLinearHeadingInterpolation(Pose startPose, Pose endPose, double endTime) {
+        setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime);
     }
 
     /**

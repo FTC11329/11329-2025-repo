@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
-import org.firstinspires.ftc.teamcode.criAutos.CommonPoses;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
+
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 public class Example {
     public static class NAME implements PathPlanner {
         /// DESCRIPTION
@@ -24,15 +25,17 @@ public class Example {
             buildPaths();
         }
         //Poses
+        //todo
 
         //Paths
         Path toBasket;
         public void buildPaths() {
-            toBasket = robot.follower.linearPathBuilder(CommonPoses.startLeftOuter, CommonPoses.redBasket);
+            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
         }
 
         @Override
         public Pose getEndPose() {
+            //todo
             return new Pose();
         }
 

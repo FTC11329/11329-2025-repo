@@ -3,9 +3,10 @@ package org.firstinspires.ftc.teamcode.criAutos;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 
 public class CommonPoses {
+    // I have decided that 0 heading will be the way the drive team is facing
     //todo:
-    public static final Pose startLeftOuter = new Pose();
-    public static final Pose startLeftInner = new Pose();
+    public static final Pose startLeftOuter  = new Pose();
+    public static final Pose startLeftInner  = new Pose();
     public static final Pose startRightInner = new Pose();
     public static final Pose startRightOuter = new Pose();
 
@@ -13,10 +14,13 @@ public class CommonPoses {
     public static final Pose redBasket  = new Pose();
     public static final Pose blueBasket = new Pose();
 
-    public static final Pose intakeSubLeftOuter = new Pose();
-    public static final Pose intakeSubLeftInner = new Pose();
-    public static final Pose intakeSubRightInner = new Pose();
-    public static final Pose intakeSubRightOuter = new Pose();
+    public static final Pose intakeSubLeftOuter   = new Pose();
+    public static final Pose intakeSubLeftMiddle  = new Pose();
+    public static final Pose intakeSubRightMiddle = new Pose();
+    public static final Pose intakeSubRightOuter  = new Pose();
+
+    public static final Pose intakeWallLeft  = new Pose();
+    public static final Pose intakeWallRight = new Pose();
 
 
 

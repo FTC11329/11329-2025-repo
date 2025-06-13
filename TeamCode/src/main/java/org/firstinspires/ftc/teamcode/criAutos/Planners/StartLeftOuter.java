@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.criAutos.Planners;
 import com.acmerobotics.dashboard.config.Config;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.criAutos.CommonPoses;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
@@ -32,7 +32,7 @@ public class StartLeftOuter {
         //Paths
         Path toBasket;
         public void buildPaths() {
-            toBasket = robot.follower.linearPathBuilder(CommonPoses.startLeftOuter, CommonPoses.redBasket);
+            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
         }
 
         @Override
@@ -59,7 +59,7 @@ public class StartLeftOuter {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(CommonPoses.blueBasket) < 1) {
+                    if (robot.follower.getErrorDistance(blueBasket) < 1) {
                         setPathState(3);
                     }
                     break;
