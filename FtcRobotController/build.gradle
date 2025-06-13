@@ -23,4 +23,8 @@ android {
     namespace = 'com.qualcomm.ftcrobotcontroller'
 }
 
+dependencies {
+    implementation 'org.json:json:20250517'
+}
+
 apply from: '../build.dependencies.gradle'
