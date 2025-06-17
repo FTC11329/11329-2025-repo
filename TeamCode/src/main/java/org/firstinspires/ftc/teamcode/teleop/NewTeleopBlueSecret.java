@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
@@ -172,7 +173,7 @@ public class NewTeleopBlueSecret {
     PressHold recording;
     PressHold replay;
     double lastTimer = 0;
-    double deltaTime = 1;
+    double deltaTime = 0.5;
     double deltaError = 0.4;
     int replayIndex = 0;
 
@@ -203,8 +204,8 @@ public class NewTeleopBlueSecret {
         motor7 = hardwareMap.get(DcMotorEx.class, "climber");
         motor8 = hardwareMap.get(DcMotorEx.class, "intakeMotor");
         //uncomment if you want telemetry on dashboard
-        dashboard = FtcDashboard.getInstance();
-        telemetry = dashboard.getTelemetry();
+//        dashboard = FtcDashboard.getInstance();
+//        telemetry = dashboard.getTelemetry();
 
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
@@ -235,15 +236,21 @@ public class NewTeleopBlueSecret {
     }
 
     public void recordPosition(double time, Pose pos) {
-
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
         File file = new File(dir, "movement.json");
-
         JSONArray log;
-
+        telemetry.addData("Recording, time: ", time);
         try {
             if (file.exists()) {
                 FileReader reader = new FileReader(file);
-                log = new JSONArray(new JSONTokener(reader.toString()));
+                BufferedReader bufferedReader = new BufferedReader(reader);
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = bufferedReader.readLine()) != null) {
+                    content.append(line);
+                }
+                bufferedReader.close();
+                log = new JSONArray(new JSONTokener(content.toString()));
                 reader.close();
             } else {
                 log = new JSONArray();
@@ -260,8 +267,7 @@ public class NewTeleopBlueSecret {
             entry.put("pos", posJson);
 
             log.put(entry);
-
-            FileWriter writer = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(log.toString(2));
             writer.close();
 
@@ -274,14 +280,21 @@ public class NewTeleopBlueSecret {
     public Pose loadPoses() {
         Pose pose = null;
 
-        File dir = new File(Environment.getExternalStorageDirectory(), "TeamCodeLogs");
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
         File file = new File(dir, "movement.json");
 
         if (!file.exists()) return null;
 
         try (FileReader reader = new FileReader(file)) {
-            JSONArray log = new JSONArray(new JSONTokener(reader.toString()));
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            StringBuilder content = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                content.append(line);
+            }
+            bufferedReader.close();
 
+            JSONArray log = new JSONArray(new JSONTokener(content.toString()));
             if (replayIndex < log.length()) {
                 JSONObject entry = log.getJSONObject(replayIndex);
                 double t = entry.getDouble("t");
@@ -297,49 +310,66 @@ public class NewTeleopBlueSecret {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            telemetry.addData("Failed to Load", true);
         }
 
         return pose;
     }
 
     public void clearLog() {
-        File dir = new File(Environment.getExternalStorageDirectory(), "TeamCodeLogs");
-        if (!dir.exists()) dir.mkdirs();
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
+        if (!dir.exists()) dir.mkdirs();  // Ensure the directory exists
 
         File file = new File(dir, "movement.json");
 
+        telemetry.addData("Clearing log file at: ", file.getAbsolutePath());
+        telemetry.addData("Does folder exist: ", dir.exists());
+
         try (FileWriter writer = new FileWriter(file)) {
-            writer.write("[]");  // Reset with an empty JSON array
+            writer.write("[]");  // Reset the file with an empty JSON array
+            telemetry.addData("Log cleared successfully", true);
         } catch (IOException e) {
-            e.printStackTrace();
+            telemetry.addData("Error clearing log", e.getMessage());
         }
     }
 
 
     public void loop() {
         // Inputs
-        debugAll = gamepad1.a;
+        debugAll = false;
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
         driveRotation = -gamepad1.right_stick_x;
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
+//        telemetry.addData("record time in loop: ", recording.time.seconds());
+//        telemetry.addData("record start in loop: ", recording.startPress);
+//        telemetry.addData("record is Pressed in loop: ", recording.isPressed);
+//        telemetry.addData("record is on in loop: ", recording.isOn);
+//        telemetry.addData("record last timer in loop: ", lastTimer);
+//        telemetry.addData("record should record in loop: ", (recording.time.seconds() - lastTimer) > deltaTime);
         if(recording.startPress){
             clearLog();
+            lastTimer = 0;
         }
         if (recording.isOn) {
+            telemetry.addData("Hello World", 1);
             if (recording.time.seconds() - lastTimer > deltaTime) {
                 recordPosition(recording.time.seconds(), follower.getPose());
-                lastTimer = recording.time.time();
+                telemetry.addData("Hello World", 2);
+                telemetry.update();
+                lastTimer = recording.time.seconds();
             }
         } else if (replay.isOn){
             Pose target = loadPoses();
             if (target != null){
                 Path next = follower.linearPathBuilder(follower.getPose(), target);
                 follower.followPath(next);
+                telemetry.addData("Hello World", target.getX());
             }
+            follower.update();
         }
+        telemetry.addData("Hello World", true);
 
         if (gamepad1.right_bumper) {
             driveSpeed = DriveSpeedEnum.Fast;
@@ -1165,30 +1195,20 @@ public class NewTeleopBlueSecret {
             telemetry.update();
         }
 
-        telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("leftBack", motor4.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
-
-        telemetry.update();
+//        telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("leftBack", motor4.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("hSlides", motor5.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("vSlides", motor6.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("climber", motor7.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("intakeMotor", motor8.getCurrent(CurrentUnit.AMPS));
+//        telemetry.addData("max", motor1.getCurrent(CurrentUnit.AMPS) + motor2.getCurrent(CurrentUnit.AMPS) + motor3.getCurrent(CurrentUnit.AMPS) + motor4.getCurrent(CurrentUnit.AMPS) + motor5.getCurrent(CurrentUnit.AMPS) + motor6.getCurrent(CurrentUnit.AMPS) + motor7.getCurrent(CurrentUnit.AMPS) + motor8.getCurrent(CurrentUnit.AMPS));
+//
+//        telemetry.update();
     }
 
     public void stop() {
         driveTrain.stopDrive();
-    }
-
-    public static class PoseEntry {
-        public double time;
-        public Pose pose;
-
-        public PoseEntry(double time, Pose pose) {
-            this.time = time;
-            this.pose = pose;
-        }
     }
 }

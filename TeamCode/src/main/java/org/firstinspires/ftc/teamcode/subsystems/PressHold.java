@@ -9,17 +9,17 @@ public class PressHold {
 
     public boolean startPress = false;
 
-    public ElapsedTime time;
+    public ElapsedTime time = new ElapsedTime();
 
     public void checkStatus(boolean pressed){
         if (startPress){
             startPress = false;
-            time.reset();
         }
         if (pressed && !isPressed){
             if (!isOn){
                 startPress = true;
                 isOn = true;
+                time.reset();
             }else {
                 isOn = false;
             }

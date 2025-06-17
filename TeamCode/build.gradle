@@ -38,4 +38,5 @@ dependencies {
     implementation "com.acmerobotics.dashboard:dashboard:0.4.16"
 
     implementation 'org.json:json:20250517'
+    implementation project(':sdk')
 }
