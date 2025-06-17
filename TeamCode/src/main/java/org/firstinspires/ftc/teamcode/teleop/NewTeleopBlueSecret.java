@@ -176,6 +176,7 @@ public class NewTeleopBlueSecret {
     double deltaTime = 0.5;
     double deltaError = 0.4;
     int replayIndex = 0;
+    List<PoseEntry> currentReplayPath;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -235,38 +236,41 @@ public class NewTeleopBlueSecret {
         elapsedTime.reset();
     }
 
-    public void recordPosition(double time, Pose pos) {
+    public void recordPositions() {
         File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
         File file = new File(dir, "movement.json");
         JSONArray log;
-        telemetry.addData("Recording, time: ", time);
+        telemetry.addData("Recording, here: ", true);
         try {
-            if (file.exists()) {
-                FileReader reader = new FileReader(file);
-                BufferedReader bufferedReader = new BufferedReader(reader);
-                StringBuilder content = new StringBuilder();
-                String line;
-                while ((line = bufferedReader.readLine()) != null) {
-                    content.append(line);
-                }
-                bufferedReader.close();
-                log = new JSONArray(new JSONTokener(content.toString()));
-                reader.close();
-            } else {
-                log = new JSONArray();
-            }
+//            if (file.exists()) {
+//                FileReader reader = new FileReader(file);
+//                BufferedReader bufferedReader = new BufferedReader(reader);
+//                StringBuilder content = new StringBuilder();
+//                String line;
+//                while ((line = bufferedReader.readLine()) != null) {
+//                    content.append(line);
+//                }
+//                bufferedReader.close();
+//                log = new JSONArray(new JSONTokener(content.toString()));
+//                reader.close();
+//            } else {
+//            }
+            log = new JSONArray();
 
             // Create position JSON
-            JSONObject posJson = new JSONObject();
-            posJson.put("x", pos.getX());
-            posJson.put("y", pos.getY());
-            posJson.put("heading", pos.getHeading());
+            for (PoseEntry pos : currentReplayPath) {
+                JSONObject posJson = new JSONObject();
+                posJson.put("x", pos.pose.getX());
+                posJson.put("y", pos.pose.getY());
+                posJson.put("heading", pos.pose.getHeading());
 
-            JSONObject entry = new JSONObject();
-            entry.put("t", time);
-            entry.put("pos", posJson);
+                JSONObject entry = new JSONObject();
+                entry.put("t", pos.time);
+                entry.put("pos", posJson);
 
-            log.put(entry);
+                log.put(entry);
+            }
+
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             writer.write(log.toString(2));
             writer.close();
@@ -277,13 +281,11 @@ public class NewTeleopBlueSecret {
         }
     }
 
-    public Pose loadPoses() {
-        Pose pose = null;
-
+    public void loadPoses() {
         File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
         File file = new File(dir, "movement.json");
 
-        if (!file.exists()) return null;
+        if (!file.exists()) return;
 
         try (FileReader reader = new FileReader(file)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
@@ -293,43 +295,25 @@ public class NewTeleopBlueSecret {
                 content.append(line);
             }
             bufferedReader.close();
-
             JSONArray log = new JSONArray(new JSONTokener(content.toString()));
-            if (replayIndex < log.length()) {
-                JSONObject entry = log.getJSONObject(replayIndex);
+
+            currentReplayPath = new ArrayList<>();
+            for (int i = 0; i < log.length(); i++) {
+                JSONObject entry = log.getJSONObject(i);
                 double t = entry.getDouble("t");
 
-                if (follower.driveError > deltaError) {  // your logic
-                    JSONObject posJson = entry.getJSONObject("pos");
-                    double x = posJson.getDouble("x");
-                    double y = posJson.getDouble("y");
-                    double heading = posJson.getDouble("heading");
+                JSONObject posJson = entry.getJSONObject("pos");
+                double x = posJson.getDouble("x");
+                double y = posJson.getDouble("y");
+                double heading = posJson.getDouble("heading");
 
-                    pose = new Pose(x, y, heading);
-                    replayIndex += 1;
-                }
+                Pose pos = new Pose(x, y, heading);
+                PoseEntry poseEntry = new PoseEntry(t, pos);
+
+                currentReplayPath.add(poseEntry);
             }
         } catch (Exception e) {
             telemetry.addData("Failed to Load", true);
-        }
-
-        return pose;
-    }
-
-    public void clearLog() {
-        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
-        if (!dir.exists()) dir.mkdirs();  // Ensure the directory exists
-
-        File file = new File(dir, "movement.json");
-
-        telemetry.addData("Clearing log file at: ", file.getAbsolutePath());
-        telemetry.addData("Does folder exist: ", dir.exists());
-
-        try (FileWriter writer = new FileWriter(file)) {
-            writer.write("[]");  // Reset the file with an empty JSON array
-            telemetry.addData("Log cleared successfully", true);
-        } catch (IOException e) {
-            telemetry.addData("Error clearing log", e.getMessage());
         }
     }
 
@@ -349,23 +333,37 @@ public class NewTeleopBlueSecret {
 //        telemetry.addData("record last timer in loop: ", lastTimer);
 //        telemetry.addData("record should record in loop: ", (recording.time.seconds() - lastTimer) > deltaTime);
         if(recording.startPress){
-            clearLog();
+            currentReplayPath = new ArrayList<>();
             lastTimer = 0;
         }
         if (recording.isOn) {
             telemetry.addData("Hello World", 1);
             if (recording.time.seconds() - lastTimer > deltaTime) {
-                recordPosition(recording.time.seconds(), follower.getPose());
+                currentReplayPath.add(
+                        new PoseEntry(recording.time.seconds(), follower.getPose()));
+                recordPositions();
                 telemetry.addData("Hello World", 2);
                 telemetry.update();
                 lastTimer = recording.time.seconds();
             }
-        } else if (replay.isOn){
-            Pose target = loadPoses();
-            if (target != null){
-                Path next = follower.linearPathBuilder(follower.getPose(), target);
+        }
+        else if (replay.startPress){
+            loadPoses();
+            if (!currentReplayPath.isEmpty()){
+                Path next = follower.linearPathBuilder(follower.getPose(), currentReplayPath.get(0).pose);
                 follower.followPath(next);
-                telemetry.addData("Hello World", target.getX());
+                replayIndex = 1;
+            }
+        }
+        else if (replay.isOn){
+            Pose target = currentReplayPath.get(replayIndex - 1).pose;
+            double dst = Math.hypot(follower.getPose().getX() - target.getX(), follower.getPose().getY() - target.getY());
+            if (dst < deltaError) {
+                if (replayIndex < currentReplayPath.size()) {
+                    Path next = follower.linearPathBuilder(follower.getPose(), currentReplayPath.get(replayIndex).pose);
+                    follower.followPath(next);
+                    replayIndex += 1;
+                }
             }
             follower.update();
         }
@@ -1210,5 +1208,16 @@ public class NewTeleopBlueSecret {
 
     public void stop() {
         driveTrain.stopDrive();
+    }
+
+    public static class PoseEntry
+    {
+        double time;
+        Pose pose;
+
+        public PoseEntry(double time, Pose pose){
+            this.time = time;
+            this.pose = pose;
+        }
     }
 }
