@@ -1328,6 +1328,11 @@ public class Follower {
         return headingError;
     }
 
+    public void offset(Pose offset) {
+        Pose current = getPose();
+        setPose(current.addReturn(offset));
+    }
+
     //Builds a very simple path
     public Path linearPathBuilder(Pose startPose, Pose endPose, double endTime) {
         Path tempPath = new Path(new BezierLine(new Point(startPose), new Point(endPose)));

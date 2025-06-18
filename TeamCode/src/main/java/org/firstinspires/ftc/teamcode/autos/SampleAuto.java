@@ -74,7 +74,7 @@ public class SampleAuto {
     private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
     private final Pose subControlPoint = new Pose(-48.4, -10.3, Math.toRadians(0));
 
-    private final Pose afterSubPlace = new Pose(-53.25, -54.75, Math.toRadians(45));
+    private final Pose afterSubPlace = new Pose(-53.75, -55.25, Math.toRadians(45));
 
     private final Pose spikeSearch = new Pose(-59, -40, Math.toRadians(40));
 
@@ -478,7 +478,7 @@ public class SampleAuto {
                         intakeSystem.setHSlidesInches(follower.followYourHead(target2D));
                         setPathState(SampleAutoEnum.drivingVision);
                     }
-                    if (opmodeTimer.getElapsedTimeSeconds() > 1000000/*28*/) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 28/*28*/) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     }
@@ -503,7 +503,7 @@ public class SampleAuto {
                     follower.startTeleopDrive();
                 }
                 intakeSystem.update();
-                if (opmodeTimer.getElapsedTimeSeconds() > 10000000/*28*/) {
+                if (opmodeTimer.getElapsedTimeSeconds() > 28/*28*/) {
                     //Break loop
                     setPathState(SampleAutoEnum.park);
                 }
@@ -524,10 +524,11 @@ public class SampleAuto {
             case dropClaw4:
                 if (pathTimer.getElapsedTimeSeconds() > 0.45) {
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    if (opmodeTimer.getElapsedTimeSeconds() > 10000000/*25*/) {
+                    if (opmodeTimer.getElapsedTimeSeconds() > 25/*25*/) {
                         //Break loop
                         setPathState(SampleAutoEnum.park);
                     } else {
+//                        follower.offset(new Pose(-0.2, -0.2,0));
                         setPathState(SampleAutoEnum.intakeArm2);
                     }
                 }
