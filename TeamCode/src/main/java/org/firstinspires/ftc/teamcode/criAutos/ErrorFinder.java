@@ -19,7 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@Autonomous(name = "ErrorFinder", group = " Comp")
+@Autonomous(name = "ErrorFinder", group = "Comp")
 public class ErrorFinder extends OpMode {
     private Robot robot;
     private PathPlanner step;

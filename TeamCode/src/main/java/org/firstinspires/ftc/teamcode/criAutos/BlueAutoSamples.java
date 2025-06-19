@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Blue Samples", group = " Comp", preselectTeleOp = "New Tele-op Blue")
+@Autonomous(name = "CRI Blue Samples", group = "Comp", preselectTeleOp = "New Tele-op Blue")
 public class BlueAutoSamples extends OpMode {
     private Robot robot;
     private List<PathPlanner> steps;

@@ -73,8 +73,8 @@ public class SpecimenAuto6Spec {
     private final Pose pushedSpike2 = new Pose(58, -49, Math.toRadians(90));
 
     private final Pose spike3ControlPoint1 = new Pose(53, -5, 0);
-    private final Pose backSpike3 = new Pose(60.75, -15, Math.toRadians(90));
-    private final Pose pickupWallRightSide = new Pose(60.75, -60.5, Math.toRadians(90));
+    private final Pose backSpike3 = new Pose(62.25, -15, Math.toRadians(90));
+    private final Pose pickupWallRightSide = new Pose(62.25, -60.5, Math.toRadians(90));
 
     private final Pose pickupWallControlPoint = new Pose(39, -48, Math.toRadians(90));
     private final Pose pickupWall = new Pose(39, -60, Math.toRadians(90));
@@ -495,7 +495,7 @@ public class SpecimenAuto6Spec {
                 break;
             //grab off wall and go to sub
             case grabWall1:
-                if ((outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 3.75) {
+                if ((outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 3.25) {
                     intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 } else {
                     actionTimer.resetTimer();
@@ -550,7 +550,7 @@ public class SpecimenAuto6Spec {
             //part 6 placing specimen 4 ***********************************************************~
             //grab off wall and go to sub
             case grabWall3:
-                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 2) {
+                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 1.8) {
                     intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 } else {
                     actionTimer.resetTimer();
@@ -605,7 +605,7 @@ public class SpecimenAuto6Spec {
             //part 7 placing specimen 5 ***********************************************************~
             //grab off wall and go to sub
             case grabWall4:
-                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 2) {
+                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 1.8) {
                     intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 } else {
                     actionTimer.resetTimer();
@@ -663,7 +663,7 @@ public class SpecimenAuto6Spec {
             //part 8 placing specimen 6?!?!?!?!? **************************************************~
             //grab off wall and go to sub
             case grabWall5:
-                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 2) {
+                if ((follower.getErrorDistance(pickupWall) < 4 && outtakeSystem.seesWall()) || pathTimer.getElapsedTimeSeconds() > 1.8) {
                     intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 } else {
                     actionTimer.resetTimer();

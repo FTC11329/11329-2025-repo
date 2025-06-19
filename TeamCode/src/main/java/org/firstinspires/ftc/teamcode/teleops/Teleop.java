@@ -261,7 +261,7 @@ public class Teleop {
         //Auto Climb ****************************************************************************~Ci
         if (climberActive && !climbPause) {
             //Climb Pause
-            if (climbToggButton && !climbDebounce) {
+            if (climbToggButton && !climbDebounce && Math.abs(climber.getPos() - Constants.Climber.outPos) < 50) {
                 climbPause = true;
                 //puts arm to safe space
                 if (outtakeSystem.getArmPos() > 0.6) {
