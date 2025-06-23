@@ -37,6 +37,18 @@ public class PowerTakeOff {
         enabled = false;
     }
 
+    public void hold() {
+        setRightPos(Constants.PTO.PTOServoClimbRight);
+        setLeftPos(Constants.PTO.PTOServoClimbLeft);
+    }
+
+    //WATER BUCKET,
+    public void    release() {
+        setRightPos(Constants.PTO.PTOServoReleaseRight);
+        setLeftPos(Constants.PTO.PTOServoReleaseLeft);
+    }
+
+
     public boolean isEnabled() {
         return enabled;
     }

@@ -68,7 +68,7 @@ public class SampleAuto {
     private final Pose intakeSpike2 = new Pose(-57.9, -51.2, Math.toRadians(90));
     private final Pose placeSpike2 = new Pose(-60, -52.7, Math.toRadians(80));
 
-    private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(115));
+    private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(117));
     private final Pose placeSpike3 = new Pose(-54.2, -55.7, Math.toRadians(45));
 
     private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
@@ -220,7 +220,7 @@ public class SampleAuto {
                 break;
             case placePreload:
                 if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 225);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 220);
                     outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                     setPathState(SampleAutoEnum.dropClaw0);
                 }
@@ -272,7 +272,7 @@ public class SampleAuto {
                 break;
             case placeSample:
                 if (!transferSample) {
-                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 50);
                     setPathState(SampleAutoEnum.dropClaw1);
                 }
                 break;
@@ -322,7 +322,7 @@ public class SampleAuto {
                 break;
             case placeSample2:
                 if (!transferSample) {
-                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
+                    intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 75);
                     setPathState(SampleAutoEnum.dropClaw2);
                 }
                 break;
@@ -395,7 +395,7 @@ public class SampleAuto {
             case toFailSpike:
                 follower.followPath(toSearchSpikes);
                 intakeSystem.storeOutPos();
-                if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                if (pathTimer.getElapsedTimeSeconds() > 2) {
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                     setPathState(SampleAutoEnum.startLookFailSpike);
@@ -445,7 +445,7 @@ public class SampleAuto {
                     transferSample = true;
                     setPathState(SampleAutoEnum.placeSample3);
 
-                } else if (pathTimer.getElapsedTimeSeconds() > 2) {
+                } else if (pathTimer.getElapsedTimeSeconds() > 1) {
                     intakeSystem.storeOutPos();
                     intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                     follower.breakFollowing();

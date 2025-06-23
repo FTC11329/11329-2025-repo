@@ -30,6 +30,7 @@ public class Climber {
     public void setPos(int newPos) {
         if (lastClimberPos != newPos) {
             climberMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            climberMotor.setPower(1);
             lastClimberPos = newPos;
             climberMotor.setTargetPosition(newPos);
         }

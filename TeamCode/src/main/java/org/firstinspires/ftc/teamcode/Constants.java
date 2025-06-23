@@ -90,9 +90,9 @@ public class Constants {
         public static double frontBasketArm = 0.6585; // needs updated
         public static double parkArm = 0.7654;
 
-        public static int intakeSlides = 195;
+        public static int intakeSlides = 175;
         public static int intakeWaitSlides = 450; //not used anymore
-        public static int intakeWallSlides = 170;
+        public static int intakeWallSlides = 185;
         public static int intakeWallAutoSlides = 180;
 
         public static int safeFromWallSlides = 360;
@@ -109,9 +109,9 @@ public class Constants {
 
         public static double manualSlideSpeed = 60;
 
-        public static double seesWallDistanceBlue = 1.4;
-        public static double seesWallDistanceRed = 1.15;
-        public static double seesTransferDistance = 1.4;
+        public static double seesWallDistanceBlue = 1.7;
+        public static double seesWallDistanceRed = 1.7;
+        public static double seesTransferDistance = 1.42;
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;
@@ -122,10 +122,10 @@ public class Constants {
     public static class Color {
         public static double[] blue = {0.0016, 0.0041, 0.0114, 0.6806};
         public static double[] red = {0.0067, 0.0042, 0.0025, 0.5654};
-        public static double[] redEdge = {0.016, 0.0122, 0.0078, 0.9037};
+        public static double[] redEdge = {0.016, 0.0122, 0.0055, 0.886};
         public static double[] yellow = {0.0123, 0.0189, 0.0046, 0.903};
-        public static double[] yellowEdge = {0.0239, 0.0481, 0.0134, 0.2503};
-        public static double[] empty = {0.0004, 0.0013, 0.002, 0.091};
+        public static double[] yellowEdge = {0.0207, 0.0277, 0.007, 0.0957};
+        public static double[] empty = {0.0004, 0.0013, 0.002, 0.0863};
 
         public static double hasDistance = 0.75; //1.27 0.605 0.495 0.463
     }

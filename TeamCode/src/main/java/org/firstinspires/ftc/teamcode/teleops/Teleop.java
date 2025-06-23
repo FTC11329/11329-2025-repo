@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.teleops;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -261,7 +263,7 @@ public class Teleop {
         //Auto Climb ****************************************************************************~Ci
         if (climberActive && !climbPause) {
             //Climb Pause
-            if (climbToggButton && !climbDebounce && Math.abs(climber.getPos() - Constants.Climber.outPos) < 50) {
+            if ((climbToggButton || gamepad1B)  && !climbDebounce && climberStage >= 2) {
                 climbPause = true;
                 //puts arm to safe space
                 if (outtakeSystem.getArmPos() > 0.6) {
@@ -352,7 +354,7 @@ public class Teleop {
                     } else {
                         current = 0;
                     }
-                    if (current > 4) {
+                    if (current > 4.5) {
                         //Prevent pto from drawing too much power
                         driveTrain.setPTOPos(driveTrain.getPTOPos());
 
@@ -385,6 +387,12 @@ public class Teleop {
 
             if (climbStopPause) {
                 driveTrain.setPTOPower(-0.2);
+            }
+            if (gamepad1.y) {
+                powerTakeOff.hold();
+            }
+            if (gamepad1.x) {
+                powerTakeOff.release();
             }
         }
         // Pre-Start Climb
@@ -630,7 +638,9 @@ public class Teleop {
                     clawToggle = false;
                 }
 
-                intakeSystem.storePos();
+                if (!intake && !intakeColor) {
+                    intakeSystem.storePos();
+                }
                 wallTime = elapsedTime.milliseconds();
                 onceTime = false;
             }
@@ -847,6 +857,10 @@ public class Teleop {
         }
 
         if (sideDepoing) {
+            // Cancels it
+            if (intake || intakeColor) {
+                sideDepoing = false;
+            }
             intakeSystem.setHSlidePos(40);
             if (whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
@@ -867,10 +881,6 @@ public class Teleop {
                 intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                 hasInIntake = false;
-                sideDepoing = false;
-            }
-            // Cancels it
-            if (intake || intakeColor) {
                 sideDepoing = false;
             }
         }

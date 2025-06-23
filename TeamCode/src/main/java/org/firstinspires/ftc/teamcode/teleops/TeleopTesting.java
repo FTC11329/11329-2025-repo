@@ -220,7 +220,8 @@ public class TeleopTesting {
         telemetry.addData("testValue3A", testValue3);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
         telemetry.addData("VSlidepos  ", outtakeSystem.getVSlidePos());
-        telemetry.addData("power", driveTrain.pidControl.update(driveTrain.leftFront.getCurrentPosition()));
+        telemetry.addData("outtake distance", outtakeSystem.getClawDistance());
+//        telemetry.addData("power", driveTrain.pidControl.update(driveTrain.leftFront.getCurrentPosition()));
 
 
         //HSlide
