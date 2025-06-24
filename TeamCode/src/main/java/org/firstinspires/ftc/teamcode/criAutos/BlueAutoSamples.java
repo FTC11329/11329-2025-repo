@@ -15,14 +15,20 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
+import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
+import org.firstinspires.ftc.teamcode.utility.RobotStateVariables;
+import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Autonomous(name = "CRI Blue Samples", group = "Comp", preselectTeleOp = "New Tele-op Blue")
 public class BlueAutoSamples extends OpMode {
+    // todo WHERE DO YOU START WITH THE ARM AND WHAT SIDE
+    RobotSideEnum robotSide = RobotSideEnum.Blue;
+    PlacePosEnum startPos = PlacePosEnum.wall;
     private Robot robot;
     private List<PathPlanner> steps;
     private int currentStep = 0;
@@ -32,16 +38,19 @@ public class BlueAutoSamples extends OpMode {
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
         Follower follower = new Follower(hardwareMap);
-        Attempt89 blockVision = new Attempt89(hardwareMap, RobotSideEnum.Blue);
+        Attempt89 blockVision = new Attempt89(hardwareMap, robotSide);
         Drivetrain driveTrain = new Drivetrain(hardwareMap);
         PowerTakeOff powerTakeOff = new PowerTakeOff(hardwareMap);
-        IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
-        OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Blue, true);
+        StateMachine stateMachine = new StateMachine();
+        IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, robotSide);
+        OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
+
+        RobotStateVariables robotState = new RobotStateVariables(startPos);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
 
         // Create robot context
-        robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, outtakeSystem);
+        robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, true);
 
         // Set start pose
         Pose startPose = new Pose();

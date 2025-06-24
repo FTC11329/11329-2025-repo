@@ -30,8 +30,20 @@ public class OuttakeSystem {
         outtakeArm.setArmPos(newPos);
     }
 
+    public void manualWrist(double power) {
+        outtakeArm.manualWristPos(power);
+    }
+
+    public void setWristPos(double newPos) {
+        outtakeArm.setWristPos(newPos);
+    }
+
     public double getArmPos() {
         return outtakeArm.getArmPos();
+    }
+
+    public double getWristPos() {
+        return outtakeArm.getWristPos();
     }
 
     public void setClawPos(double newPos) {
@@ -73,28 +85,34 @@ public class OuttakeSystem {
             setArmPos(Constants.Outtake.specimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.preClipSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.lowBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.lowBasketSlides);
             setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.basketWrist);
 
         } else if (posEnum == PlacePosEnum.highBasket) {
             setArmPos(Constants.Outtake.basketArm);
             setVSlidePos(Constants.Outtake.highBasketSlides);
             setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.basketWrist);
 
         } else if (posEnum == PlacePosEnum.wall) {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallSlides);
+            setWristPos(Constants.Outtake.wallWrist);
 
         } else if (posEnum == PlacePosEnum.wallAuto) {
             setArmPos(Constants.Outtake.intakeWallArm);
             setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
+            setWristPos(Constants.Outtake.wallWrist);
 
         } else if (posEnum == PlacePosEnum.intake) {
             setArmPos(Constants.Outtake.intakeArm);
             setVSlidePos(Constants.Outtake.intakeSlides);
+            setWristPos(Constants.Outtake.storeWrist);
         }
     }
 

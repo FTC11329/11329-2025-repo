@@ -70,6 +70,23 @@ public class Constants {
 
     @Config
     public static class Outtake {
+        //todo presets
+        public static double initTeleopWrist = 0;
+        public static double initAutoUnderBarWrist = 0;
+        public static double initAutoNearWallWrist = 0;
+
+        public static double preClipSpecimenWrist = 0;
+        public static double postClipSpecimenWrist = 0;
+
+        public static double basketWrist = 0;
+
+        public static double storeWrist = 0;
+
+        public static double wallWrist = 0;
+        //                   Walrus?
+        public static double manualWristSpeed = 0;
+
+
         public static double grabClaw = 0.59;
         public static double dropClaw = 0.21;
 

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utility;
 
 public class StateMachine {
     boolean goingHighSpecimen = false;
+    boolean goingLowSpecimen = false;
     boolean goingLowBasket  = false;
     boolean goingHighBasket = false;
     boolean goingFrontBasket = false;
@@ -11,11 +12,12 @@ public class StateMachine {
     boolean goingTransfer = false;
 
     boolean hasInIntake = false;
-    boolean transferred = false;
+    boolean hasInOutake = false;
     boolean atStorePos = false;
 
     public void resetValues() {
         goingHighSpecimen = false;
+        goingLowSpecimen = false;
         goingLowBasket   = false;
         goingHighBasket  = false;
         goingFrontBasket = false;
@@ -25,23 +27,31 @@ public class StateMachine {
         goingTransfer = false;
 
         hasInIntake = false;
-        transferred = false;
+        hasInOutake = false;
         atStorePos = false;
     }
 
     //Functions that start the movement of the robot
+    public void goLowSpecimen(boolean atStorePos) {
+        resetValues();
+        goingLowSpecimen = true;
+        this.hasInIntake = false;
+        this.hasInOutake = true;
+        this.atStorePos = atStorePos;
+    }
+
     public void goHighSpecimen(boolean atStorePos) {
         resetValues();
         goingHighSpecimen = true;
         this.hasInIntake = false;
-        this.transferred = true;
+        this.hasInOutake = true;
         this.atStorePos = atStorePos;
     }
     public void goLowBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
         resetValues();
         goingLowBasket = true;
         this.hasInIntake = hasInIntake;
-        this.transferred = transferred;
+        this.hasInOutake = transferred;
         this.atStorePos = atStorePos;
     }
 
@@ -49,14 +59,14 @@ public class StateMachine {
         resetValues();
         goingHighBasket = true;
         this.hasInIntake = hasInIntake;
-        this.transferred = transferred;
+        this.hasInOutake = transferred;
         this.atStorePos = atStorePos;
     }
     public void goFrontBasket(boolean hasInIntake, boolean transferred, boolean atStorePos) {
         resetValues();
         goingFrontBasket = true;
         this.hasInIntake = hasInIntake;
-        this.transferred = transferred;
+        this.hasInOutake = transferred;
         this.atStorePos = atStorePos;
     }
 
@@ -65,7 +75,7 @@ public class StateMachine {
         resetValues();
         goingWall = true;
         this.hasInIntake = hasInIntake;
-        this.transferred = transferred;
+        this.hasInOutake = transferred;
         this.atStorePos = atStorePos;
     }
 
@@ -73,7 +83,7 @@ public class StateMachine {
         resetValues();
         goingStore = true;
         this.hasInIntake = true;
-        this.transferred = false;
+        this.hasInOutake = false;
         this.atStorePos = false;
     }
 
@@ -81,7 +91,7 @@ public class StateMachine {
         resetValues();
         goingTransfer = true;
         this.hasInIntake = true;
-        this.transferred = false;
+        this.hasInOutake = false;
         this.atStorePos = atStorePos;
     }
 
@@ -97,7 +107,11 @@ public class StateMachine {
     }
 
     public boolean doUnStore() {
-        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingHighSpecimen) && !hasInIntake && atStorePos || (goingWall && atStorePos);
+        return (goingLowBasket || goingHighBasket || goingLowSpecimen || goingFrontBasket || goingHighSpecimen) && !hasInIntake && atStorePos || (goingWall && atStorePos);
+    }
+
+    public boolean doLowSpecimen() {
+        return goingLowSpecimen && !atStorePos;
     }
 
     public boolean doHighSpecimen() {
@@ -105,15 +119,15 @@ public class StateMachine {
     }
 
     public boolean doLowBasket() {
-        return goingLowBasket   && (!hasInIntake || transferred) && !atStorePos;
+        return goingLowBasket   && (!hasInIntake || hasInOutake) && !atStorePos;
     }
 
     public boolean doHighBasket() {
-        return goingHighBasket  && (!hasInIntake || transferred) && !atStorePos;
+        return goingHighBasket  && (!hasInIntake || hasInOutake) && !atStorePos;
     }
 
     public boolean doFrontBasket() {
-        return goingFrontBasket && (!hasInIntake || transferred) && !atStorePos;
+        return goingFrontBasket && (!hasInIntake || hasInOutake) && !atStorePos;
     }
 
     public boolean doWall() {
@@ -133,7 +147,7 @@ public class StateMachine {
         goingTransfer = false;
 
         hasInIntake = false;
-        transferred = true;
+        hasInOutake = true;
     }
 
     public void failTransfer() {
@@ -142,6 +156,10 @@ public class StateMachine {
 
     public void finishUnStore() {
         atStorePos = false;
+    }
+
+    public void finishLowSpecimen() {
+        goingLowSpecimen = false;
     }
 
     public void finishHighSpecimen() {
@@ -155,6 +173,7 @@ public class StateMachine {
     public void finishHighBasket() {
         goingHighBasket = false;
     }
+
     public void finishFrontBasket() {
         goingFrontBasket = false;
     }
@@ -169,7 +188,7 @@ public class StateMachine {
     public boolean[] debug() {
         boolean[] temp = new boolean[3];
         temp[0] = hasInIntake;
-        temp[1] = transferred;
+        temp[1] = hasInOutake;
         temp[2] = atStorePos;
         return temp;
     }

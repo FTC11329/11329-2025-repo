@@ -21,65 +21,315 @@ public class Robot {
     public Attempt89 blockVision;
     public Drivetrain driveTrain;
     public PowerTakeOff powerTakeOff;
+    public StateMachine stateMachine;
     public IntakeSystem intakeSystem;
     public OuttakeSystem outtakeSystem;
+    public RobotStateVariables robotState;
 
     public Timer opmodeTimer;
 
-    public int transferState = -1;
-    public Timer transferTimer = new Timer();
-    public boolean doTransfer = false;
 
-    public int lowBarState = -1;
-    public Timer lowBarTimer = new Timer();
-    public boolean doLowBarFromWall = false;
+    public Timer storeTimer;
+    public int storeState = -1;
 
-    public int wallState = -1;
-    public Timer wallTimer = new Timer();
-    public boolean doWallFromLowBar = false;
+    private Timer lowBarTimer;
+    private int lowBarState = -1;
 
-    public int wallState = -1;
-    public Timer wallTimer = new Timer();
-    public boolean doWallFromLowBar = false;
+    private Timer lowBasketTimer;
+    private int lowBasketState = -1;
 
-    public int presetState = -1;
-    public Timer presetTimer = new Timer();
-    public boolean doGoWallFromStore = false;
+    private Timer highBasketTimer;
+    private int highBasketState = -1;
 
-    public int parkState = 0;
-    public Timer parkTimer = new Timer();
+    private Timer transferTimer = new Timer();
+    private int transferState = -1;
+
+    private Timer unStoringTimer;
+    private int unStoringState = -1;
+
+    private int parkState = 0;
+    private Timer parkTimer = new Timer();
     public boolean doIntakeWhilePark = false;
 
-    public Timer shakeTimer = new Timer();
+    private Timer shakeTimer = new Timer();
     public boolean doDriveShake = false;
     public boolean atStorePreset = false;
 
-    public Robot(Climber climber, Follower follower, Telemetry telemetry, Attempt89 blockVision, Drivetrain driveTrain, PowerTakeOff powerTakeOff, IntakeSystem intakeSystem, OuttakeSystem outtakeSystem) {
+    public boolean inAuto = false;
+
+    public Robot(Climber climber, Telemetry telemetry, Drivetrain driveTrain, PowerTakeOff powerTakeOff, IntakeSystem intakeSystem, StateMachine stateMachine, OuttakeSystem outtakeSystem, RobotStateVariables robotState, boolean isAuto) {
+        this(climber, null, telemetry, null, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, isAuto);
+    }
+
+    public Robot(Climber climber, Follower follower, Telemetry telemetry, Attempt89 blockVision, Drivetrain driveTrain, PowerTakeOff powerTakeOff, IntakeSystem intakeSystem, StateMachine stateMachine, OuttakeSystem outtakeSystem, RobotStateVariables robotState, boolean isAuto) {
         this.climber       = climber;
         this.follower      = follower;
         this.telemetry     = telemetry;
+        this.robotState    = robotState;
         this.driveTrain    = driveTrain;
         this.blockVision   = blockVision;
         this.powerTakeOff  = powerTakeOff;
         this.intakeSystem  = intakeSystem;
+        this.stateMachine  = stateMachine;
         this.outtakeSystem = outtakeSystem;
 
         opmodeTimer = new Timer();
+
+        inAuto = isAuto;
     }
 
     public void loop() {
+        if (stateMachine.doGoToStore()) {
+            switch (storeState) {
+                case -1:
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    robotState.clawToggle = true;
+                    if (robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
+                    } else {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                    }
+                    intakeSystem.setHSlidePos(Constants.Intake.transferSlides);
+                    storeState = 0;
+                    break;
+                case 0:
+                    if (Math.abs(outtakeSystem.getVSlidePos() - outtakeSystem.getVSlideTargetPos()) < 250) {
+                        outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                        storeTimer.resetTimer();
+                        storeState = 1;
+                    }
+                    break;
+                case 1:
+                    if (storeTimer.getElapsedTimeSeconds() > 0.5) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                        storeTimer.resetTimer();
+                        storeState = 2;
+                    }
+                    break;
+                case 2:
+                    if (storeTimer.getElapsedTimeSeconds() > 0.2) {
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        robotState.clawToggle = false;
+                        storeTimer.resetTimer();
+                        storeState = 3;
+                    }
+                    break;
+                case 3:
+                    if (storeTimer.getElapsedTimeSeconds() > 0.1) {
+                        robotState.atStorePos = true;
+                        robotState.whereAmI = PlacePosEnum.intake;
+                        storeState = -1;
+                        stateMachine.finishGoToStoreFromSpec();
+                    }
+                    break;
+            }
+        }
+
+        if (stateMachine.doTransfer()) {
+            switch (transferState) {
+                case -1:
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    robotState.clawToggle = false;
+                    if (!intakeSystem.readyToTransfer()) {
+                        transferTimer = new Timer();
+                    }
+                    outtakeSystem.placePos(PlacePosEnum.intake);
+                    intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                    outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                    robotState.clawToggle = false;
+                    transferTimer.resetTimer();
+                    transferState = 0;
+                    break;
+                case 0:
+                    if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferTimer.getElapsedTimeSeconds() > 0.1) {
+                        transferTimer.resetTimer();
+                        transferState = 2;
+                    }
+                    if (!inAuto && transferTimer.getElapsedTimeSeconds() > 2) {
+                        intakeSystem.setIntakePower(0);
+                        transferState = -1;
+                        robotState.hasInIntake = false;
+                        stateMachine.failTransfer();
+                    }
+                    if (inAuto && transferTimer.getElapsedTimeSeconds() > 0.75) {
+                        transferTimer.resetTimer();
+                        transferState = 2;
+                    }
+                    break;
+                case 2:
+                    if (transferTimer.getElapsedTimeSeconds() > 0.05) {
+                        intakeSystem.setIntakePower(0);
+                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        robotState.clawToggle = true;
+                        transferTimer.resetTimer();
+                        transferState = 2;
+                    }
+                case 3:
+                    if (transferTimer.getElapsedTimeSeconds() > 0.3) {
+                        robotState.hasInIntake = false;
+                        robotState.hasInOutake = true;
+                        transferState = -1;
+                        stateMachine.finishTransfer();
+                    }
+                    break;
+            }
+        }
+
+        if (stateMachine.doUnStore()) {
+            switch (unStoringState) {
+                case -1:
+                    if (stateMachine.goingHighBasket()) {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                    } else {
+                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                    }
+                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                    outtakeSystem.setArmPos(Constants.Outtake.downArm);
+                    unStoringTimer.resetTimer();
+                    unStoringState = 0;
+                    break;
+                case 0:
+                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 100) {
+                        robotState.atStorePos = false;
+                        outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
+                        intakeSystem.setHSlidePos(0);
+                        unStoringTimer.resetTimer();
+                        unStoringState = 1;
+                    }
+                    break;
+                case 1:
+                    if (unStoringTimer.getElapsedTimeSeconds() > 0.2 && unStoringTimer.getElapsedTimeSeconds() < 0.4) {
+                        robotState.atStorePos = false;
+                        stateMachine.finishUnStore();
+                        unStoringState = -1;
+                    }
+                    break;
+            }
+        }
+
+        if (stateMachine.doLowSpecimen()) {
+            //todo
+        }
+
+        if (stateMachine.doHighSpecimen()) {
+            outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+            robotState.whereAmI = PlacePosEnum.highSpecimen;
+            stateMachine.finishHighSpecimen();
+        }
+
+        if (stateMachine.doLowBasket()) {
+            switch (lowBasketState) {
+                case -1:
+                    outtakeSystem.setVSlidePos(Constants.Outtake.lowBasketSlides);
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    robotState.whereAmI = PlacePosEnum.lowBasket;
+                    lowBasketState = 0;
+                    break;
+                case 0:
+                    if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
+                        outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
+                        stateMachine.finishLowBasket();
+                        lowBasketState = -1;
+                    }
+                    break;
+            }
+        }
+
+        if (stateMachine.doHighBasket()) {
+            switch (highBasketState) {
+                case -1:
+                    outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
+                    outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                    robotState.whereAmI = PlacePosEnum.highBasket;
+                    highBasketState = 0;
+                    break;
+                case 0:
+                    if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
+                        outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
+                        stateMachine.finishHighBasket();
+                        highBasketState = -1;
+                    }
+                    break;
+            }
+        }
+
+        if (stateMachine.doWall()) {
+            switch (parkState) {
+                case 0:
+                    outtakeSystem.placePos(PlacePosEnum.wall);
+                    robotState.whereAmI = PlacePosEnum.wall;
+                    if (!robotState.hasInOutake) {
+                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        robotState.clawToggle = false;
+                    }
+
+                    parkTimer.resetTimer();
+                    parkState = 1;
+                    break;
+                case 1:
+                    if (parkTimer.getElapsedTimeSeconds() > 0.0 && parkTimer.getElapsedTimeSeconds() < 0.1 && robotState.hasInIntake) {
+                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                    }
+                    if (parkTimer.getElapsedTimeSeconds() > 0.8 && parkTimer.getElapsedTimeSeconds() < 0.9 && robotState.hasInIntake) {
+                        intakeSystem.setIntakePower(0);
+                        stateMachine.finishWall();
+                        parkState = 0;
+                    }
+                    break;
+            }
+        }
+        // AUTO PATHS *****************************************************************************~
+
+        if (doIntakeWhilePark) {
+            switch (parkState) {
+                case 0:
+                    if (intakeSystem.intakeUntil()) {
+                        intakeSystem.storePos();
+                        intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
+                        doDriveShake = false;
+                        parkState = 1;
+                        parkTimer.resetTimer();
+                    }
+                    break;
+                case 1:
+                    if (parkTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000.0) {
+                        intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
+                        parkState = 2;
+                        parkTimer.resetTimer();
+                    }
+                    break;
+                case 2:
+                    if (intakeSystem.intakeUntil()) {
+                        intakeSystem.setIntakePower(0);
+                        doDriveShake = false;
+                        parkState = 3;
+                        parkTimer.resetTimer();
+                    }
+                    break;
+            }
+        }
 
 
-        //Only for 
+        if (doDriveShake) {
+            if (shakeTimer.getElapsedTimeSeconds() > 1.1) {
+                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 1.1) * 2.3) % 2 == 0 ){
+                    follower.setTeleOpMovementVectors(0,0, 1);
+                } else {
+                    follower.setTeleOpMovementVectors(0,0, -1);
+                }
+            }
+        } else {
+            shakeTimer.resetTimer();
+        }
     }
+
+
+
 
     private void setTransferState(int set) {
         transferTimer.resetTimer();
         transferState = set;
-    }
-    private void setPresetState(int set) {
-        presetTimer.resetTimer();
-        presetState = set;
     }
 
     public void start() {

@@ -16,8 +16,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
+import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
+import org.firstinspires.ftc.teamcode.utility.RobotStateVariables;
+import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
 @Autonomous(name = "ErrorFinder", group = "Comp")
 public class ErrorFinder extends OpMode {
@@ -35,13 +38,16 @@ public class ErrorFinder extends OpMode {
         Attempt89 blockVision = new Attempt89(hardwareMap, RobotSideEnum.Blue);
         Drivetrain driveTrain = new Drivetrain(hardwareMap);
         PowerTakeOff powerTakeOff = new PowerTakeOff(hardwareMap);
+        StateMachine stateMachine = new StateMachine();
         IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Blue, true);
+
+        RobotStateVariables robotState = new RobotStateVariables(PlacePosEnum.lowSpecimen);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
 
         // Create robot context
-        robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, outtakeSystem);
+        robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, true);
 
         // Set start pose
         Pose startPose = CommonPoses.startLeftOuter;

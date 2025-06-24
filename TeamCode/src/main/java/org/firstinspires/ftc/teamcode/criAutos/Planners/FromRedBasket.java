@@ -89,7 +89,7 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.doTransfer = true;
+                        robot.stateMachine.goHighBasket(true, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
                         robot.atStorePreset = true;
@@ -101,7 +101,7 @@ public class FromRedBasket {
                     }
                     break;
                 case 3:
-                    if (!robot.doTransfer) {
+                    if (!robot.stateMachine.goingHighBasket()) {
                         robot.atStorePreset = false;
                         if (preExtend) {
                             robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
@@ -209,7 +209,7 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.doTransfer = true;
+                        robot.stateMachine.goHighBasket(true, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
                         robot.atStorePreset = true;
@@ -221,7 +221,7 @@ public class FromRedBasket {
                     }
                     break;
                 case 3:
-                    if (!robot.doTransfer) {
+                    if (!robot.stateMachine.goingHighBasket()) {
                         robot.atStorePreset = false;
                         if (preExtend) {
                             robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
@@ -328,7 +328,7 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.doTransfer = true;
+                        robot.stateMachine.goHighBasket(true, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
                         robot.atStorePreset = true;
@@ -340,7 +340,7 @@ public class FromRedBasket {
                     }
                     break;
                 case 3:
-                    if (!robot.doTransfer) {
+                    if (!robot.stateMachine.goingHighBasket()) {
                         robot.atStorePreset = false;
                         setPathState(4);
                     }
@@ -471,12 +471,12 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.doTransfer = true;
+                        robot.stateMachine.goHighBasket(true, false, false);
                         setPathState(6);
                     }
                     break;
                 case 6:
-                    if (!robot.doTransfer && robot.follower.getError(redBasket).getX() < 1 && robot.follower.getError(redBasket).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 5) {
+                    if (!robot.stateMachine.goingHighBasket() && robot.follower.getError(redBasket).getX() < 1 && robot.follower.getError(redBasket).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 5) {
                         setPathState(7);
                     }
                     break;
@@ -618,7 +618,7 @@ public class FromRedBasket {
                 case 1:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         if (robot.atStorePreset) {
-                            robot.doGoWallFromStore = true;
+                            robot.stateMachine.goWall(false, false, true);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.wallAuto);
                         }
@@ -831,7 +831,7 @@ public class FromRedBasket {
                 case 1:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         if (robot.atStorePreset) {
-                            robot.doGoWallFromStore = true;
+                            robot.stateMachine.goWall(false, false, true);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.wallAuto);
                         }
@@ -839,7 +839,7 @@ public class FromRedBasket {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(tartgetPose) < 1.5 && !robot.doGoWallFromStore) {
+                    if (robot.follower.getErrorDistance(tartgetPose) < 1.5 && !robot.stateMachine.goingHighBasket()) {
                         setPathState(3);
                     }
                     break;

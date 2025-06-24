@@ -14,6 +14,9 @@ public class OuttakeArm {
     Servo clawServo;
     double lastClawPos = 0;
 
+//    Servo wristServo;
+    double lastWristPos = 0;
+
     Servo armServo1;
     Servo armServo2;
     double lastArmPos = Constants.Outtake.initTeleopArm;
@@ -45,7 +48,14 @@ public class OuttakeArm {
 
         armServo1.setPosition(Constants.Outtake.initTeleopArm);
         armServo2.setPosition(Constants.Outtake.initTeleopArm);
+
+//        wristServo = hardwareMap.get(Servo.class, "wrist");
+
+//        wristServo.setDirection(Servo.Direction.FORWARD);
+
+//        wristServo.setPosition(Constants.Outtake.initTeleopWrist);
     }
+
 
     public void manualArmPos(double power) {
         double temp = lastArmPos + (power * Constants.Outtake.manualArmSpeed);
@@ -68,8 +78,25 @@ public class OuttakeArm {
             clawServo.setPosition(newClawPos);
         }
     }
+
+    public void manualWristPos(double power) {
+        double temp = lastWristPos + (power * Constants.Outtake.manualWristSpeed);
+        setWristPos(temp);
+    }
+    public void setWristPos(double newWristPos) {
+        if (lastWristPos != newWristPos) {
+            lastWristPos  = newWristPos;
+//            wristServo.setPosition(newWristPos);
+        }
+    }
+
     public double getClawPos() {
         return clawServo.getPosition();
+    }
+
+    public double getWristPos() {
+//        return wristServo.getPosition();
+        return 0;
     }
     public double getSensorDistance() {
         return clawSensor.getDistance(DistanceUnit.INCH);
