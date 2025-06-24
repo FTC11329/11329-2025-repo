@@ -178,7 +178,7 @@ public class TeleopNonBinary {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
         stateMachine = new StateMachine();
     }
 
@@ -1024,7 +1024,6 @@ public class TeleopNonBinary {
             telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
 
-            //TODO add more Things here
             telemetry.addLine();
         }
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {

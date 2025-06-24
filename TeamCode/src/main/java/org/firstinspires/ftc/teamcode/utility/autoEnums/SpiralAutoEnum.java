@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utility;
+package org.firstinspires.ftc.teamcode.utility.autoEnums;
 
 public enum SpiralAutoEnum {
     up1, right1, down1, left1,

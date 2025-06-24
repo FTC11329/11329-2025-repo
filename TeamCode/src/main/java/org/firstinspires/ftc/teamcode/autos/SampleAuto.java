@@ -6,8 +6,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
-import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
-import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
+import org.firstinspires.ftc.teamcode.utility.autoEnums.SampleAutoEnum;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
@@ -24,7 +23,6 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
-import org.firstinspires.ftc.teamcode.utility.Specimen6AutoEnum;
 
 public class SampleAuto {
     Telemetry telemetry;
@@ -123,7 +121,7 @@ public class SampleAuto {
         blockVision = new Attempt89(hardwareMap, robotSide);
         blockVision.switchPipeline(0);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

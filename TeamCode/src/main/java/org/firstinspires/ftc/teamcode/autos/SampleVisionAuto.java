@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
-import org.firstinspires.ftc.teamcode.utility.SampleVisionAutoEnum;
+import org.firstinspires.ftc.teamcode.utility.autoEnums.SampleVisionAutoEnum;
 
 public class SampleVisionAuto {
     Telemetry telemetry;
@@ -123,7 +123,7 @@ public class SampleVisionAuto {
         blockVision = new Attempt89(hardwareMap, robotSide);
         blockVision.switchPipeline(0);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();
@@ -237,7 +237,6 @@ public class SampleVisionAuto {
                         intakeSystem.setHSlidesInches(follower.followYourHead(visionResult) - 0.6);
                         setPathState(SampleVisionAutoEnum.drivingVision1);
                     }
-                    //todo add a recovery path
                 }
                 break;
             case drivingVision1:
@@ -305,7 +304,6 @@ public class SampleVisionAuto {
                         intakeSystem.setHSlidesInches(follower.followYourHead(visionResult) - 0.6);
                         setPathState(SampleVisionAutoEnum.drivingVision2);
                     }
-                    //todo add a recovery path
                 }
                 break;
             case drivingVision2:
@@ -378,7 +376,6 @@ public class SampleVisionAuto {
                         intakeSystem.setHSlidesInches(follower.followYourHead(visionResult) - 0.6);
                         setPathState(SampleVisionAutoEnum.drivingVision2);
                     }
-                    //todo add a recovery path
                 }
                 break;
             case drivingVision3:

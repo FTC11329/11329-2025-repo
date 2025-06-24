@@ -1027,7 +1027,6 @@ public class DemoTeleop {
             telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
 
-            //TODO add more Things here
             telemetry.addLine();
         }
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {

@@ -38,7 +38,7 @@ public class BlueAutoSamples extends OpMode {
         IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Blue);
         OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Blue, true);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
 
         // Create robot context
         robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, outtakeSystem);
@@ -65,6 +65,7 @@ public class BlueAutoSamples extends OpMode {
     @Override
     public void start() {
         robot.start();
+        steps.get(currentStep).buildPaths(new Pose());
     }
 
     @Override
@@ -80,7 +81,9 @@ public class BlueAutoSamples extends OpMode {
         boolean done = step.run();
 
         if (done) {
+            Pose totalOffset = steps.get(currentStep).getOffset();
             currentStep++;
+            steps.get(currentStep).buildPaths(totalOffset);
         }
     }
 }

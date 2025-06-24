@@ -25,7 +25,7 @@ import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
-import org.firstinspires.ftc.teamcode.utility.Specimen6SuperAutoEnum;
+import org.firstinspires.ftc.teamcode.utility.autoEnums.Specimen6SuperAutoEnum;
 
 //Match 1 transfer too long, down with servo then out with intake for 3rd          miss 2
 //Match 2 Wiring                                                                   miss 4
@@ -171,7 +171,7 @@ public class SpecimenAutoSuper6Spec {
         follower.setStartingPose(startPose);
         blockVision.switchPipeline(robotSide);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
         buildPaths();
     }
 

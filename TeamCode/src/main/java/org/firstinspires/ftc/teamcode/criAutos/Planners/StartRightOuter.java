@@ -1,16 +1,17 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
-import com.acmerobotics.dashboard.config.Config;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.blueBasket;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.redBasket;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startLeftOuter;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
-public class StartLeftOuter {
-    /// NEAR RED BASKET
+public class StartRightOuter {
+    /// NEAR BLUE BASKET
     public static class ToPlaceBasket implements PathPlanner {
         /// Ends at basket place pos with outake
         //Variables
@@ -23,7 +24,6 @@ public class StartLeftOuter {
         private volatile Robot robot;
         private Pose startPose;
         private boolean preExtend;
-
         public ToPlaceBasket(Robot robot, Pose startPose, boolean preExtend) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -37,7 +37,7 @@ public class StartLeftOuter {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
+            toBasket = robot.follower.linearPathBuilder(startLeftOuter, blueBasket);
         }
 
         @Override

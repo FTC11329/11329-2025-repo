@@ -131,7 +131,7 @@ public class SpecimenAuto extends OpMode {
         intakeSystem = new IntakeSystem(hardwareMap, RobotSideEnum.Auto);
         outtakeSystem = new OuttakeSystem(hardwareMap, RobotSideEnum.Auto, true);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

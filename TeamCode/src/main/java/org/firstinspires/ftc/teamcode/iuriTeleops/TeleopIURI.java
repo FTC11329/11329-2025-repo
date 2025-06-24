@@ -167,7 +167,7 @@ public class TeleopIURI {
         intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         powerTakeOff = new PowerTakeOff(hardwareMap);
         outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSpecArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
 
     }
 
@@ -838,7 +838,6 @@ public class TeleopIURI {
             telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
 
-            //TODO add more Things here
             telemetry.addLine();
         }
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {

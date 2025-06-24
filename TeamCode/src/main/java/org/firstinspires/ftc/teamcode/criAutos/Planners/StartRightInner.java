@@ -1,16 +1,21 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.redBasket;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startLeftOuter;
+
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
-
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
-public class Example {
-    public static class NAME implements PathPlanner {
-        /// DESCRIPTION
+public class StartRightInner {
+    //todo paths
+    public static class ToPlaceBar implements PathPlanner {
+        /// Places on bar left inner with option for low or high
+        /// Ends facing left sub intake at store preset
+        /// Expects arm to start under the bar
         // Variables
+        boolean highBar;
         Pose offset;
         private Timer pathTimer;
         private int state = 0;
@@ -19,10 +24,11 @@ public class Example {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        public NAME(Robot robot, Pose startPose) {
+        public ToPlaceBar(Robot robot, Pose startPose, boolean highBar) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
+            this.highBar = highBar;
         }
         //Poses
         //todo
@@ -33,7 +39,7 @@ public class Example {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket.addReturn(offset));
+            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
         }
 
         @Override

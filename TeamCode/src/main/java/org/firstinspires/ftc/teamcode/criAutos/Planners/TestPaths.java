@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 public class TestPaths {
     public static class ToAboveRedBasket implements PathPlanner {
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -19,7 +20,6 @@ public class TestPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         //todo
@@ -27,7 +27,10 @@ public class TestPaths {
 
         //Paths
         Path toOpen;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toOpen = robot.follower.linearPathBuilder(startPose, aboveRedBasket);
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -58,10 +61,16 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToAboveBlueBasket implements PathPlanner {
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -73,14 +82,16 @@ public class TestPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         private final Pose aboveBlueBasket = new Pose(0, -96);
 
         //Paths
         Path toOpen;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toOpen = robot.follower.linearPathBuilder(startPose, aboveBlueBasket);
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -111,10 +122,16 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToBelowLeftSub implements PathPlanner {
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -126,14 +143,16 @@ public class TestPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         private final Pose belowLeftSub = new Pose(-24, 24);
 
         //Paths
         Path toOpen;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toOpen = robot.follower.linearPathBuilder(startPose, belowLeftSub);
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -164,10 +183,16 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToBelowRightSub implements PathPlanner {
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -179,14 +204,16 @@ public class TestPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         private final Pose belowRightSub = new Pose(-24, -24);
 
         //Paths
         Path toOpen;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toOpen = robot.follower.linearPathBuilder(startPose, belowRightSub);
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -217,10 +244,16 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToCenterField implements PathPlanner {
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -232,14 +265,16 @@ public class TestPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         private final Pose centerField = new Pose(0, 0);
 
         //Paths
         Path toOpen;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toOpen = robot.follower.linearPathBuilder(startPose, centerField);
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -270,12 +305,18 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
 
     public static class WaitSeconds implements PathPlanner {
         /// Waits the amount of time passed through in seconds
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -289,12 +330,14 @@ public class TestPaths {
             this.robot = robot;
             this.startPose = startPose;
             this.seconds = seconds;
-            buildPaths();
         }
         //Poses
 
         //Paths
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
         }
 
         @Override
@@ -321,6 +364,11 @@ public class TestPaths {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
         }
     }
 

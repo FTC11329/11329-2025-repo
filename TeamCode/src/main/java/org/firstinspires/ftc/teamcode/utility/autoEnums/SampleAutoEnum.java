@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utility;
+package org.firstinspires.ftc.teamcode.utility.autoEnums;
 
 public enum SampleAutoEnum {
     scorePreload, armClearing0, armClear, placePreload, dropClaw0, intakeSpike1, armClearing1, spike1Transfer, placeSample, dropClaw1,

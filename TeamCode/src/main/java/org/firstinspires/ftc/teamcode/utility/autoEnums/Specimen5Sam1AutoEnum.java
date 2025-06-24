@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.utility;
+package org.firstinspires.ftc.teamcode.utility.autoEnums;
 
 public enum Specimen5Sam1AutoEnum {
     driveGoScorePreload, placePreload,

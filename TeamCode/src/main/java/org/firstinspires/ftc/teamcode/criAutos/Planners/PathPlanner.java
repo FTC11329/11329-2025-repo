@@ -7,6 +7,13 @@ public interface PathPlanner {
     // Run the step, return true when it's done
     boolean run();
 
+    // Builds all the paths with the previous offset
+    void buildPaths(Pose offset);
+
     // Used to connect paths
     Pose getEndPose();
+
+    // Gets the offset of the previous paths plus this offset
+    Pose getOffset();
+
 }

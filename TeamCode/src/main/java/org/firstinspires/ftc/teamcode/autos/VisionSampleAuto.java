@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
-import org.firstinspires.ftc.teamcode.utility.SampleAutoEnum;
+import org.firstinspires.ftc.teamcode.utility.autoEnums.SampleAutoEnum;
 
 public class VisionSampleAuto {
     Telemetry telemetry;
@@ -114,7 +114,7 @@ public class VisionSampleAuto {
         attempt89 = new Attempt89(hardwareMap, robotSide);
         attempt89.switchPipeline(robotSide);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoSampArm);
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
 
         pathTimer = new Timer();
         opmodeTimer = new Timer();

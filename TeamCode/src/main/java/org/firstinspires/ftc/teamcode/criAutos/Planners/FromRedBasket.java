@@ -23,6 +23,7 @@ public class FromRedBasket {
         /// has the intake extended if pre extend
 
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -37,7 +38,6 @@ public class FromRedBasket {
             this.robot = robot;
             this.startPose = startPose;
             this.preExtend = preExtend;
-            buildPaths();
         }
         //Poses
         //todo:
@@ -46,7 +46,10 @@ public class FromRedBasket {
         //Paths
         private Path toSpike;
         private Path toBasket;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSpike = robot.follower.linearPathBuilder(startPose, spike1);
             toBasket = robot.follower.linearPathBuilder(spike1, redBasket);
         }
@@ -127,6 +130,11 @@ public class FromRedBasket {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
     public static class ToPickupAndPlaceSpike2 implements PathPlanner {
         /// Expects intake pre extended
@@ -135,6 +143,7 @@ public class FromRedBasket {
         /// has the intake extended if pre extend
 
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -149,7 +158,6 @@ public class FromRedBasket {
             this.robot = robot;
             this.startPose = startPose;
             this.preExtend = preExtend;
-            buildPaths();
         }
         //Poses
         //todo:
@@ -158,7 +166,10 @@ public class FromRedBasket {
         //Paths
         private Path toSpike;
         private Path toBasket;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSpike = robot.follower.linearPathBuilder(startPose, spike2);
             toBasket = robot.follower.linearPathBuilder(spike2, redBasket);
         }
@@ -239,6 +250,11 @@ public class FromRedBasket {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToPickupAndPlaceSpike3 implements PathPlanner {
@@ -248,6 +264,7 @@ public class FromRedBasket {
         /// has the intake extended if pre extend
 
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -260,7 +277,6 @@ public class FromRedBasket {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         //todo:
@@ -269,7 +285,10 @@ public class FromRedBasket {
         //Paths
         private Path toSpike;
         private Path toBasket;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSpike = robot.follower.linearPathBuilder(startPose, spike3);
             toBasket = robot.follower.linearPathBuilder(spike3, redBasket);
         }
@@ -347,6 +366,11 @@ public class FromRedBasket {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
 
@@ -357,6 +381,7 @@ public class FromRedBasket {
         /// Fine with being at store preset
         /// If we run out of time, we will go park and not continue other steps
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -368,7 +393,6 @@ public class FromRedBasket {
         public ToPickupAndPlaceSubYellow(Robot robot, Pose startPose) {
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         //todo:
@@ -378,7 +402,10 @@ public class FromRedBasket {
         //Paths
         Path toSub;
         Path toBasket;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSub = new Path(new BezierCurve(new Point(startPose), new Point(toSubControlPoint), new Point(intakeSubLeftOuter)));
             toSub.setLinearHeadingInterpolation(startPose.getHeading(), intakeSubLeftOuter.getHeading());
 
@@ -510,6 +537,11 @@ public class FromRedBasket {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
 
@@ -520,6 +552,7 @@ public class FromRedBasket {
         /// +1 color and -1 piece to human player
         /// Has an option to go left or right wall
         // Variables
+        Pose offset;
         private Timer wristTimer;
         private Timer pathTimer;
         private int state = 0;
@@ -536,7 +569,6 @@ public class FromRedBasket {
             this.robot = robot;
             this.startPose = startPose;
             this.leftWall = leftWall;
-            buildPaths();
         }
         //Poses
         //todo
@@ -553,7 +585,10 @@ public class FromRedBasket {
         //Paths
         Path toSub;
         Path toWall;
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSub = new Path(new BezierCurve(startPose, toSubControlPoint, intakeSubLeftMiddle));
             toSub.setLinearHeadingInterpolation(startPose, intakeSubLeftMiddle);
 
@@ -718,6 +753,11 @@ public class FromRedBasket {
             this.state = state;
             pathTimer.resetTimer();
         }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
     }
 
     public static class ToPickupWall implements PathPlanner {
@@ -726,6 +766,7 @@ public class FromRedBasket {
         /// -1 piece to human player
         /// Has an option to go left or right wall
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -741,16 +782,17 @@ public class FromRedBasket {
             this.robot = robot;
             this.startPose = startPose;
             this.leftWall = leftWall;
-            buildPaths();
         }
 
+        //Poses
         private Pose tartgetPose;
 
         //Paths
         PathChain toWall;
 
-        public void buildPaths() {
-            //Poses
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             if (leftWall) {
                 Pose halfWayWallPose = new Pose(redBasket.getX(), (startPose.getY() + intakeWallLeft.getY()) / 2, Math.toRadians(-90));
                 toWall = robot.follower.pathBuilder()
@@ -777,6 +819,7 @@ public class FromRedBasket {
         public Pose getEndPose() {
             return intakeSubLeftMiddle;
         }
+
 
         @Override
         public boolean run() {
@@ -825,6 +868,11 @@ public class FromRedBasket {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
         }
     }
 }

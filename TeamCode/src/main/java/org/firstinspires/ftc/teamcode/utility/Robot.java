@@ -30,6 +30,18 @@ public class Robot {
     public Timer transferTimer = new Timer();
     public boolean doTransfer = false;
 
+    public int lowBarState = -1;
+    public Timer lowBarTimer = new Timer();
+    public boolean doLowBarFromWall = false;
+
+    public int wallState = -1;
+    public Timer wallTimer = new Timer();
+    public boolean doWallFromLowBar = false;
+
+    public int wallState = -1;
+    public Timer wallTimer = new Timer();
+    public boolean doWallFromLowBar = false;
+
     public int presetState = -1;
     public Timer presetTimer = new Timer();
     public boolean doGoWallFromStore = false;
@@ -56,145 +68,9 @@ public class Robot {
     }
 
     public void loop() {
-        if (doTransfer) {
-            switch (transferState) {
-                case -1:
-                    transferTimer.resetTimer();
-                    transferState = 0;
-                    break;
-                case 0:
-                    if (transferTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000.0) {
-                        intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
-                        outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                        setTransferState(1);
-                    }
-                    break;
-                case 1:
-                    if ((intakeSystem.intakeUntil() && transferTimer.getElapsedTimeSeconds() > 0.1) || transferTimer.getElapsedTimeSeconds() > 0.5) {
-                        intakeSystem.setIntakePower(0);
-
-                        setTransferState(2);
-                    }
-                    break;
-                case 2:
-                    if (transferTimer.getElapsedTimeSeconds() > .5) {
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-
-                        setTransferState(4);
-                    }
-                    break;
-                case 4:
-                    if ((outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer()) || transferTimer.getElapsedTimeSeconds() > 0.75) {
-                        setTransferState(5);
-                    }
-                    break;
-                case 5:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.25) {
-                        intakeSystem.setIntakePower(0);
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-
-                        setTransferState(6);
-                    }
-                    break;
-                case 6:
-                    if (transferTimer.getElapsedTimeSeconds() > .3) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
-
-                        setTransferState(7);
-                    }
-                    break;
-                case 7:
-                    if (outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar) {
-                        atStorePreset = false;
-                        outtakeSystem.setArmPos(Constants.Outtake.upArm);
-
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
-                        setTransferState(8);
-                    }
-                    break;
-                case 8:
-                    if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 200) {
-                        outtakeSystem.setArmPos(Constants.Outtake.basketArm);
-
-                        doTransfer = false;
-                        setTransferState(-1);
-                    }
-                    break;
-            }
-        }
-
-        if (doGoWallFromStore) {
-            switch (presetState) {
-                case -1:
-                    outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                    outtakeSystem.setArmPos(Constants.Outtake.downArm);
-                    setPresetState(0);
-                    break;
-                case 0:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 100) {
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
-                        intakeSystem.setHSlidePos(0);
-                        setPresetState(1);
-                    }
-                    break;
-                case 1:
-                    if (presetTimer.getElapsedTimeSeconds() > 0.1) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallAutoSlides);
-                        setPresetState(2);
-                    }
-                    break;
-                case 2:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.intakeWallAutoSlides) < 30) {
-                        atStorePreset = false;
-                        setPresetState(-1);
-                    }
-                    break;
-            }
-        }
-
-        if (doIntakeWhilePark) {
-            switch (parkState) {
-                case 0:
-                    if (intakeSystem.intakeUntil()) {
-                        intakeSystem.storePos();
-                        intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        doDriveShake = false;
-                        parkState = 1;
-                        parkTimer.resetTimer();
-                    }
-                    break;
-                case 1:
-                    if (parkTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000.0) {
-                        intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
-                        parkState = 2;
-                        parkTimer.resetTimer();
-                    }
-                    break;
-                case 2:
-                    if (intakeSystem.intakeUntil()) {
-                        intakeSystem.setIntakePower(0);
-                        doDriveShake = false;
-                        parkState = 3;
-                        parkTimer.resetTimer();
-                    }
-                    break;
-            }
-        }
 
 
-        if (doDriveShake) {
-            if (shakeTimer.getElapsedTimeSeconds() > 1.1) {
-                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 1.1) * 2.3) % 2 == 0 ){
-                    follower.setTeleOpMovementVectors(0,0, 1);
-                } else {
-                    follower.setTeleOpMovementVectors(0,0, -1);
-                }
-            }
-        } else {
-            shakeTimer.resetTimer();
-        }
+        //Only for 
     }
 
     private void setTransferState(int set) {

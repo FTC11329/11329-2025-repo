@@ -14,6 +14,7 @@ public class ParkPaths {
 
         /// Goes to park without intaking
         // Variables
+        Pose offset;
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -26,7 +27,6 @@ public class ParkPaths {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
-            buildPaths();
         }
         //Poses
         //todo
@@ -35,7 +35,10 @@ public class ParkPaths {
         //Paths
         Path toSub;
 
-        public void buildPaths() {
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
             toSub = new Path(new BezierCurve(new Point(startPose), new Point(toSubControlPoint), new Point(intakeSubLeftOuter)));
             toSub.setLinearHeadingInterpolation(startPose.getHeading(), intakeSubLeftOuter.getHeading());
         }
@@ -58,6 +61,11 @@ public class ParkPaths {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
         }
     }
 }
