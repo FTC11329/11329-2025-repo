@@ -41,7 +41,7 @@ public class StartLeftOuter {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return new Pose();
         }
 
@@ -129,7 +129,7 @@ public class StartLeftOuter {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             //todo
             return new Pose();
         }

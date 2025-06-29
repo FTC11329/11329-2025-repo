@@ -55,7 +55,7 @@ public class FromRedBasket {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return redBasket;
         }
 
@@ -89,10 +89,10 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.stateMachine.goHighBasket(true, false, false);
+                        robot.stateMachine.goHighBasket(true, false, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
-                        robot.atStorePreset = true;
+                        robot.robotState.atStorePos = true;
                         robot.doDriveShake = false;
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
@@ -102,7 +102,7 @@ public class FromRedBasket {
                     break;
                 case 3:
                     if (!robot.stateMachine.goingHighBasket()) {
-                        robot.atStorePreset = false;
+                        robot.robotState.atStorePos = false;
                         if (preExtend) {
                             robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
                         }
@@ -175,7 +175,7 @@ public class FromRedBasket {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return redBasket;
         }
 
@@ -209,10 +209,10 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.stateMachine.goHighBasket(true, false, false);
+                        robot.stateMachine.goHighBasket(true, false, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
-                        robot.atStorePreset = true;
+                        robot.robotState.atStorePos = true;
                         robot.doDriveShake = false;
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
@@ -222,7 +222,7 @@ public class FromRedBasket {
                     break;
                 case 3:
                     if (!robot.stateMachine.goingHighBasket()) {
-                        robot.atStorePreset = false;
+                        robot.robotState.atStorePos = false;
                         if (preExtend) {
                             robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
                         }
@@ -294,7 +294,7 @@ public class FromRedBasket {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return redBasket;
         }
 
@@ -328,10 +328,10 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.stateMachine.goHighBasket(true, false, false);
+                        robot.stateMachine.goHighBasket(true, false, false, false);
                         setPathState(3);
                     } else if (pathTimer.getElapsedTimeSeconds() > 2) {
-                        robot.atStorePreset = true;
+                        robot.robotState.atStorePos = true;
                         robot.doDriveShake = false;
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
@@ -341,7 +341,7 @@ public class FromRedBasket {
                     break;
                 case 3:
                     if (!robot.stateMachine.goingHighBasket()) {
-                        robot.atStorePreset = false;
+                        robot.robotState.atStorePos = false;
                         setPathState(4);
                     }
                     break;
@@ -414,7 +414,7 @@ public class FromRedBasket {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return redBasket;
         }
 
@@ -471,7 +471,7 @@ public class FromRedBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.stateMachine.goHighBasket(true, false, false);
+                        robot.stateMachine.goHighBasket(true, false, false, false);
                         setPathState(6);
                     }
                     break;
@@ -593,18 +593,18 @@ public class FromRedBasket {
             toSub.setLinearHeadingInterpolation(startPose, intakeSubLeftMiddle);
 
             if (leftWall) {
-                toWall = new Path(new BezierCurve(startPose, toLeftWallControlPoint1, toLeftWallControlPoint2, intakeWallLeft));
-                toWall.setLinearHeadingInterpolation(startPose.getHeading() + Math.toRadians(45), intakeWallLeft.getHeading(), 0.75);
-                tartgetPose = intakeWallLeft;
+                toWall = new Path(new BezierCurve(startPose, toLeftWallControlPoint1, toLeftWallControlPoint2, pickupWallLeft));
+                toWall.setLinearHeadingInterpolation(startPose.getHeading() + Math.toRadians(45), pickupWallLeft.getHeading(), 0.75);
+                tartgetPose = pickupWallLeft;
             } else {
-                toWall = new Path(new BezierCurve(startPose, toRightWallControlPoint1, toRightWallControlPoint2, intakeWallRight));
-                toWall.setLinearHeadingInterpolation(startPose.getHeading() + Math.toRadians(45), intakeWallRight.getHeading(), 0.68);
-                tartgetPose = intakeWallRight;
+                toWall = new Path(new BezierCurve(startPose, toRightWallControlPoint1, toRightWallControlPoint2, pickupWallRight));
+                toWall.setLinearHeadingInterpolation(startPose.getHeading() + Math.toRadians(45), pickupWallRight.getHeading(), 0.68);
+                tartgetPose = pickupWallRight;
             }
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return intakeSubLeftMiddle;
         }
 
@@ -617,7 +617,7 @@ public class FromRedBasket {
                     break;
                 case 1:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        if (robot.atStorePreset) {
+                        if (robot.robotState.atStorePos) {
                             robot.stateMachine.goWall(false, false, true);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.wallAuto);
@@ -794,29 +794,29 @@ public class FromRedBasket {
         public void buildPaths(Pose offset) {
             this.offset = offset;
             if (leftWall) {
-                Pose halfWayWallPose = new Pose(redBasket.getX(), (startPose.getY() + intakeWallLeft.getY()) / 2, Math.toRadians(-90));
+                Pose halfWayWallPose = new Pose(redBasket.getX(), (startPose.getY() + pickupWallLeft.getY()) / 2, Math.toRadians(-90));
                 toWall = robot.follower.pathBuilder()
                         .addPath(new BezierCurve(startPose, halfWayWallPose))
                         .setLinearHeadingInterpolation(startPose.getHeading(), halfWayWallPose.getHeading(), 0.175)
-                        .addPath(new BezierCurve(halfWayWallPose, intakeWallLeft))
-                        .setLinearHeadingInterpolation(halfWayWallPose.getHeading(), intakeWallLeft.getHeading(), 0.5)
+                        .addPath(new BezierCurve(halfWayWallPose, pickupWallLeft))
+                        .setLinearHeadingInterpolation(halfWayWallPose.getHeading(), pickupWallLeft.getHeading(), 0.5)
                         .build();
 
-                tartgetPose = intakeWallLeft;
+                tartgetPose = pickupWallLeft;
             } else {
-                Pose halfWayWallPose = new Pose(redBasket.getX(), (startPose.getY() + intakeWallRight.getY()) / 2, Math.toRadians(-90));
+                Pose halfWayWallPose = new Pose(redBasket.getX(), (startPose.getY() + pickupWallRight.getY()) / 2, Math.toRadians(-90));
                 toWall = robot.follower.pathBuilder()
                         .addPath(new BezierCurve(startPose, halfWayWallPose))
                         .setLinearHeadingInterpolation(startPose.getHeading(), halfWayWallPose.getHeading(), 0.175)
-                        .addPath(new BezierCurve(halfWayWallPose, intakeWallRight))
-                        .setLinearHeadingInterpolation(halfWayWallPose.getHeading(), intakeWallRight.getHeading(), 0.5)
+                        .addPath(new BezierCurve(halfWayWallPose, pickupWallRight))
+                        .setLinearHeadingInterpolation(halfWayWallPose.getHeading(), pickupWallRight.getHeading(), 0.5)
                         .build();
-                tartgetPose = intakeWallRight;
+                tartgetPose = pickupWallRight;
             }
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return intakeSubLeftMiddle;
         }
 
@@ -830,7 +830,7 @@ public class FromRedBasket {
                     break;
                 case 1:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        if (robot.atStorePreset) {
+                        if (robot.robotState.atStorePos) {
                             robot.stateMachine.goWall(false, false, true);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.wallAuto);

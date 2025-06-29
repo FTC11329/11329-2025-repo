@@ -1,11 +1,72 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
+
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class TestPaths {
+    public static class ToStartRightOuter implements PathPlanner {
+        // Variables
+        Pose offset;
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        public ToStartRightOuter(Robot robot, Pose startPose) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
+        //Poses
+
+        //Paths
+        Path toOpen;
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
+            toOpen = robot.follower.linearPathBuilder(startPose, startRightOuter);
+            toOpen.setConstantHeadingInterpolation(startPose.getHeading());
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return startRightOuter;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(toOpen);
+                    setState(1);
+                    break;
+                case 1:
+                    if (robot.follower.getErrorDistance(startRightOuter) < 0.75) {
+                        isFinished = true;
+                    }
+                    break;
+            }
+
+            return isFinished;
+        }
+
+        public void setState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
+    }
     public static class ToAboveRedBasket implements PathPlanner {
         // Variables
         Pose offset;
@@ -36,7 +97,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return aboveRedBasket;
         }
 
@@ -97,7 +158,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return aboveBlueBasket;
         }
 
@@ -158,7 +219,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return belowLeftSub;
         }
 
@@ -219,7 +280,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return belowRightSub;
         }
 
@@ -280,7 +341,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return centerField;
         }
 
@@ -341,7 +402,7 @@ public class TestPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return startPose;
         }
 

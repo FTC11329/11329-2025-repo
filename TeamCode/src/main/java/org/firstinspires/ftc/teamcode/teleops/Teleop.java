@@ -460,7 +460,7 @@ public class Teleop {
                 onceTime = true;
             }
             intakeSystem.storePos();
-            stateMachine.goHighSpecimen(robotState.atStorePos);
+            stateMachine.goHighSpecimen(robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (lowBasket) {
             if (!stateMachine.doTransfer()) {
@@ -468,7 +468,7 @@ public class Teleop {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goLowBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.atStorePos);
+            stateMachine.goLowBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (highBasket) {
             if (!stateMachine.doTransfer()) {
@@ -476,7 +476,7 @@ public class Teleop {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goHighBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.atStorePos);
+            stateMachine.goHighBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (frontBasket) {
             if (!stateMachine.doTransfer()) {
@@ -484,15 +484,15 @@ public class Teleop {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.atStorePos);
+            stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (wallPreset) {
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
             intakeingColor = false;
-            intakeing = false;
-            stateMachine.goWall(robotState.hasInIntake, robotState.hasInOutake, robotState.atStorePos);
+            intakeing = false;  //Todo change v if you want to transfer
+            stateMachine.goWall(robotState.hasInIntake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (storePos) {
             onceTime = true;
@@ -504,7 +504,7 @@ public class Teleop {
             extendHSlide = Constants.Intake.intakeSlidePos;
         }
         if (transfer) {
-            if (!stateMachine.doTransfer() && !stateMachine.doUnStore()) {
+            if (!stateMachine.doTransfer() && !stateMachine.doUnStoreFromIntake()) {
                 onceTime = true;
             }
             intakeSystem.storeOutPos();
@@ -817,7 +817,7 @@ public class Teleop {
             telemetry.addLine("STATE MACHINE");
             telemetry.addData("doGoToStore", stateMachine.doGoToStore());
             telemetry.addData("doTransfer", stateMachine.doTransfer());
-            telemetry.addData("doUnStore", stateMachine.doUnStore());
+            telemetry.addData("doUnStoreFromIntake", stateMachine.doUnStoreFromIntake());
             telemetry.addData("doHighBasket", stateMachine.doHighBasket());
             telemetry.addData("doLowBasket", stateMachine.doLowBasket());
             telemetry.addData("doHighSpecimen", stateMachine.doHighSpecimen());

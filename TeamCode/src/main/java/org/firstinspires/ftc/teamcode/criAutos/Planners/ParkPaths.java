@@ -44,7 +44,7 @@ public class ParkPaths {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             //todo
             return new Pose();
         }

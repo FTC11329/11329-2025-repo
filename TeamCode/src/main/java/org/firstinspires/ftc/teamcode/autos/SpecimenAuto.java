@@ -236,7 +236,7 @@ public class SpecimenAuto extends OpMode {
                 follower.setMaxPower(1);
                 follower.followPath(scorePreload);
                 outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
-                outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
+                outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm);
                 setPathState(1);
                 break;
             //go to pickup spike1

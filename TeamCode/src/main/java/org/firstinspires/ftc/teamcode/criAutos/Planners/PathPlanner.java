@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
-import org.firstinspires.ftc.teamcode.utility.Robot;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 
 public interface PathPlanner {
@@ -11,7 +10,7 @@ public interface PathPlanner {
     void buildPaths(Pose offset);
 
     // Used to connect paths
-    Pose getEndPose();
+    Pose getEndPoseEst();
 
     // Gets the offset of the previous paths plus this offset
     Pose getOffset();

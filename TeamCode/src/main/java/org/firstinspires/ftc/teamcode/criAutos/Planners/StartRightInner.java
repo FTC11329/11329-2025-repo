@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.redBasket;
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startLeftOuter;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
@@ -43,7 +42,7 @@ public class StartRightInner {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             //todo
             return new Pose();
         }

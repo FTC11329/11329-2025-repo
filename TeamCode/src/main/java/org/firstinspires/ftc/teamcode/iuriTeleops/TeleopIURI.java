@@ -251,7 +251,7 @@ public class TeleopIURI {
                 onceTime = true;
             }
             intakeSystem.storePos();
-            stateMachine.goHighSpecimen(atStorePos);
+            stateMachine.goHighSpecimen(whereAmI == PlacePosEnum.lowSpecimen, atStorePos);
         }
         if (lowBasket) {
             if (!stateMachine.doTransfer()) {
@@ -259,7 +259,7 @@ public class TeleopIURI {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goLowBasket(hasInIntake || hasInTray, hasInOuttake, atStorePos);
+            stateMachine.goLowBasket(hasInIntake || hasInTray, hasInOuttake, whereAmI == PlacePosEnum.lowSpecimen, atStorePos);
         }
         if (highBasket) {
             if (!stateMachine.doTransfer()) {
@@ -267,7 +267,7 @@ public class TeleopIURI {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goHighBasket(hasInIntake || hasInTray, hasInOuttake, atStorePos);
+            stateMachine.goHighBasket(hasInIntake || hasInTray, hasInOuttake, whereAmI == PlacePosEnum.lowSpecimen, atStorePos);
         }
         if (frontBasket) {
             if (!stateMachine.doTransfer()) {
@@ -275,7 +275,7 @@ public class TeleopIURI {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goFrontBasket(hasInIntake || hasInTray, hasInOuttake, atStorePos);
+            stateMachine.goFrontBasket(hasInIntake || hasInTray, hasInOuttake, whereAmI == PlacePosEnum.lowSpecimen, atStorePos);
         }
         if (wallPreset) {
             if (!stateMachine.doTransfer()) {
@@ -283,7 +283,7 @@ public class TeleopIURI {
             }
             intakeingColor = false;
             intakeing = false;
-            stateMachine.goWall(hasInIntake || hasInTray, hasInOuttake, atStorePos);
+            stateMachine.goWall(hasInIntake || hasInTray, whereAmI == PlacePosEnum.lowSpecimen, atStorePos);
         }
         if (storePos) {
             onceTime = true;
@@ -295,7 +295,7 @@ public class TeleopIURI {
             extendHSlide = Constants.Intake.intakeSlidePos;
         }
         if (transfer) {
-            if (!stateMachine.doTransfer() && !stateMachine.doUnStore()) {
+            if (!stateMachine.doTransfer() && !stateMachine.doUnStoreFromIntake()) {
                 onceTime = true;
             }
             intakeSystem.storeOutPos();
@@ -384,7 +384,7 @@ public class TeleopIURI {
             }
         }
 
-        if (stateMachine.doUnStore()) {
+        if (stateMachine.doUnStoreFromIntake()) {
             if (onceTime) {
                 if (stateMachine.goingHighBasket()) {
                     outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
@@ -410,7 +410,7 @@ public class TeleopIURI {
                 atStorePos = false;
                 onceState = true;
                 onceTime = true;
-                stateMachine.finishUnStore();
+                stateMachine.finishUnStoreFromIntake();
             }
         }
 
@@ -778,7 +778,7 @@ public class TeleopIURI {
             telemetry.addLine("STATE MACHINE");
             telemetry.addData("doGoToStore", stateMachine.doGoToStore());
             telemetry.addData("doTransfer", stateMachine.doTransfer());
-            telemetry.addData("doUnStore", stateMachine.doUnStore());
+            telemetry.addData("doUnStoreFromIntake", stateMachine.doUnStoreFromIntake());
             telemetry.addData("doHighBasket", stateMachine.doHighBasket());
             telemetry.addData("doLowBasket", stateMachine.doLowBasket());
             telemetry.addData("doHighSpecimen", stateMachine.doHighSpecimen());

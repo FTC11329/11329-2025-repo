@@ -1,14 +1,18 @@
 package org.firstinspires.ftc.teamcode.criAutos;
 
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightOuter;
-
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromRedBasket;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftOuter;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
+
+import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.TestPaths;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
@@ -27,10 +31,10 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Blue Samples", group = "Comp", preselectTeleOp = "New Tele-op Blue")
-public class BlueAutoSamples extends OpMode {
+@Autonomous(name = "CRI Red Auto Specimens Outer", group = " Comp", preselectTeleOp = "New Tele-op Blue")
+public class RedAutoSpecimensOuter extends OpMode {
     // todo How the robot is setup
-    RobotSideEnum robotSide = RobotSideEnum.Blue;
+    RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
     Pose startPose = startRightOuter;
 
@@ -58,19 +62,12 @@ public class BlueAutoSamples extends OpMode {
         // Create robot context
         robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, true);
 
-        // Set start pose
-        Pose startPose = new Pose();
-
-        // Build step list
+        // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartLeftOuter.ToPlaceBasket(robot, startPose, true));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSpike1(robot, lastPose(), true));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSpike2(robot, lastPose(), true));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSpike3(robot, lastPose()));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-        steps.add(new FromRedBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+        steps.add(new StartRightOuter.ToPlaceBar(robot, startPose, true));
+        steps.add(new FromBarRightOuter.ToWallSuper(robot, startPose, true));
+        steps.add(new FromWallRight.ToRightOuterBar(robot, startPose, true));
+        steps.add(new TestPaths.ToStartRightOuter(robot, startPose));
     }
 
     private Pose lastPose() {
@@ -87,11 +84,16 @@ public class BlueAutoSamples extends OpMode {
     public void loop() {
         robot.follower.update();
         Drawing.drawDebug(robot.follower);
+
+        telemetry.addData("where     ", robot.robotState.whereAmI);
+        telemetry.addData(" at store ", robot.robotState.atStorePos);
+        telemetry.addData("has intake", robot.robotState.hasInIntake);
+        telemetry.addData("has outake", robot.robotState.hasInOutake);
+
         robot.loop();
-        if (currentStep >= steps.size()) {
+        if (currentStep >= steps.size() - 1) {
             telemetry.addData("Done", true);
             telemetry.update();
-            return;
         }
 
         PathPlanner step = steps.get(currentStep);

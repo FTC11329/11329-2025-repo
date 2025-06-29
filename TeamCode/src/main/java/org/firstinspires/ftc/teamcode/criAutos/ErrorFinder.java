@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.criAutos;
 
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightOuter;
+
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
@@ -26,6 +28,8 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 public class ErrorFinder extends OpMode {
     private Robot robot;
     private PathPlanner step;
+    Pose startPose = startRightOuter;
+
 
     Timer timer = new Timer();
     private int state = 0;
@@ -45,12 +49,10 @@ public class ErrorFinder extends OpMode {
         RobotStateVariables robotState = new RobotStateVariables(PlacePosEnum.lowSpecimen);
 
         outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
+        follower.setStartingPose(startPose);
 
         // Create robot context
         robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, true);
-
-        // Set start pose
-        Pose startPose = CommonPoses.startLeftOuter;
 
         // step to test
         step = new StartLeftOuter.ToPlaceBasket(robot, startPose, true);
@@ -85,7 +87,7 @@ public class ErrorFinder extends OpMode {
                 telemetry.addData("Y", actPose.getY());
                 telemetry.addData("Heading", actPose.getHeading());
                 telemetry.addLine("Target Pose");
-                Pose tarPose = step.getEndPose();
+                Pose tarPose = step.getEndPoseEst();
                 telemetry.addData("X", tarPose.getX());
                 telemetry.addData("Y", tarPose.getY());
                 telemetry.addData("Heading", tarPose.getHeading());

@@ -303,7 +303,7 @@ public class SpecimenAutoSuper6Spec {
 
                 outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
+                outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm);
                 intakeSystem.setHSlidePos(75);
 
                 setPathState(Specimen6SuperAutoEnum.placePreload);

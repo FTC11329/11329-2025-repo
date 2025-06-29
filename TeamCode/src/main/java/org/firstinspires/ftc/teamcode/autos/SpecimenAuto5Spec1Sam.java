@@ -266,7 +266,7 @@ public class SpecimenAuto5Spec1Sam {
 
                 outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
+                outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm);
 
                 setPathState(Specimen5Sam1AutoEnum.placePreload);
                 break;

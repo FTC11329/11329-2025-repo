@@ -260,7 +260,7 @@ public class SpecimenAuto6SpecIntake {
 
                 outtakeSystem.setVSlidePos(Constants.Outtake.highSpecimenSlides - 50);
                 outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                outtakeSystem.setArmPos(Constants.Outtake.specimenArm);
+                outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm);
                 intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides);
 
                 setPathState(Specimen6AutoIntakeEnum.placePreload);

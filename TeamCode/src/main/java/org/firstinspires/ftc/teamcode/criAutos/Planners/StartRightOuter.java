@@ -1,13 +1,15 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.blueBasket;
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.redBasket;
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startLeftOuter;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
+import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class StartRightOuter {
@@ -41,7 +43,7 @@ public class StartRightOuter {
         }
 
         @Override
-        public Pose getEndPose() {
+        public Pose getEndPoseEst() {
             return new Pose();
         }
 
@@ -95,11 +97,10 @@ public class StartRightOuter {
         }
     }
 
-    //todo paths
     public static class ToPlaceBar implements PathPlanner {
         /// Places on bar left inner with option for low or high
         /// Ends facing left sub intake at store preset
-        /// Expects arm to start under the bar
+        /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
         Pose offset;
@@ -117,27 +118,55 @@ public class StartRightOuter {
             this.highBar = highBar;
         }
         //Poses
-        //todo
+        Pose controlPoint = new Pose(0, -96);
 
         //Paths
-        Path toBasket;
+        PathChain toBar;
 
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
+            toBar = robot.follower.pathBuilder()
+                    .addPath(new Path(new BezierCurve(new Point(startPose), new Point(controlPoint), new Point(barRightOuterBot))))
+                    .setLinearHeadingInterpolation(0, barRightOuterBot.getHeading(), 0.7)
+                    .addPath(robot.follower.linearPathBuilder(barRightOuterBot, barRightOuterTop))
+                    .setConstantHeadingInterpolation(barRightOuterBot.getHeading())
+                    .build();
         }
 
         @Override
-        public Pose getEndPose() {
-            //todo
-            return new Pose();
+        public Pose getEndPoseEst() {
+            return barRightOuterTop;
         }
 
         @Override
         public boolean run() {
             switch (state) {
                 case 0:
+                    robot.follower.followPath(toBar);
+                    if (highBar) {
+                        robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                        robot.robotState.whereAmI = PlacePosEnum.highSpecimen;
+                    } else {
+                        robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                        robot.robotState.whereAmI = PlacePosEnum.lowSpecimen;
+                    }
+                    setPathState(1);
+                    break;
+                case 1:
+                    if (robot.follower.getError(barRightOuterMid).getX() < 3) {
+                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (robot.follower.getErrorDistance(barRightOuterTop) < 1.5) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        setPathState(3);
+                        isFinished = true;
+                    }
+                    break;
+
             }
 
             return isFinished;

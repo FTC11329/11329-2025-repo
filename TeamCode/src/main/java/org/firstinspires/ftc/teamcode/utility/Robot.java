@@ -29,22 +29,19 @@ public class Robot {
     public Timer opmodeTimer;
 
 
-    public Timer storeTimer;
+    public Timer storeTimer = new Timer();
     public int storeState = -1;
 
-    private Timer lowBarTimer;
     private int lowBarState = -1;
 
-    private Timer lowBasketTimer;
     private int lowBasketState = -1;
 
-    private Timer highBasketTimer;
     private int highBasketState = -1;
 
     private Timer transferTimer = new Timer();
     private int transferState = -1;
 
-    private Timer unStoringTimer;
+    private Timer unStoringTimer = new Timer();
     private int unStoringState = -1;
 
     private int parkState = 0;
@@ -53,7 +50,6 @@ public class Robot {
 
     private Timer shakeTimer = new Timer();
     public boolean doDriveShake = false;
-    public boolean atStorePreset = false;
 
     public boolean inAuto = false;
 
@@ -89,7 +85,9 @@ public class Robot {
                     } else {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
-                    intakeSystem.setHSlidePos(Constants.Intake.transferSlides);
+                    if (intakeSystem.getHSlidePos() < Constants.Intake.transferSlides) {
+                        intakeSystem.setHSlidePos(Constants.Intake.transferSlides);
+                    }
                     storeState = 0;
                     break;
                 case 0:
@@ -175,7 +173,7 @@ public class Robot {
             }
         }
 
-        if (stateMachine.doUnStore()) {
+        if (stateMachine.doUnStoreFromIntake()) {
             switch (unStoringState) {
                 case -1:
                     if (stateMachine.goingHighBasket()) {
@@ -201,7 +199,8 @@ public class Robot {
                 case 1:
                     if (unStoringTimer.getElapsedTimeSeconds() > 0.2 && unStoringTimer.getElapsedTimeSeconds() < 0.4) {
                         robotState.atStorePos = false;
-                        stateMachine.finishUnStore();
+                        robotState.whereAmI = PlacePosEnum.highSpecimen;
+                        stateMachine.finishUnStoreFromIntake();
                         unStoringState = -1;
                     }
                     break;
@@ -312,11 +311,11 @@ public class Robot {
 
 
         if (doDriveShake) {
-            if (shakeTimer.getElapsedTimeSeconds() > 1.1) {
-                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 1.1) * 2.3) % 2 == 0 ){
-                    follower.setTeleOpMovementVectors(0,0, 1);
+            if (shakeTimer.getElapsedTimeSeconds() > 0.5) {
+                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 0.5) * 3) % 2 == 0 ){
+                    follower.setTeleOpMovementVectors(0,0, -0.3);
                 } else {
-                    follower.setTeleOpMovementVectors(0,0, -1);
+                    follower.setTeleOpMovementVectors(0,0, 0.3);
                 }
             }
         } else {

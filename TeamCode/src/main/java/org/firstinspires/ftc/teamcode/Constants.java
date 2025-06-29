@@ -63,7 +63,7 @@ public class Constants {
         public static int unjamTicksShort = -150;
         public static int unjamTicksLong = -150;
         public static double unjamTimeMillisTeleop = 110;
-        public static double unjamTimeMillisAuto = 105;
+        public static double unjamTimeMillisAuto = 130;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
     }
@@ -101,7 +101,8 @@ public class Constants {
         public static double manualArmSpeed = 0.01;
 
         public static double downArm = 1;
-        public static double specimenArm = 0.76;
+        public static double lowSpecimenArm = 0.76;
+        public static double highSpecimenArm = 0.76;
         public static double basketArm = 0.295;
         public static double basketArmHigh = 0.288;
         public static double frontBasketArm = 0.6585; // needs updated
@@ -117,6 +118,7 @@ public class Constants {
         public static int safeFromClimberBar = 1300;
         public static int safeFromSpecBar = 1600;
 
+        public static int lowSpecimenSlides = 1010;
         public static int highSpecimenSlides = 1010;
         public static int lowBasketSlides = 625;
         public static int highBasketSlides = 1975;
