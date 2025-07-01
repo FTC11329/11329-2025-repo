@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -12,6 +11,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
@@ -55,8 +55,6 @@ public class NewTeleopBlueSecret {
 
     StateMachine stateMachine;
     ElapsedTime elapsedTime = new ElapsedTime();
-
-    FtcDashboard dashboard;
 
     //Debug Variables
     boolean debugAll = false;
@@ -177,6 +175,7 @@ public class NewTeleopBlueSecret {
     double deltaError = 0.4;
     int replayIndex = 0;
     List<PoseEntry> currentReplayPath;
+    Path replayPath;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -208,6 +207,7 @@ public class NewTeleopBlueSecret {
 //        dashboard = FtcDashboard.getInstance();
 //        telemetry = dashboard.getTelemetry();
 
+
         climber = new Climber(hardwareMap);
         follower = new Follower(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
@@ -225,7 +225,6 @@ public class NewTeleopBlueSecret {
 
         placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
-
     }
 
     public void start() {
@@ -308,7 +307,7 @@ public class NewTeleopBlueSecret {
                 double heading = posJson.getDouble("heading");
 
                 Pose pos = new Pose(x, y, heading);
-                PoseEntry poseEntry = new PoseEntry(t, pos);
+                PoseEntry poseEntry = new PoseEntry(t, pos, gamepad1, gamepad2);
 
                 currentReplayPath.add(poseEntry);
             }
@@ -316,7 +315,6 @@ public class NewTeleopBlueSecret {
             telemetry.addData("Failed to Load", true);
         }
     }
-
 
     public void loop() {
         // Inputs
@@ -340,35 +338,45 @@ public class NewTeleopBlueSecret {
             telemetry.addData("Hello World", 1);
             if (recording.time.seconds() - lastTimer > deltaTime) {
                 currentReplayPath.add(
-                        new PoseEntry(recording.time.seconds(), follower.getPose()));
-                recordPositions();
+                        new PoseEntry(recording.time.seconds(), follower.getPose(), gamepad1, gamepad2));
+                //recordPositions();
                 telemetry.addData("Hello World", 2);
-                telemetry.update();
                 lastTimer = recording.time.seconds();
             }
         }
         else if (replay.startPress){
-            loadPoses();
+            //loadPoses();
             if (!currentReplayPath.isEmpty()){
-                Path next = follower.linearPathBuilder(follower.getPose(), currentReplayPath.get(0).pose);
-                follower.followPath(next);
-                replayIndex = 1;
+                ArrayList<Point> path = new ArrayList<>();
+                for (int i = 0; i < currentReplayPath.size(); i++){
+                    path.add(new Point(currentReplayPath.get(i).pose));
+                }
+                replayPath = new Path(new BezierCurve(path));//(follower.getPose(), currentReplayPath.get(0).pose);
+                follower.followPath(replayPath);
             }
         }
-        else if (replay.isOn){
-            Pose target = currentReplayPath.get(replayIndex - 1).pose;
-            double dst = Math.hypot(follower.getPose().getX() - target.getX(), follower.getPose().getY() - target.getY());
-            if (dst < deltaError) {
-                if (replayIndex < currentReplayPath.size()) {
-                    Path next = follower.linearPathBuilder(follower.getPose(), currentReplayPath.get(replayIndex).pose);
-                    follower.followPath(next);
+        if (replay.isOn && follower.isBusy()){
+            follower.update();
+
+            double t = follower.getCurrentTValue();
+            replayPath.getClosestPoint(currentReplayPath.get(replayIndex + 1).pose, FollowerConstants.BEZIER_CURVE_SEARCH_LIMIT);
+            double targetT = replayPath.getClosestPointTValue();
+            if (t >= targetT) {
+                if (replayIndex < currentReplayPath.size() - 1) {
                     replayIndex += 1;
                 }
             }
-            follower.update();
+            gamepad1 = currentReplayPath.get(replayIndex).gamepad1State;
+            gamepad2 = currentReplayPath.get(replayIndex).gamepad2State;
+            follower.telemetryDebug(telemetry);
         }
         telemetry.addData("Hello World", true);
-
+        for (int i = 0; i < currentReplayPath.size(); i++){
+            telemetry.addData("X-coords", (new Point(currentReplayPath.get(i).pose).getX()));
+        }
+        //telemetry.addData("path: ", currentReplayPath);
+        telemetry.addData("Replay index", replay);
+        telemetry.update();
         if (gamepad1.right_bumper) {
             driveSpeed = DriveSpeedEnum.Fast;
         } else {
@@ -408,7 +416,7 @@ public class NewTeleopBlueSecret {
         unJam = gamepad2.circle;//b
 
         //Drivetrain ******************************************************************************~
-        if (!climberActive && !autoMovement && !climbPause) {
+        if (!climberActive && !autoMovement && !climbPause && !replay.isOn) {
             if (climbToggButton) {
                 climberActive = true;
                 climbDebounce = true;
@@ -436,13 +444,8 @@ public class NewTeleopBlueSecret {
                 autoToWall = true;
             }
         }
-        if (gamepad1.b) {
-            autoMovement = false;
-            autoMovementOnce = true;
-            follower.breakFollowing();
-        }
         //Auto drive ******************************************************************************~
-        if (autoMovement) {
+        /*if (autoMovement) {
             if (autoMovementOnce) {
                 if (autoToSub) {
                     follower.setPose(new Pose(pickupWall.getY() + 1.5, pickupWall.getX(), pickupWall.getHeading()));
@@ -456,7 +459,7 @@ public class NewTeleopBlueSecret {
             //back to front wall
             switch (autoState) {
                 case 0:
-                    follower.followPath(toFrontWall);
+                    //follower.followPath(toFrontWall);
 
                     pathTimer.resetTimer();
                     autoState = 1;
@@ -473,7 +476,7 @@ public class NewTeleopBlueSecret {
                 //front Wall To Wall
                 case 2:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        follower.followPath(frontWallToWall);
+                        //follower.followPath(frontWallToWall);
 
                         pathTimer.resetTimer();
                         autoState = 3;
@@ -493,7 +496,7 @@ public class NewTeleopBlueSecret {
                 //outtake to specimen place pos
                 case 4:
                     if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        follower.followPath(placeSubPath);
+                        //follower.followPath(placeSubPath);
                         outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         whereAmI = PlacePosEnum.highSpecimen;
 
@@ -513,10 +516,10 @@ public class NewTeleopBlueSecret {
                     }
                     break;
             }
-            follower.update();
-        }
+            //follower.update();
+        }*/
         //Auto Climb ******************************************************************************~
-        if (climberActive && !climbPause) {
+        /*if (climberActive && !climbPause) {
             if (climbToggButton && !climbDebounce) {
                 climbPause = true;
                 climber.setPos(climber.getPos());
@@ -645,7 +648,7 @@ public class NewTeleopBlueSecret {
         if (gamepad1.dpad_up || gamepad2.back) {
             climberPos = Constants.Climber.outPos;
             climber.setPos(climberPos);
-        }
+        }*/
 
         //Manual Movements ************************************************************************~
         intakeSystem.manualHSlide(manualHSlide);
@@ -1214,10 +1217,14 @@ public class NewTeleopBlueSecret {
     {
         double time;
         Pose pose;
+        Gamepad gamepad1State;
+        Gamepad gamepad2State;
 
-        public PoseEntry(double time, Pose pose){
+        public PoseEntry(double time, Pose pose, Gamepad gamepad1State, Gamepad gamepad2State){
             this.time = time;
             this.pose = pose;
+            this.gamepad1State = gamepad1State;
+            this.gamepad2State = gamepad2State;
         }
     }
 }
