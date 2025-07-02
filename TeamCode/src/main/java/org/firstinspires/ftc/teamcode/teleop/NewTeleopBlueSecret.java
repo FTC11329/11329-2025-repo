@@ -5,6 +5,9 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -14,7 +17,9 @@ import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
@@ -171,11 +176,12 @@ public class NewTeleopBlueSecret {
     PressHold recording;
     PressHold replay;
     double lastTimer = 0;
-    double deltaTime = 0.5;
-    double deltaError = 0.4;
+    Pose lastPose = new Pose(0, 0, 0);
+    double deltaTime = 0.1;
+    double deltaError = 1;
     int replayIndex = 0;
-    List<PoseEntry> currentReplayPath;
-    Path replayPath;
+    StateEntryJson currentReplayStates;
+    PathChain replayPath;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -225,6 +231,8 @@ public class NewTeleopBlueSecret {
 
         placeSubPath = new Path(new BezierCurve(new Point(pickupWall), new Point(controlPointForSubPlace), new Point(placeSub)));
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
+
+        currentReplayStates = new StateEntryJson();
     }
 
     public void start() {
@@ -238,9 +246,8 @@ public class NewTeleopBlueSecret {
     public void recordPositions() {
         File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
         File file = new File(dir, "movement.json");
-        JSONArray log;
         telemetry.addData("Recording, here: ", true);
-        try {
+        try (FileWriter writer = new FileWriter(file)) {
 //            if (file.exists()) {
 //                FileReader reader = new FileReader(file);
 //                BufferedReader bufferedReader = new BufferedReader(reader);
@@ -254,24 +261,9 @@ public class NewTeleopBlueSecret {
 //                reader.close();
 //            } else {
 //            }
-            log = new JSONArray();
+            Gson gson = new GsonBuilder().create();
 
-            // Create position JSON
-            for (PoseEntry pos : currentReplayPath) {
-                JSONObject posJson = new JSONObject();
-                posJson.put("x", pos.pose.getX());
-                posJson.put("y", pos.pose.getY());
-                posJson.put("heading", pos.pose.getHeading());
-
-                JSONObject entry = new JSONObject();
-                entry.put("t", pos.time);
-                entry.put("pos", posJson);
-
-                log.put(entry);
-            }
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            writer.write(log.toString(2));
+            writer.write(gson.toJson(currentReplayStates));
             writer.close();
 
             telemetry.addData("Drive log written", true);
@@ -286,37 +278,25 @@ public class NewTeleopBlueSecret {
 
         if (!file.exists()) return;
 
-        try (FileReader reader = new FileReader(file)) {
-            BufferedReader bufferedReader = new BufferedReader(reader);
-            StringBuilder content = new StringBuilder();
+        StringBuilder jsonBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            while ((line = bufferedReader.readLine()) != null) {
-                content.append(line);
-            }
-            bufferedReader.close();
-            JSONArray log = new JSONArray(new JSONTokener(content.toString()));
-
-            currentReplayPath = new ArrayList<>();
-            for (int i = 0; i < log.length(); i++) {
-                JSONObject entry = log.getJSONObject(i);
-                double t = entry.getDouble("t");
-
-                JSONObject posJson = entry.getJSONObject("pos");
-                double x = posJson.getDouble("x");
-                double y = posJson.getDouble("y");
-                double heading = posJson.getDouble("heading");
-
-                Pose pos = new Pose(x, y, heading);
-                PoseEntry poseEntry = new PoseEntry(t, pos, gamepad1, gamepad2);
-
-                currentReplayPath.add(poseEntry);
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
             }
         } catch (Exception e) {
             telemetry.addData("Failed to Load", true);
         }
+
+        String jsonString = jsonBuilder.toString();
+
+        Gson gson = new GsonBuilder().create();
+        currentReplayStates = gson.fromJson(jsonString, StateEntryJson.class);
     }
 
     public void loop() {
+        follower.update();
         // Inputs
         debugAll = false;
         driveForward = -gamepad1.left_stick_y;
@@ -324,59 +304,68 @@ public class NewTeleopBlueSecret {
         driveRotation = -gamepad1.right_stick_x;
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
-//        telemetry.addData("record time in loop: ", recording.time.seconds());
-//        telemetry.addData("record start in loop: ", recording.startPress);
-//        telemetry.addData("record is Pressed in loop: ", recording.isPressed);
-//        telemetry.addData("record is on in loop: ", recording.isOn);
-//        telemetry.addData("record last timer in loop: ", lastTimer);
-//        telemetry.addData("record should record in loop: ", (recording.time.seconds() - lastTimer) > deltaTime);
+
+        telemetry.addData("Follower Busy", follower.isBusy());
+        telemetry.addData("Replay Path Null", replayPath == null);
+        telemetry.addData("recording is on", recording.isOn);
+        telemetry.addData("replay is on", replay.isOn);
+        telemetry.addData("replay start", replay.startPress);
+
+        for (int i = 0; i < currentReplayStates.size; i++){
+            telemetry.addData("t", (currentReplayStates.timeList.get(i)));
+            telemetry.addData("pos-x", (currentReplayStates.poseList.get(i).x));
+            telemetry.addData("pos-y", (currentReplayStates.poseList.get(i).y));
+        }
+        telemetry.addData("Size of List: ", currentReplayStates.size);
         if(recording.startPress){
-            currentReplayPath = new ArrayList<>();
+            currentReplayStates = new StateEntryJson();
             lastTimer = 0;
+            lastPose = follower.getPose();
         }
         if (recording.isOn) {
-            telemetry.addData("Hello World", 1);
-            if (recording.time.seconds() - lastTimer > deltaTime) {
-                currentReplayPath.add(
-                        new PoseEntry(recording.time.seconds(), follower.getPose(), gamepad1, gamepad2));
+            telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
+            if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError) {
+                currentReplayStates.timeList.add(recording.time.seconds());
+                currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
+                //currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
+                //currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
+                currentReplayStates.size += 1;
                 //recordPositions();
-                telemetry.addData("Hello World", 2);
-                lastTimer = recording.time.seconds();
+                lastPose = follower.getPose();
             }
         }
-        else if (replay.startPress){
+        if (replay.startPress){
             //loadPoses();
-            if (!currentReplayPath.isEmpty()){
-                ArrayList<Point> path = new ArrayList<>();
-                for (int i = 0; i < currentReplayPath.size(); i++){
-                    path.add(new Point(currentReplayPath.get(i).pose));
+            if (currentReplayStates.size > 1){
+                /*ArrayList<Path> path = new ArrayList<>();
+                for (int i = 0; i < currentReplayStates.size - 1; i++){
+                    PoseStateEntry pos1 = currentReplayStates.poseList.get(i);
+                    PoseStateEntry pos2 = currentReplayStates.poseList.get(i + 1);
+                    path.add(follower.linearPathBuilder(
+                            new Pose(pos1.x, pos1.y, pos1.heading),
+                            new Pose(pos2.x, pos2.y, pos2.heading)));
+                    telemetry.addData("Pose " + i, "x: " + pos1.x + " y: " + pos1.y + " heading: " + pos1.heading);
                 }
-                replayPath = new Path(new BezierCurve(path));//(follower.getPose(), currentReplayPath.get(0).pose);
-                follower.followPath(replayPath);
+                replayPath = new PathChain(path);
+                follower.followPath(replayPath);*/
+                ArrayList<Point> path = new ArrayList<>();
+                for (int i = 0; i < currentReplayStates.size; i++) {
+                    PoseStateEntry pos = currentReplayStates.poseList.get(i);
+                    path.add(new Point(new Pose(pos.x, pos.y, pos.heading)));
+                }
+                follower.followPath(new Path(new BezierCurve(path)));
             }
         }
-        if (replay.isOn && follower.isBusy()){
-            follower.update();
-
-            double t = follower.getCurrentTValue();
-            replayPath.getClosestPoint(currentReplayPath.get(replayIndex + 1).pose, FollowerConstants.BEZIER_CURVE_SEARCH_LIMIT);
-            double targetT = replayPath.getClosestPointTValue();
-            if (t >= targetT) {
-                if (replayIndex < currentReplayPath.size() - 1) {
-                    replayIndex += 1;
-                }
-            }
-            gamepad1 = currentReplayPath.get(replayIndex).gamepad1State;
-            gamepad2 = currentReplayPath.get(replayIndex).gamepad2State;
+        if (replay.isOn){
+            replayIndex = follower.getChainIndex();
+            telemetry.addData("Following Path: Replay Index: ", replayIndex);
+            //gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
+            //gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
             follower.telemetryDebug(telemetry);
         }
         telemetry.addData("Hello World", true);
-        for (int i = 0; i < currentReplayPath.size(); i++){
-            telemetry.addData("X-coords", (new Point(currentReplayPath.get(i).pose).getX()));
-        }
         //telemetry.addData("path: ", currentReplayPath);
-        telemetry.addData("Replay index", replay);
-        telemetry.update();
+        telemetry.addData("Replay", replay);
         if (gamepad1.right_bumper) {
             driveSpeed = DriveSpeedEnum.Fast;
         } else {
@@ -444,211 +433,6 @@ public class NewTeleopBlueSecret {
                 autoToWall = true;
             }
         }
-        //Auto drive ******************************************************************************~
-        /*if (autoMovement) {
-            if (autoMovementOnce) {
-                if (autoToSub) {
-                    follower.setPose(new Pose(pickupWall.getY() + 1.5, pickupWall.getX(), pickupWall.getHeading()));
-                    autoState = 3;
-                }
-                if (autoToWall) {
-                    autoState = 0;
-                }
-                autoMovementOnce = false;
-            }
-            //back to front wall
-            switch (autoState) {
-                case 0:
-                    //follower.followPath(toFrontWall);
-
-                    pathTimer.resetTimer();
-                    autoState = 1;
-                    break;
-                case 1:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        outtakeSystem.placePos(PlacePosEnum.wallAuto);
-                        whereAmI = PlacePosEnum.wall;
-
-                        pathTimer.resetTimer();
-                        autoState = 2;
-                    }
-                    break;
-                //front Wall To Wall
-                case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        //follower.followPath(frontWallToWall);
-
-                        pathTimer.resetTimer();
-                        autoState = 3;
-                    }
-                    break;
-                //grab off wall and go to sub
-                case 3:
-                    if (follower.getError(pickupWall).getX() < 1 && follower.getError(pickupWall).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 1) {
-                        outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        clawToggle = true;
-                        hasInOuttake = true;
-
-                        pathTimer.resetTimer();
-                        autoState = 4;
-                    }
-                    break;
-                //outtake to specimen place pos
-                case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        //follower.followPath(placeSubPath);
-                        outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                        whereAmI = PlacePosEnum.highSpecimen;
-
-                        pathTimer.resetTimer();
-                        autoState = 5;
-                    }
-                    break;
-                //drop specimen
-                case 5:
-                    if (follower.getError(placeSub).getY() < 1) {
-                        follower.breakFollowing();
-                        autoMovement = false;
-                        autoMovementOnce = true;
-
-                        pathTimer.resetTimer();
-                        autoState = 6;
-                    }
-                    break;
-            }
-            //follower.update();
-        }*/
-        //Auto Climb ******************************************************************************~
-        /*if (climberActive && !climbPause) {
-            if (climbToggButton && !climbDebounce) {
-                climbPause = true;
-                climber.setPos(climber.getPos());
-                driveTrain.setPTOPos(driveTrain.getPTOPos());
-            }
-            if (!climbToggButton) {
-                climbDebounce = false;
-            }
-
-            double current;
-            switch (climberStage) {
-                case 0:
-                    //puts arm to safe space
-                    if (outtakeSystem.getArmPos() > 0.6) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                    } else {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
-                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm);
-                    }
-
-                    intakeSystem.storePos();
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClimb);
-
-                    climberPos = Constants.Climber.outPos;
-
-                    //Enable PTO
-                    driveTrain.setRunToPos();
-                    powerTakeOff.enable();
-
-                    climberTimer.resetTimer();
-                    climberStage = 1;
-                    break;
-                case 1:
-                    driveTrain.moveBackWheels();
-                    if (climberTimer.getElapsedTimeSeconds() > 1.5 && Math.abs(climber.getPos() - climberPos) < 500) {
-                        driveTrain.setPTOPos(Constants.PTO.motorClimb);
-
-                        climberTimer.resetTimer();
-                        climberStage = 2;
-                    }
-                    break;
-                case 2:
-                    driveTrain.setPTOPower(1);
-                    if (climber.getDistance() > 10.5) {
-                        climberPos = Constants.Climber.hookPos;
-                        outtakeSystem.setVSlidePos(Constants.Outtake.maxSlides);
-                        //Prevent pto from drawing too much power
-                        driveTrain.setPTOPos(driveTrain.getPTOPos());
-
-                        climberTimer.resetTimer();
-                        climberStage = 3;
-                    }
-                    break;
-                case 3:
-                    driveTrain.setPTOPower(0.8);
-                    if (Math.abs(climber.getPos() - Constants.Climber.hookPos) < 100) {
-                        //disable PTO to conserve power
-                        driveTrain.setPTOPower(0);
-
-                        climberPos = Constants.Climber.inPos;
-
-                        climberTimer.resetTimer();
-                        climberStage = 4;
-                    }
-                    break;
-                case 4:
-                    driveTrain.setPTOPower(0);
-                    if (Math.abs(climber.getPos() - Constants.Climber.inPos) < 1000) {
-
-                        climberTimer.resetTimer();
-                        climberStage = 5;
-                    }
-                    break;
-                case 5:
-                    driveTrain.setPTOPower(-0.9);
-                    //Does some things to make sure that the current has been tripped for more than 1 second after one one second
-                    if (climberTimer.getElapsedTimeSeconds() > 0.25) {
-                        current = Math.min(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3]));
-                    } else {
-                        current = 0;
-                    }
-
-                    if (current > 4 && !lastCurrentTrip) {
-                        lastCurrentTripTime = elapsedTime.milliseconds();
-                        lastCurrentTrip = true;
-                    } else if (current < 4) {
-                        lastCurrentTrip = false;
-                    }
-
-                    if (current > 4 && elapsedTime.milliseconds() > lastCurrentTripTime + 300) {
-                        //Prevent pto from drawing too much power
-                        driveTrain.setPTOPos(driveTrain.getPTOPos());
-
-                        climberTimer.resetTimer();
-                        climberStage = 6;
-                    }
-                    break;
-                case 6:
-                    driveTrain.setPTOPower(-0.2);
-            }
-
-            //manual movement
-            climberPos += (int) (20 * (manualClimber));
-            climber.setPos(climberPos);
-        }
-        if (climbPause) {
-            if (gamepad1.b) {
-                climbStopPause = true;
-            }
-            if (!climbStopPause) {
-                climber.setPower(gamepad1.right_trigger - gamepad1.left_trigger);
-                driveTrain.setPTOPower(-gamepad1.left_stick_y);
-            }
-
-            if (climbStopPause && climbStopPauseOnce) {
-                climbStopPauseOnce = false;
-                climber.setPos(climber.getPos());
-            }
-
-            if (climbStopPause) {
-                driveTrain.setPTOPower(-0.2);
-            }
-        }
-        // Pre-Start Climb
-        if (gamepad1.dpad_up || gamepad2.back) {
-            climberPos = Constants.Climber.outPos;
-            climber.setPos(climberPos);
-        }*/
 
         //Manual Movements ************************************************************************~
         intakeSystem.manualHSlide(manualHSlide);
@@ -1101,101 +885,6 @@ public class NewTeleopBlueSecret {
             gamepad2.rumble(1000);
         }
 
-        //DEBUG ***********************************************************************************~
-        if (debugState || debugAll) {
-            telemetry.addLine("STATE");
-            telemetry.addData("hasInIntake", hasInIntake);
-            telemetry.addData("hasInTray", hasInTray);
-            telemetry.addData("hasInOuttake", hasInOuttake);
-            telemetry.addData("atStore", atStorePos);
-            telemetry.addData("onceTime", onceTime);
-            telemetry.addData("where am I", whereAmI);
-            telemetry.addLine();
-        }
-        if (debugStateMachine || debugAll) {
-            telemetry.addLine("STATE MACHINE");
-            telemetry.addData("doGoToStore", stateMachine.doGoToStore());
-            telemetry.addData("doTransfer", stateMachine.doTransfer());
-            telemetry.addData("doUnStore", stateMachine.doUnStore());
-            telemetry.addData("doHighBasket", stateMachine.doHighBasket());
-            telemetry.addData("doLowBasket", stateMachine.doLowBasket());
-            telemetry.addData("doHighSpecimen", stateMachine.doHighSpecimen());
-            telemetry.addData("doWall", stateMachine.doWall());
-            telemetry.addData("hasInIntake", stateMachine.debug()[0]);
-            telemetry.addData("transferred", stateMachine.debug()[1]);
-            telemetry.addData("atStore", stateMachine.debug()[2]);
-            telemetry.addData("onceTime", onceTime);
-            telemetry.addLine();
-        }
-        if (debugPos || debugAll) {
-            telemetry.addLine("POSITION");
-            telemetry.addData("V Slide Tar", outtakeSystem.getVSlideTargetPos());
-            telemetry.addData("V Slide Pos", outtakeSystem.getVSlidePos());
-            telemetry.addData("H Slide Tar", intakeSystem.getHSlideTargetPos());
-            telemetry.addData("H Slide Pos", intakeSystem.getHSlidePos());
-            telemetry.addData("Arm Pos", outtakeSystem.getArmPos());
-            telemetry.addLine();
-        }
-        if (debugClimber || debugAll) {
-            telemetry.addLine("CLIMBER");
-            telemetry.addData("climberActive", climberActive);
-            telemetry.addData("climberStage", climberStage);
-            telemetry.addData("climbPause", climbPause);
-            telemetry.addData("climbDebounce", climbDebounce);
-            telemetry.addData("climberPos", climberPos);
-
-            telemetry.addData("PTO Tar", driveTrain.getPTOTPos());
-            telemetry.addData("PTO Pos", driveTrain.getPTOPos());
-            telemetry.addData("PTO Err", Math.abs(driveTrain.getPTOPos() - driveTrain.getPTOTPos()));
-            telemetry.addData("PTO Pow", Math.max(Math.max(driveTrain.getDrivePowers()[0], driveTrain.getDrivePowers()[1]), Math.max(driveTrain.getDrivePowers()[2], driveTrain.getDrivePowers()[3])));
-            telemetry.addData("Climber Tar", climber.getTargetPos());
-            telemetry.addData("Climber Var", climberPos);
-            telemetry.addData("Climber Pos", climber.getPos());
-            telemetry.addData("Climber err", Math.abs(climber.getPos() - climber.getTargetPos()));
-            telemetry.addData("Climber once", climbStopPauseOnce);
-            telemetry.addData("Climber once", climbStopPause);
-            telemetry.addData("Current", Math.max(Math.max(driveTrain.getDriveCurrent()[0], driveTrain.getDriveCurrent()[1]), Math.max(driveTrain.getDriveCurrent()[2], driveTrain.getDriveCurrent()[3])));
-            telemetry.addData("climberDistance", climber.getDistance());
-            telemetry.addLine();
-        }
-        if (debugAuto || debugAll) {
-            follower.updatePose();
-            telemetry.addLine("AUTO");
-            telemetry.addData("autoMovement", autoMovement);
-            telemetry.addData("autoMovementOnce", autoMovementOnce);
-            telemetry.addData("autoState", autoState);
-            telemetry.addData("Pose", follower.getPose());
-            telemetry.addLine();
-        }
-        if (debugMisc || debugAll) {
-            telemetry.addLine("MISCELLANEOUS");
-            telemetry.addData("onceTime", onceTime);
-            telemetry.addData("transferTime", transferTime);
-            telemetry.addData("droppingBasketTime", droppingBasketTime);
-            telemetry.addData("storeTime", storeTime);
-            telemetry.addData("walltime", wallTime - elapsedTime.milliseconds());
-            telemetry.addData("extendHSlide", extendHSlide);
-            telemetry.addData("unjamming", unjamming);
-            telemetry.addData("unjamAfterIntake", unjamAfterIntake);
-            telemetry.addData("outtake distance", outtakeSystem.getClawDistance());
-            telemetry.addData("grabbing off wall", grabbingOffWall);
-            telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
-            telemetry.addData("power", outtakeSystem.getAmp());
-            telemetry.addData("outtakeSystem.readyToTransfer", outtakeSystem.readyToTransfer());
-            telemetry.addData("intakeSystem.readyToTransfer",  intakeSystem.readyToTransfer());
-            telemetry.addData("wallonce",  wallOnce);
-            telemetry.addData("thing",  elapsedTime.milliseconds() > grabbingOffWallTime + 250);
-            telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
-            telemetry.addData("grabbingOffWall",  grabbingOffWall);
-            lastTime = elapsedTime.milliseconds();
-
-            //TODO add more Things here
-            telemetry.addLine();
-        }
-        if (debugAll || debugAuto || debugClimber || debugMisc || debugPos || debugStateMachine || debugState) {
-            telemetry.update();
-        }
-
 //        telemetry.addData("leftFront", motor1.getCurrent(CurrentUnit.AMPS));
 //        telemetry.addData("rightFront", motor2.getCurrent(CurrentUnit.AMPS));
 //        telemetry.addData("rightBack", motor3.getCurrent(CurrentUnit.AMPS));
@@ -1226,5 +915,84 @@ public class NewTeleopBlueSecret {
             this.gamepad1State = gamepad1State;
             this.gamepad2State = gamepad2State;
         }
+    }
+
+    public static class GamepadStateEntry {
+        public boolean a, b, x, y;
+        public boolean dpad_up, dpad_down, dpad_left, dpad_right;
+        public boolean left_bumper, right_bumper;
+        public boolean left_stick_button, right_stick_button;
+        public float left_stick_x, left_stick_y;
+        public float right_stick_x, right_stick_y;
+        public float left_trigger, right_trigger;
+
+        public GamepadStateEntry(Gamepad g) {
+            this.a = g.a;
+            this.b = g.b;
+            this.x = g.x;
+            this.y = g.y;
+            this.dpad_up = g.dpad_up;
+            this.dpad_down = g.dpad_down;
+            this.dpad_left = g.dpad_left;
+            this.dpad_right = g.dpad_right;
+            this.left_bumper = g.left_bumper;
+            this.right_bumper = g.right_bumper;
+            this.left_stick_button = g.left_stick_button;
+            this.right_stick_button = g.right_stick_button;
+            this.left_stick_x = g.left_stick_x;
+            this.left_stick_y = g.left_stick_y;
+            this.right_stick_x = g.right_stick_x;
+            this.right_stick_y = g.right_stick_y;
+            this.left_trigger = g.left_trigger;
+            this.right_trigger = g.right_trigger;
+        }
+
+        public Gamepad convertToGamepad() {
+            Gamepad g = new Gamepad();
+
+            // Buttons
+            g.a = this.a;
+            g.b = this.b;
+            g.x = this.x;
+            g.y = this.y;
+            g.dpad_up = this.dpad_up;
+            g.dpad_down = this.dpad_down;
+            g.dpad_left = this.dpad_left;
+            g.dpad_right = this.dpad_right;
+            g.left_bumper = this.left_bumper;
+            g.right_bumper = this.right_bumper;
+            g.left_stick_button = this.left_stick_button;
+            g.right_stick_button = this.right_stick_button;
+
+            // Joysticks
+            g.left_stick_x = this.left_stick_x;
+            g.left_stick_y = this.left_stick_y;
+            g.right_stick_x = this.right_stick_x;
+            g.right_stick_y = this.right_stick_y;
+
+            // Triggers
+            g.left_trigger = this.left_trigger;
+            g.right_trigger = this.right_trigger;
+
+            return g;
+        }
+    }
+
+    public static class PoseStateEntry {
+        public double x, y, heading;
+
+        public PoseStateEntry(Pose pose) {
+            this.x = pose.getX();
+            this.y = pose.getY();
+            this.heading = pose.getHeading();
+        }
+    }
+
+    public static class StateEntryJson {
+        public int size = 0;
+        public List<Double> timeList = new ArrayList<>();
+        public List<PoseStateEntry> poseList = new ArrayList<>();
+        public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
+        public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
     }
 }

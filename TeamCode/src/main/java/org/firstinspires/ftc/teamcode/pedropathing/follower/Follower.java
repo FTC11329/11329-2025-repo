@@ -547,6 +547,10 @@ public class Follower {
         currentPathChain.resetCallbacks();
     }
 
+    public int getChainIndex(){
+        return chainIndex;
+    }
+
     /**
      * Resumes pathing
      */
@@ -1159,7 +1163,7 @@ public class Follower {
         telemetry.addData("velocity magnitude", getVelocity().getMagnitude());
         telemetry.addData("velocity heading", getVelocity().getTheta());
         driveKalmanFilter.debug(telemetry);
-        telemetry.update();
+        //telemetry.update();
         if (drawOnDashboard) {
             Drawing.drawDebug(this);
         }
