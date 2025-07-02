@@ -337,7 +337,12 @@ public class NewTeleopBlueSecret {
         if (replay.startPress){
             //loadPoses();
             if (currentReplayStates.size > 1){
-                /*ArrayList<Path> path = new ArrayList<>();
+                ArrayList<Path> path = new ArrayList<>();
+                Pose cPos = follower.getPose();
+                PoseStateEntry sPos = currentReplayStates.poseList.get(0);
+                path.add(follower.linearPathBuilder(
+                        new Pose(cPos.getX(), cPos.getY(), cPos.getHeading()),
+                        new Pose(sPos.x, sPos.y, sPos.heading)));
                 for (int i = 0; i < currentReplayStates.size - 1; i++){
                     PoseStateEntry pos1 = currentReplayStates.poseList.get(i);
                     PoseStateEntry pos2 = currentReplayStates.poseList.get(i + 1);
@@ -347,13 +352,13 @@ public class NewTeleopBlueSecret {
                     telemetry.addData("Pose " + i, "x: " + pos1.x + " y: " + pos1.y + " heading: " + pos1.heading);
                 }
                 replayPath = new PathChain(path);
-                follower.followPath(replayPath);*/
-                ArrayList<Point> path = new ArrayList<>();
+                follower.followPath(replayPath);
+                /*ArrayList<Point> path = new ArrayList<>();
                 for (int i = 0; i < currentReplayStates.size; i++) {
                     PoseStateEntry pos = currentReplayStates.poseList.get(i);
                     path.add(new Point(new Pose(pos.x, pos.y, pos.heading)));
                 }
-                follower.followPath(new Path(new BezierCurve(path)));
+                follower.followPath(new Path(new BezierCurve(path)));*/
             }
         }
         if (replay.isOn){
