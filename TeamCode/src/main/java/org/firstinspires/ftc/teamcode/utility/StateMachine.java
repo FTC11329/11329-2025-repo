@@ -78,12 +78,17 @@ public class StateMachine {
     }
 
 
-    public void goWall(boolean hasInIntake, boolean atLowSpec, boolean atStorePos) {
-        resetValues();
+    public void goWall(boolean hasInIntake, boolean atLowSpec, boolean atStorePos, boolean override) {
+        if (override) {
+            resetValues();
+        }
         goingWall = true;
         this.hasInIntake = hasInIntake;
         this.atLowSpec = atLowSpec;
         this.atStorePos = atStorePos;
+    }
+    public void goWall(boolean hasInIntake, boolean atLowSpec, boolean atStorePos) {
+        goWall(hasInIntake, atLowSpec, atStorePos, true);
     }
 
     public void goStore() {
@@ -148,7 +153,7 @@ public class StateMachine {
 
 
     //Functions to finish one thing and start the next
-    public void finishGoToStoreFromSpec() {
+    public void finishGoToStore() {
         goingStore = false;
 
         atStorePos = true;

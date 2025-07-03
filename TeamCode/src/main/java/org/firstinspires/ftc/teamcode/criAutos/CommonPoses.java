@@ -17,10 +17,10 @@ public class CommonPoses {
      */
 
     //todo:
-    public static Pose startLeftOuter  = new Pose();
-    public static Pose startLeftInner  = new Pose();
-    public static Pose startRightInner = new Pose();
-    public static Pose startRightOuter = new Pose(-63.5, -86.5, Math.toRadians(90));
+    public static Pose startLeftOuter  = new Pose(64, 86.5, Math.toRadians(-90));
+    public static Pose startLeftInner  = new Pose(64, 31.5, Math.toRadians(90));
+    public static Pose startRightInner = new Pose(-64, -31.5, Math.toRadians(-90));
+    public static Pose startRightOuter = new Pose(-64, -86.5, Math.toRadians(90));
 
 
     public static Pose redBasket  = new Pose();
@@ -31,8 +31,8 @@ public class CommonPoses {
     public static Pose intakeSubRightMiddle = new Pose();
     public static Pose intakeSubRightOuter  = new Pose();
 
-    public static Pose pickupWallLeft  = new Pose(59.5,  13.5, Math.toRadians(0));
-    public static Pose pickupWallRight = new Pose(-59.5, -13.5, Math.toRadians(0));
+    public static Pose pickupWallLeft  = new Pose(-58.5,  13.5, Math.toRadians(0));
+    public static Pose pickupWallRight = new Pose(-58.5, -13.5, Math.toRadians(0));
 
 
 
@@ -44,11 +44,28 @@ public class CommonPoses {
     public static Pose barLeftInnerMid  = new Pose();
     public static Pose barLeftInnerBot  = new Pose();
 
-    public static Pose barRightInnerTop = new Pose();
-    public static Pose barRightInnerMid = new Pose();
-    public static Pose barRightInnerBot = new Pose();
+    public static Pose barRightInnerTop = new Pose(5.5,  -17.1, Math.toRadians(-90));
+    public static Pose barRightInnerMid = new Pose(0,    -17.1, Math.toRadians(-90));
+    public static Pose barRightInnerBot = new Pose(-5.5, -17.1, Math.toRadians(-90));
 
-    public static Pose barRightOuterTop = new Pose(3.5 , -79, Math.toRadians(90));
-    public static Pose barRightOuterMid = new Pose(0 , -79, Math.toRadians(90));
-    public static Pose barRightOuterBot = new Pose(-3.5, -79, Math.toRadians(90));
+    public static Pose barRightOuterTop = new Pose(5.5,  -79, Math.toRadians(90));
+    public static Pose barRightOuterMid = new Pose(0,    -79, Math.toRadians(90));
+    public static Pose barRightOuterBot = new Pose(-5.5, -79, Math.toRadians(90));
+
+    public static Pose innerSpikeRightTop = new Pose(-4,  -13.75, Math.toRadians(-90));
+    public static Pose innerSpikeRightMid = new Pose(-12, -13.75, Math.toRadians(-90));
+    public static Pose innerSpikeRightBot = new Pose(-21, -13.75, Math.toRadians(-90));
+    public static Pose innerSpikeLeftTop  = new Pose(-4,  13.75, Math.toRadians(-90));
+    public static Pose innerSpikeLeftMid  = new Pose(-12, 13.75, Math.toRadians(-90));
+    public static Pose innerSpikeLeftBot  = new Pose(-21, 13.75, Math.toRadians(-90));
+
+    // 1,2,3: inner, middle, outer
+    public static Pose leftOuterSpike3 = new Pose(-49, 82);
+    public static Pose leftOuterSpike2 = new Pose(-51.2, 81.9);
+    public static Pose leftOuterSpike1 = new Pose(-51, 76);
+
+    public static Pose rightOuterSpike1 = new Pose(-49, -82);
+    public static Pose rightOuterSpike2 = new Pose(-51.2, -81.9);
+    public static Pose rightOuterSpike3 = new Pose(-51, -76);
+
 }

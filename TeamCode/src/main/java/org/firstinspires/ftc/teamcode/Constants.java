@@ -53,7 +53,7 @@ public class Constants {
         public static double wristClear = 0.25;
         public static double wristDown = 0.450;
 
-        public static double depoStore = 0.064;
+        public static double depoStore = 0.075;
         public static double depoDepo = 0.444;
 
         public static double intakeSpeed = 0.9;

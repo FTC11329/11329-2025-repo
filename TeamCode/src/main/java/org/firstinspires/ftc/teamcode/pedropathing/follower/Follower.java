@@ -1333,7 +1333,7 @@ public class Follower {
         setPose(current.addReturn(offset));
     }
 
-    //Builds a very simple path
+    //Builds very simple paths
     public Path linearPathBuilder(Pose startPose, Pose endPose, double endTime) {
         Path tempPath = new Path(new BezierLine(new Point(startPose), new Point(endPose)));
         tempPath.setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime);
@@ -1341,6 +1341,17 @@ public class Follower {
     }
     public Path linearPathBuilder(Pose startPose, Pose endPose) {
         return linearPathBuilder(startPose, endPose, 1);
+    }
+
+    public PathChain linearPathChainBuilder(Pose startPose, Pose endPose, double endTime) {
+        PathChain tempPath = pathBuilder()
+                .addPath(new BezierLine(new Point(startPose), new Point(endPose)))
+                .setLinearHeadingInterpolation(startPose.getHeading(), endPose.getHeading(), endTime)
+                .build();
+        return tempPath;
+    }
+    public PathChain linearPathChainBuilder(Pose startPose, Pose endPose) {
+        return linearPathChainBuilder(startPose, endPose, 1);
     }
 
     //returns the distance from targetPose

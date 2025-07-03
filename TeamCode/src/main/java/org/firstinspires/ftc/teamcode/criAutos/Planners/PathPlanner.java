@@ -15,4 +15,7 @@ public interface PathPlanner {
     // Gets the offset of the previous paths plus this offset
     Pose getOffset();
 
+    // Gets the name of the module
+    String getName();
+
 }

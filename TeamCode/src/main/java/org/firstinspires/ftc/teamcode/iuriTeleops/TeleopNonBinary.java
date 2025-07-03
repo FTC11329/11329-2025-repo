@@ -501,7 +501,7 @@ public class TeleopNonBinary {
                 whereAmI = PlacePosEnum.intake;
                 onceState = false;
                 onceTime = true;
-                stateMachine.finishGoToStoreFromSpec();
+                stateMachine.finishGoToStore();
             }
         }
 

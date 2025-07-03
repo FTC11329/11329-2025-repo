@@ -32,6 +32,10 @@ public class ParkPaths {
         //todo
         private final Pose toSubControlPoint = new Pose();
 
+        Pose startPoseAdded;
+        Pose toSubControlPointAdded;
+        Pose intakeSubLeftOuterAdded;
+
         //Paths
         Path toSub;
 
@@ -39,9 +43,15 @@ public class ParkPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toSub = new Path(new BezierCurve(new Point(startPose), new Point(toSubControlPoint), new Point(intakeSubLeftOuter)));
-            toSub.setLinearHeadingInterpolation(startPose.getHeading(), intakeSubLeftOuter.getHeading());
+
+            startPoseAdded = startPose.addReturn(offset);
+            toSubControlPointAdded = toSubControlPoint.addReturn(offset);
+            intakeSubLeftOuterAdded = intakeSubLeftOuter.addReturn(offset);
+
+            toSub = new Path(new BezierCurve(new Point(startPoseAdded), new Point(toSubControlPointAdded), new Point(intakeSubLeftOuterAdded)));
+            toSub.setLinearHeadingInterpolation(startPoseAdded.getHeading(), intakeSubLeftOuterAdded.getHeading());
         }
+
 
         @Override
         public Pose getEndPoseEst() {
@@ -66,6 +76,10 @@ public class ParkPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Park" + state;
         }
     }
 }

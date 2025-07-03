@@ -492,12 +492,11 @@ public class Teleop {
             }
             intakeingColor = false;
             intakeing = false;  //Todo change v if you want to transfer
-            stateMachine.goWall(robotState.hasInIntake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
+            stateMachine.goWall(false, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (storePos) {
             onceTime = true;
             stateMachine.resetValues();
-            intakeSystem.storePos();
             intakeingColor = false;
             intakeing = false;
             stateMachine.goStore();
@@ -809,7 +808,6 @@ public class Teleop {
             telemetry.addData("robotState.hasInIntake", robotState.hasInIntake);
             telemetry.addData("robotState.hasInOutake", robotState.hasInOutake);
             telemetry.addData("atStore", robotState.atStorePos);
-            telemetry.addData("onceTime", onceTime);
             telemetry.addData("where am I", robotState.whereAmI);
             telemetry.addLine();
         }
@@ -825,7 +823,6 @@ public class Teleop {
             telemetry.addData("robotState.hasInIntake", stateMachine.debug()[0]);
             telemetry.addData("transferred", stateMachine.debug()[1]);
             telemetry.addData("atStore", stateMachine.debug()[2]);
-            telemetry.addData("onceTime", onceTime);
             telemetry.addLine();
         }
         if (debugPos || debugAll) {
@@ -905,6 +902,10 @@ public class Teleop {
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
             telemetry.update();
         }
+        telemetry.addData("pos ", intakeSystem.getHSlidePos());
+        telemetry.addData("tpos", Constants.Intake.transferSlides);
+        telemetry.addData("bool", intakeSystem.getHSlidePos() > Constants.Intake.transferSlides);
+
         if (false) {
             telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
             lastTime = elapsedTime.milliseconds();

@@ -180,6 +180,10 @@ public class Pose {
         setHeading(heading - pose.getHeading());
     }
 
+    public Pose subtractReturn(Pose offset) {
+        return new Pose(x - offset.getX(), y - offset.getY(), heading - offset.getHeading());
+    }
+
     /**
      * This multiplies all the values of this Pose by a scalar.
      *

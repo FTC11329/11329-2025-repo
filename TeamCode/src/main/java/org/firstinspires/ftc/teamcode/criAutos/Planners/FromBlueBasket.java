@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Constants;
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
-public class FromRedBasket {
+public class FromBlueBasket {
     // has option to pickup and place spikes, pickup and place yellow,
     // pickup color from sub and pickup wall left or right, or pickup wall left or right
     public static class ToPickupAndPlaceSpike1 implements PathPlanner {
@@ -52,7 +52,7 @@ public class FromRedBasket {
             this.offset = offset;
 
             startPoseAdded = startPose.addReturn(offset);
-            spike1Added = leftOuterSpike1.addReturn(offset);
+            spike1Added = rightOuterSpike1.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
 
             toSpike = robot.follower.linearPathBuilder(startPoseAdded, spike1Added);
@@ -185,7 +185,7 @@ public class FromRedBasket {
             this.offset = offset;
 
             startPoseAdded = startPose.addReturn(offset);
-            spike2Added = leftOuterSpike2.addReturn(offset);
+            spike2Added = rightOuterSpike2.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
 
             toSpike = robot.follower.linearPathBuilder(startPoseAdded, spike2Added);
@@ -316,7 +316,7 @@ public class FromRedBasket {
             this.offset = offset;
 
             startPoseAdded = startPose.addReturn(offset);
-            spike3Added = leftOuterSpike3.addReturn(offset);
+            spike3Added = rightOuterSpike3.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
 
             toSpike = robot.follower.linearPathBuilder(startPoseAdded, spike3Added);
@@ -545,7 +545,7 @@ public class FromRedBasket {
                     }
                     break;
 
-                    //Parking if out of time
+                //Parking if out of time
                 case 9:
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.doIntakeWhilePark = true;
@@ -782,7 +782,7 @@ public class FromRedBasket {
                     }
                     break;
 
-                    //Missed first Intake
+                //Missed first Intake
                 case 100:
                     if (robot.intakeSystem.getHSlideTargetPos() < 100 || pathTimer.getElapsedTimeSeconds() > 2) {
                         robot.follower.followPath(toWall);

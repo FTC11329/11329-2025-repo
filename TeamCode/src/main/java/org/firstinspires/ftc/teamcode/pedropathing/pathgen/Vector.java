@@ -1,5 +1,9 @@
 package org.firstinspires.ftc.teamcode.pedropathing.pathgen;
 
+import android.annotation.SuppressLint;
+
+import androidx.annotation.NonNull;
+
 /**
  * This is the Point class. This class handles storing information about vectors, which are
  * basically Points but using polar coordinates as the default. The main reason this class exists
@@ -141,5 +145,11 @@ public class Vector {
      */
     public double getYComponent() {
         return yComponent;
+    }
+
+    @NonNull
+    @SuppressLint("DefaultLocale")
+    public String toString() {
+        return String.format("Cartesian: x = %.2f y = %.2f Polar: Theta = %.2f Mag = %.2f", xComponent, yComponent, theta, magnitude);
     }
 }

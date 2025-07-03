@@ -38,6 +38,9 @@ public class Robot {
 
     private int highBasketState = -1;
 
+    private Timer wallTimer = new Timer();
+    private int wallState = -1;
+
     private Timer transferTimer = new Timer();
     private int transferState = -1;
 
@@ -51,7 +54,7 @@ public class Robot {
     private Timer shakeTimer = new Timer();
     public boolean doDriveShake = false;
 
-    public boolean inAuto = false;
+    public boolean inAuto;
 
     public Robot(Climber climber, Telemetry telemetry, Drivetrain driveTrain, PowerTakeOff powerTakeOff, IntakeSystem intakeSystem, StateMachine stateMachine, OuttakeSystem outtakeSystem, RobotStateVariables robotState, boolean isAuto) {
         this(climber, null, telemetry, null, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, isAuto);
@@ -74,10 +77,12 @@ public class Robot {
         inAuto = isAuto;
     }
 
+    double timeToWait;
     public void loop() {
         if (stateMachine.doGoToStore()) {
             switch (storeState) {
                 case -1:
+                    timeToWait = -0.423 * (outtakeSystem.getArmPos() - 1.115);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     robotState.clawToggle = true;
                     if (robotState.whereAmI == PlacePosEnum.highSpecimen) {
@@ -85,8 +90,8 @@ public class Robot {
                     } else {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
-                    if (intakeSystem.getHSlidePos() < Constants.Intake.transferSlides) {
-                        intakeSystem.setHSlidePos(Constants.Intake.transferSlides);
+                    if (intakeSystem.getHSlidePos() < Constants.Intake.transferSlides || !inAuto) {
+                        intakeSystem.storeOutPos();
                     }
                     storeState = 0;
                     break;
@@ -98,7 +103,7 @@ public class Robot {
                     }
                     break;
                 case 1:
-                    if (storeTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (storeTimer.getElapsedTimeSeconds() > timeToWait) {
                         outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
                         storeTimer.resetTimer();
                         storeState = 2;
@@ -117,7 +122,7 @@ public class Robot {
                         robotState.atStorePos = true;
                         robotState.whereAmI = PlacePosEnum.intake;
                         storeState = -1;
-                        stateMachine.finishGoToStoreFromSpec();
+                        stateMachine.finishGoToStore();
                     }
                     break;
             }
@@ -139,31 +144,35 @@ public class Robot {
                     transferState = 0;
                     break;
                 case 0:
-                    if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferTimer.getElapsedTimeSeconds() > 0.1) {
+                    if (outtakeSystem.readyToTransfer() && intakeSystem.readyToTransfer() && transferTimer.getElapsedTimeSeconds() > 0.15) {
+                        // Continue
                         transferTimer.resetTimer();
                         transferState = 2;
                     }
                     if (!inAuto && transferTimer.getElapsedTimeSeconds() > 2) {
+                        // Fail
                         intakeSystem.setIntakePower(0);
                         transferState = -1;
                         robotState.hasInIntake = false;
                         stateMachine.failTransfer();
                     }
                     if (inAuto && transferTimer.getElapsedTimeSeconds() > 0.75) {
+                        // Auto continue
                         transferTimer.resetTimer();
                         transferState = 2;
                     }
                     break;
                 case 2:
                     if (transferTimer.getElapsedTimeSeconds() > 0.05) {
-                        intakeSystem.setIntakePower(0);
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         robotState.clawToggle = true;
                         transferTimer.resetTimer();
-                        transferState = 2;
+                        transferState = 3;
                     }
+                    break;
                 case 3:
                     if (transferTimer.getElapsedTimeSeconds() > 0.3) {
+                        intakeSystem.setIntakePower(0);
                         robotState.hasInIntake = false;
                         robotState.hasInOutake = true;
                         transferState = -1;
@@ -211,6 +220,10 @@ public class Robot {
             //todo
         }
 
+        if (stateMachine.doUnStoreFromLowBar()) {
+            //todo
+        }
+
         if (stateMachine.doHighSpecimen()) {
             outtakeSystem.placePos(PlacePosEnum.highSpecimen);
             robotState.whereAmI = PlacePosEnum.highSpecimen;
@@ -254,26 +267,22 @@ public class Robot {
         }
 
         if (stateMachine.doWall()) {
-            switch (parkState) {
-                case 0:
+            switch (wallState) {
+                case -1:
                     outtakeSystem.placePos(PlacePosEnum.wall);
-                    robotState.whereAmI = PlacePosEnum.wall;
                     if (!robotState.hasInOutake) {
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robotState.clawToggle = false;
                     }
 
-                    parkTimer.resetTimer();
-                    parkState = 1;
+                    wallTimer.resetTimer();
+                    wallState = 0;
                     break;
-                case 1:
-                    if (parkTimer.getElapsedTimeSeconds() > 0.0 && parkTimer.getElapsedTimeSeconds() < 0.1 && robotState.hasInIntake) {
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                    }
-                    if (parkTimer.getElapsedTimeSeconds() > 0.8 && parkTimer.getElapsedTimeSeconds() < 0.9 && robotState.hasInIntake) {
-                        intakeSystem.setIntakePower(0);
+                case 0:
+                    if (wallTimer.getElapsedTimeSeconds() > 0.4) {
+                        robotState.whereAmI = PlacePosEnum.wall;
                         stateMachine.finishWall();
-                        parkState = 0;
+                        wallState = -1;
                     }
                     break;
             }

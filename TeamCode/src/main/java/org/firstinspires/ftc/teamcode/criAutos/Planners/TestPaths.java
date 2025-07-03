@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
@@ -31,7 +32,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, startRightOuter);
+            toOpen = robot.follower.linearPathBuilder(startPose, startRightOuter.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -48,7 +49,7 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(startRightOuter) < 0.75) {
+                    if (robot.follower.getErrorDistance(startRightOuter.addReturn(offset)) < 0.75) {
                         isFinished = true;
                     }
                     break;
@@ -65,6 +66,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
     public static class ToAboveRedBasket implements PathPlanner {
@@ -92,7 +97,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, aboveRedBasket);
+            toOpen = robot.follower.linearPathBuilder(startPose, aboveRedBasket.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -109,7 +114,7 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(aboveRedBasket) < 0.75) {
+                    if (robot.follower.getErrorDistance(aboveRedBasket.addReturn(offset)) < 0.75) {
                         isFinished = true;
                     }
                     break;
@@ -126,6 +131,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 
@@ -153,7 +162,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, aboveBlueBasket);
+            toOpen = robot.follower.linearPathBuilder(startPose, aboveBlueBasket.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -170,7 +179,12 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(aboveBlueBasket) < 0.75) {
+                    if (robot.follower.getErrorDistance(aboveBlueBasket.addReturn(offset)) < 0.75) {
+                        setState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         isFinished = true;
                     }
                     break;
@@ -187,6 +201,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 
@@ -214,7 +232,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, belowLeftSub);
+            toOpen = robot.follower.linearPathBuilder(startPose, belowLeftSub.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -231,7 +249,7 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(belowLeftSub) < 0.75) {
+                    if (robot.follower.getErrorDistance(belowLeftSub.addReturn(offset)) < 0.75) {
                         isFinished = true;
                     }
                     break;
@@ -248,6 +266,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 
@@ -275,7 +297,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, belowRightSub);
+            toOpen = robot.follower.linearPathBuilder(startPose, belowRightSub.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -292,7 +314,7 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(belowRightSub) < 0.75) {
+                    if (robot.follower.getErrorDistance(belowRightSub.addReturn(offset)) < 0.75) {
                         isFinished = true;
                     }
                     break;
@@ -309,6 +331,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 
@@ -336,7 +362,7 @@ public class TestPaths {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toOpen = robot.follower.linearPathBuilder(startPose, centerField);
+            toOpen = robot.follower.linearPathBuilder(startPose, centerField.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
 
@@ -353,7 +379,7 @@ public class TestPaths {
                     setState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(centerField) < 0.75) {
+                    if (robot.follower.getErrorDistance(centerField.addReturn(offset)) < 0.75) {
                         isFinished = true;
                     }
                     break;
@@ -370,6 +396,85 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
+        }
+    }
+
+    public static class ToPose implements PathPlanner {
+        // Variables
+        Pose offset;
+        private Timer pathTimer;
+        private int state = 0;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+        private Pose endPose;
+        public ToPose(Robot robot, Pose startPose, Pose endPose) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.endPose = endPose;
+            this.startPose = startPose;
+        }
+        //Poses
+        Pose endPoseAdded;
+        Pose startPoseAdded;
+
+        //Paths
+        PathChain toOpen;
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset = offset;
+            endPoseAdded = endPose.addReturn(offset);
+            startPoseAdded = startPose.addReturn(offset);
+            toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, endPoseAdded);
+            toOpen.getPath(0).setConstantHeadingInterpolation(startPoseAdded.getHeading());
+        }
+
+        @Override
+        public Pose getEndPoseEst() {
+            return endPoseAdded;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case 0:
+                    robot.follower.followPath(toOpen);
+                    setState(1);
+                    break;
+                case 1:
+                    if (robot.follower.getErrorDistance(endPoseAdded) < 0.75) {
+                        setState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        isFinished = true;
+                    }
+                    break;
+            }
+
+            return isFinished;
+        }
+
+        public void setState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 
@@ -414,7 +519,7 @@ public class TestPaths {
                     break;
                 case 1:
                     if (pathTimer.getElapsedTimeSeconds() > seconds) {
-                        isFinished = false;
+                        isFinished = true;
                     }
                     break;
             }
@@ -430,6 +535,10 @@ public class TestPaths {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "Test Path" + state;
         }
     }
 

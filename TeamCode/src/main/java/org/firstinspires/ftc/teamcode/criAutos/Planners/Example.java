@@ -26,6 +26,8 @@ public class Example {
         }
         //Poses
         //todo
+        Pose startPoseAdded;
+        Pose redBasketAdded;
 
         //Paths
         Path toBasket;
@@ -33,7 +35,11 @@ public class Example {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket.addReturn(offset));
+
+            startPoseAdded = startPose.addReturn(offset);
+            redBasketAdded = redBasket.addReturn(offset);
+
+            toBasket = robot.follower.linearPathBuilder(startPoseAdded, redBasketAdded.addReturn(offset));
         }
 
         @Override
@@ -59,6 +65,10 @@ public class Example {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public String getName() {
+            return "NAME";
         }
     }
 }

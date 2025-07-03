@@ -31,6 +31,9 @@ public class StartLeftInner {
         }
         //Poses
         //todo
+        Pose startLeftOuterAdded;
+        Pose redBasketAdded;
+
 
         //Paths
         Path toBasket;
@@ -38,8 +41,13 @@ public class StartLeftInner {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
+
+            startLeftOuterAdded = startLeftOuter.addReturn(offset);
+            redBasketAdded = redBasket.addReturn(offset);
+
+            toBasket = robot.follower.linearPathBuilder(startLeftOuterAdded, redBasketAdded);
         }
+
 
         @Override
         public Pose getEndPoseEst() {
@@ -64,6 +72,11 @@ public class StartLeftInner {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+
+        public String getName() {
+            return "Start Left inner To place Bar" + state;
         }
     }
 }

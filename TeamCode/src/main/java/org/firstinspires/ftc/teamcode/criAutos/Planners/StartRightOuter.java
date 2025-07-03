@@ -32,6 +32,10 @@ public class StartRightOuter {
             this.startPose = startPose;
             this.preExtend = preExtend;
         }
+        //Poses
+        Pose startLeftOuterAdded;
+        Pose blueBasketAdded;
+
 
         //Paths
         Path toBasket;
@@ -39,7 +43,11 @@ public class StartRightOuter {
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, blueBasket);
+
+            startLeftOuterAdded = startLeftOuter.addReturn(offset);
+            blueBasketAdded = blueBasket.addReturn(offset);
+
+            toBasket = robot.follower.linearPathBuilder(startLeftOuterAdded, blueBasketAdded);
         }
 
         @Override
@@ -66,7 +74,7 @@ public class StartRightOuter {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(blueBasket) < 1) {
+                    if (robot.follower.getErrorDistance(blueBasketAdded) < 1) {
                         setPathState(3);
                     }
                     break;
@@ -95,9 +103,13 @@ public class StartRightOuter {
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
+
+        public String getName() {
+            return "Start right outer To place basket" + state;
+        }
     }
 
-    public static class ToPlaceBar implements PathPlanner {
+    public static class ToPlaceBarRightOuter implements PathPlanner {
         /// Places on bar left inner with option for low or high
         /// Ends facing left sub intake at store preset
         /// Expects arm to start under the bar if high bar = false
@@ -111,7 +123,7 @@ public class StartRightOuter {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        public ToPlaceBar(Robot robot, Pose startPose, boolean highBar) {
+        public ToPlaceBarRightOuter(Robot robot, Pose startPose, boolean highBar) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
@@ -120,23 +132,38 @@ public class StartRightOuter {
         //Poses
         Pose controlPoint = new Pose(0, -96);
 
+        Pose startPoseAdded;
+        Pose controlPointAdded;
+        Pose barRightOuterMidAdded;
+        Pose barRightOuterTopAdded;
+        Pose pickupWallRightAdded;
+
         //Paths
         PathChain toBar;
+        PathChain toWall;
 
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
+
+            startPoseAdded = startPose.addReturn(offset);
+            controlPointAdded = controlPoint.addReturn(offset);
+            barRightOuterMidAdded = barRightOuterMid.addReturn(offset);
+            barRightOuterTopAdded = barRightOuterTop.addReturn(offset);
+            pickupWallRightAdded = pickupWallRight.addReturn(offset);
+
             toBar = robot.follower.pathBuilder()
-                    .addPath(new Path(new BezierCurve(new Point(startPose), new Point(controlPoint), new Point(barRightOuterBot))))
-                    .setLinearHeadingInterpolation(0, barRightOuterBot.getHeading(), 0.7)
-                    .addPath(robot.follower.linearPathBuilder(barRightOuterBot, barRightOuterTop))
-                    .setConstantHeadingInterpolation(barRightOuterBot.getHeading())
+                    .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidAdded))))
+                    .setLinearHeadingInterpolation(0, barRightOuterMidAdded.getHeading(), 0.7)
+                    .addPath(robot.follower.linearPathBuilder(barRightOuterMidAdded, barRightOuterTopAdded))
+                    .setConstantHeadingInterpolation(barRightOuterMidAdded.getHeading())
                     .build();
+            toWall = robot.follower.linearPathChainBuilder(barRightOuterTopAdded, pickupWallRightAdded);
         }
 
         @Override
         public Pose getEndPoseEst() {
-            return barRightOuterTop;
+            return barRightOuterMid;
         }
 
         @Override
@@ -154,19 +181,23 @@ public class StartRightOuter {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getError(barRightOuterMid).getX() < 3) {
+                    if (robot.follower.getError(barRightOuterMidAdded).getX() < 3) {
                         robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(barRightOuterTop) < 1.5) {
+                    if (robot.follower.getErrorDistance(barRightOuterTopAdded) < 1.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                        setPathState(4);
                         isFinished = true;
                     }
                     break;
-
             }
 
             return isFinished;
@@ -179,7 +210,11 @@ public class StartRightOuter {
 
         //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(2.5, 0.75));
+        }
+
+        public String getName() {
+            return "Start right outer To place Bar" + state;
         }
     }
 }

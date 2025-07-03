@@ -17,14 +17,15 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 import org.firstinspires.ftc.teamcode.utility.autoEnums.Specimen6AutoEnum;
 
 public class FromBarRightOuter {
-    public static class ToWallSuper implements PathPlanner {
-        /// Option To go left or right wall
-        /// expects robot.state.whereami to be correct
-        /// picks one up and transfers it and puts it in the o-zone
+    public static class ToWall implements PathPlanner {
+        /// Option to pickup and drop one
+        /// Option to go left or right wall
+        /// Expects robot.state.whereAmI to be correct
+        /// Ends at left or right wall
         // Variables
         boolean rightWall;
+        boolean superCycle;
         Pose offset;
-
         Pose2D visionResult;
         private Timer pathTimer;
         private int state = 0;
@@ -33,39 +34,57 @@ public class FromBarRightOuter {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        public ToWallSuper(Robot robot, Pose startPose, boolean rightWall) {
+        public ToWall(Robot robot, Pose startPose, boolean superCycle, boolean rightWall) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
             this.rightWall = rightWall;
+            this.superCycle = superCycle;
         }
         //Poses
-        //todo
         Pose controlPoint = new Pose(-24, -110);
         Pose midPoint = new Pose(-48, -48, Math.toRadians(-75));
 
+
+        Pose startLeftOuterAdded;
+        Pose redBasketAdded;
+        Pose startPoseAdded;
+        Pose controlPointAdded;
+        Pose midPointAdded;
+        Pose pickupWallRightAdded;
+        Pose pickupWallLeftAdded;
+
+
         //Paths
-        Path toBasket;
         PathChain toWall;
         PathBuilder toWallBuilder;
 
         @Override
         public void buildPaths(Pose offset) {
             this.offset = offset;
-            toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
+
+            startLeftOuterAdded = startLeftOuter.addReturn(offset);
+            redBasketAdded = redBasket.addReturn(offset);
+            startPoseAdded = startPose.addReturn(offset);
+            controlPointAdded = controlPoint.addReturn(offset);
+            midPointAdded = midPoint.addReturn(offset);
+            pickupWallRightAdded = pickupWallRight.addReturn(offset);
+            pickupWallLeftAdded = pickupWallLeft.addReturn(offset);
+
             toWallBuilder = robot.follower.pathBuilder()
-                    .addPath(new Path(new BezierCurve(new Point(barRightOuterTop), new Point(controlPoint), new Point(midPoint))))
-                    .setLinearHeadingInterpolation(barRightOuterTop.getHeading(), midPoint.getHeading(), 0.7);
+                    .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(midPointAdded))))
+                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), midPointAdded.getHeading(), 0.6);
 
             if (rightWall) {
-                toWallBuilder.addPath(robot.follower.linearPathBuilder(midPoint, pickupWallRight))
-                        .setLinearHeadingInterpolation(midPoint.getHeading(), pickupWallRight.getHeading(), 0.9);
+                toWallBuilder.addPath(robot.follower.linearPathBuilder(midPointAdded, pickupWallRightAdded))
+                        .setLinearHeadingInterpolation(midPointAdded.getHeading(), pickupWallRightAdded.getHeading(), 0.5);
             } else {
-                toWallBuilder.addPath(robot.follower.linearPathBuilder(midPoint, pickupWallLeft))
-                        .setLinearHeadingInterpolation(midPoint.getHeading(), pickupWallLeft.getHeading(), 0.9);
+                toWallBuilder.addPath(robot.follower.linearPathBuilder(midPointAdded, pickupWallLeftAdded))
+                        .setLinearHeadingInterpolation(midPointAdded.getHeading(), pickupWallLeftAdded.getHeading(), 0.5);
             }
             toWall = toWallBuilder.build();
         }
+
 
         @Override
         public Pose getEndPoseEst() {
@@ -80,11 +99,13 @@ public class FromBarRightOuter {
         public boolean run() {
             switch (state) {
                 case 0:
-                    if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
+                    if (!superCycle) {
+                        setPathState(6);
+                        break;
                     }
                     visionResult = robot.blockVision.getBlockPosition(true);
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        robot.stateMachine.goStore();
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robot.intakeSystem.setHSlidesInches(robot.follower.followYourHead(visionResult));
                         setPathState(1);
@@ -108,7 +129,6 @@ public class FromBarRightOuter {
                     break;
                 case 2:
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
-                        robot.stateMachine.goStore();
                         robot.doDriveShake = true;
                         robot.follower.startTeleopDrive();
                         robot.intakeSystem.intakeUntilColor();
@@ -146,26 +166,25 @@ public class FromBarRightOuter {
                 case 5:
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000){
                         robot.intakeSystem.setIntakePower(0);
-                        robot.telemetry.addData("wall", true);
-                        robot.stateMachine.goWall(true, robot.robotState.whereAmI == PlacePosEnum.lowSpecimen, false);
+                        robot.stateMachine.goWall(true, false, true);
                         setPathState(7);
                     }
                     break;
                     //Failed pickup
                 case 6:
                     robot.follower.followPath(toWall);
-                    robot.stateMachine.goWall(false, robot.robotState.whereAmI == PlacePosEnum.lowSpecimen, robot.robotState.atStorePos);
+                    robot.stateMachine.goWall(false, false, true);
                     setPathState(7);
                     break;
                 case 7:
-                    robot.telemetry.addData("wall", true);
-                    if (robot.follower.getError(pickupWallRight).getY() < 2) {
+                    if (robot.follower.getError(pickupWallRightAdded).getY() < 10) {
+                        robot.intakeSystem.setIntakePower(0);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(8);
                     }
                     break;
                 case 8:
-                    if (robot.outtakeSystem.seesWall() || pathTimer.getElapsedTimeSeconds() > 5) {
+                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.7) || pathTimer.getElapsedTimeSeconds() > 2.5) {
                         setPathState(9);
                     }
                     break;
@@ -191,9 +210,12 @@ public class FromBarRightOuter {
             pathTimer.resetTimer();
         }
 
-        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(0.5, 2.125));
+        }
+
+        public String getName() {
+            return "From Bar Right Outer To Wall, " + state;
         }
     }
 }

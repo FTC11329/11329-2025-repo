@@ -437,7 +437,7 @@ public class TeleopBlind {
                 whereAmI = PlacePosEnum.intake;
                 onceState = false;
                 onceTime = true;
-                stateMachine.finishGoToStoreFromSpec();
+                stateMachine.finishGoToStore();
             }
         }
 

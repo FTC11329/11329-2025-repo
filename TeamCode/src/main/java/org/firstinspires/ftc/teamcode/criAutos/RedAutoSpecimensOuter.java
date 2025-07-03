@@ -5,10 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromRedBasket;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftOuter;
+
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
@@ -37,7 +35,7 @@ public class RedAutoSpecimensOuter extends OpMode {
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
     Pose startPose = startRightOuter;
-
+    Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
     private int currentStep = 0;
@@ -64,14 +62,22 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightOuter.ToPlaceBar(robot, startPose, true));
-        steps.add(new FromBarRightOuter.ToWallSuper(robot, startPose, true));
-        steps.add(new FromWallRight.ToRightOuterBar(robot, startPose, true));
-        steps.add(new TestPaths.ToStartRightOuter(robot, startPose));
+        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
+
+        steps.add(new TestPaths.WaitSeconds(robot, lastPose(), 1));
+
+        steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), false, true));
+
+        steps.add(new TestPaths.ToPose(robot, lastPose(), new Pose(-48, 0)));
+
     }
 
     private Pose lastPose() {
-        return steps.get(steps.size() - 1).getEndPoseEst();
+        if (steps.isEmpty()) {
+            return startPose;
+        } else {
+            return steps.get(steps.size() - 1).getEndPoseEst();
+        }
     }
 
     @Override
@@ -84,24 +90,35 @@ public class RedAutoSpecimensOuter extends OpMode {
     public void loop() {
         robot.follower.update();
         Drawing.drawDebug(robot.follower);
-
-        telemetry.addData("where     ", robot.robotState.whereAmI);
-        telemetry.addData(" at store ", robot.robotState.atStorePos);
-        telemetry.addData("has intake", robot.robotState.hasInIntake);
-        telemetry.addData("has outake", robot.robotState.hasInOutake);
-
-        robot.loop();
-        if (currentStep >= steps.size() - 1) {
+        // Stops the robot if done
+        if (currentStep >= steps.size()) {
             telemetry.addData("Done", true);
             telemetry.update();
+            return;
         }
 
+        robot.loop();
+
+        telemetry.addData("time", robot.opmodeTimer.getElapsedTimeSeconds());
+        telemetry.addData("offset", totalOffset);
+        telemetry.addData("velocity", robot.follower.getVelocity());
+
+
+
         PathPlanner step = steps.get(currentStep);
+        telemetry.addData("name", step.getName());
         boolean done = step.run();
 
+        telemetry.update();
+
         if (done) {
-            Pose totalOffset = steps.get(currentStep).getOffset();
+            totalOffset = steps.get(currentStep).getOffset();
             currentStep++;
+            if (currentStep >= steps.size()) {
+                telemetry.addData("Done", true);
+                telemetry.update();
+                return;
+            }
             steps.get(currentStep).buildPaths(totalOffset);
         }
     }
