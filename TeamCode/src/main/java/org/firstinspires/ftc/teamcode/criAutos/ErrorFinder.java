@@ -38,8 +38,9 @@ public class ErrorFinder extends OpMode {
     int finished = 0;
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightInner;
-    Pose endPose = new Pose(-48, 0);
+    Pose startPose = startRightOuter;
+    Pose endPose = new Pose(0, -96);
+//    Pose endPose = new Pose(-48, 0);
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -67,9 +68,11 @@ public class ErrorFinder extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
+        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, false));
+        steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), false, true));
+
+        steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), true));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
 

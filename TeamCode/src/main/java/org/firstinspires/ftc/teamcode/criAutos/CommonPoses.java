@@ -7,15 +7,6 @@ public class CommonPoses {
     // Meaning also +x is the same direction
     // Meaning +y is left and -y is right
 
-    /*
-    // todo make offset work like this
-    public static Pose offset = new Pose();
-
-    public static void setOffset(Pose offset) {
-        this.offset = offset
-    }
-     */
-
     //todo:
     public static Pose startLeftOuter  = new Pose(64, 86.5, Math.toRadians(-90));
     public static Pose startLeftInner  = new Pose(64, 31.5, Math.toRadians(90));
@@ -48,9 +39,9 @@ public class CommonPoses {
     public static Pose barRightInnerMid = new Pose(0,    -17.1, Math.toRadians(-90));
     public static Pose barRightInnerBot = new Pose(-5.5, -17.1, Math.toRadians(-90));
 
-    public static Pose barRightOuterTop = new Pose(5.5,  -79, Math.toRadians(90));
-    public static Pose barRightOuterMid = new Pose(0,    -79, Math.toRadians(90));
-    public static Pose barRightOuterBot = new Pose(-5.5, -79, Math.toRadians(90));
+    public static Pose barRightOuterTop = new Pose(5.5,  -79.5, Math.toRadians(90));
+    public static Pose barRightOuterMid = new Pose(0,    -79.5, Math.toRadians(90));
+    public static Pose barRightOuterBot = new Pose(-5.5, -79.5, Math.toRadians(90));
 
     public static Pose innerSpikeRightTop = new Pose(-4,  -13.75, Math.toRadians(-90));
     public static Pose innerSpikeRightMid = new Pose(-12, -13.75, Math.toRadians(-90));

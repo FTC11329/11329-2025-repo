@@ -184,7 +184,7 @@ public class FromBarRightOuter {
                     }
                     break;
                 case 8:
-                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.7) || pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.7) || pathTimer.getElapsedTimeSeconds() > 0.8) {
                         setPathState(9);
                     }
                     break;
