@@ -59,24 +59,11 @@ public class test {
     private final Pose startPose = new Pose(-40, -63, Math.toRadians(90));
 
     /** Scoring Poses of our robot. */
-    private final Pose preloadPlace = new Pose(-55.6, -54.6, Math.toRadians(54));
-    private final Pose intakeSpike1 = new Pose(-52, -51, Math.toRadians(81));
-    private final Pose placeSpike1 = new Pose(-60.5, -52.7, Math.toRadians(80));
-
-    private final Pose intakeSpike2 = new Pose(-57.9, -51.2, Math.toRadians(90));
-    private final Pose placeSpike2 = new Pose(-60, -52.7, Math.toRadians(80));
-
-    private final Pose intakeSpike3 = new Pose(-58, -49, Math.toRadians(117));
-    private final Pose placeSpike3 = new Pose(-54.2, -55.7, Math.toRadians(45));
-
-    private final Pose subIntake = new Pose(-23, -6, Math.toRadians(0));
-    private final Pose subControlPoint = new Pose(-48.4, -10.3, Math.toRadians(0));
-
-    private final Pose afterSubPlace = new Pose(-53.75, -55.25, Math.toRadians(45));
-
-    private final Pose spikeSearch = new Pose(-59, -40, Math.toRadians(40));
-
     private final Pose reversing = new Pose(-40, -63, Math.toRadians(270));
+    private final Pose zeroing = new Pose(-0, -0, Math.toRadians(0));
+    private final Pose twelveSquared = new Pose(-144, -144, Math.toRadians(360));
+
+
 
     private Pose2D target2D;
     private boolean driveShake = false;
@@ -170,10 +157,10 @@ public class test {
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
 //        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(placeSub1)));
 //        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), placeSub1.getHeading());
-        scorePreload = follower.linearPathBuilder(startPose, preloadPlace);
+        scorePreload = follower.linearPathBuilder(startPose, reversing);
 
-        intakeSpike1Path = follower.linearPathBuilder(preloadPlace, intakeSpike1);
-        placeSpike1Path = follower.linearPathBuilder(intakeSpike1, placeSpike1);
+        intakeSpike1Path = follower.linearPathBuilder(reversing, zeroing);
+        placeSpike1Path = follower.linearPathBuilder(zeroing, twelveSquared);
 
         intakeSpike2Path = follower.linearPathBuilder(placeSpike1, intakeSpike2);
         placeSpike2Path = follower.linearPathBuilder(intakeSpike2, placeSpike2);
