@@ -19,6 +19,13 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToStartRightOuter(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
+
         public ToStartRightOuter(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -85,7 +92,7 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
-        public ToAboveRedBasket(Robot robot, Pose startPose) {
+        public ToAboveRedBasket(Robot robot, Pose startPose, Pose offset) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
@@ -154,6 +161,23 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToAboveBlueBasket(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
+        public ToAboveBlueBasket(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
+        public ToAboveBlueBasket(Robot robot, Pose startPose) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToAboveBlueBasket(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -227,6 +251,12 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToBelowLeftSub(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToBelowLeftSub(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -295,6 +325,13 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+
+        public ToBelowRightSub(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToBelowRightSub(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -363,6 +400,13 @@ public class TestPaths {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+
+        public ToCenterField(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToCenterField(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -433,6 +477,13 @@ public class TestPaths {
         private volatile Robot robot;
         private Pose startPose;
         private Pose endPose;
+        public ToPose(Robot robot, Pose startPose, Pose endPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.endPose = endPose;
+            this.startPose = startPose;
+        }
         public ToPose(Robot robot, Pose startPose, Pose endPose) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -514,6 +565,14 @@ public class TestPaths {
         private volatile Robot robot;
         private Pose startPose;
         private double seconds;
+        public WaitSeconds(Robot robot, Pose startPose, double seconds, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.seconds = seconds;
+        }
+
         public WaitSeconds(Robot robot, Pose startPose, double seconds) {
             pathTimer = new Timer();
             this.robot = robot;
