@@ -14,7 +14,7 @@ public class StartLeftOuter {
     public static class ToPlaceBasket implements PathPlanner {
         /// Ends at basket place pos with outake
         //Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -36,7 +36,7 @@ public class StartLeftOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toBasket = robot.follower.linearPathBuilder(startLeftOuter, redBasket);
         }
 
@@ -88,7 +88,9 @@ public class StartLeftOuter {
             this.state = state;
             pathTimer.resetTimer();
         }
-
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
@@ -106,7 +108,7 @@ public class StartLeftOuter {
         /// Expects arm to start under the bar
         // Variables
         boolean highBar;
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -130,7 +132,7 @@ public class StartLeftOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startLeftOuterAdded = startLeftOuter.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
@@ -157,6 +159,9 @@ public class StartLeftOuter {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         //todo

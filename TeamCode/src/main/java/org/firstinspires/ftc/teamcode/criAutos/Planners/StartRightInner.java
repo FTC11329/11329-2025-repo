@@ -17,7 +17,7 @@ public class StartRightInner {
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -47,7 +47,7 @@ public class StartRightInner {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add();
 
             startPoseAdded = startPose.addReturn(offset);
             barRightInnerMidBelowAdded = new Pose(-32, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
@@ -126,6 +126,9 @@ public class StartRightInner {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         //todo

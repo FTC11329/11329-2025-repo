@@ -17,7 +17,7 @@ public class StartRightOuter {
     public static class ToPlaceBasket implements PathPlanner {
         /// Ends at basket place pos with outake
         //Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -42,7 +42,7 @@ public class StartRightOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add();
 
             startLeftOuterAdded = startLeftOuter.addReturn(offset);
             blueBasketAdded = blueBasket.addReturn(offset);
@@ -98,6 +98,9 @@ public class StartRightOuter {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -115,7 +118,7 @@ public class StartRightOuter {
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -144,7 +147,7 @@ public class StartRightOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             controlPointAdded = controlPoint.addReturn(offset);
@@ -206,6 +209,9 @@ public class StartRightOuter {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         //todo

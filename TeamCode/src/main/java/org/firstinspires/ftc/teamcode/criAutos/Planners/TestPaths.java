@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 public class TestPaths {
     public static class ToStartRightOuter implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -31,7 +31,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, startRightOuter.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -62,6 +62,9 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -74,7 +77,7 @@ public class TestPaths {
     }
     public static class ToAboveRedBasket implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -96,7 +99,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, aboveRedBasket.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -127,6 +130,9 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -140,7 +146,7 @@ public class TestPaths {
 
     public static class ToAboveBlueBasket implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -161,7 +167,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, aboveBlueBasket.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -197,6 +203,9 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -210,7 +219,7 @@ public class TestPaths {
 
     public static class ToBelowLeftSub implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -231,7 +240,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, belowLeftSub.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -262,6 +271,9 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -275,7 +287,7 @@ public class TestPaths {
 
     public static class ToBelowRightSub implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -296,7 +308,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, belowRightSub.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -327,6 +339,9 @@ public class TestPaths {
             this.state = state;
             pathTimer.resetTimer();
         }
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
 
         //todo
         public Pose getOffset() {
@@ -340,7 +355,7 @@ public class TestPaths {
 
     public static class ToCenterField implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -361,7 +376,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             toOpen = robot.follower.linearPathBuilder(startPose, centerField.addReturn(offset));
             toOpen.setConstantHeadingInterpolation(startPose.getHeading());
         }
@@ -393,6 +408,10 @@ public class TestPaths {
             pathTimer.resetTimer();
         }
 
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
@@ -405,7 +424,7 @@ public class TestPaths {
 
     public static class ToPose implements PathPlanner {
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -429,7 +448,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
             endPoseAdded = endPose.addReturn(offset);
             startPoseAdded = startPose.addReturn(offset);
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, endPoseAdded);
@@ -468,6 +487,10 @@ public class TestPaths {
             pathTimer.resetTimer();
         }
 
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
@@ -482,7 +505,7 @@ public class TestPaths {
     public static class WaitSeconds implements PathPlanner {
         /// Waits the amount of time passed through in seconds
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -503,7 +526,7 @@ public class TestPaths {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
         }
 
         @Override
@@ -530,6 +553,10 @@ public class TestPaths {
         public void setPathState(int state) {
             this.state = state;
             pathTimer.resetTimer();
+        }
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         //todo
