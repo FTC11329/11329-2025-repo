@@ -93,6 +93,12 @@ public class TestPaths {
         private volatile Robot robot;
         private Pose startPose;
         public ToAboveRedBasket(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
+        public ToAboveRedBasket(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
@@ -163,17 +169,6 @@ public class TestPaths {
         private Pose startPose;
         public ToAboveBlueBasket(Robot robot, Pose startPose, Pose offset) {
             addToOffset(offset);
-            pathTimer = new Timer();
-            this.robot = robot;
-            this.startPose = startPose;
-        }
-        public ToAboveBlueBasket(Robot robot, Pose startPose, Pose offset) {
-            addToOffset(offset);
-            pathTimer = new Timer();
-            this.robot = robot;
-            this.startPose = startPose;
-        }
-        public ToAboveBlueBasket(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;

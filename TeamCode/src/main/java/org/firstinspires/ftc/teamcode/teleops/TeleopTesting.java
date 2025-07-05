@@ -159,11 +159,11 @@ public class TeleopTesting {
 
 
         if (gamepad1.left_bumper) {
-//            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-            intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
+            outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+//            intakeSystem.setDepoServoPos(Constants.Intake.depoDepo);
         } else {
-//            outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-            intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
+            outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+//            intakeSystem.setDepoServoPos(Constants.Intake.depoStore);
         }
         if (gamepad1.dpad_right) {
             intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
@@ -205,9 +205,7 @@ public class TeleopTesting {
         testValue2 += 5 * (-gamepad2.left_stick_y);
         testValue3 += 0.003 * (gamepad2.right_stick_y);
 
-        if (gamepad1.touchpad) {
-            gamepad1.runRumbleEffect(builder.build());
-        }
+        outtakeSystem.setLeftFlap(testValue);
 
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
@@ -215,7 +213,7 @@ public class TeleopTesting {
 //        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
 //        intakeSystem.setDepoServoPos(testValue);
-        telemetry.addData("testValue H", testValue);
+        telemetry.addData("testValue1H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());

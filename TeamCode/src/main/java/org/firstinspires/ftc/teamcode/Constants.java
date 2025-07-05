@@ -131,6 +131,15 @@ public class Constants {
         public static double seesWallDistanceBlue = 1.7;
         public static double seesWallDistanceRed = 1.7;
         public static double seesTransferDistance = 1.42;
+        //todo
+        public static double leftFlapUp = 0;
+        public static double leftFlapWall = 0.3482;
+        public static double leftFlapSpike = 0.4573;
+
+        public static double rightFlapUp = 0;
+        public static double rightFlapWall = 0;
+        public static double rightFlapSpike = 0;
+
         public static double p = 0.03;
         public static double i = 0;
         public static double d = 0.00001;

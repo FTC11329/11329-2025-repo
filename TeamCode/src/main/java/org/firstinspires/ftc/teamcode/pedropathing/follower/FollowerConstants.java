@@ -161,7 +161,7 @@ public class FollowerConstants {
     // When the robot is at the end of its current Path or PathChain and the heading error goes
     // below this value, then end the Path. This is in radians.
     // This can be custom set for each Path.
-    public static double pathEndHeadingConstraint = 0.007;
+    public static double pathEndHeadingConstraint = 0.017;
 
     // When the t-value of the closest point to the robot on the Path is greater than this value,
     // then the Path is considered at its end.

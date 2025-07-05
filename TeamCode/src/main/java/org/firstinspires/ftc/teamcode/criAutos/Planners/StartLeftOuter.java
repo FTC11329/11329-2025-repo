@@ -24,6 +24,13 @@ public class StartLeftOuter {
         private Pose startPose;
         private boolean preExtend;
 
+        public ToPlaceBasket(Robot robot, Pose startPose, boolean preExtend, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
         public ToPlaceBasket(Robot robot, Pose startPose, boolean preExtend) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -91,86 +98,13 @@ public class StartLeftOuter {
         public void addToOffset(Pose offset) {
             this.offset = offset;
         }
-        //todo
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
 
         public String getName() {
             return "Start Left Outer To place Basket" + state;
-        }
-    }
-
-    //todo paths
-    public static class ToPlaceBar implements PathPlanner {
-        /// Places on bar left inner with option for low or high
-        /// Ends facing left sub intake at store preset
-        /// Expects arm to start under the bar
-        // Variables
-        boolean highBar;
-        Pose offset = new Pose();
-        private Timer pathTimer;
-        private int state = 0;
-        private boolean isFinished = false;
-
-        // Pass-through Variables
-        private volatile Robot robot;
-        private Pose startPose;
-        public ToPlaceBar(Robot robot, Pose startPose, boolean highBar) {
-            pathTimer = new Timer();
-            this.robot = robot;
-            this.startPose = startPose;
-            this.highBar = highBar;
-        }
-        //Poses
-        //todo
-        Pose startLeftOuterAdded;
-        Pose redBasketAdded;
-
-        //Paths
-        Path toBasket;
-
-        @Override
-        public void buildPaths(Pose offset) {
-            this.offset.add(offset);
-
-            startLeftOuterAdded = startLeftOuter.addReturn(offset);
-            redBasketAdded = redBasket.addReturn(offset);
-
-            toBasket = robot.follower.linearPathBuilder(startLeftOuterAdded, redBasketAdded);
-        }
-
-
-        @Override
-        public Pose getEndPoseEst() {
-            //todo
-            return new Pose();
-        }
-
-        @Override
-        public boolean run() {
-            switch (state) {
-                case 0:
-            }
-
-            return isFinished;
-        }
-
-        public void setPathState(int state) {
-            this.state = state;
-            pathTimer.resetTimer();
-        }
-        public void addToOffset(Pose offset) {
-            this.offset = offset;
-        }
-
-        //todo
-        public Pose getOffset() {
-            return offset.addReturn(new Pose());
-        }
-
-        public String getName() {
-            return "Start Left Outer To place Bar" + state;
         }
     }
 }

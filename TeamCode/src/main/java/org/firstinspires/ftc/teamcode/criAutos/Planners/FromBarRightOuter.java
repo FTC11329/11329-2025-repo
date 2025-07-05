@@ -25,7 +25,7 @@ public class FromBarRightOuter {
         // Variables
         boolean rightWall;
         boolean superCycle;
-        Pose offset;
+        Pose offset = new Pose();
         Pose2D visionResult;
         private Timer pathTimer;
         private int state = 0;
@@ -34,6 +34,14 @@ public class FromBarRightOuter {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToWall(Robot robot, Pose startPose, boolean superCycle, boolean rightWall, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.rightWall = rightWall;
+            this.superCycle = superCycle;
+        }
         public ToWall(Robot robot, Pose startPose, boolean superCycle, boolean rightWall) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -42,7 +50,7 @@ public class FromBarRightOuter {
             this.superCycle = superCycle;
         }
         //Poses
-        Pose controlPoint = new Pose(-24, -110);
+        Pose controlPoint = new Pose(-36, -110);
         Pose midPoint = new Pose(-48, -48, Math.toRadians(-75));
 
 
@@ -61,7 +69,7 @@ public class FromBarRightOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startLeftOuterAdded = startLeftOuter.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
@@ -73,14 +81,14 @@ public class FromBarRightOuter {
 
             toWallBuilder = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(midPointAdded))))
-                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), midPointAdded.getHeading(), 0.6);
+                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), 0, 0.6);
 
             if (rightWall) {
                 toWallBuilder.addPath(robot.follower.linearPathBuilder(midPointAdded, pickupWallRightAdded))
-                        .setLinearHeadingInterpolation(midPointAdded.getHeading(), pickupWallRightAdded.getHeading(), 0.5);
+                        .setConstantHeadingInterpolation(pickupWallRightAdded.getHeading());
             } else {
                 toWallBuilder.addPath(robot.follower.linearPathBuilder(midPointAdded, pickupWallLeftAdded))
-                        .setLinearHeadingInterpolation(midPointAdded.getHeading(), pickupWallLeftAdded.getHeading(), 0.5);
+                        .setConstantHeadingInterpolation(pickupWallLeftAdded.getHeading());
             }
             toWall = toWallBuilder.build();
         }
@@ -167,6 +175,7 @@ public class FromBarRightOuter {
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000){
                         robot.intakeSystem.setIntakePower(0);
                         robot.stateMachine.goWall(true, false, true);
+                        robot.outtakeSystem.setFlapsDown();
                         setPathState(7);
                     }
                     break;
@@ -174,6 +183,7 @@ public class FromBarRightOuter {
                 case 6:
                     robot.follower.followPath(toWall);
                     robot.stateMachine.goWall(false, false, true);
+                    robot.outtakeSystem.setFlapsDown();
                     setPathState(7);
                     break;
                 case 7:
@@ -211,8 +221,13 @@ public class FromBarRightOuter {
         }
 
         public Pose getOffset() {
-            return offset.addReturn(new Pose(0.5, 2.125));
+            return offset.addReturn(new Pose(-0.25, 1.75));
         }
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
 
         public String getName() {
             return "From Bar Right Outer To Wall, " + state;

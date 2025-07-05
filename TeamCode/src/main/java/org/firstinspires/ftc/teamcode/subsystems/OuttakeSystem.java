@@ -8,14 +8,16 @@ import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 public class OuttakeSystem {
-    ElapsedTime time = new ElapsedTime();
 
+    public BackFlaps backFlaps;
     public OuttakeArm outtakeArm;
     public VerticalSlides vSlides;
 
     public OuttakeSystem(HardwareMap hardwareMap, RobotSideEnum robotSide, boolean initArm) {
+        backFlaps = new BackFlaps(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);
         outtakeArm = new OuttakeArm(hardwareMap, robotSide, initArm);
+
     }
 
     public void initArm() {
@@ -28,6 +30,19 @@ public class OuttakeSystem {
 
     public void setArmPos(double newPos) {
         outtakeArm.setArmPos(newPos);
+    }
+
+    public void setFlapsUp() {
+        backFlaps.setFlapsUp();
+    }
+    public void setFlapsDown() {
+        backFlaps.setFlapsDown();
+    }
+    public void setLeftFlap(double set) {
+        backFlaps.setLeftFlap(set);
+    }
+    public void setRightFlap(double set) {
+        backFlaps.setRightFlap(set);
     }
 
     public void manualWrist(double power) {

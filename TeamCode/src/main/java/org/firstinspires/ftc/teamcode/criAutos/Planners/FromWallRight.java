@@ -19,7 +19,8 @@ public class FromWallRight {
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
-        Pose offset;
+        Pose offset = new Pose();
+
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -27,6 +28,13 @@ public class FromWallRight {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToRightOuterBar(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.highBar = highBar;
+        }
         public ToRightOuterBar(Robot robot, Pose startPose, boolean highBar) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -34,34 +42,31 @@ public class FromWallRight {
             this.highBar = highBar;
         }
         //Poses
-        Pose controlPoint = new Pose(-32, -110);
+        Pose controlPoint = new Pose(-39, -114);
 
         Pose startPoseAdded;
         Pose controlPointAdded;
-        Pose barRightOuterMidShifted;
         Pose barRightOuterMidAdded;
-        Pose barRightOuterBotAdded;
+        Pose barRightOuterTopAdded;
 
         //Paths
         PathChain toBar;
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
+//            nextOffset = this.offset + nextOffset
 
             startPoseAdded = startPose.addReturn(offset);
             controlPointAdded = controlPoint.addReturn(offset);
-            barRightOuterMidShifted = barRightOuterMid.addReturn(new Pose(0, -15)).addReturn(offset);
-            barRightOuterMidAdded = barRightOuterMid.addReturn(offset);
-            barRightOuterBotAdded = barRightOuterBot.addReturn(offset);
+            barRightOuterMidAdded = barRightOuterMid.addReturn(offset).addReturn(thisOffset);
+            barRightOuterTopAdded = barRightOuterTop.addReturn(offset).addReturn(thisOffset);
 
             toBar = robot.follower.pathBuilder()
-                    .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidShifted))))
-                    .setTangentHeadingInterpolation()
-                    .addPath(robot.follower.linearPathBuilder(barRightOuterMidShifted, barRightOuterMidAdded))
-                    .setConstantHeadingInterpolation(barRightOuterBotAdded.getHeading())
-                    .addPath(robot.follower.linearPathBuilder(barRightOuterBotAdded, barRightOuterMidAdded))
-                    .setConstantHeadingInterpolation(barRightOuterBotAdded.getHeading())
+                    .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidAdded))))
+                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), barRightOuterMidAdded.getHeading(), 0.3)
+                    .addPath(robot.follower.linearPathBuilder(barRightOuterMidAdded, barRightOuterTopAdded))
+                    .setConstantHeadingInterpolation(barRightOuterTopAdded.getHeading())
                     .build();
         }
 
@@ -80,6 +85,7 @@ public class FromWallRight {
                     } else {
                         robot.stateMachine.goLowSpecimen(false);
                     }
+                    robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toBar);
                     setPathState(1);
                     break;
@@ -90,7 +96,7 @@ public class FromWallRight {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (robot.follower.getError(barRightOuterTopAdded).getX() < 1.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                         isFinished = true;
@@ -106,9 +112,12 @@ public class FromWallRight {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+        Pose thisOffset = new Pose(-2.34, -0.38);
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(0, -0.59));
         }
 
         public String getName() {
@@ -122,7 +131,7 @@ public class FromWallRight {
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -130,6 +139,13 @@ public class FromWallRight {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToRightInnerBar(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.highBar = highBar;
+        }
         public ToRightInnerBar(Robot robot, Pose startPose, boolean highBar) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -137,35 +153,35 @@ public class FromWallRight {
             this.highBar = highBar;
         }
         //Poses
-        //todo
         Pose startPoseAdded;
-        Pose startLeftOuterAdded;
-        Pose barRightInnerMidBelowAdded;
-        Pose barRightInnerMidLeftAdded;
+        Pose barRightInnerBelowAdded;
+        Pose barRightInnerLeftAdded;
         Pose barRightInnerMidAdded;
         Pose barRightInnerTopAdded;
 
         //Paths
-        PathChain toBar;
-        Path sweepBar;
+        PathChain toOpen;
+        PathChain toNearBar;
+        PathChain sweepBar;
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
-            barRightInnerMidBelowAdded = new Pose(-32, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
-            barRightInnerMidLeftAdded = new Pose(barRightInnerMid.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            barRightInnerBelowAdded = new Pose(-32, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            barRightInnerLeftAdded = new Pose(barRightInnerBot.getX(), innerSpikeRightBot.getY(), Math.toRadians(-90)).addReturn(offset);
             barRightInnerMidAdded = barRightInnerMid.addReturn(offset);
             barRightInnerTopAdded = barRightInnerTop.addReturn(offset);
 
-            toBar = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPoseAdded, barRightInnerMidBelowAdded))
-                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidBelowAdded, barRightInnerMidLeftAdded))
-                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidLeftAdded, barRightInnerMidAdded))
-                    .build();
+            toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barRightInnerBelowAdded);
 
-            sweepBar = robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded);
+            toNearBar = robot.follower.linearPathChainBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+
+            sweepBar = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(barRightInnerLeftAdded, barRightInnerMidAdded))
+                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded))
+                    .build();
         }
 
         @Override
@@ -183,36 +199,52 @@ public class FromWallRight {
                     } else {
                         robot.stateMachine.goLowSpecimen(false);
                     }
-                    robot.follower.followPath(toBar);
+                    robot.follower.followPath(toOpen);
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getError(barRightInnerMidAdded).getX() < 3) {
+                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 0.75) {
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 0) {
+                        robot.follower.followPath(toNearBar);
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 3) {
                         if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
                         }
-                        setPathState(2);
+                        robot.follower.followPath(sweepBar);
+                        setPathState(4);
                     }
                     break;
-                case 2:
+                case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                         robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
-                        robot.follower.followPath(sweepBar);
-                        setPathState(3);
+                        robot.outtakeSystem.setFlapsDown();
+                        setPathState(5);
                     }
                     break;
-                case 3:
+                case 5:
                     if (robot.follower.getError(barRightInnerTopAdded).getX() < 1.5) {
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        setPathState(6);
                         isFinished = true;
-                        setPathState(4);
                     }
                     break;
             }
 
             return isFinished;
+        }
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         public void setPathState(int state) {

@@ -19,7 +19,7 @@ public class FromBarRightInner {
         // Variables
         boolean rightWall;
         int pushSpike;
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -27,6 +27,15 @@ public class FromBarRightInner {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToWall(Robot robot, Pose startPose, int pushSpike, boolean rightWall, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.rightWall = rightWall;
+            this.pushSpike = pushSpike;
+        }
+
         public ToWall(Robot robot, Pose startPose, int pushSpike, boolean rightWall) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -34,6 +43,8 @@ public class FromBarRightInner {
             this.rightWall = rightWall;
             this.pushSpike = pushSpike;
         }
+
+
         //Poses
         Pose startPoseLeftAdded;
         Pose wallAdded;
@@ -46,7 +57,7 @@ public class FromBarRightInner {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseLeftAdded = new Pose(startPose.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
             if (rightWall) {
@@ -105,13 +116,13 @@ public class FromBarRightInner {
                     break;
                 case 1:
                     if (robot.follower.getErrorDistance(targetPoseAdded) < 1) {
-                        //todo set left back flap down
+                        robot.outtakeSystem.setLeftFlap(Constants.Outtake.leftFlapSpike);
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
-                        //todo set back flaps normal
+                        robot.outtakeSystem.setLeftFlap(Constants.Outtake.leftFlapWall);
                         setPathState(3);
                     }
                     break;
@@ -142,14 +153,19 @@ public class FromBarRightInner {
             pathTimer.resetTimer();
         }
 
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
         //todo
         public Pose getOffset() {
             if (rightWall) {
-                new Pose(-1.9, 0.7);
+                return offset.addReturn(new Pose(0, 1.0));
             } else {
-                new Pose(-1.4, -0.2);
+                return offset.addReturn(new Pose(0, 0.9));
             }
-            return offset.addReturn(new Pose());
         }
 
         public String getName() {

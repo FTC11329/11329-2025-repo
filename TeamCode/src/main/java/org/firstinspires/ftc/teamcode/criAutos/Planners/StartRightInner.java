@@ -25,6 +25,12 @@ public class StartRightInner {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToRightInnerBar(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.highBar = highBar;
+        }
         public ToRightInnerBar(Robot robot, Pose startPose, boolean highBar) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -32,37 +38,35 @@ public class StartRightInner {
             this.highBar = highBar;
         }
         //Poses
-        //todo
         Pose startPoseAdded;
-        Pose startLeftOuterAdded;
-        Pose barRightInnerMidBelowAdded;
-        Pose barRightInnerMidLeftAdded;
+        Pose barRightInnerBelowAdded;
+        Pose barRightInnerLeftAdded;
         Pose barRightInnerMidAdded;
         Pose barRightInnerTopAdded;
 
         //Paths
         PathChain toOpen;
-        PathChain toBar;
-        Path sweepBar;
+        PathChain toNearBar;
+        PathChain sweepBar;
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset.add();
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
-            barRightInnerMidBelowAdded = new Pose(-32, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
-            barRightInnerMidLeftAdded = new Pose(barRightInnerMid.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            barRightInnerBelowAdded = new Pose(-32, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            barRightInnerLeftAdded = new Pose(barRightInnerBot.getX(), innerSpikeRightBot.getY(), Math.toRadians(-90)).addReturn(offset);
             barRightInnerMidAdded = barRightInnerMid.addReturn(offset);
             barRightInnerTopAdded = barRightInnerTop.addReturn(offset);
 
-            toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barRightInnerMidBelowAdded);
+            toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barRightInnerBelowAdded);
 
-            toBar = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidBelowAdded, barRightInnerMidLeftAdded))
-                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidLeftAdded, barRightInnerMidAdded))
+            toNearBar = robot.follower.linearPathChainBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+
+            sweepBar = robot.follower.pathBuilder()
+                    .addPath(robot.follower.linearPathBuilder(barRightInnerLeftAdded, barRightInnerMidAdded))
+                    .addPath(robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded))
                     .build();
-
-            sweepBar = robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded);
         }
 
         @Override
@@ -84,30 +88,31 @@ public class StartRightInner {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barRightInnerMidBelowAdded) < 0.75) {
+                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 0.75) {
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
-                        robot.follower.followPath(toBar);
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                        robot.follower.followPath(toNearBar);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.follower.getError(barRightInnerMidAdded).getX() < 3) {
+                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 3) {
                         if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
                         }
+                        robot.follower.followPath(sweepBar);
                         setPathState(4);
                     }
                     break;
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                         robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
-                        robot.follower.followPath(sweepBar);
+                        robot.outtakeSystem.setFlapsDown();
                         setPathState(5);
                     }
                     break;
@@ -131,9 +136,8 @@ public class StartRightInner {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-1.1, 0.7));
+            return offset.addReturn(new Pose(0, -1.1));
         }
 
         public String getName() {

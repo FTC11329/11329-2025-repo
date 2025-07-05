@@ -34,13 +34,14 @@ import java.util.List;
 
 @Autonomous(name = "Error Finder", group = " Comp", preselectTeleOp = "New Tele-op Blue")
 public class ErrorFinder extends OpMode {
-    // todo How the robot is setup
     int finished = 0;
+    // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightOuter;
-    Pose endPose = new Pose(0, -96);
-//    Pose endPose = new Pose(-48, 0);
+    Pose startPose = startRightInner;
+//    Pose endPose = new Pose(0, 0);
+//    Pose endPose = new Pose(0, -96);
+    Pose endPose = new Pose(-48, 0);
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -68,11 +69,9 @@ public class ErrorFinder extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
 
-        steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), false, true));
-
-        steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), true));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, false));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
 
@@ -129,10 +128,11 @@ public class ErrorFinder extends OpMode {
                 Pose offsetCurrentPose = robot.follower.getPose().subtractReturn(totalOffset);
                 Pose offsetTargetPose = endPose;
                 Pose endOffset =  offsetTargetPose.subtractReturn(offsetCurrentPose);
-                telemetry.addData("X", endOffset.getX());
-                telemetry.addData("Y", endOffset.getY());
+                telemetry.addData("X", -endOffset.getX());
+                telemetry.addData("Y", -endOffset.getY());
                 telemetry.update();
                 break;
         }
+
     }
 }

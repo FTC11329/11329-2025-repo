@@ -26,6 +26,13 @@ public class StartRightOuter {
         private volatile Robot robot;
         private Pose startPose;
         private boolean preExtend;
+        public ToPlaceBasket(Robot robot, Pose startPose, boolean preExtend, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
         public ToPlaceBasket(Robot robot, Pose startPose, boolean preExtend) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -42,7 +49,7 @@ public class StartRightOuter {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset.add();
+            this.offset.add(offset);
 
             startLeftOuterAdded = startLeftOuter.addReturn(offset);
             blueBasketAdded = blueBasket.addReturn(offset);
@@ -102,7 +109,7 @@ public class StartRightOuter {
             this.offset = offset;
         }
 
-        //todo
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -157,7 +164,7 @@ public class StartRightOuter {
 
             toBar = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidAdded))))
-                    .setLinearHeadingInterpolation(0, barRightOuterMidAdded.getHeading(), 0.7)
+                    .setConstantHeadingInterpolation(Math.toRadians(90))
                     .addPath(robot.follower.linearPathBuilder(barRightOuterMidAdded, barRightOuterTopAdded))
                     .setConstantHeadingInterpolation(barRightOuterMidAdded.getHeading())
                     .build();
@@ -214,9 +221,8 @@ public class StartRightOuter {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(2.5, 0.75));
+            return offset.addReturn(new Pose(2, 2));
         }
 
         public String getName() {

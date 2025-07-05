@@ -23,7 +23,7 @@ public class FromBlueBasket {
         /// has the intake extended if pre extend
 
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -33,6 +33,13 @@ public class FromBlueBasket {
         private volatile Robot robot;
         private Pose startPose;
         private boolean preExtend;
+        public ToPickupAndPlaceSpike1(Robot robot, Pose startPose, boolean preExtend, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
         public ToPickupAndPlaceSpike1(Robot robot, Pose startPose, boolean preExtend) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -49,7 +56,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             spike1Added = rightOuterSpike1.addReturn(offset);
@@ -137,7 +144,11 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -154,7 +165,7 @@ public class FromBlueBasket {
         /// has the intake extended if pre extend
 
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -164,6 +175,13 @@ public class FromBlueBasket {
         private volatile Robot robot;
         private Pose startPose;
         private boolean preExtend;
+        public ToPickupAndPlaceSpike2(Robot robot, Pose startPose, boolean preExtend, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
         public ToPickupAndPlaceSpike2(Robot robot, Pose startPose, boolean preExtend) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -171,7 +189,7 @@ public class FromBlueBasket {
             this.preExtend = preExtend;
         }
         //Poses
-        //todo:
+        //todo low priority
         Pose startPoseAdded;
         Pose spike2Added;
         Pose redBasketAdded;
@@ -182,7 +200,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             spike2Added = rightOuterSpike2.addReturn(offset);
@@ -270,7 +288,11 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -287,7 +309,7 @@ public class FromBlueBasket {
         /// has the intake extended if pre extend
 
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private int transferState = -1;
@@ -296,13 +318,19 @@ public class FromBlueBasket {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToPickupAndPlaceSpike3(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToPickupAndPlaceSpike3(Robot robot, Pose startPose) {
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
         }
         //Poses
-        //todo:
+        //todo low priority
         Pose startPoseAdded;
         Pose spike3Added;
         Pose redBasketAdded;
@@ -313,7 +341,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             spike3Added = rightOuterSpike3.addReturn(offset);
@@ -398,7 +426,12 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -415,7 +448,7 @@ public class FromBlueBasket {
         /// Fine with being at store preset
         /// If we run out of time, we will go park and not continue other steps
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -424,12 +457,17 @@ public class FromBlueBasket {
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
+        public ToPickupAndPlaceSubYellow(Robot robot, Pose startPose, Pose offset) {
+            addToOffset(offset);
+            this.robot = robot;
+            this.startPose = startPose;
+        }
         public ToPickupAndPlaceSubYellow(Robot robot, Pose startPose) {
             this.robot = robot;
             this.startPose = startPose;
         }
         //Poses
-        //todo:
+        //todo low priority
         private final Pose toSubControlPoint = new Pose();
         private final Pose toBasketControlPoint = new Pose();
 
@@ -445,7 +483,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             Pose startPoseAdded = startPose.addReturn(offset);
             Pose toSubControlPointAdded = toSubControlPoint.addReturn(offset);
@@ -586,7 +624,12 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -604,7 +647,7 @@ public class FromBlueBasket {
         /// +1 color and -1 piece to human player
         /// Has an option to go left or right wall
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer wristTimer;
         private Timer pathTimer;
         private int state = 0;
@@ -615,6 +658,14 @@ public class FromBlueBasket {
         private volatile Robot robot;
         private Pose startPose;
         private boolean leftWall;
+        public ToPickupColorFromSubToPickupWall(Robot robot, Pose startPose, boolean leftWall, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            wristTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.leftWall = leftWall;
+        }
         public ToPickupColorFromSubToPickupWall(Robot robot, Pose startPose, boolean leftWall) {
             pathTimer = new Timer();
             wristTimer = new Timer();
@@ -623,7 +674,7 @@ public class FromBlueBasket {
             this.leftWall = leftWall;
         }
         //Poses
-        //todo
+        //todo low priority
         private final Pose toSubControlPoint = new Pose();
 
         private final Pose toRightWallControlPoint1 = new Pose();
@@ -653,7 +704,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             toSubControlPointAdded = toSubControlPoint.addReturn(offset);
@@ -831,7 +882,12 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -847,7 +903,7 @@ public class FromBlueBasket {
         /// -1 piece to human player
         /// Has an option to go left or right wall
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -858,6 +914,13 @@ public class FromBlueBasket {
         private Pose startPose;
         private boolean leftWall;
 
+        public ToPickupWall(Robot robot, Pose startPose, boolean leftWall, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.leftWall = leftWall;
+        }
         public ToPickupWall(Robot robot, Pose startPose, boolean leftWall) {
             pathTimer = new Timer();
             this.robot = robot;
@@ -873,7 +936,7 @@ public class FromBlueBasket {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             Pose startPoseAdded = startPose.addReturn(offset);
             Pose redBasketAdded = redBasket.addReturn(offset);
@@ -963,7 +1026,12 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        //todo
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
+        //todo low priority
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }

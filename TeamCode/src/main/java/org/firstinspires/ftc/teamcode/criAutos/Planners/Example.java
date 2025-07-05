@@ -11,7 +11,7 @@ public class Example {
     public static class NAME implements PathPlanner {
         /// DESCRIPTION
         // Variables
-        Pose offset;
+        Pose offset = new Pose();
         private Timer pathTimer;
         private int state = 0;
         private boolean isFinished = false;
@@ -34,7 +34,7 @@ public class Example {
 
         @Override
         public void buildPaths(Pose offset) {
-            this.offset = offset;
+            this.offset.add(offset);
 
             startPoseAdded = startPose.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
@@ -65,6 +65,10 @@ public class Example {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+        }
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         public String getName() {

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public interface PathPlanner {
     // Run the step, return true when it's done

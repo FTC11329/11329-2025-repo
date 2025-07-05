@@ -31,9 +31,9 @@ public class CommonPoses {
     public static Pose barLeftOuterMid  = new Pose();
     public static Pose barLeftOuterBot  = new Pose();
 
-    public static Pose barLeftInnerTop  = new Pose();
-    public static Pose barLeftInnerMid  = new Pose();
-    public static Pose barLeftInnerBot  = new Pose();
+    public static Pose barLeftInnerTop  = new Pose(5.5, 17.1);
+    public static Pose barLeftInnerMid  = new Pose(0, 17.1);
+    public static Pose barLeftInnerBot  = new Pose(-5.5, 17.1);
 
     public static Pose barRightInnerTop = new Pose(5.5,  -17.1, Math.toRadians(-90));
     public static Pose barRightInnerMid = new Pose(0,    -17.1, Math.toRadians(-90));
@@ -43,12 +43,12 @@ public class CommonPoses {
     public static Pose barRightOuterMid = new Pose(0,    -79.5, Math.toRadians(90));
     public static Pose barRightOuterBot = new Pose(-5.5, -79.5, Math.toRadians(90));
 
-    public static Pose innerSpikeRightTop = new Pose(-4,  -13.75, Math.toRadians(-90));
-    public static Pose innerSpikeRightMid = new Pose(-12, -13.75, Math.toRadians(-90));
-    public static Pose innerSpikeRightBot = new Pose(-21, -13.75, Math.toRadians(-90));
-    public static Pose innerSpikeLeftTop  = new Pose(-4,  13.75, Math.toRadians(-90));
-    public static Pose innerSpikeLeftMid  = new Pose(-12, 13.75, Math.toRadians(-90));
-    public static Pose innerSpikeLeftBot  = new Pose(-21, 13.75, Math.toRadians(-90));
+    public static Pose innerSpikeRightTop = new Pose(-4,  -14, Math.toRadians(-90));
+    public static Pose innerSpikeRightMid = new Pose(-12, -14, Math.toRadians(-90));
+    public static Pose innerSpikeRightBot = new Pose(-21, -14, Math.toRadians(-90));
+    public static Pose innerSpikeLeftTop  = new Pose(-4,  14, Math.toRadians(-90));
+    public static Pose innerSpikeLeftMid  = new Pose(-12, 14, Math.toRadians(-90));
+    public static Pose innerSpikeLeftBot  = new Pose(-21, 14, Math.toRadians(-90));
 
     // 1,2,3: inner, middle, outer
     public static Pose leftOuterSpike3 = new Pose(-49, 82);

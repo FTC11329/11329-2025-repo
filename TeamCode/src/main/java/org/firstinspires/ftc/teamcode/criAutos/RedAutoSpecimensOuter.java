@@ -4,11 +4,14 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
 
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
+import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.TestPaths;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
@@ -34,7 +37,7 @@ public class RedAutoSpecimensOuter extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightOuter;
+    Pose startPose = startRightInner;
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -62,11 +65,9 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
 
-        steps.add(new TestPaths.WaitSeconds(robot, lastPose(), 1));
-
-        steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), false, true));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), new Pose(-48, 0)));
 

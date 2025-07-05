@@ -449,6 +449,7 @@ public class Teleop {
         //Presets
         //Button to State Machine class *********************************************************~BS
         if (lowSpecimen) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -456,6 +457,7 @@ public class Teleop {
             stateMachine.goLowSpecimen(robotState.atStorePos);
         }
         if (highSpecimen) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -463,6 +465,7 @@ public class Teleop {
             stateMachine.goHighSpecimen(robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (lowBasket) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -471,14 +474,17 @@ public class Teleop {
             stateMachine.goLowBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (highBasket) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
+            outtakeSystem.setFlapsUp();
             intakeingColor = false;
             intakeing = false;
             stateMachine.goHighBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (frontBasket) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -487,6 +493,7 @@ public class Teleop {
             stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (wallPreset) {
+            outtakeSystem.setFlapsDown();
             if (!stateMachine.doTransfer()) {
                 onceTime = true;
             }
@@ -495,6 +502,7 @@ public class Teleop {
             stateMachine.goWall(false, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.atStorePos);
         }
         if (storePos) {
+            outtakeSystem.setFlapsUp();
             onceTime = true;
             stateMachine.resetValues();
             intakeingColor = false;
@@ -503,6 +511,7 @@ public class Teleop {
             extendHSlide = Constants.Intake.intakeSlidePos;
         }
         if (transfer) {
+            outtakeSystem.setFlapsUp();
             if (!stateMachine.doTransfer() && !stateMachine.doUnStoreFromIntake()) {
                 onceTime = true;
             }
@@ -621,6 +630,7 @@ public class Teleop {
 //            }
 //        }
         if (intakeColor && !intakeingDebounce) {
+            outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeingColor) {
                 intakeSystem.setHSlidePos(extendHSlide);
@@ -632,6 +642,7 @@ public class Teleop {
             intakeWristTime = elapsedTime.milliseconds();
         }
         if (intake && !intakeingDebounce) {
+            outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeing) {
                 intakeSystem.setHSlidePos(extendHSlide);
