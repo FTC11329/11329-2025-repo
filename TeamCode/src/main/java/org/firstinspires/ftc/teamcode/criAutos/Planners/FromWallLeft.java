@@ -100,7 +100,7 @@ public class FromWallLeft {
                     }
                     break;
                 case 3:
-                    if (robot.follower.getError(barLeftInnerRightAdded).getX() < 3) {
+                    if (robot.follower.getError(barLeftInnerRightAdded).getX() < 5) {
                         if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         } else {
@@ -118,7 +118,7 @@ public class FromWallLeft {
                     break;
                 case 5:
                     if (robot.follower.getError(barLeftInnerTopAdded).getX() < 1.5) {
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(6);
                         isFinished = true;
                     }
@@ -136,13 +136,13 @@ public class FromWallLeft {
             this.state = state;
             pathTimer.resetTimer();
         }
-
+        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-1, 2.2));
+            return offset.addReturn(new Pose());
         }
 
         public String getName() {
-            return "From Wall Right To Right Inner Bar, " + state;
+            return "From Wall Left To Left Inner Bar, " + state;
         }
     }
 }

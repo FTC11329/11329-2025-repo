@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.criAutos;
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startLeftInner;
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightInner;
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightOuter;
 
@@ -7,16 +8,19 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.TestPaths;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Attempt89;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -38,11 +42,12 @@ public class ErrorFinder extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightInner;
+    Pose startPose = startLeftInner;
 //    Pose endPose = new Pose(0, 0);
-//    Pose endPose = new Pose(0, -96);
     Pose endPose = new Pose(-48, 0);
+//    Pose endPose = new Pose(0, -96);
     Pose totalOffset = new Pose();
+    Timer loopTimer = new Timer();
     private Robot robot;
     private List<PathPlanner> steps;
     private int currentStep = 0;
@@ -69,9 +74,9 @@ public class ErrorFinder extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
+        steps.add(new StartLeftInner.ToLeftInnerBar(robot, lastPose(), true));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, false));
+        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 0, false));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
 
@@ -104,6 +109,7 @@ public class ErrorFinder extends OpMode {
                 boolean done = step.run();
 
                 telemetry.addData("name", step.getName());
+                telemetry.addData("stuck", robot.follower.isRobotStuck());
                 telemetry.update();
 
                 if (done) {

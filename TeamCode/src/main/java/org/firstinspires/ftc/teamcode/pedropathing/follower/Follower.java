@@ -175,6 +175,7 @@ public class Follower {
     private boolean logDebug = true;
 
     private ElapsedTime zeroVelocityDetectedTimer;
+    public ElapsedTime robotStuckTimer;
 
     /**
      * This creates a new Follower given a HardwareMap.
@@ -590,6 +591,11 @@ public class Follower {
 
         if (!teleopDrive) {
             if (currentPath != null) {
+                if (poseUpdater.getVelocity().getMagnitude() < 1 && robotStuckTimer == null && getTranslationalError() != null && getTranslationalError().getMagnitude() > 1) {
+                    robotStuckTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                } else if (getTranslationalError() != null && !(poseUpdater.getVelocity().getMagnitude() < 1) || !(getTranslationalError().getMagnitude() > 1)) {
+                    robotStuckTimer = null;
+                }
                 if (holdingPosition) {
                     closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), 1);
 
@@ -686,7 +692,7 @@ public class Follower {
                             }
                         }
                     }
-                    //RobotLog.d("Follower:: isBusy:" + isBusy);
+//                    RobotLog.d("Follower:: isBusy:" + isBusy);
                 }
             }
         } else {
@@ -1239,11 +1245,19 @@ public class Follower {
     }
 
     //Thanks to team 21229 Quality Control for creating this algorithm to detect if the robot is stuck.
+    //and to team 11329 I.C.E. for changing the purpose of the function.
     /**
      * @return true if the robot is stuck and false otherwise
      */
     public boolean isRobotStuck() {
-        return zeroVelocityDetectedTimer != null;
+        boolean notAtEndOfPath = currentPath.getClosestPointTValue() < 0.9;
+        boolean notAtStartOfPath = !isBusy || currentPath.getClosestPointTValue() > 0.1;
+        boolean movingSlow = poseUpdater.getVelocity().getMagnitude() < 1;
+        boolean tryingToCorrect = getTranslationalError().getMagnitude() > 1;
+        boolean forAHalfSecond = robotStuckTimer != null && robotStuckTimer.milliseconds() > 500;
+
+        return notAtEndOfPath && notAtStartOfPath && movingSlow && tryingToCorrect && forAHalfSecond;
+
     }
 
     /**
@@ -1490,5 +1504,5 @@ public class Follower {
     public SparkFunOTOS.Status getStatus() {
         return poseUpdater.getStatus();
     }
-    
+
 }

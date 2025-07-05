@@ -159,7 +159,6 @@ public class FromBarRightInner {
         }
 
 
-        //todo
         public Pose getOffset() {
             if (rightWall) {
                 return offset.addReturn(new Pose(0, 1.0));

@@ -73,7 +73,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -104,7 +103,6 @@ public class TestPaths {
             this.startPose = startPose;
         }
         //Poses
-        //todo
         private final Pose aboveRedBasket = new Pose(0, 96);
 
         //Paths
@@ -147,7 +145,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -226,7 +223,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -300,7 +296,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -375,7 +370,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -451,7 +445,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -519,7 +512,7 @@ public class TestPaths {
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 1) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1.5) {
                         isFinished = true;
                     }
                     break;
@@ -537,7 +530,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }
@@ -613,7 +605,6 @@ public class TestPaths {
             this.offset = offset;
         }
 
-        //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
         }

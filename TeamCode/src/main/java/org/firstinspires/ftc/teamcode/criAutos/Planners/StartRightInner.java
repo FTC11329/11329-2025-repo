@@ -26,6 +26,7 @@ public class StartRightInner {
         private volatile Robot robot;
         private Pose startPose;
         public ToRightInnerBar(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            addToOffset(offset);
             pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
@@ -118,7 +119,7 @@ public class StartRightInner {
                     break;
                 case 5:
                     if (robot.follower.getError(barRightInnerTopAdded).getX() < 1.5) {
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(6);
                         isFinished = true;
                     }

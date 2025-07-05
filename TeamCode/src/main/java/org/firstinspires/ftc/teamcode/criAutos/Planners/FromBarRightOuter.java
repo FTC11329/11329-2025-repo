@@ -71,7 +71,7 @@ public class FromBarRightOuter {
         public void buildPaths(Pose offset) {
             this.offset.add(offset);
 
-            startLeftOuterAdded = startLeftOuter.addReturn(offset);
+            startLeftOuterAdded = startPose.addReturn(offset);
             redBasketAdded = redBasket.addReturn(offset);
             startPoseAdded = startPose.addReturn(offset);
             controlPointAdded = controlPoint.addReturn(offset);

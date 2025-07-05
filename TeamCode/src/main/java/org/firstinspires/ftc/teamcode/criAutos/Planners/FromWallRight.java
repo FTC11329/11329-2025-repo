@@ -214,7 +214,7 @@ public class FromWallRight {
                     }
                     break;
                 case 3:
-                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 3) {
+                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 5) {
                         if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         } else {
