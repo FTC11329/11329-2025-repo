@@ -40,7 +40,7 @@ public class Teleop {
     boolean debugAll = false;
     boolean debugState = false;
     boolean debugStateMachine = false;
-    boolean debugPos = false;
+    boolean debugPos = true;
     boolean debugColor = false;
     boolean debugClimber = false;
     boolean debugPower = false;
@@ -236,16 +236,19 @@ public class Teleop {
 
             if (leftStickToggle) {
                 manualWrist = gamepad2.left_stick_y;
-            } else {
-                manualArm = gamepad2.left_stick_y;
-            }
-
-            if (rightStickToggle) {
+                manualArm = 0;
+                manualVSlide = -gamepad2.right_stick_y;
+            } else if (rightStickToggle) {
                 manualWrist = gamepad2.right_stick_y;
+                manualArm = gamepad2.left_stick_y;
+                manualVSlide = 0;
             } else {
+                manualWrist = 0;
+                manualArm = gamepad2.left_stick_y;
                 manualVSlide = -gamepad2.right_stick_y;
             }
 
+            manualClimber = 0;
         } else {
             manualHSlide = 0;
             manualArm = 0;
@@ -257,9 +260,7 @@ public class Teleop {
             manualArm *= 0.5;
             manualVSlide *= 0.5;
             manualWrist *= 0.5;
-
         }
-        manualClimber = 0;
 
         sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0) || (gamepad2.dpad_left && robotState.hasInIntake);
 
@@ -444,7 +445,7 @@ public class Teleop {
 
 
         intakeSystem.update();
-        outtakeSystem.update(Math.abs(manualVSlide) > 0.05);
+        outtakeSystem.update(gamepad2.ps);
 
         //Presets
         //Button to State Machine class *********************************************************~BS
@@ -564,13 +565,21 @@ public class Teleop {
         }
 
         if (droppingSpec) {
-            outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+            if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+            } else {
+                robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+            }
             if (!clawToggleButton) {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 droppingSpec = false;
             }
             if (clawCancel) {
-                outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWrist);
+                if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                    robot.outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWristHigh);
+                } else {
+                    robot.outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWristLow);
+                }
                 droppingSpec = false;
                 robotState.clawToggle = false;
             }
@@ -843,6 +852,7 @@ public class Teleop {
             telemetry.addData("H Slide Tar", intakeSystem.getHSlideTargetPos());
             telemetry.addData("H Slide Pos", intakeSystem.getHSlidePos());
             telemetry.addData("Arm Pos", outtakeSystem.getArmPos());
+            telemetry.addData("Wrist Pos", outtakeSystem.getWristPos());
             telemetry.addLine();
         }
         if (debugColor || debugAll) {
@@ -906,6 +916,8 @@ public class Teleop {
             telemetry.addData("thing",  elapsedTime.milliseconds() > grabbingOffWallTime + 250);
             telemetry.addData("grabbingOffWallTime",  grabbingOffWallTime - elapsedTime.milliseconds());
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
+            telemetry.addData("left ",  leftStickToggle);
+            telemetry.addData("right",  rightStickToggle);
 
             //TODO add more Things here
             telemetry.addLine();
@@ -913,9 +925,6 @@ public class Teleop {
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
             telemetry.update();
         }
-        telemetry.addData("pos ", intakeSystem.getHSlidePos());
-        telemetry.addData("tpos", Constants.Intake.transferSlides);
-        telemetry.addData("bool", intakeSystem.getHSlidePos() > Constants.Intake.transferSlides);
 
         if (false) {
             telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);

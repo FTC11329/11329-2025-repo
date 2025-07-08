@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
@@ -17,7 +16,6 @@ public class OuttakeSystem {
         backFlaps = new BackFlaps(hardwareMap);
         vSlides = new VerticalSlides(hardwareMap);
         outtakeArm = new OuttakeArm(hardwareMap, robotSide, initArm);
-
     }
 
     public void initArm() {
@@ -81,10 +79,6 @@ public class OuttakeSystem {
         return vSlides.getPos();
     }
 
-    public boolean VSlidePressed() {
-        return vSlides.nearlyTuchyWuchyed();
-    }
-
     public double getClawDistance() {
         return outtakeArm.getSensorDistance();
     }
@@ -100,13 +94,13 @@ public class OuttakeSystem {
             setArmPos(Constants.Outtake.lowSpecimenArm);
             setVSlidePos(Constants.Outtake.lowSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.preClipSpecimenWrist);
+            setWristPos(Constants.Outtake.preClipSpecimenWristLow);
 
         } else if (posEnum == PlacePosEnum.highSpecimen) {
             setArmPos(Constants.Outtake.highSpecimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.preClipSpecimenWrist);
+            setWristPos(Constants.Outtake.preClipSpecimenWristHigh);
 
         } else if (posEnum == PlacePosEnum.lowBasket) {
             setArmPos(Constants.Outtake.basketArm);
@@ -133,7 +127,7 @@ public class OuttakeSystem {
         } else if (posEnum == PlacePosEnum.intake) {
             setArmPos(Constants.Outtake.intakeArm);
             setVSlidePos(Constants.Outtake.intakeSlides);
-            setWristPos(Constants.Outtake.storeWrist);
+            setWristPos(Constants.Outtake.intakeWrist);
         }
     }
 
@@ -162,8 +156,8 @@ public class OuttakeSystem {
         return outtakeArm.seesWall();
     }
 
-    public void update(boolean limit) {
-        vSlides.update(limit);
+    public void update(boolean reZeroButton) {
+        vSlides.update(reZeroButton);
     }
 
     public void disable() {

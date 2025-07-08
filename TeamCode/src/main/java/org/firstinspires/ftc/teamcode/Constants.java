@@ -37,7 +37,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int transferSlides = 328;
+        public static int transferSlides = 210;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 900;
@@ -51,6 +51,7 @@ public class Constants {
         public static double wristStore = 0.01;
         public static double wristDepo = 0.12;
         public static double wristClear = 0.25;
+        public static double wristTransfer = 0.203;
         public static double wristDown = 0.450;
 
         public static double depoStore = 0.075;
@@ -70,80 +71,83 @@ public class Constants {
 
     @Config
     public static class Outtake {
-        //todo presets
-        public static double initTeleopWrist = 0;
-        public static double initAutoUnderBarWrist = 0;
-        public static double initAutoNearWallWrist = 0;
+        //Wrist
+        public static double straightWrist = 0.408;
+        public static double initTeleopWrist = straightWrist;
+        public static double initAutoUnderBarWrist = 0.726;
+        public static double initAutoNearWallWrist = 0.242;
 
-        public static double preClipSpecimenWrist = 0;
-        public static double postClipSpecimenWrist = 0;
+        public static double preClipSpecimenWristHigh = 0.658;
+        public static double postClipSpecimenWristHigh = straightWrist;
 
-        public static double basketWrist = 0;
+        public static double preClipSpecimenWristLow = 0.497;
+        public static double postClipSpecimenWristLow = 0.284;
 
-        public static double storeWrist = 0;
+        public static double basketWrist = straightWrist;
 
-        public static double wallWrist = 0;
+        public static double intakeWrist = 0.242;
+
+        public static double wallWrist = 0.65;
         //                   Walrus?
-        public static double manualWristSpeed = 0;
 
+        public static double minWrist = 0;
+        public static double maxWrist = 0.85;
+        public static double manualWristSpeed = 0.01;
 
-        public static double grabClaw = 0.59;
+        //Claw
+        public static double grabClaw = 0.565;
         public static double dropClaw = 0.21;
 
-        public static double intakeArm = 0.946; //0.95
-        public static double initTeleopArm = 0.49;
-        public static double initAutoUnderBarArm = 0.861;
-        public static double initAutoNearWallArm = 0.032;
-        public static double autoArmClear = 0.814;
-        public static double preTransferArm = 0.744; // Depreciated
-        public static double upArm = 0.49;
-        public static double intakeWallArm = 0.0544;
+        //Arm
+        public static double intakeArm = 0.823;
+        public static double initTeleopArm = 0.394;
+        public static double initAutoUnderBarArm = 0.726;
+        public static double initAutoNearWallArm = 0.02; // min arm
+        public static double upArm = initTeleopArm;
+        public static double intakeWallArm = 0.02;
         public static double manualArmSpeed = 0.01;
 
-        public static double downArm = 1;
-        public static double lowSpecimenArm = 0.76;
-        public static double highSpecimenArm = 0.76;
-        public static double basketArm = 0.295;
-        public static double basketArmHigh = 0.288;
-        public static double frontBasketArm = 0.6585; // needs updated
-        public static double parkArm = 0.7654;
+        public static double downArm = 0.857;
+        public static double lowSpecimenArm = 0.666;
+        public static double highSpecimenArm = 0.636;
+        public static double basketArm = 0.217;
+        public static double frontBasketArm = 0.5661;
+        public static double parkArm = 0.538;
 
-        public static int intakeSlides = 175;
+        //VSlides
+        public static int intakeSlides = 54;
+        public static int intakeWallSlides = 7;
+        public static int intakeWallAutoSlides = 7;
+
+        public static int safeFromWallSlides = 155;
+        public static int safeFromClimberBar = 426;
+        public static int safeFromSpecBar = 426; //todo
+
+        public static int lowSpecimenSlides = 0;
+        public static int highSpecimenSlides = 405;
+        public static int lowBasketSlides = 133;
+        public static int highBasketSlides = 600;
+
+        public static int maxSlides = 595;
+        public static int climbSlides = 595;
+
+        public static double manualSlideSpeed = 15;
+
         public static int intakeWaitSlides = 450; //not used anymore
-        public static int intakeWallSlides = 185;
-        public static int intakeWallAutoSlides = 180;
-
-        public static int safeFromWallSlides = 360;
-        public static int safeFromHSlides = 650;
-        public static int safeFromClimberBar = 1300;
-        public static int safeFromSpecBar = 1600;
-
-        public static int lowSpecimenSlides = 1010;
-        public static int highSpecimenSlides = 1010;
-        public static int lowBasketSlides = 625;
-        public static int highBasketSlides = 1975;
-
-        public static int maxSlides = 1975;
-        public static int climbSlides = 1975;
-
-        public static double manualSlideSpeed = 60;
-
+        public static int safeFromHSlides = 650; //not used anymore
+        // Outtake Sensor
         public static double seesWallDistanceBlue = 1.7;
         public static double seesWallDistanceRed = 1.7;
         public static double seesTransferDistance = 1.42;
         //todo
+        //Back Flaps
         public static double leftFlapUp = 0;
-        public static double leftFlapWall = 0.3482;
-        public static double leftFlapSpike = 0.4573;
+        public static double leftFlapWall = 0.295;
+        public static double leftFlapSpike = 0.3455;
 
         public static double rightFlapUp = 0;
         public static double rightFlapWall = 0;
         public static double rightFlapSpike = 0;
-
-        public static double p = 0.03;
-        public static double i = 0;
-        public static double d = 0.00001;
-        public static double f = 0;
 
     }
     @Config

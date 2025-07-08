@@ -112,7 +112,11 @@ public class StartLeftInner {
                     break;
                 case 4:
                     if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                        } else {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                        }
                         robot.outtakeSystem.setFlapsDown();
                         setPathState(5);
                     }

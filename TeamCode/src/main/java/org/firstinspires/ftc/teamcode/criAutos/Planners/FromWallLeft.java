@@ -112,7 +112,11 @@ public class FromWallLeft {
                     break;
                 case 4:
                     if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                        } else {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                        }
                         setPathState(5);
                     }
                     break;

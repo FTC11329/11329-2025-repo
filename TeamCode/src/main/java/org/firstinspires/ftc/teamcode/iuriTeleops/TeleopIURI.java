@@ -429,7 +429,7 @@ public class TeleopIURI {
                 onceTime = false;
             }
             if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 50) {
-                outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
+                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                 stateMachine.finishLowBasket();
                 onceTime = true;
             }
@@ -443,7 +443,7 @@ public class TeleopIURI {
                 onceTime = false;
             }
             if (outtakeSystem.getVSlidePos() > outtakeSystem.getVSlideTargetPos() - 150) {
-                outtakeSystem.setArmPos(Constants.Outtake.basketArmHigh);
+                outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                 stateMachine.finishHighBasket();
                 onceTime = true;
             }

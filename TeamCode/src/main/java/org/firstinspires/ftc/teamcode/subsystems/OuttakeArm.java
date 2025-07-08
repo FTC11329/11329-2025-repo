@@ -14,7 +14,7 @@ public class OuttakeArm {
     Servo clawServo;
     double lastClawPos = 0;
 
-//    Servo wristServo;
+    Servo wristServo;
     double lastWristPos = 0;
 
     Servo armServo1;
@@ -49,11 +49,11 @@ public class OuttakeArm {
         armServo1.setPosition(Constants.Outtake.initTeleopArm);
         armServo2.setPosition(Constants.Outtake.initTeleopArm);
 
-//        wristServo = hardwareMap.get(Servo.class, "wrist");
+        wristServo = hardwareMap.get(Servo.class, "wrist");
 
-//        wristServo.setDirection(Servo.Direction.FORWARD);
+        wristServo.setDirection(Servo.Direction.FORWARD);
 
-//        wristServo.setPosition(Constants.Outtake.initTeleopWrist);
+        wristServo.setPosition(Constants.Outtake.initTeleopWrist);
     }
 
 
@@ -61,9 +61,15 @@ public class OuttakeArm {
         double temp = lastArmPos + (power * Constants.Outtake.manualArmSpeed);
         setArmPos(temp);
     }
+
     public void setArmPos(double newArmPos) {
         if (lastArmPos != newArmPos) {
-            lastArmPos  = newArmPos;
+            if (newArmPos < Constants.Outtake.initAutoNearWallArm) {
+                newArmPos = Constants.Outtake.initAutoNearWallArm;
+            } else if (newArmPos > 1) {
+                newArmPos = 1;
+            }
+            lastArmPos = newArmPos;
             armServo1.setPosition(newArmPos);
             armServo2.setPosition(newArmPos);
         }
@@ -85,8 +91,13 @@ public class OuttakeArm {
     }
     public void setWristPos(double newWristPos) {
         if (lastWristPos != newWristPos) {
+            if (newWristPos < Constants.Outtake.minWrist) {
+                newWristPos = Constants.Outtake.minWrist;
+            } else if (newWristPos > Constants.Outtake.maxWrist) {
+                newWristPos = Constants.Outtake.maxWrist;
+            }
             lastWristPos  = newWristPos;
-//            wristServo.setPosition(newWristPos);
+            wristServo.setPosition(newWristPos);
         }
     }
 
@@ -95,8 +106,7 @@ public class OuttakeArm {
     }
 
     public double getWristPos() {
-//        return wristServo.getPosition();
-        return 0;
+        return lastWristPos;
     }
     public double getSensorDistance() {
         return clawSensor.getDistance(DistanceUnit.INCH);

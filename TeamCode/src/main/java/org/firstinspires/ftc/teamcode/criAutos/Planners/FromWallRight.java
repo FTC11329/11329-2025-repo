@@ -91,7 +91,11 @@ public class FromWallRight {
                     break;
                 case 1:
                     if (robot.follower.getErrorDistance(barRightOuterMidAdded) < 2) {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                        } else {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                        }
                         setPathState(2);
                     }
                     break;
@@ -226,7 +230,11 @@ public class FromWallRight {
                     break;
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                        } else {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                        }
                         robot.outtakeSystem.setFlapsDown();
                         setPathState(5);
                     }

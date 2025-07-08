@@ -192,7 +192,11 @@ public class StartRightOuter {
                     break;
                 case 1:
                     if (robot.follower.getError(barRightOuterMidAdded).getX() < 3) {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWrist);
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                        } else {
+                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                        }
                         setPathState(2);
                     }
                     break;

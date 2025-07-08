@@ -379,7 +379,7 @@ public class DeprecatedTeleop {
             if (elapsedTime.milliseconds() < storeTime + 50) {
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides);
-                outtakeSystem.setArmPos(Constants.Outtake.preTransferArm);
+                outtakeSystem.setArmPos(Constants.Outtake.upArm);
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
             if (elapsedTime.milliseconds() > storeTime + 400 && elapsedTime.milliseconds() < storeTime + 450) {
@@ -563,7 +563,6 @@ public class DeprecatedTeleop {
         telemetry.addData("ArmTPos", outtakeSystem.getArmPos());
         telemetry.addData("IntakeServo", intakeSystem.intakeClaw.getIntakeServoPos());
         telemetry.addData("tuchyWuchyH", intakeSystem.HSlidePressed());
-        telemetry.addData("tuchyWuchyV", outtakeSystem.VSlidePressed());
         telemetry.addData("","");
         telemetry.addData("intakeing", intakeing);
         telemetry.addData("unjammingIntake", unjammingIntake);

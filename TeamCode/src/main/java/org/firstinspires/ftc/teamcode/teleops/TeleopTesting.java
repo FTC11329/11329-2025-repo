@@ -39,8 +39,9 @@ public class TeleopTesting {
 
     //Various Variables
     double testValue = 0;
-    double testValue2 = Constants.Outtake.intakeWallArm;
-    double testValue3 = Constants.Outtake.initTeleopArm;
+    double testValue2 = 0;
+    double testValue3 = Constants.Outtake.upArm;
+    double testValue4 = Constants.Intake.wristStore;
     boolean intakeingColor = false;
     boolean intakeing = false;
 
@@ -96,7 +97,7 @@ public class TeleopTesting {
 //        telemetry.addData("pitch", Pitch);
 //        telemetry.addData("Roll", Roll);
         //INPUTS
-        driveForward = -gamepad1.left_stick_y;
+        driveForward = -gamepad1.left_stick_y * 0;
         driveStrafe = -gamepad1.left_stick_x;
 
         driveRotation = -gamepad1.right_stick_x;
@@ -201,11 +202,18 @@ public class TeleopTesting {
 
 
 //        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
-        testValue += 0.002 * (gamepad2.right_trigger - gamepad2.left_trigger);
-        testValue2 += 5 * (-gamepad2.left_stick_y);
-        testValue3 += 0.003 * (gamepad2.right_stick_y);
+        testValue += 5 * (gamepad2.right_trigger - gamepad2.left_trigger);
+        testValue2 += 5 * (-gamepad2.right_stick_y);
+        testValue3 += 0.003 * (gamepad2.left_stick_y);
+        testValue4 += 0.003 * (gamepad1.left_stick_y);
 
-        outtakeSystem.setLeftFlap(testValue);
+
+
+        intakeSystem.setHSlidePos((int) testValue);
+        outtakeSystem.setVSlidePos((int) testValue2);
+        outtakeSystem.setArmPos(testValue3);
+        intakeSystem.setIntakeServoPos(testValue4);
+        outtakeSystem.setWristPos(Constants.Outtake.intakeWrist);
 
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
@@ -216,6 +224,7 @@ public class TeleopTesting {
         telemetry.addData("testValue1H", testValue);
         telemetry.addData("testValue2V", testValue2);
         telemetry.addData("testValue3A", testValue3);
+        telemetry.addData("testValue4 ", testValue4);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
         telemetry.addData("VSlidepos  ", outtakeSystem.getVSlidePos());
         telemetry.addData("outtake distance", outtakeSystem.getClawDistance());
@@ -231,7 +240,7 @@ public class TeleopTesting {
 
 
         //VSlide
-        outtakeSystem.setVSlidePos((int) testValue2);
+//        outtakeSystem.setVSlidePos((int) testValue2);
 //        telemetry.addData("targetPos", (int) testValue2);
 //        telemetry.addData(" Pos", outtakeSystem.getVSlidePos());
         /*
