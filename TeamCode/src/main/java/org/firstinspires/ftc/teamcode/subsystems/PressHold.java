@@ -4,26 +4,59 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class PressHold {
 
-    public boolean isOn = false;
-    public boolean isPressed = false;
+    public PressType type;
 
-    public boolean startPress = false;
+    public boolean isOn;
+    public boolean isPressed;
 
-    public ElapsedTime time = new ElapsedTime();
+    public boolean startPress;
+    public boolean endPress;
+
+    public ElapsedTime time;
+
+    public PressHold(PressType type){
+        this.type = type;
+        isOn = false;
+        isPressed = false;
+        startPress = false;
+        endPress = false;
+        time = new ElapsedTime();
+    }
 
     public void checkStatus(boolean pressed){
-        if (startPress){
-            startPress = false;
+        if (startPress) startPress = false;
+        if (endPress) endPress = false;
+
+        if (type == PressType.DoublePress){
+            if (pressed && !isPressed){
+                if (!isOn){
+                    startPress = true;
+                    isOn = true;
+                    time.reset();
+                }else {
+                    endPress = true;
+                    isOn = false;
+                }
+            }
         }
-        if (pressed && !isPressed){
-            if (!isOn){
+        else if (type == PressType.LongPress){
+            if (pressed && !isPressed){
                 startPress = true;
                 isOn = true;
                 time.reset();
-            }else {
+            }
+            else if (!pressed && isPressed){
+                endPress = true;
                 isOn = false;
+                time.reset();
             }
         }
+
         isPressed = pressed;
+    }
+
+    public enum PressType{
+        DoublePress,
+        LongPress
     }
 }

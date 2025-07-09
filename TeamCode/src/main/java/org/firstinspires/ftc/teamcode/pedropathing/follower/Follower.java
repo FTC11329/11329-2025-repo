@@ -547,10 +547,6 @@ public class Follower {
         currentPathChain.resetCallbacks();
     }
 
-    public int getChainIndex(){
-        return chainIndex;
-    }
-
     /**
      * Resumes pathing
      */
@@ -1121,7 +1117,7 @@ public class Follower {
      *
      * @return returns the current path number.
      */
-    public double getCurrentPathNumber() {
+    public int getCurrentPathNumber() {
         if (!followingPathChain) return 0;
         return chainIndex;
     }

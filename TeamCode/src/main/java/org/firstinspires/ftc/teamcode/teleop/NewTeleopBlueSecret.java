@@ -175,13 +175,17 @@ public class NewTeleopBlueSecret {
 
     PressHold recording;
     PressHold replay;
+    PressHold pointerInput;
     double lastTimer = 0;
     Pose lastPose = new Pose(0, 0, 0);
     double deltaTime = 0.1;
-    double deltaError = 1;
+    double deltaError = 2;
     int replayIndex = 0;
     StateEntryJson currentReplayStates;
     PathChain replayPath;
+    GamepadStateEntry gamepadDelta1;
+    GamepadStateEntry gamepadDelta2;
+    int logPointer = 0;
 
 
     //this is here because I have to have a teleop blue and teleop red
@@ -219,8 +223,9 @@ public class NewTeleopBlueSecret {
         driveTrain = new Drivetrain(hardwareMap);
 
         stateMachine = new StateMachine();
-        recording = new PressHold();
-        replay = new PressHold();
+        recording = new PressHold(PressHold.PressType.DoublePress);
+        replay = new PressHold(PressHold.PressType.DoublePress);
+        pointerInput = new PressHold(PressHold.PressType.LongPress);
 
 
         //Building paths
@@ -233,6 +238,10 @@ public class NewTeleopBlueSecret {
         placeSubPath.setConstantHeadingInterpolation(placeSub.getHeading());
 
         currentReplayStates = new StateEntryJson();
+
+        loadPointer();
+        telemetry.addData("pointer: ", logPointer);
+        telemetry.update();
     }
 
     public void start() {
@@ -245,7 +254,7 @@ public class NewTeleopBlueSecret {
 
     public void recordPositions() {
         File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
-        File file = new File(dir, "movement.json");
+        File file = new File(dir, "movement" + logPointer + ".json");
         telemetry.addData("Recording, here: ", true);
         try (FileWriter writer = new FileWriter(file)) {
 //            if (file.exists()) {
@@ -272,9 +281,24 @@ public class NewTeleopBlueSecret {
         }
     }
 
+    public void savePointer() {
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
+        File file = new File(dir, "pointer.json");
+        try (FileWriter writer = new FileWriter(file)) {
+            Gson gson = new GsonBuilder().create();
+
+            writer.write(gson.toJson(new PointerJson(logPointer)));
+            writer.close();
+
+            telemetry.addData("Pointer Saved written:", true);
+        } catch (Exception e) {
+            telemetry.addData("Pointer error", e.getMessage());
+        }
+    }
+
     public void loadPoses() {
         File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
-        File file = new File(dir, "movement.json");
+        File file = new File(dir, "movement" + logPointer + ".json");
 
         if (!file.exists()) return;
 
@@ -295,6 +319,29 @@ public class NewTeleopBlueSecret {
         currentReplayStates = gson.fromJson(jsonString, StateEntryJson.class);
     }
 
+    public void loadPointer() {
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
+        File file = new File(dir, "pointer.json");
+
+        if (!file.exists()) return;
+
+        StringBuilder jsonBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+        } catch (Exception e) {
+            telemetry.addData("Failed to Load", true);
+        }
+
+        String jsonString = jsonBuilder.toString();
+
+        Gson gson = new GsonBuilder().create();
+        logPointer = gson.fromJson(jsonString, PointerJson.class).pointer;
+    }
+
     public void loop() {
         follower.update();
         // Inputs
@@ -304,12 +351,16 @@ public class NewTeleopBlueSecret {
         driveRotation = -gamepad1.right_stick_x;
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
+        pointerInput.checkStatus(gamepad1.left_bumper);
+
+        telemetry.addData("LOG POINTER", logPointer);
 
         telemetry.addData("Follower Busy", follower.isBusy());
         telemetry.addData("Replay Path Null", replayPath == null);
         telemetry.addData("recording is on", recording.isOn);
         telemetry.addData("replay is on", replay.isOn);
         telemetry.addData("replay start", replay.startPress);
+        telemetry.addData("Following Path: Replay Index: ", replayIndex);
 
         for (int i = 0; i < currentReplayStates.size; i++){
             telemetry.addData("t", (currentReplayStates.timeList.get(i)));
@@ -317,6 +368,11 @@ public class NewTeleopBlueSecret {
             telemetry.addData("pos-y", (currentReplayStates.poseList.get(i).y));
         }
         telemetry.addData("Size of List: ", currentReplayStates.size);
+
+        if (pointerInput.startPress) logPointer = 0;
+        if (pointerInput.isOn) logPointer = (int) Math.floor(pointerInput.time.seconds());
+        if (pointerInput.endPress) savePointer();
+
         if(recording.startPress){
             currentReplayStates = new StateEntryJson();
             lastTimer = 0;
@@ -327,15 +383,20 @@ public class NewTeleopBlueSecret {
             if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError) {
                 currentReplayStates.timeList.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
-                //currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
-                //currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
+                currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
+                currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
                 currentReplayStates.size += 1;
-                //recordPositions();
                 lastPose = follower.getPose();
+            }else{
+                gamepadDelta1.mergeBooleans(new GamepadStateEntry(gamepad1));
+                gamepadDelta2.mergeBooleans(new GamepadStateEntry(gamepad2));
             }
         }
+        if (recording.endPress){
+            recordPositions();
+        }
         if (replay.startPress){
-            //loadPoses();
+            loadPoses();
             if (currentReplayStates.size > 1){
                 ArrayList<Path> path = new ArrayList<>();
                 Pose cPos = follower.getPose();
@@ -362,11 +423,13 @@ public class NewTeleopBlueSecret {
             }
         }
         if (replay.isOn){
-            replayIndex = follower.getChainIndex();
-            telemetry.addData("Following Path: Replay Index: ", replayIndex);
-            //gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
-            //gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
+            replayIndex = follower.getCurrentPathNumber();
+            gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
+            gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
             follower.telemetryDebug(telemetry);
+        }
+        if (replay.endPress){
+            follower.breakFollowing();
         }
         telemetry.addData("Hello World", true);
         //telemetry.addData("path: ", currentReplayPath);
@@ -981,6 +1044,26 @@ public class NewTeleopBlueSecret {
 
             return g;
         }
+
+        public void mergeBooleans(GamepadStateEntry other) {
+            this.a &= other.a;
+            this.b &= other.b;
+            this.x &= other.x;
+            this.y &= other.y;
+
+            this.dpad_up &= other.dpad_up;
+            this.dpad_down &= other.dpad_down;
+            this.dpad_left &= other.dpad_left;
+            this.dpad_right &= other.dpad_right;
+
+            this.left_bumper &= other.left_bumper;
+            this.right_bumper &= other.right_bumper;
+
+            this.left_stick_button &= other.left_stick_button;
+            this.right_stick_button &= other.right_stick_button;
+
+            // Floats remain unchanged
+        }
     }
 
     public static class PoseStateEntry {
@@ -999,5 +1082,13 @@ public class NewTeleopBlueSecret {
         public List<PoseStateEntry> poseList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
+    }
+
+    public static class PointerJson {
+        public int pointer = 0;
+
+        public PointerJson(int pointer){
+            this.pointer = pointer;
+        }
     }
 }
