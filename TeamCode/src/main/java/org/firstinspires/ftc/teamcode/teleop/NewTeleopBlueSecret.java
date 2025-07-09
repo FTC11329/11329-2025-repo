@@ -377,16 +377,20 @@ public class NewTeleopBlueSecret {
             currentReplayStates = new StateEntryJson();
             lastTimer = 0;
             lastPose = follower.getPose();
+            gamepadDelta1 = new GamepadStateEntry(gamepad1);
+            gamepadDelta2 = new GamepadStateEntry(gamepad2);
         }
         if (recording.isOn) {
             telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
             if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError) {
                 currentReplayStates.timeList.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
-                currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
-                currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
+                currentReplayStates.gamepad1List.add(gamepadDelta1);
+                currentReplayStates.gamepad2List.add(gamepadDelta2);
                 currentReplayStates.size += 1;
                 lastPose = follower.getPose();
+                gamepadDelta1 = new GamepadStateEntry(gamepad1);
+                gamepadDelta2 = new GamepadStateEntry(gamepad2);
             }else{
                 gamepadDelta1.mergeBooleans(new GamepadStateEntry(gamepad1));
                 gamepadDelta2.mergeBooleans(new GamepadStateEntry(gamepad2));
