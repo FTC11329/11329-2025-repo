@@ -140,7 +140,7 @@ public class OuttakeSystem {
     }
 
     public boolean readyToTransfer() {
-        return readyToTransfer(true);
+        return readyToTransfer(false);
     }
     public boolean readyToTransfer(boolean useSensor) {
         if (useSensor) {

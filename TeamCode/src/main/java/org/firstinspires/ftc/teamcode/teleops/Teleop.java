@@ -431,7 +431,7 @@ public class Teleop {
             }
         }
         // Pre-Start Climb
-        if (gamepad1.dpad_up || gamepad2.back) {
+        if (gamepad2.back) {
             climberPos = Constants.Climber.prePos;
             climber.setPos(climberPos);
         }
@@ -567,21 +567,26 @@ public class Teleop {
         if (droppingSpec) {
             if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                 robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                robot.outtakeSystem.setArmPos(Constants.Outtake.postHighSpecimenArm);
             } else {
                 robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
             }
             if (!clawToggleButton) {
+                if (intakeingColor || intakeing) {
+                    robot.stateMachine.goStore();
+                }
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 droppingSpec = false;
             }
             if (clawCancel) {
                 if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                     robot.outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWristHigh);
+                    robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm);
                 } else {
                     robot.outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWristLow);
                 }
                 droppingSpec = false;
-                robotState.clawToggle = false;
+                robotState.clawToggle = true;
             }
         }
 
@@ -639,6 +644,9 @@ public class Teleop {
 //            }
 //        }
         if (intakeColor && !intakeingDebounce) {
+            if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                robot.stateMachine.goStore();
+            }
             outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeingColor) {
@@ -803,7 +811,6 @@ public class Teleop {
                 } else {
                     intakeSystem.storePos();
                 }
-                intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
             }
             if (intakeSystem.intakeUntil()) {
                 intakeSystem.setIntakePower(0);
@@ -836,6 +843,7 @@ public class Teleop {
             telemetry.addData("doGoToStore", stateMachine.doGoToStore());
             telemetry.addData("doTransfer", stateMachine.doTransfer());
             telemetry.addData("doUnStoreFromIntake", stateMachine.doUnStoreFromIntake());
+            telemetry.addData("doUnStoreFromLowBar", stateMachine.doUnStoreFromLowBar());
             telemetry.addData("doHighBasket", stateMachine.doHighBasket());
             telemetry.addData("doLowBasket", stateMachine.doLowBasket());
             telemetry.addData("doHighSpecimen", stateMachine.doHighSpecimen());
@@ -862,6 +870,7 @@ public class Teleop {
             telemetry.addData("b", color.blue);
             telemetry.addData("a", color.alpha);
             telemetry.addData("dis", intakeSystem.distance());
+            telemetry.addLine();
         }
         if (debugClimber || debugAll) {
             telemetry.addLine("CLIMBER");
@@ -918,6 +927,12 @@ public class Teleop {
             telemetry.addData("grabbingOffWall",  grabbingOffWall);
             telemetry.addData("left ",  leftStickToggle);
             telemetry.addData("right",  rightStickToggle);
+
+            telemetry.addData("claw toggle", robot.robotState.clawToggle);
+            telemetry.addData("claw debounce", clawDebounce);
+            telemetry.addData("clawToggleButton", clawToggleButton);
+            telemetry.addData("clawCancel", clawCancel);
+            telemetry.addData("droppingSpec", droppingSpec);
 
             //TODO add more Things here
             telemetry.addLine();

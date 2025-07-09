@@ -119,7 +119,7 @@ public class IntakeSystem {
 
     public void storeOutPos() {
         setHSlidePos(Constants.Intake.transferSlides);
-        setIntakeServoPos(Constants.Intake.wristStore);
+        setIntakeServoPos(Constants.Intake.wristClear);
         setDepoServoPos(Constants.Intake.depoStore);
         setIntakePower(0);
     }
@@ -248,8 +248,17 @@ public class IntakeSystem {
     }
 
     public boolean readyToTransfer() {
-        return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && getIntakeServoPos() < Constants.Intake.wristClear;
+        return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance;
     }
+
+    public boolean readyToTransfer(boolean useSensor) {
+        if (useSensor) {
+            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance;
+        } else {
+            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20;
+        }
+    }
+
 
     public NormalizedRGBA directColor() {
         return intakeSensor.getNormalizedColors();

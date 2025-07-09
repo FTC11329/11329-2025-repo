@@ -12,14 +12,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.util.CustomPIDFCoefficients;
 import org.firstinspires.ftc.teamcode.pedropathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 
 public class VerticalSlides {
     PIDFController pid;
+
+    Timer debounceTimer = new Timer();
 
     boolean disabled = false;
 
     boolean reZeroButton = false;
     boolean reZeroButtonDebounce = true;
+    boolean debounceTimerDebounce = false;
 
     DcMotorEx slideMotor;
     int lastSlidePos = 0;
@@ -29,8 +33,8 @@ public class VerticalSlides {
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setTargetPosition(0);
-        slideMotor.setPower(0);
-        slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotor.setPower(1);
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         slideMotor.setCurrentAlert(4, CurrentUnit.AMPS);
@@ -74,22 +78,37 @@ public class VerticalSlides {
     public void update(boolean reZeroButton) {
         this.reZeroButton = reZeroButton;
         if (reZeroButton && reZeroButtonDebounce) {
+            slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             slideMotor.setPower(-0.5);
             reZeroButtonDebounce = false;
         }
         if (!reZeroButton && !reZeroButtonDebounce) {
             slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            slideMotor.setTargetPosition(5);
-            lastSlidePos = 5;
-            slideMotor.setPower(0);
-            slideMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            slideMotor.setTargetPosition(0);
+            lastSlidePos = 0;
+            slideMotor.setPower(1);
             reZeroButtonDebounce = true;
+
+            debounceTimer.resetTimer();
+            debounceTimerDebounce = true;
+
         }
+        if (debounceTimer.getElapsedTimeSeconds() > 0.5 && debounceTimerDebounce) {
+            slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            if (lastSlidePos == 0) {
+                slideMotor.setTargetPosition(5);
+                lastSlidePos = 5;
+            }
+            debounceTimerDebounce = false;
+        }
+        /*
+        custom pid
         if (!reZeroButton) {
             pid.setTargetPosition(lastSlidePos);
             pid.updatePosition(slideMotor.getCurrentPosition());
             slideMotor.setPower(pid.runPIDF());
         }
+         */
     }
 
     public void disable() {

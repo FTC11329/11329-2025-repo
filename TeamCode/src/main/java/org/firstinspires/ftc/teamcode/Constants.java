@@ -31,7 +31,7 @@ public class Constants {
         public static final int inPos = -875;
         public static final int hookPos =  8100;
         public static final int outPos  = 10200;
-        public static final int prePos  = 8130;
+        public static final int prePos  = 7517;
     }
 
     @Config
@@ -50,7 +50,7 @@ public class Constants {
         public static double wristClimb = 0;
         public static double wristStore = 0.01;
         public static double wristDepo = 0.12;
-        public static double wristClear = 0.25;
+        public static double wristClear = 0.23;
         public static double wristTransfer = 0.203;
         public static double wristDown = 0.450;
 
@@ -58,7 +58,7 @@ public class Constants {
         public static double depoDepo = 0.444;
 
         public static double intakeSpeed = 0.9;
-        public static double transferSpeed = 1;
+        public static double transferSpeed = 0.7;
         public static double unjamSpeed = -0.9;
         public static double spitSpeed = -0.75;
         public static int unjamTicksShort = -150;
@@ -81,11 +81,11 @@ public class Constants {
         public static double postClipSpecimenWristHigh = straightWrist;
 
         public static double preClipSpecimenWristLow = 0.497;
-        public static double postClipSpecimenWristLow = 0.284;
+        public static double postClipSpecimenWristLow = 0.27;
 
         public static double basketWrist = straightWrist;
 
-        public static double intakeWrist = 0.242;
+        public static double intakeWrist = 0.306;
 
         public static double wallWrist = 0.65;
         //                   Walrus?
@@ -95,11 +95,11 @@ public class Constants {
         public static double manualWristSpeed = 0.01;
 
         //Claw
-        public static double grabClaw = 0.565;
-        public static double dropClaw = 0.21;
+        public static double grabClaw = 0.53;
+        public static double dropClaw = 0.25;
 
         //Arm
-        public static double intakeArm = 0.823;
+        public static double intakeArm = 0.819;
         public static double initTeleopArm = 0.394;
         public static double initAutoUnderBarArm = 0.726;
         public static double initAutoNearWallArm = 0.02; // min arm
@@ -107,31 +107,36 @@ public class Constants {
         public static double intakeWallArm = 0.02;
         public static double manualArmSpeed = 0.01;
 
-        public static double downArm = 0.857;
+        public static double downArm = 0.84;
         public static double lowSpecimenArm = 0.666;
         public static double highSpecimenArm = 0.636;
-        public static double basketArm = 0.217;
+        public static double postHighSpecimenArm = 0.576;
+
+        public static double safeBasketArm = 0.3;
+        public static double basketArm = 0.233;
         public static double frontBasketArm = 0.5661;
         public static double parkArm = 0.538;
 
         //VSlides
-        public static int intakeSlides = 54;
-        public static int intakeWallSlides = 7;
-        public static int intakeWallAutoSlides = 7;
+        public static int safeAtIntakeSlides = 343;
 
-        public static int safeFromWallSlides = 155;
-        public static int safeFromClimberBar = 426;
-        public static int safeFromSpecBar = 426; //todo
+        public static int intakeSlides = 181;
+        public static int intakeWallSlides = 10;
+        public static int intakeWallAutoSlides = 10;
+
+        public static int safeFromWallSlides = 265;
+        public static int safeFromClimberBar = 597;
+        public static int safeFromSpecBar = 710;
 
         public static int lowSpecimenSlides = 0;
-        public static int highSpecimenSlides = 405;
-        public static int lowBasketSlides = 133;
-        public static int highBasketSlides = 600;
+        public static int highSpecimenSlides = 550;
+        public static int lowBasketSlides = 228;
+        public static int highBasketSlides = 860;
 
-        public static int maxSlides = 595;
-        public static int climbSlides = 595;
+        public static int maxSlides = 860;
+        public static int climbSlides = 860;
 
-        public static double manualSlideSpeed = 15;
+        public static double manualSlideSpeed = 25;
 
         public static int intakeWaitSlides = 450; //not used anymore
         public static int safeFromHSlides = 650; //not used anymore
