@@ -15,8 +15,7 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 public class FromWallRight {
     public static class ToRightOuterBar implements PathPlanner {
         /// Places on bar right outer with option for low or high
-        /// Ends facing left sub intake at place preset
-        /// Expects arm to start under the bar if high bar = false
+        /// Ends at bar at place preset
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -92,9 +91,9 @@ public class FromWallRight {
                 case 1:
                     if (robot.follower.getErrorDistance(barRightOuterMidAdded) < 2) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
                         }
                         setPathState(2);
                     }
@@ -131,8 +130,7 @@ public class FromWallRight {
 
     public static class ToRightInnerBar implements PathPlanner {
         /// Places on bar right inner with option for low or high
-        /// Ends facing right at store preset
-        /// Expects arm to start under the bar if high bar = false
+        /// Ends at bar at post clip preset
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -198,10 +196,9 @@ public class FromWallRight {
             switch (state) {
                 case 0:
                     if (highBar) {
-                        //todo fix to be a safe position when the new claw is on
-                        robot.stateMachine.goHighSpecimen(false, false);
+                        robot.stateMachine.goSafeHighSpecimen(false, false);
                     } else {
-                        robot.stateMachine.goLowSpecimen(false);
+                        robot.stateMachine.goSafeLowSpecimen(false);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);
@@ -231,11 +228,11 @@ public class FromWallRight {
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
                         }
-                        robot.outtakeSystem.setFlapsDown();
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(5);
                     }
                     break;

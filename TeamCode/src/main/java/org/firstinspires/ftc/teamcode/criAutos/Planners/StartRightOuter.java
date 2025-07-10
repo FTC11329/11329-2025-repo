@@ -120,8 +120,8 @@ public class StartRightOuter {
     }
 
     public static class ToPlaceBarRightOuter implements PathPlanner {
-        /// Places on bar left inner with option for low or high
-        /// Ends facing left sub intake at store preset
+        /// Places on bar right outer with option for low or high
+        /// Ends at bar at post clip position
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
@@ -146,11 +146,9 @@ public class StartRightOuter {
         Pose controlPointAdded;
         Pose barRightOuterMidAdded;
         Pose barRightOuterTopAdded;
-        Pose pickupWallRightAdded;
 
         //Paths
         PathChain toBar;
-        PathChain toWall;
 
         @Override
         public void buildPaths(Pose offset) {
@@ -160,7 +158,6 @@ public class StartRightOuter {
             controlPointAdded = controlPoint.addReturn(offset);
             barRightOuterMidAdded = barRightOuterMid.addReturn(offset);
             barRightOuterTopAdded = barRightOuterTop.addReturn(offset);
-            pickupWallRightAdded = pickupWallRight.addReturn(offset);
 
             toBar = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidAdded))))
@@ -168,7 +165,6 @@ public class StartRightOuter {
                     .addPath(robot.follower.linearPathBuilder(barRightOuterMidAdded, barRightOuterTopAdded))
                     .setConstantHeadingInterpolation(barRightOuterMidAdded.getHeading())
                     .build();
-            toWall = robot.follower.linearPathChainBuilder(barRightOuterTopAdded, pickupWallRightAdded);
         }
 
         @Override
@@ -193,9 +189,9 @@ public class StartRightOuter {
                 case 1:
                     if (robot.follower.getError(barRightOuterMidAdded).getX() < 3) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
                         }
                         setPathState(2);
                     }

@@ -36,7 +36,7 @@ public class VerticalSlides {
         slideMotor.setPower(1);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         slideMotor.setCurrentAlert(4, CurrentUnit.AMPS);
 //        slideMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(10,0.05, 0, 0)); // og
 //        slideMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION, new PIDFCoefficients(9.5,0.02, 0.05, 0.05)); // new

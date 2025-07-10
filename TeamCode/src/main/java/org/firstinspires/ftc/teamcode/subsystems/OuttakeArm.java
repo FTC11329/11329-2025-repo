@@ -53,7 +53,7 @@ public class OuttakeArm {
 
         wristServo.setDirection(Servo.Direction.FORWARD);
 
-        wristServo.setPosition(Constants.Outtake.initTeleopWrist);
+        setWristPos(Constants.Outtake.initTeleopWrist);
     }
 
 

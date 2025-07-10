@@ -12,7 +12,7 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class FromBarLeftInner {
     public static class ToWall implements PathPlanner {
-        /// Option to push spike 0 is none, 1 is bottom, 2 is middle, 3 is top
+        /// Option to push spike: 0 is none, 1 is bottom, 2 is middle, 3 is top
         /// Option to go left or right wall
         /// Expects robot.state.whereami to be correct
         /// Ends at left or right wall
@@ -115,13 +115,13 @@ public class FromBarLeftInner {
                     break;
                 case 1:
                     if (robot.follower.getErrorDistance(targetPoseAdded) < 1) {
-                        robot.outtakeSystem.setRightFlap(Constants.Outtake.rightFlapSpike);
+                        robot.outtakeSystem.setFlapsSpike();
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
-                        robot.outtakeSystem.setRightFlap(Constants.Outtake.rightFlapWall);
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(3);
                     }
                     break;

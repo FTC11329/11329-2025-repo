@@ -33,14 +33,19 @@ public class OuttakeSystem {
     public void setFlapsUp() {
         backFlaps.setFlapsUp();
     }
-    public void setFlapsDown() {
-        backFlaps.setFlapsDown();
+    public void setFlapsWall() {
+        backFlaps.setFlapsWall();
     }
-    public void setLeftFlap(double set) {
-        backFlaps.setLeftFlap(set);
+    public void setFlapsSpike() {
+        backFlaps.setFlapsSpike();
     }
-    public void setRightFlap(double set) {
-        backFlaps.setRightFlap(set);
+
+    public void setBackFlaps(double set) {
+        backFlaps.setBackFlaps(set);
+    }
+
+    public double getBackFlapsPos() {
+        return backFlaps.getPos();
     }
 
     public void manualWrist(double power) {
@@ -90,7 +95,31 @@ public class OuttakeSystem {
     }
 
     public void placePos(PlacePosEnum posEnum) {
-        if (posEnum == PlacePosEnum.lowSpecimen) {
+        if (posEnum == PlacePosEnum.postClipHighSpecimen) {
+            setArmPos(Constants.Outtake.postHighSpecimenArm);
+            setVSlidePos(Constants.Outtake.postClipHighSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+
+        } else if (posEnum == PlacePosEnum.postClipLowSpecimen) {
+            setArmPos(Constants.Outtake.postLowSpecimenArm);
+            setVSlidePos(Constants.Outtake.postClipLowSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+
+        } else if (posEnum == PlacePosEnum.safeHighSpecimen) {
+            setArmPos(Constants.Outtake.safeHighSpecimenArm);
+            setVSlidePos(Constants.Outtake.safeHighSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.safeSpecimenWristHigh);
+
+        } else if (posEnum == PlacePosEnum.safeLowSpecimen) {
+            setArmPos(Constants.Outtake.safeLowSpecimenArm);
+            setVSlidePos(Constants.Outtake.safeLowSpecimenSlides);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.safeSpecimenWristLow);
+
+        } else if (posEnum == PlacePosEnum.lowSpecimen) {
             setArmPos(Constants.Outtake.lowSpecimenArm);
             setVSlidePos(Constants.Outtake.lowSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);

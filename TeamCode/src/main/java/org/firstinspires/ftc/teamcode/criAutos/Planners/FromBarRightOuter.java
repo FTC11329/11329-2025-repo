@@ -14,7 +14,6 @@ import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
-import org.firstinspires.ftc.teamcode.utility.autoEnums.Specimen6AutoEnum;
 
 public class FromBarRightOuter {
     public static class ToWall implements PathPlanner {
@@ -175,7 +174,7 @@ public class FromBarRightOuter {
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000){
                         robot.intakeSystem.setIntakePower(0);
                         robot.stateMachine.goWall(true, false, true);
-                        robot.outtakeSystem.setFlapsDown();
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(7);
                     }
                     break;
@@ -183,11 +182,11 @@ public class FromBarRightOuter {
                 case 6:
                     robot.follower.followPath(toWall);
                     robot.stateMachine.goWall(false, false, true);
-                    robot.outtakeSystem.setFlapsDown();
+                    robot.outtakeSystem.setFlapsWall();
                     setPathState(7);
                     break;
                 case 7:
-                    if (robot.follower.getError(pickupWallRightAdded).getY() < 10) {
+                    if (robot.follower.getError(pickupWallLeftAdded).getY() < 10) {
                         robot.intakeSystem.setIntakePower(0);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(8);
@@ -219,9 +218,9 @@ public class FromBarRightOuter {
             this.state = state;
             pathTimer.resetTimer();
         }
-
+        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-0.25, 1.75));
+            return offset.addReturn(new Pose());
         }
 
         public void addToOffset(Pose offset) {

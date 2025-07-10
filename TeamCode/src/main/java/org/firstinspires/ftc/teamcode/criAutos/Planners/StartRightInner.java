@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
@@ -13,7 +12,7 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 public class StartRightInner {
     public static class ToRightInnerBar implements PathPlanner {
         /// Places on bar right inner with option for low or high
-        /// Ends facing right at store preset
+        /// Ends at bar at post clip preset
         /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
@@ -113,11 +112,11 @@ public class StartRightInner {
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
                         }
-                        robot.outtakeSystem.setFlapsDown();
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(5);
                     }
                     break;

@@ -11,9 +11,8 @@ import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class FromWallLeft {
     public static class ToLeftInnerBar implements PathPlanner {
-        /// Places on bar right inner with option for low or high
-        /// Ends facing right at store preset
-        /// Expects arm to start under the bar if high bar = false
+        /// Places on bar left inner with option for low or high
+        /// Ends at bar at post clip preset
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -79,10 +78,9 @@ public class FromWallLeft {
             switch (state) {
                 case 0:
                     if (highBar) {
-                        //todo fix to be a safe position when the new claw is on
-                        robot.stateMachine.goHighSpecimen(false, false);
+                        robot.stateMachine.goSafeHighSpecimen(false, false);
                     } else {
-                        robot.stateMachine.goLowSpecimen(false);
+                        robot.stateMachine.goSafeLowSpecimen(false);
                     }
                     robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toOpen);
@@ -113,9 +111,9 @@ public class FromWallLeft {
                 case 4:
                     if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
                         }
                         setPathState(5);
                     }

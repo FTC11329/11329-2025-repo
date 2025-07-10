@@ -116,13 +116,13 @@ public class FromBarRightInner {
                     break;
                 case 1:
                     if (robot.follower.getErrorDistance(targetPoseAdded) < 1) {
-                        robot.outtakeSystem.setLeftFlap(Constants.Outtake.leftFlapSpike);
+                        robot.outtakeSystem.setFlapsSpike();
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
-                        robot.outtakeSystem.setLeftFlap(Constants.Outtake.leftFlapWall);
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(3);
                     }
                     break;

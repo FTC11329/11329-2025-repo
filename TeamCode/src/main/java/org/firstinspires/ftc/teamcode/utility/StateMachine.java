@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.utility;
 
 public class StateMachine {
+    boolean bringSlidesIn = true;
+
+    boolean goingSafeHighSpecimen = false;
+    boolean goingSafeLowSpecimen = false;
     boolean goingHighSpecimen = false;
     boolean goingLowSpecimen = false;
     boolean goingLowBasket  = false;
@@ -18,6 +22,10 @@ public class StateMachine {
     boolean atLowSpec = false;
 
     public void resetValues() {
+        bringSlidesIn = true;
+
+        goingSafeHighSpecimen = false;
+        goingSafeLowSpecimen = false;
         goingHighSpecimen = false;
         goingLowSpecimen = false;
         goingLowBasket   = false;
@@ -35,6 +43,24 @@ public class StateMachine {
     }
 
     //Functions that start the movement of the robot
+    public void goSafeLowSpecimen(boolean atStorePos) {
+        resetValues();
+        goingSafeLowSpecimen = true;
+        goingLowSpecimen = true;
+        this.hasInIntake = false;
+        this.hasInOutake = true;
+        this.atStorePos = atStorePos;
+    }
+
+    public void goSafeHighSpecimen(boolean atLowSpec, boolean atStorePos) {
+        resetValues();
+        goingSafeHighSpecimen = true;
+        goingHighSpecimen = true;
+        this.hasInIntake = false;
+        this.hasInOutake = true;
+        this.atLowSpec = atLowSpec;
+        this.atStorePos = atStorePos;
+    }
     public void goLowSpecimen(boolean atStorePos) {
         resetValues();
         goingLowSpecimen = true;
@@ -119,11 +145,19 @@ public class StateMachine {
     }
 
     public boolean doUnStoreFromLowBar() {
-        return (goingLowBasket || goingHighBasket || goingLowSpecimen || goingFrontBasket || goingHighSpecimen || goingWall) && atLowSpec;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingLowSpecimen || goingHighSpecimen || goingWall) && atLowSpec;
     }
 
     public boolean doUnStoreFromIntake() {
-        return (goingLowBasket || goingHighBasket || goingLowSpecimen || goingFrontBasket || goingHighSpecimen || goingWall) && !hasInIntake && atStorePos;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingLowSpecimen || goingHighSpecimen || goingWall) && !hasInIntake && atStorePos;
+    }
+
+    public boolean doSafeLowSpecimen() {
+        return goingSafeLowSpecimen && !goingLowSpecimen && !atStorePos;
+    }
+
+    public boolean doSafeHighSpecimen() {
+        return goingSafeHighSpecimen && !goingHighSpecimen && !atStorePos && !atLowSpec;
     }
 
     public boolean doLowSpecimen() {
@@ -178,6 +212,14 @@ public class StateMachine {
         atStorePos = false;
     }
 
+    public void finishSafeLowSpecimen() {
+        goingSafeLowSpecimen = false;
+    }
+
+    public void finishSafeHighSpecimen() {
+        goingSafeHighSpecimen = false;
+    }
+
     public void finishLowSpecimen() {
         goingLowSpecimen = false;
     }
@@ -211,6 +253,14 @@ public class StateMachine {
         temp[1] = hasInOutake;
         temp[2] = atStorePos;
         return temp;
+    }
+
+    public boolean getBringSlidesIn() {
+        return bringSlidesIn;
+    }
+
+    public void setBringSlidesIn(boolean bringSlidesIn) {
+        this.bringSlidesIn = bringSlidesIn;
     }
 
     public boolean isBusy() {
