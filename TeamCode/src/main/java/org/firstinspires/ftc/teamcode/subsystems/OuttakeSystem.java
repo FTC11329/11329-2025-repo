@@ -95,7 +95,25 @@ public class OuttakeSystem {
     }
 
     public void placePos(PlacePosEnum posEnum) {
-        if (posEnum == PlacePosEnum.postClipHighSpecimen) {
+        if (posEnum == PlacePosEnum.preClipHighSpecimenAuto) {
+            setArmPos(Constants.Outtake.highSpecimenArmAuto);
+            setVSlidePos(Constants.Outtake.highSpecimenSlidesAutoPre);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.specimenWristHighAuto);
+
+        } else if (posEnum == PlacePosEnum.preClipLowSpecimenAuto) {
+            setArmPos(Constants.Outtake.lowSpecimenArmAutoPre);
+            setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPre);
+            setClawPos(Constants.Outtake.grabClaw);
+            setWristPos(Constants.Outtake.specimenWristLowAuto);
+
+        } else if (posEnum == PlacePosEnum.postClipHighSpecimenAuto) {
+            setVSlidePos(Constants.Outtake.highSpecimenSlidesAutoPost);
+
+        } else if (posEnum == PlacePosEnum.postClipLowSpecimenAuto) {
+            setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
+
+        } else if (posEnum == PlacePosEnum.postClipHighSpecimen) {
             setArmPos(Constants.Outtake.postHighSpecimenArm);
             setVSlidePos(Constants.Outtake.postClipHighSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);

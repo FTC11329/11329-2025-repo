@@ -79,49 +79,48 @@ public class StartRightInner {
             switch (state) {
                 case 0:
                     if (highBar) {
-                        //todo fix to be a safe position when the new claw is on
                         robot.stateMachine.goHighSpecimen(false, false);
+                        robot.stateMachine.setAutoPresets(true);
                     } else {
-                        robot.stateMachine.goLowSpecimen(false);
+                        robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);
                     break;
                 case 1:
                     if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 0.75) {
+                        robot.follower.followPath(toNearBar);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                        robot.follower.followPath(toNearBar);
+                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 3) {
+                        robot.follower.followPath(sweepBar);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.follower.getError(barRightInnerLeftAdded).getX() < 3) {
-                        if (highBar) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                    if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
-                        robot.follower.followPath(sweepBar);
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(4);
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
-                        }
-                        robot.outtakeSystem.setFlapsWall();
+                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 2) {
+//                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+//                        }
+                        robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
                         setPathState(5);
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(6);
                         isFinished = true;

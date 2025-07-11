@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.criAutos.Planners;
 
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.barLeftOuterMid;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.barLeftOuterTop;
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.pickupWallLeft;
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.pickupWallRight;
 
@@ -219,6 +221,9 @@ public class FromBarLeftOuter {
         //todo
         public Pose getOffset() {
             return offset.addReturn(new Pose());
+//            return offset.addReturn(new Pose(-0.4, -0.6));
+//            return offset.addReturn(new Pose(-0.9, -0.8));
+//            return offset.addReturn(new Pose(-1.2, -0.6));
         }
 
         public void addToOffset(Pose offset) {

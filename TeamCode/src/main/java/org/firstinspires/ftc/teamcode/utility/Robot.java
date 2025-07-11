@@ -117,7 +117,9 @@ public class Robot {
                     break;
                 case 2:
                     if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeAtIntakeSlides) < 40) {
-                        intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                        if (stateMachine.bringSlidesIn) {
+                            intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
+                        }
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
                         robotState.clawToggle = false;
                         storeTimer.resetTimer();
@@ -157,7 +159,7 @@ public class Robot {
                     break;
                 case 2:
                     intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                    if (transferTimer.getElapsedTimeSeconds() > 0.4) {
+                    if (transferTimer.getElapsedTimeSeconds() > 0.1) {
                         // Continue
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         transferTimer.resetTimer();
@@ -199,12 +201,12 @@ public class Robot {
                     }
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     outtakeSystem.setArmPos(Constants.Outtake.downArm);
-                    outtakeSystem.setWristPos(Constants.Outtake.maxWrist);
+                    outtakeSystem.setWristPos(Constants.Outtake.straightWrist);
                     unStoringTimer.resetTimer();
                     unStoringState = 0;
                     break;
                 case 0:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 40) {
+                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 60) {
                         outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
                         intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                         intakeSystem.setHSlidePos(0);
@@ -214,7 +216,7 @@ public class Robot {
                     break;
                 case 1:
                     if (unStoringTimer.getElapsedTimeSeconds() > 0.3) {
-                        robotState.whereAmI = PlacePosEnum.highSpecimen;
+                        robotState.whereAmI = PlacePosEnum.clear;
                         stateMachine.finishUnStoreFromIntake();
                         unStoringState = -1;
                     }
@@ -229,15 +231,15 @@ public class Robot {
                     } else {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
-                    intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     outtakeSystem.setArmPos(Constants.Outtake.downArm);
-                    outtakeSystem.setWristPos(Constants.Outtake.maxWrist);
+                    outtakeSystem.setWristPos(Constants.Outtake.safeSpecimenWristLow);
                     unStoringTimer.resetTimer();
                     unStoringState = 0;
                     break;
                 case 0:
                     if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeFromClimberBar) < 40) {
                         outtakeSystem.setArmPos(Constants.Outtake.initTeleopArm);
+                        outtakeSystem.setWristPos(Constants.Outtake.maxWrist);
                         intakeSystem.setIntakeServoPos(Constants.Intake.wristStore);
                         intakeSystem.setHSlidePos(0);
                         unStoringTimer.resetTimer();
@@ -246,7 +248,7 @@ public class Robot {
                     break;
                 case 1:
                     if (unStoringTimer.getElapsedTimeSeconds() > 0.3) {
-                        robotState.whereAmI = PlacePosEnum.highSpecimen;
+                        robotState.whereAmI = PlacePosEnum.clear;
                         stateMachine.finishUnStoreFromLowBar();
                         unStoringState = -1;
                     }
@@ -314,7 +316,11 @@ public class Robot {
                     break;
                 case 3:
                     if (lowBarTimer.getElapsedTimeSeconds() > 0.1) {
-                        outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlides);
+                        if (stateMachine.getAutoPresets()) {
+                            outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
+                        } else {
+                            outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlides);
+                        }
                         lowBarTimer.resetTimer();
                         lowBarState = 4;
                     }
@@ -332,7 +338,11 @@ public class Robot {
 
 
         if (stateMachine.doHighSpecimen()) {
-            outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+            if (stateMachine.getAutoPresets()) {
+                outtakeSystem.placePos(PlacePosEnum.preClipHighSpecimenAuto);
+            } else {
+                outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+            }
             robotState.whereAmI = PlacePosEnum.highSpecimen;
             stateMachine.finishHighSpecimen();
         }
@@ -354,7 +364,7 @@ public class Robot {
                     }
                     break;
                 case 1:
-                    if (lowBasketTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (lowBasketTimer.getElapsedTimeSeconds() > 0.6) {
                         outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                         stateMachine.finishLowBasket();
                         lowBasketState = -1;
@@ -380,10 +390,10 @@ public class Robot {
                     }
                     break;
                 case 1:
-                    if (highBasketTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (highBasketTimer.getElapsedTimeSeconds() > 0.6) {
                         outtakeSystem.setArmPos(Constants.Outtake.basketArm);
                         stateMachine.finishHighBasket();
-                        lowBasketState = -1;
+                        highBasketState = -1;
                     }
                     break;
             }
@@ -397,7 +407,6 @@ public class Robot {
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robotState.clawToggle = false;
                     }
-
                     wallTimer.resetTimer();
                     wallState = 0;
                     break;

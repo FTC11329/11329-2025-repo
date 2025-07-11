@@ -196,9 +196,11 @@ public class FromWallRight {
             switch (state) {
                 case 0:
                     if (highBar) {
-                        robot.stateMachine.goSafeHighSpecimen(false, false);
+                        robot.stateMachine.goHighSpecimen(false, false);
+                        robot.stateMachine.setAutoPresets(true);
                     } else {
-                        robot.stateMachine.goSafeLowSpecimen(false);
+                        robot.stateMachine.goLowSpecimen(false);
+                        robot.stateMachine.setAutoPresets(true);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);
@@ -216,11 +218,6 @@ public class FromWallRight {
                     break;
                 case 3:
                     if (robot.follower.getError(barRightInnerLeftAdded).getX() < 5) {
-                        if (highBar) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
-                        }
                         robot.follower.followPath(sweepBar);
                         setPathState(4);
                     }
@@ -228,9 +225,9 @@ public class FromWallRight {
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(5);
@@ -238,8 +235,16 @@ public class FromWallRight {
                     break;
                 case 5:
                     if (robot.follower.getError(barRightInnerTopAdded).getX() < 1.5) {
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        }
                         setPathState(6);
+                    }
+                    break;
+                case 6:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        setPathState(7);
                         isFinished = true;
                     }
                     break;

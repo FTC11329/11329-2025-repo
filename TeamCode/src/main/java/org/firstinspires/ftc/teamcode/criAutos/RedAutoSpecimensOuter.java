@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
 
@@ -36,8 +37,11 @@ import java.util.List;
 public class RedAutoSpecimensOuter extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
+    //Wall or Low Spec
     PlacePosEnum startPos = PlacePosEnum.wall;
     Pose startPose = startRightInner;
+
+
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -57,7 +61,14 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         RobotStateVariables robotState = new RobotStateVariables(startPos);
 
-        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
+        if (startPos == PlacePosEnum.wall) {
+            outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
+            outtakeSystem.setWristPos(Constants.Outtake.initAutoNearWallWrist);
+        } else if (startPos == PlacePosEnum.lowSpecimen) {
+            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
+            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
+        }
+
         follower.setStartingPose(startPose);
 
         // Create robot context
@@ -69,8 +80,15 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
-        steps.add(new TestPaths.ToPose(robot, lastPose(), new Pose(-48, 0)));
+        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
 
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
+
+        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
+
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, false));
+
+        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
     }
 
     private Pose lastPose() {
@@ -100,15 +118,13 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         robot.loop();
 
+        PathPlanner step = steps.get(currentStep);
+        boolean done = step.run();
+
         telemetry.addData("time", robot.opmodeTimer.getElapsedTimeSeconds());
         telemetry.addData("offset", totalOffset);
         telemetry.addData("velocity", robot.follower.getVelocity());
-
-
-
-        PathPlanner step = steps.get(currentStep);
         telemetry.addData("name", step.getName());
-        boolean done = step.run();
 
         telemetry.update();
 

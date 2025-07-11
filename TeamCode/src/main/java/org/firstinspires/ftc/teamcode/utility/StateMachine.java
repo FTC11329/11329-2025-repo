@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.utility;
 
 public class StateMachine {
     boolean bringSlidesIn = true;
+    boolean autoPresets = false;
 
     boolean goingSafeHighSpecimen = false;
     boolean goingSafeLowSpecimen = false;
@@ -23,6 +24,7 @@ public class StateMachine {
 
     public void resetValues() {
         bringSlidesIn = true;
+        autoPresets = false;
 
         goingSafeHighSpecimen = false;
         goingSafeLowSpecimen = false;
@@ -248,10 +250,12 @@ public class StateMachine {
         return goingHighBasket;
     }
     public boolean[] debug() {
-        boolean[] temp = new boolean[3];
+        boolean[] temp = new boolean[5];
         temp[0] = hasInIntake;
         temp[1] = hasInOutake;
         temp[2] = atStorePos;
+        temp[3] = atLowSpec;
+        temp[4] = goingHighBasket;
         return temp;
     }
 
@@ -261,6 +265,14 @@ public class StateMachine {
 
     public void setBringSlidesIn(boolean bringSlidesIn) {
         this.bringSlidesIn = bringSlidesIn;
+    }
+
+    public boolean getAutoPresets() {
+        return autoPresets;
+    }
+
+    public void setAutoPresets(boolean autoPresets) {
+        this.autoPresets = autoPresets;
     }
 
     public boolean isBusy() {

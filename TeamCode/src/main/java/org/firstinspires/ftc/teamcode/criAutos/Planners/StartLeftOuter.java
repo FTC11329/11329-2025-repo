@@ -216,7 +216,7 @@ public class StartLeftOuter {
 
         // todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(1.7, -2.15));
         }
 
         public String getName() {

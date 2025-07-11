@@ -39,8 +39,8 @@ public class Teleop {
     //Debug Variables
     boolean debugAll = false;
     boolean debugState = false;
-    boolean debugStateMachine = false;
-    boolean debugPos = true;
+    boolean debugStateMachine = true;
+    boolean debugPos = false;
     boolean debugColor = false;
     boolean debugClimber = false;
     boolean debugPower = false;
@@ -103,7 +103,6 @@ public class Teleop {
     boolean climbStopPause = false;
     boolean climbStopPauseOnce = true;
 
-    boolean onceTime = true;
     boolean onceWall = true;
     boolean onceState = true;
     boolean wallOnce = true;
@@ -467,34 +466,23 @@ public class Teleop {
         //Button to State Machine class *********************************************************~BS
         if (lowSpecimen) {
             outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
             intakeSystem.storePos();
             stateMachine.goLowSpecimen(robotState.whereAmI == PlacePosEnum.intake);
         }
         if (highSpecimen) {
             outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
             intakeSystem.storePos();
             stateMachine.goHighSpecimen(robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
         if (lowBasket) {
             outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
             intakeingColor = false;
             intakeing = false;
             stateMachine.goLowBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
         if (highBasket) {
-            outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
+
+            telemetry.addData("TRUE", true);
             outtakeSystem.setFlapsUp();
             intakeingColor = false;
             intakeing = false;
@@ -502,25 +490,18 @@ public class Teleop {
         }
         if (frontBasket) {
             outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
             intakeingColor = false;
             intakeing = false;
             stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
         if (wallPreset) {
             outtakeSystem.setFlapsWall();
-            if (!stateMachine.doTransfer()) {
-                onceTime = true;
-            }
             intakeingColor = false;
             intakeing = false;  //Todo change v if you want to transfer
             stateMachine.goWall(robot.robotState.hasInIntake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
         if (storePos) {
             outtakeSystem.setFlapsUp();
-            onceTime = true;
             stateMachine.resetValues();
             intakeingColor = false;
             intakeing = false;
@@ -529,9 +510,6 @@ public class Teleop {
         }
         if (transfer) {
             outtakeSystem.setFlapsUp();
-            if (!stateMachine.doTransfer() && !stateMachine.doUnStoreFromIntake()) {
-                onceTime = true;
-            }
             intakeSystem.storeOutPos();
             intakeingColor = false;
             intakeing = false;
@@ -637,10 +615,13 @@ public class Teleop {
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 300 && elapsedTime.milliseconds() < droppingBasketTime + 400) {
 //                robotState.whereAmI = PlacePosEnum.highSpecimen;
-                outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
             }
             if (elapsedTime.milliseconds() > droppingBasketTime + 500 && elapsedTime.milliseconds() < droppingBasketTime + 600) {
                 stateMachine.goStore();
+                if (intakeing || intakeingColor) {
+                    stateMachine.setBringSlidesIn(false);
+                }
             }
             // Fixes a bug
             if (elapsedTime.milliseconds() > droppingBasketTime + 600 && elapsedTime.milliseconds() < droppingBasketTime + 700) {
@@ -737,6 +718,7 @@ public class Teleop {
         if (afterIntakeingColor) {
             if (elapsedTime.milliseconds() > afterIntakeingColorTime + 200) {
                 if (robotState.whereAmI == PlacePosEnum.intake) {
+                    stateMachine.goWall(true, false, true);
                     intakeSystem.storeOutPos();
                 } else {
                     intakeSystem.storePos();
@@ -871,6 +853,8 @@ public class Teleop {
             telemetry.addData("robotState.hasInIntake", stateMachine.debug()[0]);
             telemetry.addData("transferred", stateMachine.debug()[1]);
             telemetry.addData("atStore", stateMachine.debug()[2]);
+            telemetry.addData("lowSpec", stateMachine.debug()[3]);
+            telemetry.addData("highBasket", stateMachine.debug()[4]);
             telemetry.addLine();
         }
         if (debugPos || debugAll) {
@@ -927,7 +911,6 @@ public class Teleop {
         }
         if (debugMisc || debugAll) {
             telemetry.addLine("MISCELLANEOUS");
-            telemetry.addData("onceTime", onceTime);
             telemetry.addData("transferTime", transferTime);
             telemetry.addData("droppingBasketTime", droppingBasketTime);
             telemetry.addData("storeTime", storeTime);
