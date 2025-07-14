@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftInner;
@@ -42,9 +43,9 @@ public class ErrorFinder extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startLeftOuter;
-//    Pose endPose = new Pose(0, 0);
-    Pose endPose = new Pose(-48, 0);
+    Pose startPose = startRightInner;
+    Pose endPose = new Pose(0, 0);
+//    Pose endPose = new Pose(-48, 0);
 //    Pose endPose = new Pose(0, 96);
     Pose totalOffset = new Pose();
     Timer loopTimer = new Timer();
@@ -81,9 +82,19 @@ public class ErrorFinder extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true));
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
 
-        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
+
+        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
+
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, false));
+
+        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+
+        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
+
+        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
     }
@@ -143,6 +154,9 @@ public class ErrorFinder extends OpMode {
                 Pose endOffset =  offsetTargetPose.subtractReturn(offsetCurrentPose);
                 telemetry.addData("X", -endOffset.getX());
                 telemetry.addData("Y", -endOffset.getY());
+                telemetry.addLine();
+                telemetry.addData("total offset X", totalOffset.getX());
+                telemetry.addData("total offset Y", totalOffset.getY());
                 telemetry.update();
                 break;
         }

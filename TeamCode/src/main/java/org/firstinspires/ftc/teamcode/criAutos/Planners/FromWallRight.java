@@ -263,7 +263,7 @@ public class FromWallRight {
         }
 
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-1, 2.2));
+            return offset.addReturn(new Pose(0.3, -1.8));
         }
 
         public String getName() {

@@ -38,9 +38,9 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = 0;
+    double testValue = Constants.PTO.PTOServoReleaseLeft;
     double testValue2 = 0;
-    double testValue3 = Constants.Outtake.upArm;
+    double testValue3 = Constants.PTO.PTOServoReleaseRight;
     double testValue4 = Constants.Intake.wristStore;
     boolean intakeingColor = false;
     boolean intakeing = false;
@@ -210,11 +210,12 @@ public class TeleopTesting {
 
 
 //        intakeSystem.setHSlidePos((int) testValue);
-        outtakeSystem.setBackFlaps(testValue);
-        outtakeSystem.setVSlidePos((int) testValue2);
-        outtakeSystem.setArmPos(testValue3);
-        intakeSystem.setIntakeServoPos(testValue4);
-        outtakeSystem.setWristPos(Constants.Outtake.intakeWrist);
+        powerTakeOff.setLeftPos(testValue);
+        powerTakeOff.setRightPos(testValue3);
+//        outtakeSystem.setVSlidePos((int) testValue2);
+//        outtakeSystem.setArmPos(testValue3);
+//        intakeSystem.setIntakeServoPos(testValue4);
+//        outtakeSystem.setWristPos(Constants.Outtake.intakeWrist);
 
         //HSlides
 //        outtakeSystem.setVSlidePos((int)testValue);
@@ -222,9 +223,9 @@ public class TeleopTesting {
 //        intakeSystem.setIntakeServoPos(testValue);
 //        outtakeSystem.setArmPos(testValue3);
 //        intakeSystem.setDepoServoPos(testValue);
-        telemetry.addData("testValue1H", testValue);
+        telemetry.addData("testValue1L", testValue);
         telemetry.addData("testValue2V", testValue2);
-        telemetry.addData("testValue3A", testValue3);
+        telemetry.addData("testValue3R", testValue3);
         telemetry.addData("testValue4 ", testValue4);
         telemetry.addData("HSlidepos  ", intakeSystem.getHSlidePos());
         telemetry.addData("VSlidepos  ", outtakeSystem.getVSlidePos());

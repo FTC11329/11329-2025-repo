@@ -39,8 +39,8 @@ public class Teleop {
     //Debug Variables
     boolean debugAll = false;
     boolean debugState = false;
-    boolean debugStateMachine = true;
-    boolean debugPos = false;
+    boolean debugStateMachine = false;
+    boolean debugPos = true;
     boolean debugColor = false;
     boolean debugClimber = false;
     boolean debugPower = false;
@@ -88,7 +88,7 @@ public class Teleop {
     boolean unJam;
 
     //State Machine Variables
-    RobotStateVariables robotState = new RobotStateVariables(PlacePosEnum.wall);
+    RobotStateVariables robotState = new RobotStateVariables(PlacePosEnum.clear);
 
     //Various Variables
     int climberStage = 0;
@@ -267,7 +267,7 @@ public class Teleop {
             manualWrist *= 0.5;
         }
 
-        sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0); //|| (gamepad2.dpad_left && robotState.hasInIntake);
+        sideDepo = (gamepad2.touchpad && gamepad2.touchpad_finger_1_x > 0) || (gamepad2.dpad_left && robotState.hasInIntake);
 
         highSpecimen = gamepad2.dpad_up;
         lowSpecimen = gamepad2.dpad_down && (robotState.whereAmI == PlacePosEnum.wall || robotState.whereAmI == PlacePosEnum.highSpecimen);
@@ -468,6 +468,7 @@ public class Teleop {
             outtakeSystem.setFlapsUp();
             intakeSystem.storePos();
             stateMachine.goLowSpecimen(robotState.whereAmI == PlacePosEnum.intake);
+            stateMachine.setAutoPresets(true);
         }
         if (highSpecimen) {
             outtakeSystem.setFlapsUp();
@@ -481,8 +482,6 @@ public class Teleop {
             stateMachine.goLowBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
         if (highBasket) {
-
-            telemetry.addData("TRUE", true);
             outtakeSystem.setFlapsUp();
             intakeingColor = false;
             intakeing = false;
@@ -562,13 +561,9 @@ public class Teleop {
             if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                 robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
             } else {
-                robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
+                robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
             }
             if (!clawToggleButton) {
-                if (intakeingColor || intakeing) {
-                    robot.stateMachine.goStore();
-                    robot.stateMachine.setBringSlidesIn(false);
-                }
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                 droppingSpec = false;
             }
@@ -576,7 +571,7 @@ public class Teleop {
                 if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                     robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                 } else {
-                    robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                    robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                 }
                 droppingSpec = false;
                 robotState.clawToggle = true;
@@ -640,10 +635,6 @@ public class Teleop {
 //            }
 //        }
         if (intakeColor && !intakeingDebounce) {
-            if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen && !robotState.clawToggle && !droppingSpec) {
-                robot.stateMachine.goStore();
-                robot.stateMachine.setBringSlidesIn(false);
-            }
             outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeingColor) {
@@ -656,10 +647,6 @@ public class Teleop {
             intakeWristTime = elapsedTime.milliseconds();
         }
         if (intake && !intakeingDebounce) {
-            if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen && !robotState.clawToggle && !droppingSpec) {
-                robot.stateMachine.goStore();
-                robot.stateMachine.setBringSlidesIn(false);
-            }
             outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeing) {

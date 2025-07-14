@@ -271,6 +271,17 @@ public class Robot {
         if (stateMachine.doLowSpecimen()) {
             switch (lowBarState) {
                 case -1:
+                    if (stateMachine.getAutoPresets()) {
+                        outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
+                    } else {
+                        outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                    }
+                    outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
+                    robotState.clawToggle = true;
+                    robotState.whereAmI = PlacePosEnum.lowSpecimen;
+                    stateMachine.finishLowSpecimen();
+                /*
+                case -1:
                     if (robotState.whereAmI == PlacePosEnum.safeLowSpecimen) {
                         outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
                         break;
@@ -332,6 +343,7 @@ public class Robot {
                         stateMachine.finishLowSpecimen();
                     }
                     break;
+                 */
             }
         }
 

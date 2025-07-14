@@ -22,7 +22,7 @@ public class CommonPoses {
     public static Pose intakeSubRightMiddle = new Pose();
     public static Pose intakeSubRightOuter  = new Pose();
 
-    public static Pose pickupWallLeft  = new Pose(-58.5,  13.5, Math.toRadians(0));
+    public static Pose pickupWallLeft  = new Pose(-59.5,  12, Math.toRadians(0));
     public static Pose pickupWallRight = new Pose(-58.5, -13.5, Math.toRadians(0));
 
 

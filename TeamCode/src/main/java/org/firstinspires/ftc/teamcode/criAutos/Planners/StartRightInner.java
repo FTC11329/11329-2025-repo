@@ -88,7 +88,7 @@ public class StartRightInner {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 0.75) {
+                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 1.5) {
                         robot.follower.followPath(toNearBar);
                         setPathState(2);
                     }
@@ -112,15 +112,15 @@ public class StartRightInner {
                     break;
                 case 4:
                     if (robot.follower.getError(barRightInnerTopAdded).getX() < 2) {
-//                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
-//                        }
-                        robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        }
                         robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
                         setPathState(5);
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.75) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(6);
                         isFinished = true;
@@ -140,7 +140,7 @@ public class StartRightInner {
         }
 
         public Pose getOffset() {
-            return offset.addReturn(new Pose(0, -1.1));
+            return offset.addReturn(new Pose(0.25, -1.1));
         }
 
         public String getName() {

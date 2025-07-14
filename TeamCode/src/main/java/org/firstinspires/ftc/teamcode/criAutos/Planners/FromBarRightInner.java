@@ -24,9 +24,6 @@ public class FromBarRightInner {
         private int state = 0;
         private boolean isFinished = false;
 
-        boolean first = false;
-        boolean second = false;
-
         // Pass-through Variables
         private volatile Robot robot;
         private Pose startPose;
@@ -52,6 +49,7 @@ public class FromBarRightInner {
         Pose barRightInnerBotAdded;
         Pose startPoseLeftAdded;
         Pose wallAdded;
+        Pose innerSpikeRightBotAdded;
         Pose targetPoseAdded;
         Pose openAdded;
 
@@ -65,6 +63,7 @@ public class FromBarRightInner {
 
             barRightInnerBotAdded = barRightInnerBot.addReturn(new Pose(-10, 0)).addReturn(offset);
             startPoseLeftAdded = new Pose(startPose.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            innerSpikeRightBotAdded = innerSpikeRightBot.addReturn(offset);
             if (rightWall) {
                 wallAdded = pickupWallRight.addReturn(offset);
             } else {
@@ -72,8 +71,6 @@ public class FromBarRightInner {
             }
             openAdded = new Pose(-48, innerSpikeRightMid.getY(), Math.toRadians(0)).addReturn(offset);
 
-
-            double endTime = 1;
             switch (pushSpike) {
                 case 0:
                     targetPoseAdded = new Pose(-36, innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
@@ -86,15 +83,14 @@ public class FromBarRightInner {
                     break;
                 case 3:
                     targetPoseAdded = innerSpikeRightTop.addReturn(offset);
-                    endTime = 0.9;
                     break;
             }
             toWall = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPoseLeftAdded, targetPoseAdded, endTime));
+                    .addPath(robot.follower.linearPathBuilder(startPoseLeftAdded, innerSpikeRightBotAdded));
             if (rightWall) {
-                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, wallAdded, 0.85));
+                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeRightBotAdded, wallAdded, 0.85));
             } else {
-                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, openAdded))
+                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeRightBotAdded, openAdded))
                         .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded));
             }
 
@@ -116,23 +112,12 @@ public class FromBarRightInner {
                 case 0:
                     robot.follower.setMaxPower(0.8);
                     robot.follower.followPath(toWallPath);
-                    if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                        robot.stateMachine.goWall(false, false, false);
-                    }
+                    robot.stateMachine.goWall(false, false, false);
                     setPathState(1);
                     break;
                 case 1:
                     if (robot.follower.getError(targetPoseAdded).getX() < 1) {
                         robot.outtakeSystem.setFlapsSpike();
-                        first = true;
-                    }
-                    if (robot.follower.getError(barRightInnerBotAdded).getX() < 1) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
-                            robot.stateMachine.goWall(false, false, false);
-                        }
-                        second = true;
-                    }
-                    if (first && second) {
                         setPathState(2);
                     }
                     break;
@@ -178,9 +163,9 @@ public class FromBarRightInner {
 
         public Pose getOffset() {
             if (rightWall) {
-                return offset.addReturn(new Pose(0, 1.0));
+                return offset.addReturn(new Pose(1.3, 0.7));
             } else {
-                return offset.addReturn(new Pose(0, 0.9));
+                return offset.addReturn(new Pose(1.3, 1));
             }
         }
 

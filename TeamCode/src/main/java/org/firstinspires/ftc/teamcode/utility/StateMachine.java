@@ -139,7 +139,7 @@ public class StateMachine {
 
     //Functions that return when we should do certain things on robot
     public boolean doGoToStore() {
-        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos && !atLowSpec;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingWall || goingStore || goingTransfer) && hasInIntake && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doTransfer() {
@@ -147,7 +147,7 @@ public class StateMachine {
     }
 
     public boolean doUnStoreFromLowBar() {
-        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingLowSpecimen || goingHighSpecimen || goingWall) && atLowSpec;
+        return (goingLowBasket || goingHighBasket || goingFrontBasket || goingLowSpecimen || goingHighSpecimen || goingWall) && atLowSpec && false;
     }
 
     public boolean doUnStoreFromIntake() {
@@ -159,7 +159,7 @@ public class StateMachine {
     }
 
     public boolean doSafeHighSpecimen() {
-        return goingSafeHighSpecimen && !goingHighSpecimen && !atStorePos && !atLowSpec;
+        return goingSafeHighSpecimen && !goingHighSpecimen && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doLowSpecimen() {
@@ -167,23 +167,23 @@ public class StateMachine {
     }
 
     public boolean doHighSpecimen() {
-        return goingHighSpecimen && !atStorePos && !atLowSpec;
+        return goingHighSpecimen && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doLowBasket() {
-        return goingLowBasket   && (!hasInIntake || hasInOutake) && !atStorePos && !atLowSpec;
+        return goingLowBasket   && (!hasInIntake || hasInOutake) && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doHighBasket() {
-        return goingHighBasket  && (!hasInIntake || hasInOutake) && !atStorePos && !atLowSpec;
+        return goingHighBasket  && (!hasInIntake || hasInOutake) && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doFrontBasket() {
-        return goingFrontBasket && (!hasInIntake || hasInOutake) && !atStorePos && !atLowSpec;
+        return goingFrontBasket && (!hasInIntake || hasInOutake) && !atStorePos /*&& !atLowSpec*/;
     }
 
     public boolean doWall() {
-        return goingWall && !hasInIntake && !atStorePos && !atLowSpec;
+        return goingWall && !hasInIntake && !atStorePos /*&& !atLowSpec*/;
     }
 
 
