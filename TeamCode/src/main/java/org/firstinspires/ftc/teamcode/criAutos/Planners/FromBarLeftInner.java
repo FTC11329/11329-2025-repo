@@ -48,6 +48,7 @@ public class FromBarLeftInner {
         //Poses
         Pose startPoseRightAdded;
         Pose wallAdded;
+        Pose innerSpikeLeftBotAdded;
         Pose targetPoseAdded;
         Pose openAdded;
 
@@ -60,13 +61,13 @@ public class FromBarLeftInner {
             this.offset.add(offset);
 
             startPoseRightAdded = new Pose(startPose.getX(), innerSpikeLeftMid.getY(), Math.toRadians(90)).addReturn(offset);
+            innerSpikeLeftBotAdded = innerSpikeLeftBot.addReturn(offset);
             if (leftWall) {
                 wallAdded = pickupWallLeft.addReturn(offset);
             } else {
-                wallAdded = pickupWallRight.addReturn(offset);
+                wallAdded = pickupWallRight.addReturn(new Pose(-0.5, 0)).addReturn(offset);
             }
             openAdded = new Pose(-48, innerSpikeLeftMid.getY(), Math.toRadians(0)).addReturn(offset);
-
 
             switch (pushSpike) {
                 case 0:
@@ -83,17 +84,15 @@ public class FromBarLeftInner {
                     break;
             }
             toWall = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPoseRightAdded, targetPoseAdded));
+                    .addPath(robot.follower.linearPathBuilder(startPoseRightAdded, innerSpikeLeftBotAdded));
             if (leftWall) {
-                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, wallAdded, 0.85));
+                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeLeftBotAdded, wallAdded, 0.85));
             } else {
-                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, openAdded))
+                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeLeftBotAdded, openAdded))
                         .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded));
             }
 
             toWallPath = toWall.build();
-
-
         }
 
         @Override
@@ -109,24 +108,26 @@ public class FromBarLeftInner {
         public boolean run() {
             switch (state) {
                 case 0:
+                    robot.follower.setMaxPower(0.8);
                     robot.follower.followPath(toWallPath);
-                    robot.stateMachine.goWall(false, robot.robotState.whereAmI == PlacePosEnum.lowSpecimen, false);
+                    robot.stateMachine.goWall(false, false, false);
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(targetPoseAdded) < 1) {
+                    if (robot.follower.getError(targetPoseAdded).getX() < 1) {
                         robot.outtakeSystem.setFlapsSpike();
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
+                        robot.follower.setMaxPower(1);
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.7) || pathTimer.getElapsedTimeSeconds() > 2) {
+                    if (robot.outtakeSystem.seesWall() || pathTimer.getElapsedTimeSeconds() > 2) {
                         setPathState(4);
                     }
                     break;
@@ -159,9 +160,9 @@ public class FromBarLeftInner {
 
         public Pose getOffset() {
             if (leftWall) {
-                return offset.addReturn(new Pose(-1.2, -0.25));
+                return offset.addReturn(new Pose(-0.9, 0.25));
             } else {
-                return offset.addReturn(new Pose(-1.2, -0.25));
+                return offset.addReturn(new Pose(-0.4, 0.25));
             }
         }
 

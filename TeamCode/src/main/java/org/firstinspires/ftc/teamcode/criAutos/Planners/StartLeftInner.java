@@ -13,7 +13,6 @@ public class StartLeftInner {
     public static class ToLeftInnerBar implements PathPlanner {
         /// Places on bar left inner with option for low or high
         /// Ends at bar at post clip preset
-        /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -79,48 +78,45 @@ public class StartLeftInner {
             switch (state) {
                 case 0:
                     if (highBar) {
-                        robot.stateMachine.goSafeHighSpecimen(false, false);
+                        robot.stateMachine.goHighSpecimen(false, false);
+                        robot.stateMachine.setAutoPresets(true);
                     } else {
-                        robot.stateMachine.goSafeLowSpecimen(false);
+                        robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barLeftInnerBelowAdded) < 0.75) {
+                    if (robot.follower.getErrorDistance(barLeftInnerBelowAdded) < 1.5) {
+                        robot.follower.followPath(toNearBar);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
-                        robot.follower.followPath(toNearBar);
+                    if (robot.follower.getError(barLeftInnerRightAdded).getX() < 3) {
+                        robot.follower.followPath(sweepBar);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.follower.getError(barLeftInnerRightAdded).getX() < 3) {
-                        if (highBar) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
+                    if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
+                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
-                        robot.follower.followPath(sweepBar);
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(4);
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
-                        }
-                        robot.outtakeSystem.setFlapsWall();
+                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 2) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
                         setPathState(5);
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 1.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(6);
                         isFinished = true;

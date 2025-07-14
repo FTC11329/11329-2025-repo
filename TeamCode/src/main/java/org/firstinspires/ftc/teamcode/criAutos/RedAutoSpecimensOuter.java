@@ -4,17 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.*;
 
 import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.TestPaths;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
@@ -59,15 +52,16 @@ public class RedAutoSpecimensOuter extends OpMode {
         IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
 
-        RobotStateVariables robotState = new RobotStateVariables(startPos);
+        RobotStateVariables robotState = new RobotStateVariables(startPos, robotSide);
 
-        if (startPos == PlacePosEnum.wall) {
+//      remove me if we dont change low spec
+//        if (startPos == PlacePosEnum.wall) {
             outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
             outtakeSystem.setWristPos(Constants.Outtake.initAutoNearWallWrist);
-        } else if (startPos == PlacePosEnum.lowSpecimen) {
-            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
-            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
-        }
+//        } else if (startPos == PlacePosEnum.lowSpecimen) {
+//            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
+//            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
+//        }
 
         follower.setStartingPose(startPose);
 

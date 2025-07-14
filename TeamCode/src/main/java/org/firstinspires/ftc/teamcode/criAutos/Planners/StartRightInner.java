@@ -13,7 +13,6 @@ public class StartRightInner {
     public static class ToRightInnerBar implements PathPlanner {
         /// Places on bar right inner with option for low or high
         /// Ends at bar at post clip preset
-        /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -112,9 +111,6 @@ public class StartRightInner {
                     break;
                 case 4:
                     if (robot.follower.getError(barRightInnerTopAdded).getX() < 2) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
-                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
-                        }
                         robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
                         setPathState(5);
                     }

@@ -239,7 +239,9 @@ public class Attempt89 {
     }
 
     public void switchPipeline(RobotSideEnum robotSide){
-        if (robotSide == RobotSideEnum.Blue){
+        if (robotSide == RobotSideEnum.Auto){
+            limelight.pipelineSwitch(0);
+        } else if (robotSide == RobotSideEnum.Blue){
             limelight.pipelineSwitch(1);
         } else {
             limelight.pipelineSwitch(2);

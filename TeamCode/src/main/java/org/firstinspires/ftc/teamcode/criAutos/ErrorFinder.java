@@ -6,18 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.TestPaths;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.*;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
@@ -43,14 +32,15 @@ public class ErrorFinder extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightInner;
-    Pose endPose = new Pose(0, 0);
-//    Pose endPose = new Pose(-48, 0);
+    Pose startPose = startLeftOuter;
+//    Pose endPose = new Pose(0, 0);
+    Pose endPose = new Pose(-48, 0);
 //    Pose endPose = new Pose(0, 96);
     Pose totalOffset = new Pose();
     Timer loopTimer = new Timer();
     private Robot robot;
     private List<PathPlanner> steps;
+    private PathPlanner resetStep;
     private int currentStep = 0;
 
     @Override
@@ -65,38 +55,33 @@ public class ErrorFinder extends OpMode {
         IntakeSystem intakeSystem = new IntakeSystem(hardwareMap, robotSide);
         OuttakeSystem outtakeSystem = new OuttakeSystem(hardwareMap, robotSide, true);
 
-        RobotStateVariables robotState = new RobotStateVariables(startPos);
+        RobotStateVariables robotState = new RobotStateVariables(startPos, robotSide);
 
-        if (startPos == PlacePosEnum.wall) {
+//      remove me if we dont change low spec
+//        if (startPos == PlacePosEnum.wall) {
             outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
             outtakeSystem.setWristPos(Constants.Outtake.initAutoNearWallWrist);
-        } else if (startPos == PlacePosEnum.lowSpecimen) {
-            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
-            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
-        }
+//        } else if (startPos == PlacePosEnum.lowSpecimen) {
+//            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
+//            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
+//        }
 
         follower.setStartingPose(startPose);
+
 
         // Create robot context
         robot = new Robot(climber, follower, telemetry, blockVision, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, true);
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
+        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
-
-        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
-
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, false));
-
-        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
-
-        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
-
-        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
 
         steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
+
+
+        resetStep = new TestPaths.ToPose(robot, lastPose(), startPose);
     }
 
     private Pose lastPose() {
@@ -158,7 +143,21 @@ public class ErrorFinder extends OpMode {
                 telemetry.addData("total offset X", totalOffset.getX());
                 telemetry.addData("total offset Y", totalOffset.getY());
                 telemetry.update();
+                if (gamepad1.dpad_up) {
+                    finished = 3;
+                    totalOffset = steps.get(currentStep - 1).getOffset();
+                    resetStep.buildPaths(totalOffset);
+                }
                 break;
+            case 3:
+                robot.follower.update();
+                Drawing.drawDebug(robot.follower);
+
+                robot.loop();
+
+                resetStep.run();
+                break;
+
         }
 
     }

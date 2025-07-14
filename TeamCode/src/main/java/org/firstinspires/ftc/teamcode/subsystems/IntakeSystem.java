@@ -253,9 +253,9 @@ public class IntakeSystem {
 
     public boolean readyToTransfer(boolean useSensor) {
         if (useSensor) {
-            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20 && intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance;
+            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 10 && intakeSensor.getDistance(DistanceUnit.INCH) > Constants.Color.hasDistance;
         } else {
-            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 20;
+            return Math.abs(getHSlidePos() - Constants.Intake.transferSlides) < 10;
         }
     }
 

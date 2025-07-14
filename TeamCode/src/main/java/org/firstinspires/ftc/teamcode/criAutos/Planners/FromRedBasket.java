@@ -918,7 +918,7 @@ public class FromRedBasket {
             Pose pickupWallRightAdded = pickupWallRight.addReturn(offset);
 
             if (leftWall) {
-                Pose halfWayWallPose = new Pose(redBasketAdded.getX(), (startPoseAdded.getY() + pickupWallLeftAdded.getY()) / 2, Math.toRadians(-90));
+                Pose halfWayWallPose = new Pose(redBasketAdded.getX(), (startPoseAdded.getY() + pickupWallLeftAdded.getY()) / 2, Math.toRadians(0));
                 Pose halfWayWallPoseAdded = halfWayWallPose.addReturn(offset);
 
                 toWall = robot.follower.pathBuilder()
@@ -930,7 +930,7 @@ public class FromRedBasket {
 
                 tartgetPose = pickupWallLeftAdded;
             } else {
-                Pose halfWayWallPose = new Pose(redBasketAdded.getX(), (startPoseAdded.getY() + pickupWallRightAdded.getY()) / 2, Math.toRadians(-90));
+                Pose halfWayWallPose = new Pose(redBasketAdded.getX(), (startPoseAdded.getY() + pickupWallRightAdded.getY()) / 2, Math.toRadians(0));
                 Pose halfWayWallPoseAdded = halfWayWallPose.addReturn(offset);
 
                 toWall = robot.follower.pathBuilder()
@@ -959,7 +959,7 @@ public class FromRedBasket {
                     setPathState(1);
                     break;
                 case 1:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 1) {
                         robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
                         setPathState(2);
                     }
@@ -975,7 +975,7 @@ public class FromRedBasket {
                     }
                     break;
                 case 4:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.05) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         setPathState(5);
                     }

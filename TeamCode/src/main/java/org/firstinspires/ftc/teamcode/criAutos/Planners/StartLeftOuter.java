@@ -115,7 +115,6 @@ public class StartLeftOuter {
     public static class ToPlaceLeftOuterBar implements PathPlanner {
         /// Places on bar left outer with option for low or high
         /// Ends at bar at post clip position
-        /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
         Pose offset = new Pose();
@@ -180,7 +179,7 @@ public class StartLeftOuter {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 3) {
+                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 2) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
@@ -214,9 +213,8 @@ public class StartLeftOuter {
             this.offset = offset;
         }
 
-        // todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(1.7, -2.15));
+            return offset.addReturn(new Pose(1.2, -2.3));
         }
 
         public String getName() {

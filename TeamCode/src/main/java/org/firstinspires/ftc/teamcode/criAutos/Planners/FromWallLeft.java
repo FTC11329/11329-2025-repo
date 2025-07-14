@@ -262,9 +262,9 @@ public class FromWallLeft {
             this.state = state;
             pathTimer.resetTimer();
         }
-        //todo
+
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(0.3, -0.95));
         }
 
         public String getName() {

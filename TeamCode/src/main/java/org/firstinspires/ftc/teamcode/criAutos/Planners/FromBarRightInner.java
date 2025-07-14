@@ -46,7 +46,6 @@ public class FromBarRightInner {
 
 
         //Poses
-        Pose barRightInnerBotAdded;
         Pose startPoseLeftAdded;
         Pose wallAdded;
         Pose innerSpikeRightBotAdded;
@@ -61,7 +60,6 @@ public class FromBarRightInner {
         public void buildPaths(Pose offset) {
             this.offset.add(offset);
 
-            barRightInnerBotAdded = barRightInnerBot.addReturn(new Pose(-10, 0)).addReturn(offset);
             startPoseLeftAdded = new Pose(startPose.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
             innerSpikeRightBotAdded = innerSpikeRightBot.addReturn(offset);
             if (rightWall) {

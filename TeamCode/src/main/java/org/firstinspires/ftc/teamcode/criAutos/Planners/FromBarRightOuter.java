@@ -173,7 +173,7 @@ public class FromBarRightOuter {
                 case 5:
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000){
                         robot.intakeSystem.setIntakePower(0);
-                        robot.stateMachine.goWall(true, false, true);
+                        robot.stateMachine.goWall(true, false, robot.robotState.whereAmI == PlacePosEnum.intake);
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(7);
                     }
@@ -181,7 +181,7 @@ public class FromBarRightOuter {
                     //Failed pickup
                 case 6:
                     robot.follower.followPath(toWall);
-                    robot.stateMachine.goWall(false, false, true);
+                    robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
                     robot.outtakeSystem.setFlapsWall();
                     setPathState(7);
                     break;

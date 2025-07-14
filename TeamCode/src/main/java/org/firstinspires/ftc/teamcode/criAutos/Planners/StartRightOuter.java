@@ -122,7 +122,6 @@ public class StartRightOuter {
     public static class ToPlaceBarRightOuter implements PathPlanner {
         /// Places on bar right outer with option for low or high
         /// Ends at bar at post clip position
-        /// Expects arm to start under the bar if high bar = false
         // Variables
         boolean highBar;
         Pose offset = new Pose();

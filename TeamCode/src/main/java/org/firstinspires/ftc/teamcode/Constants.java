@@ -136,7 +136,7 @@ public class Constants {
         //VSlides
         public static int safeAtIntakeSlides = 343;
 
-        public static int intakeSlides = 140;
+        public static int intakeSlides = 125;
         public static int intakeWallSlides = 5;
         public static int intakeWallAutoSlides = 5;
 

@@ -144,14 +144,13 @@ public class Robot {
                     }
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                    intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                     outtakeSystem.placePos(PlacePosEnum.intake);
                     robotState.clawToggle = false;
                     transferTimer.resetTimer();
                     transferState = 1;
                     break;
                 case 1:
-                    if (intakeSystem.readyToTransfer(false)) {
+                    if (intakeSystem.readyToTransfer(false) && outtakeSystem.readyToTransfer(false)) {
                         intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                         transferTimer.resetTimer();
                         transferState = 2;
@@ -160,19 +159,7 @@ public class Robot {
                 case 2:
                     intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                     if (transferTimer.getElapsedTimeSeconds() > 0.1) {
-                        // Continue
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
-                        transferTimer.resetTimer();
-                        transferState = 3;
-                    }
-                    if (!inAuto && transferTimer.getElapsedTimeSeconds() > 2.5) {
-                        // Fail (not possible)
-                        transferState = -1;
-                        robotState.hasInIntake = false;
-                        stateMachine.failTransfer();
-                    }
-                    if (inAuto && transferTimer.getElapsedTimeSeconds() > 0.75) {
-                        // Auto continue (not possible)
                         transferTimer.resetTimer();
                         transferState = 3;
                     }
@@ -474,14 +461,6 @@ public class Robot {
         } else {
             shakeTimer.resetTimer();
         }
-    }
-
-
-
-
-    private void setTransferState(int set) {
-        transferTimer.resetTimer();
-        transferState = set;
     }
 
     public void start() {

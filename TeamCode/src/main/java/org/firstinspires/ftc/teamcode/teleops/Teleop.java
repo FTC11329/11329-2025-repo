@@ -88,7 +88,7 @@ public class Teleop {
     boolean unJam;
 
     //State Machine Variables
-    RobotStateVariables robotState = new RobotStateVariables(PlacePosEnum.clear);
+    RobotStateVariables robotState;
 
     //Various Variables
     int climberStage = 0;
@@ -181,6 +181,7 @@ public class Teleop {
         climber = new Climber(hardwareMap);
         driveTrain = new Drivetrain(hardwareMap);
         stateMachine = new StateMachine();
+        robotState = new RobotStateVariables(PlacePosEnum.clear, robotSide);
     }
 
     public void start() {
@@ -635,6 +636,9 @@ public class Teleop {
 //            }
 //        }
         if (intakeColor && !intakeingDebounce) {
+            if (robot.stateMachine.doGoToStore()) {
+                robot.stateMachine.setBringSlidesIn(false);
+            }
             outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeingColor) {
@@ -647,6 +651,9 @@ public class Teleop {
             intakeWristTime = elapsedTime.milliseconds();
         }
         if (intake && !intakeingDebounce) {
+            if (robot.stateMachine.doGoToStore()) {
+                robot.stateMachine.setBringSlidesIn(false);
+            }
             outtakeSystem.setFlapsUp();
             downOnce = true;
             if (!intakeing) {
