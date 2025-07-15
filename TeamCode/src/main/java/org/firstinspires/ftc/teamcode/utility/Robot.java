@@ -219,7 +219,7 @@ public class Robot {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
                     outtakeSystem.setArmPos(Constants.Outtake.downArm);
-                    outtakeSystem.setWristPos(Constants.Outtake.safeSpecimenWristLow);
+                    outtakeSystem.setWristPos(Constants.Outtake.safeLowSpecimenWrist);
                     unStoringTimer.resetTimer();
                     unStoringState = 0;
                     break;
@@ -306,7 +306,7 @@ public class Robot {
                     break;
                 case 2:
                     if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeAtIntakeSlides) < 40) {
-                        outtakeSystem.setWristPos(Constants.Outtake.preClipSpecimenWristLow);
+                        outtakeSystem.setWristPos(Constants.Outtake.preClipLowSpecimenWrist);
                         outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArm);
                         lowBarTimer.resetTimer();
                         lowBarState = 3;

@@ -37,7 +37,7 @@ public class Constants {
     @Config
     public static class Intake {
         public static int minSlidePos = 0;
-        public static int transferSlides = 210;
+        public static int transferSlides = 158;
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 900;
@@ -72,87 +72,87 @@ public class Constants {
     @Config
     public static class Outtake {
         //Wrist
-        public static double minWrist = 0;
-        public static double maxWrist = 0.85;
+        public static double minWrist = 0.06;
+        public static double maxWrist = 0.894;
+        public static double straightWrist = 0.486;
 
-        public static double straightWrist = 0.408;
         public static double initTeleopWrist = straightWrist;
         public static double initAutoUnderBarWrist = minWrist;
-        public static double initAutoNearWallWrist = 0.239;
+        public static double initAutoNearWallWrist = 0.555;
 
-        public static double specimenWristHighAutoPre = 0.724;
-        public static double specimenWristHighAutoPost = 0.647;
-        public static double specimenWristLowAuto = 0.71;
-        public static double specimenWristLowAutoPost = 0.259;
+        public static double highSpecimenWristAutoPre = 0.724;
+        public static double highSpecimenWristAutoPost = 0.647;
+        public static double lowSpecimenWristAuto = 0.21;
+        public static double lowSpecimenWristAutoPost = 0.52;
 
-        public static double safeSpecimenWristHigh = maxWrist;
-        public static double preClipSpecimenWristHigh = 0.627;
-        public static double postClipSpecimenWristHigh = straightWrist;
+        public static double safeHighSpecimenWrist = maxWrist;
+        public static double preClipHighSpecimenWrist = 0.237;
+        public static double postClipHighSpecimenWrist = straightWrist;
 
-        public static double safeSpecimenWristLow = 0.497; // todo
-        public static double preClipSpecimenWristLow = 0.497;
-        public static double postClipSpecimenWristLow = 0.008;
+        public static double safeLowSpecimenWrist = 0.497; // todo
+        public static double preClipLowSpecimenWrist = 0.497;
+        public static double postClipLowSpecimenWrist = 0.008;
 
-        public static double basketWrist = straightWrist;
+        public static double basketWrist = 0.542;
 
-        public static double intakeWrist = 0.306;
+        public static double intakeWrist = 0.609;
 
-        public static double wallWrist = 0.65;
+        public static double wallWrist = 0.26;
         //                   Walrus?
 
         public static double manualWristSpeed = 0.01;
 
         //Claw
-        public static double grabClaw = 0.53;
+        public static double grabClaw = 0.6;
         public static double dropClaw = 0.25;
 
         //Arm
-        public static double intakeArm = 0.819;
-        public static double initTeleopArm = 0.394;
-        public static double initAutoUnderBarArm = 0.786;
-        public static double initAutoNearWallArm = 0; // min arm
+        public static double intakeArm = 0.89;
+        public static double initTeleopArm = 0.4446;
+        public static double initAutoUnderBarArm = 0.786 + 0.083;
+        public static double initAutoNearWallArm = 0.037; // min arm
         public static double upArm = initTeleopArm;
-        public static double intakeWallArm = 0.02;
+        public static double intakeWallArm = 0.04;
         public static double manualArmSpeed = 0.01;
 
-        public static double downArm = 0.84;
+        public static double downArm = 0.94;
 
-        public static double highSpecimenArmAuto = 0.469;
-        public static double lowSpecimenArmAutoPre = 0.717;
-        public static double lowSpecimenArmAutoPost = downArm;
+        public static double highSpecimenArmAuto = 0.516;
+        public static double lowSpecimenArmAutoPre = 0.754;
+        public static double lowSpecimenArmAutoPost = 0.7;
 
-        public static double lowSpecimenArm = 0.666;
-        public static double safeLowSpecimenArm = 0.782;
-        public static double postLowSpecimenArm = 0.733;
-        public static double highSpecimenArm = 0.636;
-        public static double safeHighSpecimenArm = 0.75;
-        public static double postHighSpecimenArm = 0.7352;
+        public static double lowSpecimenArm = 0.666 + 0.083;
+        public static double safeLowSpecimenArm = 0.782 + 0.083;
+        public static double postLowSpecimenArm = 0.733 + 0.083;
+        public static double highSpecimenArm = 0.671;
+        public static double safeHighSpecimenArm = 0.75 + 0.083;
+        public static double postHighSpecimenArm = 0.7352 + 0.083;
 
-        public static double safeBasketArm = 0.27;
-        public static double basketArm = 0.233;
-        public static double frontBasketArm = 0.5661;
-        public static double parkArm = 0.538;
+        public static double safeBasketArm = 0.296;
+        public static double basketArm = 0.286;
+        public static double frontBasketArm = 0.5661 + 0.083;
+        public static double parkArm = 0.538 + 0.083;
 
         //VSlides
         public static int safeAtIntakeSlides = 343;
 
         public static int intakeSlides = 125;
-        public static int intakeWallSlides = 5;
-        public static int intakeWallAutoSlides = 5;
+        public static int intakeWallSlides = 60;
+        public static int intakeWallAutoSlides = 60;
 
         public static int safeFromWallSlides = 160;
         public static int safeFromClimberBar = 597;
         public static int safeFromSpecBar = 710;
 
-        public static int highSpecimenSlidesAutoPre = 100;
-        public static int highSpecimenSlidesAutoPost = 269;
-        public static int lowSpecimenSlidesAutoPre = 233;
-        public static int lowSpecimenSlidesAutoPost = 260;
+        public static int highSpecimenSlidesAutoPre = 5;
+        public static int highSpecimenSlidesAutoPost = 315;
+        public static int lowSpecimenSlidesAutoPre = 202;
+        public static int lowSpecimenSlidesAutoPost = 202;
 
         public static int lowSpecimenSlides = 0;
         public static int postClipLowSpecimenSlides = 182;
         public static int safeLowSpecimenSlides = 271;
-        public static int highSpecimenSlides = 490;
+        public static int highSpecimenSlides = 440;
         public static int postClipHighSpecimenSlides = 800;
         public static int safeHighSpecimenSlides = 650;
         public static int lowBasketSlides = 228;

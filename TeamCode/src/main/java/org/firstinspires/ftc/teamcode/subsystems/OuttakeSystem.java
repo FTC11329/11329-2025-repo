@@ -99,56 +99,56 @@ public class OuttakeSystem {
             setArmPos(Constants.Outtake.highSpecimenArmAuto);
             setVSlidePos(Constants.Outtake.highSpecimenSlidesAutoPre);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.specimenWristHighAutoPre);
+            setWristPos(Constants.Outtake.highSpecimenWristAutoPre);
 
         } else if (posEnum == PlacePosEnum.preClipLowSpecimenAuto) {
             setArmPos(Constants.Outtake.lowSpecimenArmAutoPre);
             setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPre);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.specimenWristLowAuto);
+            setWristPos(Constants.Outtake.lowSpecimenWristAuto);
 
         } else if (posEnum == PlacePosEnum.postClipHighSpecimenAuto) {
             setVSlidePos(Constants.Outtake.highSpecimenSlidesAutoPost);
-            setWristPos(Constants.Outtake.specimenWristHighAutoPost);
+            setWristPos(Constants.Outtake.highSpecimenWristAutoPost);
 
         } else if (posEnum == PlacePosEnum.postClipLowSpecimenAuto) {
-            setWristPos(Constants.Outtake.specimenWristLowAutoPost);
+            setWristPos(Constants.Outtake.lowSpecimenWristAutoPost);
 
         } else if (posEnum == PlacePosEnum.postClipHighSpecimen) {
 //            setArmPos(Constants.Outtake.postHighSpecimenArm);
 //            setVSlidePos(Constants.Outtake.postClipHighSpecimenSlides);
-            setWristPos(Constants.Outtake.postClipSpecimenWristHigh);
+            setWristPos(Constants.Outtake.postClipHighSpecimenWrist);
             setClawPos(Constants.Outtake.grabClaw);
 
         } else if (posEnum == PlacePosEnum.postClipLowSpecimen) {
             setArmPos(Constants.Outtake.postLowSpecimenArm);
             setVSlidePos(Constants.Outtake.postClipLowSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.postClipSpecimenWristLow);
+            setWristPos(Constants.Outtake.postClipLowSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.safeHighSpecimen) {
             setArmPos(Constants.Outtake.safeHighSpecimenArm);
             setVSlidePos(Constants.Outtake.safeHighSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.safeSpecimenWristHigh);
+            setWristPos(Constants.Outtake.safeHighSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.safeLowSpecimen) {
             setArmPos(Constants.Outtake.safeLowSpecimenArm);
             setVSlidePos(Constants.Outtake.safeLowSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.safeSpecimenWristLow);
+            setWristPos(Constants.Outtake.safeLowSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.lowSpecimen) {
             setArmPos(Constants.Outtake.lowSpecimenArm);
             setVSlidePos(Constants.Outtake.lowSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.preClipSpecimenWristLow);
+            setWristPos(Constants.Outtake.preClipLowSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.highSpecimen) {
             setArmPos(Constants.Outtake.highSpecimenArm);
             setVSlidePos(Constants.Outtake.highSpecimenSlides);
             setClawPos(Constants.Outtake.grabClaw);
-            setWristPos(Constants.Outtake.preClipSpecimenWristHigh);
+            setWristPos(Constants.Outtake.preClipHighSpecimenWrist);
 
         } else if (posEnum == PlacePosEnum.lowBasket) {
             setArmPos(Constants.Outtake.basketArm);
