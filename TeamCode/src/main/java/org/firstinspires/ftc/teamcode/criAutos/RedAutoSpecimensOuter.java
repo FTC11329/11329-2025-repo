@@ -70,19 +70,37 @@ public class RedAutoSpecimensOuter extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
+        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
+        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
+
+        steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), false));
+
+        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, new Pose(0, -1)));
+
+        steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), true));
+
+        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
+
+        steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), true));
+
+        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
+
+        steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), true, new Pose(0, -1)));
+
+        steps.add(new StartLeftInner.ToLeftInnerBar(robot, lastPose(), true));
+
+        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
+
+        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+
+        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, false, new Pose(0, -1)));
 
         steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
         steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
-
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, false));
-
-        steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
     }
 
     private Pose lastPose() {

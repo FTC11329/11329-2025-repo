@@ -33,9 +33,9 @@ public class ErrorFinder extends OpMode {
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
     Pose startPose = startLeftOuter;
-//    Pose endPose = new Pose(0, 0);
-    Pose endPose = new Pose(-48, 0);
-//    Pose endPose = new Pose(0, 96);
+//    Pose endPose = new Pose(0, 0, Math.toRadians(0));
+    Pose endPose = new Pose(-48, 0, Math.toRadians(0));
+//    Pose endPose = new Pose(0, 96, Math.toRadians(0));
     Pose totalOffset = new Pose();
     Timer loopTimer = new Timer();
     private Robot robot;
@@ -57,14 +57,8 @@ public class ErrorFinder extends OpMode {
 
         RobotStateVariables robotState = new RobotStateVariables(startPos, robotSide);
 
-//      remove me if we dont change low spec
-//        if (startPos == PlacePosEnum.wall) {
-            outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
-            outtakeSystem.setWristPos(Constants.Outtake.initAutoNearWallWrist);
-//        } else if (startPos == PlacePosEnum.lowSpecimen) {
-//            outtakeSystem.setArmPos(Constants.Outtake.initAutoUnderBarArm);
-//            outtakeSystem.setWristPos(Constants.Outtake.initAutoUnderBarWrist);
-//        }
+        outtakeSystem.setArmPos(Constants.Outtake.initAutoNearWallArm);
+        outtakeSystem.setWristPos(Constants.Outtake.initAutoNearWallWrist);
 
         follower.setStartingPose(startPose);
 
@@ -74,14 +68,22 @@ public class ErrorFinder extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true));
 
-        steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true));
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true));
 
-        steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
+        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
 
-        resetStep = new TestPaths.ToPose(robot, lastPose(), startPose);
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
+
+        steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 3, true));
+
+//        steps.add(new TestPaths.ToPose(robot, lastPose(), endPose));
+
+        resetStep = new TestPaths.ToPose(robot, endPose, startPose);
     }
 
     private Pose lastPose() {
@@ -145,7 +147,6 @@ public class ErrorFinder extends OpMode {
                 telemetry.update();
                 if (gamepad1.dpad_up) {
                     finished = 3;
-                    totalOffset = steps.get(currentStep - 1).getOffset();
                     resetStep.buildPaths(totalOffset);
                 }
                 break;

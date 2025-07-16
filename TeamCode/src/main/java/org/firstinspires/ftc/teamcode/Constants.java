@@ -80,16 +80,16 @@ public class Constants {
         public static double initAutoUnderBarWrist = minWrist;
         public static double initAutoNearWallWrist = 0.555;
 
-        public static double highSpecimenWristAutoPre = 0.724;
-        public static double highSpecimenWristAutoPost = 0.647;
+        public static double highSpecimenWristAutoPre = 0.237;
+        public static double highSpecimenWristAutoPost = 0.25;
         public static double lowSpecimenWristAuto = 0.21;
         public static double lowSpecimenWristAutoPost = 0.52;
 
         public static double safeHighSpecimenWrist = maxWrist;
         public static double preClipHighSpecimenWrist = 0.237;
-        public static double postClipHighSpecimenWrist = straightWrist;
+        public static double postClipHighSpecimenWrist = 0.39;
 
-        public static double safeLowSpecimenWrist = 0.497; // todo
+        public static double safeLowSpecimenWrist = 0.497;
         public static double preClipLowSpecimenWrist = 0.497;
         public static double postClipLowSpecimenWrist = 0.008;
 
@@ -112,14 +112,14 @@ public class Constants {
         public static double initAutoUnderBarArm = 0.786 + 0.083;
         public static double initAutoNearWallArm = 0.037; // min arm
         public static double upArm = initTeleopArm;
-        public static double intakeWallArm = 0.04;
+        public static double intakeWallArm = 0.048;
         public static double manualArmSpeed = 0.01;
 
         public static double downArm = 0.94;
 
         public static double highSpecimenArmAuto = 0.516;
         public static double lowSpecimenArmAutoPre = 0.754;
-        public static double lowSpecimenArmAutoPost = 0.7;
+        public static double lowSpecimenArmAutoPost = 0.72;
 
         public static double lowSpecimenArm = 0.666 + 0.083;
         public static double safeLowSpecimenArm = 0.782 + 0.083;
@@ -137,10 +137,10 @@ public class Constants {
         public static int safeAtIntakeSlides = 343;
 
         public static int intakeSlides = 125;
-        public static int intakeWallSlides = 60;
-        public static int intakeWallAutoSlides = 60;
+        public static int intakeWallSlides = 67;
+        public static int intakeWallAutoSlides = 67;
 
-        public static int safeFromWallSlides = 160;
+        public static int safeFromWallSlides = 200;
         public static int safeFromClimberBar = 597;
         public static int safeFromSpecBar = 710;
 
@@ -169,11 +169,10 @@ public class Constants {
         public static double seesWallDistanceBlue = 1.3;
         public static double seesWallDistanceRed = 1.1;
         public static double seesTransferDistance = 1.42;
-        //todo
         //Back Flaps
-        public static double flapsUp = 0;
-        public static double flapsWall = 0.232;
-        public static double flapsSpike = 0.291;
+        public static double flapsUp = 0.044;
+        public static double flapsSpikeClear = 0.202;
+        public static double flapsWall = 0.352;
 
     }
     @Config

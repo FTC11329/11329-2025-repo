@@ -491,7 +491,9 @@ public class TestPaths {
             endPoseAdded = endPose.addReturn(offset);
             startPoseAdded = startPose.addReturn(offset);
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, endPoseAdded);
-            toOpen.getPath(0).setConstantHeadingInterpolation(startPoseAdded.getHeading());
+            if (endPoseAdded.getHeading() == 0) {
+                toOpen.getPath(0).setConstantHeadingInterpolation(startPoseAdded.getHeading());
+            }
         }
 
         @Override

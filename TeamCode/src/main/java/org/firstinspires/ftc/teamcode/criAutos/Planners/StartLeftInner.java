@@ -100,18 +100,20 @@ public class StartLeftInner {
                     break;
                 case 3:
                     if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
-                        robot.outtakeSystem.setFlapsWall();
+                        robot.outtakeSystem.setFlapsSpikeClear();
                         setPathState(4);
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 2) {
-                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
+                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 3.5) {
+                        if (!highBar) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        }
                         setPathState(5);
                     }
                     break;
@@ -136,7 +138,7 @@ public class StartLeftInner {
         }
 
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-0.4, -0.65));
+            return offset.addReturn(new Pose(-0.4, -1.05));
         }
 
         public String getName() {

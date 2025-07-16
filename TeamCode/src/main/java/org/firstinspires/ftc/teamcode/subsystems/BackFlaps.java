@@ -23,8 +23,8 @@ public class BackFlaps {
         setBackFlaps(Constants.Outtake.flapsWall);
     }
 
-    public void setFlapsSpike() {
-        setBackFlaps(Constants.Outtake.flapsSpike);
+    public void setFlapsSpikeClear() {
+        setBackFlaps(Constants.Outtake.flapsSpikeClear);
     }
 
     public void setBackFlaps(double set) {

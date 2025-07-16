@@ -173,7 +173,7 @@ public class StartLeftOuter {
                         robot.outtakeSystem.placePos(PlacePosEnum.highSpecimen);
                         robot.robotState.whereAmI = PlacePosEnum.highSpecimen;
                     } else {
-                        robot.outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                        robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                         robot.robotState.whereAmI = PlacePosEnum.lowSpecimen;
                     }
                     setPathState(1);
@@ -183,7 +183,7 @@ public class StartLeftOuter {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
                         setPathState(2);
                     }

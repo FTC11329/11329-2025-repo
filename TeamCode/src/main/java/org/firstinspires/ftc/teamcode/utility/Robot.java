@@ -158,14 +158,14 @@ public class Robot {
                     break;
                 case 2:
                     intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
-                    if (transferTimer.getElapsedTimeSeconds() > 0.1) {
+                    if (transferTimer.getElapsedTimeSeconds() > 0.2) {
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         transferTimer.resetTimer();
                         transferState = 3;
                     }
                     break;
                 case 3:
-                    if (transferTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (transferTimer.getElapsedTimeSeconds() > 0.3) {
                         robotState.clawToggle = true;
                         intakeSystem.setIntakePower(0);
                         robotState.hasInIntake = false;
@@ -261,7 +261,7 @@ public class Robot {
                     if (stateMachine.getAutoPresets()) {
                         outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                     } else {
-                        outtakeSystem.placePos(PlacePosEnum.lowSpecimen);
+                        outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                     }
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     robotState.clawToggle = true;
@@ -401,7 +401,10 @@ public class Robot {
         if (stateMachine.doWall()) {
             switch (wallState) {
                 case -1:
+                    timeToWait = -0.423 * (outtakeSystem.getArmPos() - 1.115);
+                    timeToWait += 0.1;
                     outtakeSystem.placePos(PlacePosEnum.wall);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.2);
                     if (!robotState.hasInOutake) {
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robotState.clawToggle = false;
@@ -410,7 +413,8 @@ public class Robot {
                     wallState = 0;
                     break;
                 case 0:
-                    if (wallTimer.getElapsedTimeSeconds() > 0.4) {
+                    if (wallTimer.getElapsedTimeSeconds() > timeToWait) {
+                        outtakeSystem.placePos(PlacePosEnum.wall);
                         robotState.whereAmI = PlacePosEnum.wall;
                         stateMachine.finishWall();
                         wallState = -1;

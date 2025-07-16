@@ -38,7 +38,7 @@ public class TeleopTesting {
     boolean climbL2P2 = false;
 
     //Various Variables
-    double testValue = Constants.PTO.PTOServoReleaseLeft;
+    double testValue = 0;
     double testValue2 = 0;
     double testValue3 = Constants.PTO.PTOServoReleaseRight;
     double testValue4 = Constants.Intake.wristStore;
@@ -210,10 +210,10 @@ public class TeleopTesting {
 
 
 //        intakeSystem.setHSlidePos((int) testValue);
-        powerTakeOff.setLeftPos(testValue);
-        powerTakeOff.setRightPos(testValue3);
+//        powerTakeOff.setLeftPos(testValue);
+//        powerTakeOff.setRightPos(testValue3);
 //        outtakeSystem.setVSlidePos((int) testValue2);
-//        outtakeSystem.setArmPos(testValue3);
+        outtakeSystem.setBackFlaps(testValue);
 //        intakeSystem.setIntakeServoPos(testValue4);
 //        outtakeSystem.setWristPos(Constants.Outtake.intakeWrist);
 

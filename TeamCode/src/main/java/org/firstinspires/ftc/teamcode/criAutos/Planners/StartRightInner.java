@@ -100,7 +100,7 @@ public class StartRightInner {
                     break;
                 case 3:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
@@ -110,8 +110,10 @@ public class StartRightInner {
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 2) {
-                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost + 100);
+                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 3.5) {
+                        if (!highBar) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                        }
                         setPathState(5);
                     }
                     break;

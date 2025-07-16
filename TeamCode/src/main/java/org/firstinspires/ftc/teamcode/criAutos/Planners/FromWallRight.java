@@ -41,7 +41,7 @@ public class FromWallRight {
             this.highBar = highBar;
         }
         //Poses
-        Pose controlPoint = new Pose(-39, -114);
+        Pose controlPoint = new Pose(-42, -114);
 
         Pose startPoseAdded;
         Pose controlPointAdded;
@@ -202,6 +202,7 @@ public class FromWallRight {
                         robot.stateMachine.goLowSpecimen(false);
                         robot.stateMachine.setAutoPresets(true);
                     }
+                    robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toOpen);
                     setPathState(1);
                     break;
@@ -224,7 +225,7 @@ public class FromWallRight {
                     break;
                 case 4:
                     if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
@@ -234,8 +235,8 @@ public class FromWallRight {
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 3.5) {
+                        if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
                         }
                         setPathState(6);

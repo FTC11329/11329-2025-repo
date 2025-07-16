@@ -41,7 +41,7 @@ public class FromWallLeft {
             this.highBar = highBar;
         }
         //Poses
-        Pose controlPoint = new Pose(-39, 114);
+        Pose controlPoint = new Pose(-42, 114);
 
         Pose startPoseAdded;
         Pose controlPointAdded;
@@ -89,17 +89,21 @@ public class FromWallLeft {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 2) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                    if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 4) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
+                            setPathState(2);
                         }
-                        setPathState(2);
+
+                    } else {
+                        if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 5.5) {
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                            setPathState(2);
+                        }
                     }
                     break;
                 case 2:
-                    if (robot.follower.getError(barLeftOuterTopAdded).getX() < 1.5) {
+                    if (robot.follower.getError(barLeftOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                         isFinished = true;
@@ -119,10 +123,10 @@ public class FromWallLeft {
             this.offset = offset;
         }
         //todo
-        Pose thisOffset = new Pose();
+        Pose thisOffset = new Pose(2.2, 0);
         //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose());
+            return offset.addReturn(new Pose(2.2, 0));
         }
 
         public String getName() {
@@ -203,6 +207,7 @@ public class FromWallLeft {
                         robot.stateMachine.goLowSpecimen(false);
                         robot.stateMachine.setAutoPresets(true);
                     }
+                    robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toOpen);
                     setPathState(1);
                     break;
@@ -225,18 +230,18 @@ public class FromWallLeft {
                     break;
                 case 4:
                     if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
-                        robot.outtakeSystem.setFlapsWall();
+                        robot.outtakeSystem.setFlapsSpikeClear();
                         setPathState(5);
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 1.5) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 3.5) {
+                        if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
                         }
                         setPathState(6);
@@ -264,7 +269,7 @@ public class FromWallLeft {
         }
 
         public Pose getOffset() {
-            return offset.addReturn(new Pose(0.3, -0.95));
+            return offset.addReturn(new Pose(-0.4, -1.7));
         }
 
         public String getName() {

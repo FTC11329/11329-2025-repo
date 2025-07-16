@@ -7,7 +7,6 @@ import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
-import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class FromBarLeftInner {
@@ -108,21 +107,21 @@ public class FromBarLeftInner {
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.setMaxPower(0.8);
+                    robot.follower.setMaxPower(0.9);
                     robot.follower.followPath(toWallPath);
                     robot.stateMachine.goWall(false, false, false);
+                    robot.outtakeSystem.setFlapsSpikeClear();
                     setPathState(1);
                     break;
                 case 1:
                     if (robot.follower.getError(targetPoseAdded).getX() < 1) {
-                        robot.outtakeSystem.setFlapsSpike();
+                        robot.outtakeSystem.setFlapsWall();
                         setPathState(2);
                     }
                     break;
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
                         robot.follower.setMaxPower(1);
-                        robot.outtakeSystem.setFlapsWall();
                         setPathState(3);
                     }
                     break;
@@ -160,9 +159,9 @@ public class FromBarLeftInner {
 
         public Pose getOffset() {
             if (leftWall) {
-                return offset.addReturn(new Pose(-0.9, 0.25));
+                return offset.addReturn(new Pose(-0.3, 0.9));
             } else {
-                return offset.addReturn(new Pose(-0.4, 0.25));
+                return offset.addReturn(new Pose(-0.3, 0.75));
             }
         }
 

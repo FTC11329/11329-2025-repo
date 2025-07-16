@@ -222,9 +222,9 @@ public class FromBarLeftOuter {
             pathTimer.resetTimer();
         }
 
-        //todo
         public Pose getOffset() {
-            return offset.addReturn(new Pose(-1.1, -0.6));
+            return offset.addReturn(new Pose(-2, 0.3));
+//            return offset.addReturn(new Pose(1.2, 0.6));
         }
 
         public void addToOffset(Pose offset) {

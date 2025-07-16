@@ -289,7 +289,7 @@ public class Teleop {
         //Drivetrain *****************************************************************************~D
         if (backFlapButton && !backFlapDebounce) {
             prevFlapPos = outtakeSystem.getBackFlapsPos();
-            outtakeSystem.setFlapsSpike();
+            outtakeSystem.setFlapsWall();
             backFlapDebounce = true;
         }
         if (!backFlapButton && backFlapDebounce) {
@@ -549,6 +549,10 @@ public class Teleop {
                 droppingBasketTime = elapsedTime.milliseconds();
             } else if (!robotState.clawToggle && (robotState.whereAmI == PlacePosEnum.highSpecimen || robotState.whereAmI == PlacePosEnum.lowSpecimen)) {
                 droppingSpec = true;
+            } else if (robotState.whereAmI == PlacePosEnum.wall) {
+                outtakeSystem.placePos(PlacePosEnum.wall);
+                robotState.hasInOutake = false;
+                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
             } else if (!robotState.clawToggle) {
                 robotState.hasInOutake = false;
                 outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
