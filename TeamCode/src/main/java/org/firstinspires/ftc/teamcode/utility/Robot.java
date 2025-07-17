@@ -92,6 +92,10 @@ public class Robot {
                     if (robotState.whereAmI == PlacePosEnum.highSpecimen) {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromSpecBar);
                         outtakeSystem.setWristPos(Constants.Outtake.maxWrist);
+                    } else if (robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                        outtakeSystem.setArmPos(Constants.Outtake.downArm);
+                        outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
+                        outtakeSystem.setWristPos(Constants.Outtake.maxWrist);
                     } else {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
@@ -401,10 +405,10 @@ public class Robot {
         if (stateMachine.doWall()) {
             switch (wallState) {
                 case -1:
-                    timeToWait = -0.423 * (outtakeSystem.getArmPos() - 1.115);
-                    timeToWait += 0.1;
+                    timeToWait = 0.423 * (outtakeSystem.getArmPos()*1.115);
+                    timeToWait += 0.25;
                     outtakeSystem.placePos(PlacePosEnum.wall);
-                    outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.2);
+                    outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.1);
                     if (!robotState.hasInOutake) {
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robotState.clawToggle = false;

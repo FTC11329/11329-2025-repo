@@ -131,6 +131,13 @@ public class StartLeftOuter {
             this.startPose = startPose;
             this.highBar = highBar;
         }
+        public ToPlaceLeftOuterBar(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.highBar = highBar;
+        }
         //Poses
         Pose controlPoint = new Pose(0, 96);
 
@@ -179,7 +186,7 @@ public class StartLeftOuter {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 2) {
+                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 1.5) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {

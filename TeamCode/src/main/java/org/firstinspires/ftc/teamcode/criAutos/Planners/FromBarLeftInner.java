@@ -17,6 +17,7 @@ public class FromBarLeftInner {
         /// Ends at left or right wall
         // Variables
         boolean leftWall;
+        boolean park = false;
         int pushSpike;
         Pose offset = new Pose();
         private Timer pathTimer;
@@ -41,6 +42,15 @@ public class FromBarLeftInner {
             this.startPose = startPose;
             this.leftWall = leftWall;
             this.pushSpike = pushSpike;
+        }
+
+        public ToWall(Robot robot, Pose startPose, int pushSpike, boolean leftWall, boolean park) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.leftWall = leftWall;
+            this.pushSpike = pushSpike;
+            this.park = park;
         }
 
 
@@ -91,6 +101,7 @@ public class FromBarLeftInner {
                         .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded));
             }
 
+
             toWallPath = toWall.build();
         }
 
@@ -122,6 +133,9 @@ public class FromBarLeftInner {
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
                         robot.follower.setMaxPower(1);
+                        if (park) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.upArm);
+                        }
                         setPathState(3);
                     }
                     break;

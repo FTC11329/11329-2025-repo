@@ -32,7 +32,7 @@ public class ErrorFinder extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startLeftOuter;
+    Pose startPose = startRightInner;
 //    Pose endPose = new Pose(0, 0, Math.toRadians(0));
     Pose endPose = new Pose(-48, 0, Math.toRadians(0));
 //    Pose endPose = new Pose(0, 96, Math.toRadians(0));
@@ -85,6 +85,7 @@ public class ErrorFinder extends OpMode {
 
         resetStep = new TestPaths.ToPose(robot, endPose, startPose);
     }
+
 
     private Pose lastPose() {
         if (steps.isEmpty()) {

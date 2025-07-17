@@ -23,6 +23,7 @@ public class FromBarRightOuter {
         /// Ends at left or right wall
         // Variables
         boolean rightWall;
+        boolean park = false;
         boolean superCycle;
         Pose offset = new Pose();
         Pose2D visionResult;
@@ -48,6 +49,16 @@ public class FromBarRightOuter {
             this.rightWall = rightWall;
             this.superCycle = superCycle;
         }
+
+        public ToWall(Robot robot, Pose startPose, boolean superCycle, boolean rightWall, boolean park) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.rightWall = rightWall;
+            this.superCycle = superCycle;
+            this.park = park;
+        }
+
         //Poses
         Pose controlPoint = new Pose(-36, -110);
         Pose midPoint = new Pose(-48, -48, Math.toRadians(-75));
@@ -173,8 +184,9 @@ public class FromBarRightOuter {
                 case 5:
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000){
                         robot.intakeSystem.setIntakePower(0);
-                        robot.stateMachine.goWall(true, false, robot.robotState.whereAmI == PlacePosEnum.intake);
-                        robot.outtakeSystem.setFlapsWall();
+                        if (!park) {
+                            robot.stateMachine.goWall(true, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                        }
                         setPathState(7);
                     }
                     break;
@@ -182,18 +194,18 @@ public class FromBarRightOuter {
                 case 6:
                     robot.follower.followPath(toWall);
                     robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
-                    robot.outtakeSystem.setFlapsWall();
                     setPathState(7);
                     break;
                 case 7:
-                    if (robot.follower.getError(pickupWallLeftAdded).getY() < 10) {
+                    if (robot.follower.getError(pickupWallLeftAdded).getY() < 25) {
+                        robot.outtakeSystem.setFlapsWall();
                         robot.intakeSystem.setIntakePower(0);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(8);
                     }
                     break;
                 case 8:
-                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.7) || pathTimer.getElapsedTimeSeconds() > 0.8) {
+                    if ((robot.outtakeSystem.seesWall() && pathTimer.getElapsedTimeSeconds() > 0.3) || pathTimer.getElapsedTimeSeconds() > 1) {
                         setPathState(9);
                     }
                     break;

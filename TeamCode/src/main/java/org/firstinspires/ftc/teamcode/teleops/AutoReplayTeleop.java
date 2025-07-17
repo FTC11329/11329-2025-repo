@@ -309,7 +309,7 @@ public class AutoReplayTeleop {
         //Drivetrain *****************************************************************************~D
         if (backFlapButton && !backFlapDebounce) {
             prevFlapPos = outtakeSystem.getBackFlapsPos();
-            outtakeSystem.setFlapsSpike();
+            outtakeSystem.setFlapsSpikeClear();
             backFlapDebounce = true;
         }
         if (!backFlapButton && backFlapDebounce) {

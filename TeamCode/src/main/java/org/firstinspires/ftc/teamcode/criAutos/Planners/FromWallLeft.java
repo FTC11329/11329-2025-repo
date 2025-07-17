@@ -89,17 +89,17 @@ public class FromWallLeft {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                        if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 4) {
+                    if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 6) {
+                        robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                    }
+                    if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 4) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
-                            setPathState(2);
+                        } else {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                            robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
                         }
-
-                    } else {
-                        if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 5.5) {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
-                            setPathState(2);
-                        }
+                        setPathState(2);
                     }
                     break;
                 case 2:
@@ -229,26 +229,30 @@ public class FromWallLeft {
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
-                        if (highBar) {
+                    if (highBar) {
+                        if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                            robot.outtakeSystem.setFlapsSpikeClear();
+                            setPathState(5);
                         }
-                        robot.outtakeSystem.setFlapsSpikeClear();
-                        setPathState(5);
+                    } else {
+                        if (robot.follower.getError(barLeftInnerMidAdded).getY() < 2.5) {
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                            setPathState(5);
+                        }
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barLeftInnerTopAdded).getX() < 3.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                         if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                            robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
                         }
                         setPathState(6);
                     }
                     break;
                 case 6:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(7);
                         isFinished = true;

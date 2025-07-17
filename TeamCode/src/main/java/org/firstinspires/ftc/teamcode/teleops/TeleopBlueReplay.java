@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
-@TeleOp(name = "Tele-op Blue Replay", group = "   Comp mode")
+@TeleOp(name = "Tele-op Blue Replay", group = "Comp mode")
 public class TeleopBlueReplay extends OpMode {
     AutoReplayTeleop teleop;
     @Override

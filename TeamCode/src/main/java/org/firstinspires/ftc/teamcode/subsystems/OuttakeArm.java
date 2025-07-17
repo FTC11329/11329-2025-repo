@@ -64,8 +64,8 @@ public class OuttakeArm {
 
     public void setArmPos(double newArmPos) {
         if (lastArmPos != newArmPos) {
-            if (newArmPos < Constants.Outtake.initAutoNearWallArm) {
-                newArmPos = Constants.Outtake.initAutoNearWallArm;
+            if (newArmPos < 0) {
+                newArmPos = 0;
             } else if (newArmPos > 1) {
                 newArmPos = 1;
             }
