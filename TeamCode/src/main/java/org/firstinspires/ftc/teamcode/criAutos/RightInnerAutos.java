@@ -1,12 +1,18 @@
 package org.firstinspires.ftc.teamcode.criAutos;
 
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightInner;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.*;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftInner;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightInner;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
@@ -25,21 +31,20 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Right Outer Auto 1", group = " 1Comp", preselectTeleOp = "New Tele-op Red")
-public class RightOuterAutos extends OpMode {
+@Autonomous(name = "CRI Right Inner Auto 1", group = " 2Comp", preselectTeleOp = "New Tele-op Red")
+public class RightInnerAutos extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     //Wall or Low Spec
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startRightOuter;
+    Pose startPose = startRightInner;
 
 
-
-    // Outer Right High, Outer Right Low, Outer Right High, Park
+    // Inner Right High, Inner Right Low, Inner Left High, Inner Left Low, park
     boolean auto1;
-    // Outer Right High, Inner Right High, Inner Right Low, Inner Right High
+    // Inner Right High, Inner Right Low, Inner Right High, Inner Right High, Inner Right High, park
     boolean auto2;
-    // Outer Right High, Inner Right High, Inner Left High, Inner Right High
+    // Inner Right High, Inner Left High, Inner Left Low, Inner Left High, park
     boolean auto3;
     Pose totalOffset = new Pose();
     private Robot robot;
@@ -50,12 +55,12 @@ public class RightOuterAutos extends OpMode {
     public void init() {
         // Todo what auto you want to run
 
-        // Outer Right High, Outer Right Low, Outer Right High, Park
-        auto1 = false;
-        // Outer Right High, Inner Right High, Inner Right Low, Outer Right Low
-        auto2 = false;
-        // Outer Right High, Baskets
-        auto3 = true;
+        // Inner Right High, Inner Right Low, Inner Left High, Inner Left Low, park
+        auto1 = true;
+        // Inner Right High, Inner Right Low, Inner Right High, Inner Left High, park
+        auto2 = false;// not tuned
+        // Inner Right High, Inner Left High, Inner Left Low, Inner Left High, park
+        auto3 = false;// not tuned
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -79,64 +84,72 @@ public class RightOuterAutos extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        //Outer Right High
-        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
+        //Inner Right High
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 0.5)));
 
-        if (!auto3) {
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
-        }
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
         if (auto1) {
-            //Outer Right Low
-            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false));
-
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
-
-            //Outer Right High
-            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), true));
-
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, true));
-
-
-        } else if (auto2) {
-            //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 2)));
-
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
-
-            //Outer Right Low
-            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false, new Pose(0, -1)));
-
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
-
             //Inner Right Low
             steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
 
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true, true));
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, false));
+
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
+
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true));
+
+
+        } else if (auto2) {
+            //Inner Right Low
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
+
+            //Inner Right High
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), -1, true));
+
+            //Inner Right High
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), -2, true));
+
+            //Inner Right High
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 0, true, true));
+
 
         } else if (auto3) {
             //Inner Right High
-            steps.add(new FromBarRightOuter.ToBasket(robot, lastPose(), false));
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
 
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
-            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, false));
 
-        }
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
 
-        if (auto3) {
-            robot.blockVision.switchPipeline(0);
-        } else {
-            robot.blockVision.switchPipeline(robotSide);
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, false));
+
+            //Inner Right High
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
+
         }
     }
 
-
     boolean secondInit = false;
     boolean buttonDebounce = false;
+    boolean visionWorks = false;
     int initState = 0;
 
     public void init_loop() {
@@ -168,6 +181,10 @@ public class RightOuterAutos extends OpMode {
                 } else if (auto3) {
                     telemetry.addData("Auto Ran  ", "Auto3");
                 }
+                if (!visionWorks && robot.blockVision.getBlockPosition().getHeading(AngleUnit.DEGREES) != -1) {
+                    visionWorks = true;
+                }
+                telemetry.addData("Vision works", visionWorks);
                 break;
             case 1:
                 robot.follower.updatePose();

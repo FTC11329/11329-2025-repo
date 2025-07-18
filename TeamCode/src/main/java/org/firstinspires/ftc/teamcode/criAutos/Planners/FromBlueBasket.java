@@ -453,23 +453,24 @@ public class FromBlueBasket {
         private Pose startPose;
         public ToPickupAndPlaceSubYellow(Robot robot, Pose startPose, Pose offset) {
             addToOffset(offset);
+            pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
         }
         public ToPickupAndPlaceSubYellow(Robot robot, Pose startPose) {
+            pathTimer = new Timer();
             this.robot = robot;
             this.startPose = startPose;
         }
         //Poses
-        //todo low priority
-        private final Pose toSubControlPoint = new Pose();
-        private final Pose toBasketControlPoint = new Pose();
+        private final Pose toSubControlPoint = new Pose(-51, -51, 0);
+        private final Pose toBasketControlPoint = new Pose(-51, -51, 0);
 
         Pose startPoseAdded;
         Pose toSubControlPointAdded;
-        Pose intakeSubLeftOuterAdded;
+        Pose intakeSubLeftMiddleAdded;
         Pose toBasketControlPointAdded;
-        Pose redBasketAdded;
+        Pose blueBasketAdded;
 
         //Paths
         Path toSub;
@@ -479,40 +480,43 @@ public class FromBlueBasket {
         public void buildPaths(Pose offset) {
             this.offset.add(offset);
 
-            Pose startPoseAdded = startPose.addReturn(offset);
-            Pose toSubControlPointAdded = toSubControlPoint.addReturn(offset);
-            Pose intakeSubLeftOuterAdded = intakeSubLeftOuter.addReturn(offset);
-            Pose toBasketControlPointAdded = toBasketControlPoint.addReturn(offset);
-            Pose redBasketAdded = redBasket.addReturn(offset);
+            startPoseAdded = startPose.addReturn(offset);
+            toSubControlPointAdded = toSubControlPoint.addReturn(offset);
+            intakeSubLeftMiddleAdded = intakeSubRightMiddle.addReturn(offset);
+            toBasketControlPointAdded = toBasketControlPoint.addReturn(offset);
+            blueBasketAdded = blueBasket.addReturn(offset);
 
-            toSub = new Path(new BezierCurve(new Point(startPoseAdded), new Point(toSubControlPointAdded), new Point(intakeSubLeftOuterAdded)));
-            toSub.setLinearHeadingInterpolation(startPoseAdded.getHeading(), intakeSubLeftOuterAdded.getHeading());
+            toSub = new Path(new BezierCurve(new Point(startPoseAdded), new Point(toSubControlPointAdded), new Point(intakeSubLeftMiddleAdded)));
+            toSub.setLinearHeadingInterpolation(startPoseAdded.getHeading(), intakeSubLeftMiddleAdded.getHeading());
 
-            toBasket = new Path(new BezierCurve(new Point(intakeSubLeftOuterAdded), new Point(toBasketControlPointAdded), new Point(redBasketAdded)));
-            toBasket.setLinearHeadingInterpolation(intakeSubLeftOuterAdded.getHeading(), redBasketAdded.getHeading());
+            toBasket = new Path(new BezierCurve(new Point(intakeSubLeftMiddleAdded), new Point(toBasketControlPointAdded), new Point(blueBasketAdded)));
+            toBasket.setLinearHeadingInterpolation(intakeSubLeftMiddleAdded.getHeading(), blueBasketAdded.getHeading());
         }
 
 
         @Override
         public Pose getEndPoseEst() {
-            return redBasket;
+            return blueBasket;
         }
 
         @Override
         public boolean run() {
             switch (state) {
                 case 0:
-                    robot.follower.followPath(toBasket);
+                    robot.follower.followPath(toSub);
                     robot.outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
+                    setPathState(1);
+                    break;
                 case 1:
-                    if (robot.follower.getErrorDistance(intakeSubLeftOuterAdded) < 2) {
-                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.intakeSlides);
+                    if (robot.follower.getErrorDistance(intakeSubLeftMiddleAdded) < 2) {
+                        robot.stateMachine.goStore();
+                        robot.stateMachine.setBringSlidesIn(false);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1) {
                         target2D = robot.blockVision.getBlockPosition(true);
                         if (target2D.getHeading(AngleUnit.DEGREES) != -1) {
                             robot.intakeSystem.setHSlidesInches(robot.follower.followYourHead(target2D));
@@ -551,60 +555,73 @@ public class FromBlueBasket {
                         robot.follower.followPath(toBasket);
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
-                        robot.stateMachine.goHighBasket(true, false, false, false);
                         setPathState(6);
                     }
                     break;
                 case 6:
-                    if (!robot.stateMachine.goingHighBasket() && robot.follower.getError(redBasketAdded).getX() < 1 && robot.follower.getError(redBasketAdded).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 5) {
+                    if (pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000) {
+                        robot.intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
                         setPathState(7);
                     }
                     break;
                 case 7:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.45) {
+                    if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000) {
+                        robot.intakeSystem.setIntakePower(0);
+                        robot.stateMachine.goHighBasket(true, false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                        robot.outtakeSystem.setFlapsUp();
+                        setPathState(8);
+                    }
+                    break;
+
+                case 8:
+                    if (!robot.stateMachine.goingHighBasket() && robot.follower.getError(blueBasketAdded).getX() < 1 && robot.follower.getError(blueBasketAdded).getY() < 1 || pathTimer.getElapsedTimeSeconds() > 5) {
+                        setPathState(9);
+                    }
+                    break;
+                case 9:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
-                        if (robot.opmodeTimer.getElapsedTimeSeconds() > 25) {
+                        if (robot.opmodeTimer.getElapsedTimeSeconds() > 27) {
                             //Break loop
-                            setPathState(9);
+                            setPathState(11);
                         } else {
-                            setPathState(8);
+                            setPathState(10);
                         }
                     }
                     break;
-                case 8:
+                case 10:
                     if (pathTimer.getElapsedTimeSeconds() > 0.3) {
                         isFinished = true;
                     }
                     break;
-
                 //Parking if out of time
-                case 9:
+                case 11:
                     if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         robot.doIntakeWhilePark = true;
                         robot.follower.followPath(toSub);
                         robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
-                        setPathState(10);
-                    }
-                    break;
-                case 10:
-                    if (robot.outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar - 50) {
-                        robot.outtakeSystem.setArmPos(Constants.Outtake.parkArm);
-
-                        setPathState(11);
-                    }
-                    break;
-                case 11:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.05) {
-                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides + 200);
-
                         setPathState(12);
                     }
                     break;
                 case 12:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && robot.follower.getError(intakeSubLeftOuterAdded).getX() < 2) {
-                        robot.outtakeSystem.setVSlidePos(100);
+                    if (robot.outtakeSystem.getVSlidePos() > Constants.Outtake.safeFromClimberBar - 50) {
+                        robot.outtakeSystem.setArmPos(Constants.Outtake.parkArm);
 
                         setPathState(13);
+                    }
+                    break;
+                case 13:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.05) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromHSlides + 200);
+
+                        setPathState(14);
+                    }
+                    break;
+                case 14:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1 && robot.follower.getError(intakeSubLeftMiddleAdded).getX() < 2) {
+                        robot.outtakeSystem.setVSlidePos(0);
+
+                        setPathState(15);
                     }
                     break;
 
@@ -618,14 +635,12 @@ public class FromBlueBasket {
             pathTimer.resetTimer();
         }
 
-        public void addToOffset(Pose offset) {
-            this.offset = offset;
+        public Pose getOffset() {
+            return offset.addReturn(new Pose(0.3, 0));
         }
 
-
-        //todo low priority
-        public Pose getOffset() {
-            return offset.addReturn(new Pose());
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
         }
 
         public String getName() {

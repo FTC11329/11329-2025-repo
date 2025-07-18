@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.utility;
 
 public class StateMachine {
-    boolean bringSlidesIn = true;
+    private boolean bringSlidesIn = true;
     boolean autoPresets = false;
 
     boolean goingSafeHighSpecimen = false;

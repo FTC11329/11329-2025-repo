@@ -77,6 +77,7 @@ public class Teleop {
     boolean lowBasket;
     boolean frontBasket;
     boolean wallPreset;
+    boolean wallPresetDebounce = false;
     boolean storePos;
     boolean transfer;
 
@@ -192,7 +193,9 @@ public class Teleop {
         outtakeSystem.setArmPos(Constants.Outtake.upArm);
 
         robot = new Robot(climber, telemetry, driveTrain, powerTakeOff, intakeSystem, stateMachine, outtakeSystem, robotState, false);
+        robot.robotState.hasInOutake = outtakeSystem.seesWall();
     }
+
 
 
     public void loop() {
@@ -494,11 +497,16 @@ public class Teleop {
             intakeing = false;
             stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
-        if (wallPreset) {
+        if (wallPreset && !wallPresetDebounce) {
             outtakeSystem.setFlapsWall();
             intakeingColor = false;
             intakeing = false;  //Todo change v if you want to transfer
-            stateMachine.goWall(robot.robotState.hasInIntake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
+            stateMachine.goWall(false, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
+            stateMachine.setBringSlidesIn(false); // todo WTF
+            wallPresetDebounce = true;
+        }
+        if (!wallPreset) {
+            wallPresetDebounce = false;
         }
         if (storePos) {
             outtakeSystem.setFlapsUp();

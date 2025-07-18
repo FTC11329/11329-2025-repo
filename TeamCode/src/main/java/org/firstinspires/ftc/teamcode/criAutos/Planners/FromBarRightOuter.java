@@ -123,7 +123,10 @@ public class FromBarRightOuter {
                     }
                     visionResult = robot.blockVision.getBlockPosition(true);
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
-                        robot.stateMachine.goStore();
+                        if (!park) {
+                            robot.stateMachine.goStore();
+                        }
+                        robot.stateMachine.setBringSlidesIn(false);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robot.intakeSystem.setHSlidesInches(robot.follower.followYourHead(visionResult));
                         setPathState(1);
@@ -156,7 +159,6 @@ public class FromBarRightOuter {
                 case 3:
                     robot.intakeSystem.update();
                     if (robot.intakeSystem.intakeUntilColor()) {
-
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                         robot.doDriveShake = false;
@@ -193,11 +195,16 @@ public class FromBarRightOuter {
                     //Failed pickup
                 case 6:
                     robot.follower.followPath(toWall);
-                    robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                    if (!park) {
+                        robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                    }
                     setPathState(7);
                     break;
                 case 7:
-                    if (robot.follower.getError(pickupWallLeftAdded).getY() < 25) {
+                    if (robot.follower.getError(pickupWallRightAdded).getY() < 25) {
+                        if (park) {
+                            robot.stateMachine.goHighSpecimen(false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                        }
                         robot.outtakeSystem.setFlapsWall();
                         robot.intakeSystem.setIntakePower(0);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -242,6 +249,192 @@ public class FromBarRightOuter {
 
         public String getName() {
             return "From Bar Right Outer To Wall, " + state;
+        }
+    }
+
+    public static class ToBasket implements PathPlanner {
+        ///
+        // Variables
+        boolean preExtend;
+        Pose offset = new Pose();
+        Pose2D visionResult;
+        private Timer pathTimer;
+        private int state = -1;
+        private boolean isFinished = false;
+
+        // Pass-through Variables
+        private volatile Robot robot;
+        private Pose startPose;
+
+        public ToBasket(Robot robot, Pose startPose, boolean preExtend, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
+
+        public ToBasket(Robot robot, Pose startPose, boolean preExtend) {
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.preExtend = preExtend;
+        }
+
+        //Poses
+        Pose controlPoint = new Pose(-36, -110);
+        Pose midPoint = new Pose(-48, -48, Math.toRadians(-75));
+
+
+        Pose startPoseAdded;
+        Pose basketAdded;
+
+
+        //Paths
+        PathChain toBasket;
+
+        @Override
+        public void buildPaths(Pose offset) {
+            this.offset.add(offset);
+
+            robot.blockVision.switchPipeline(0);
+
+            startPoseAdded = startPose.addReturn(offset);
+            basketAdded = blueBasket.addReturn(offset);
+
+
+            toBasket = robot.follower.linearPathChainBuilder(startPose, basketAdded, 0.9);
+        }
+
+
+        @Override
+        public Pose getEndPoseEst() {
+            return blueBasket;
+        }
+
+        @Override
+        public boolean run() {
+            switch (state) {
+                case -1:
+                    robot.follower.setMaxPower(0.7);
+                    robot.follower.turn(Math.toRadians(90), true);
+                    setPathState(0);
+                case 0:
+                    visionResult = robot.blockVision.getBlockPosition(true);
+                    if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        robot.follower.setMaxPower(1);
+                        robot.stateMachine.goStore();
+                        robot.stateMachine.setBringSlidesIn(false);
+                        robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm + 0.1);
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        robot.intakeSystem.setHSlidesInches(robot.follower.followYourHead(visionResult));
+                        setPathState(1);
+
+                    } else if (pathTimer.getElapsedTimeSeconds() > 1) {
+                        robot.follower.setMaxPower(1);
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        robot.intakeSystem.storePos();
+                        robot.follower.followPath(toBasket);
+                        setPathState(6);
+                    }
+                    break;
+                case 1:
+                    if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(robot.intakeSystem.getHSlideTargetPos() - robot.intakeSystem.getHSlidePos()) < 250 && robot.follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        robot.intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
+                        setPathState(2);
+                    }
+                    break;
+                case 2:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        robot.doDriveShake = true;
+                        robot.follower.startTeleopDrive();
+                        robot.intakeSystem.intakeUntil();
+                        setPathState(3);
+                    }
+                    break;
+                case 3:
+                    robot.intakeSystem.update();
+                    if (robot.intakeSystem.intakeUntil()) {
+                        robot.intakeSystem.storeOutPos();
+                        robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
+                        robot.doDriveShake = false;
+                        robot.follower.breakFollowing();
+                        robot.robotState.hasInIntake = true;
+
+                        robot.follower.followPath(toBasket);
+                        setPathState(4);
+
+                    } else if (pathTimer.getElapsedTimeSeconds() > 4) {
+                        robot.intakeSystem.storeOutPos();
+                        robot.intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
+                        robot.follower.breakFollowing();
+                        robot.doDriveShake = false;
+
+                        setPathState(6);
+                    }
+                    break;
+                case 4:
+                    if (pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000) {
+                        robot.intakeSystem.setIntakePower(Constants.Intake.intakeSpeed);
+                        setPathState(5);
+                    }
+                    break;
+                case 5:
+                    if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000) {
+                        robot.intakeSystem.setIntakePower(0);
+                        robot.stateMachine.goHighBasket(true, false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                        robot.outtakeSystem.setFlapsUp();
+                        setPathState(7);
+                    }
+                    break;
+                //Failed pickup
+                case 6:
+                    robot.follower.followPath(toBasket);
+                    setPathState(7);
+                    break;
+                case 7:
+                    if (robot.follower.getErrorDistance(basketAdded) < 1.5 && robot.robotState.whereAmI == PlacePosEnum.highBasket || pathTimer.getElapsedTimeSeconds() > 4) {
+                        robot.intakeSystem.setIntakePower(0);
+                        if (preExtend) {
+                            robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
+                        }
+                        setPathState(8);
+                    }
+                    break;
+                case 8:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.45) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        setPathState(9);
+                    }
+                    break;
+                case 9:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                        isFinished = true;
+                        setPathState(10);
+                    }
+                    break;
+            }
+
+            return isFinished;
+        }
+
+        public void setPathState(int state) {
+            this.state = state;
+            pathTimer.resetTimer();
+        }
+
+        //todo
+        public Pose getOffset() {
+            return offset.addReturn(new Pose());
+        }
+
+        public void addToOffset(Pose offset) {
+            this.offset = offset;
+        }
+
+
+        public String getName() {
+            return "From Bar Left Outer To Basket, " + state;
         }
     }
 }

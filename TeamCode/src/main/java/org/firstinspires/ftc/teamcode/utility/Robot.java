@@ -120,8 +120,8 @@ public class Robot {
                     }
                     break;
                 case 2:
-                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeAtIntakeSlides) < 40) {
-                        if (stateMachine.bringSlidesIn) {
+                    if (Math.abs(outtakeSystem.getVSlidePos() - Constants.Outtake.safeAtIntakeSlides) < 50) {
+                        if (stateMachine.getBringSlidesIn()) {
                             intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                         }
                         outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
@@ -260,6 +260,11 @@ public class Robot {
         }
 
         if (stateMachine.doLowSpecimen()) {
+            if (robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                timeToWait = 0.3;
+            } else {
+                timeToWait = 1;
+            }
             switch (lowBarState) {
                 case -1:
                     if (stateMachine.getAutoPresets()) {
@@ -267,10 +272,20 @@ public class Robot {
                     } else {
                         outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
                     }
+                    outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPre - 0.05);
                     outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                     robotState.clawToggle = true;
-                    robotState.whereAmI = PlacePosEnum.lowSpecimen;
-                    stateMachine.finishLowSpecimen();
+                    lowBarState = 0;
+                    lowBarTimer.resetTimer();
+                    break;
+                case 0:
+                    if (lowBarTimer.getElapsedTimeSeconds() > timeToWait) {
+                        outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
+                        stateMachine.finishLowSpecimen();
+                        robotState.whereAmI = PlacePosEnum.lowSpecimen;
+                        lowBarState = -1;
+                    }
+                    break;
                 /*
                 case -1:
                     if (robotState.whereAmI == PlacePosEnum.safeLowSpecimen) {
@@ -382,7 +397,6 @@ public class Robot {
                     outtakeSystem.setVSlidePos(Constants.Outtake.highBasketSlides);
                     outtakeSystem.setArmPos(Constants.Outtake.upArm);
                     outtakeSystem.setWristPos(Constants.Outtake.straightWrist);
-                    robotState.whereAmI = PlacePosEnum.highBasket;
                     highBasketState = 0;
                     break;
                 case 0:
@@ -393,8 +407,9 @@ public class Robot {
                     }
                     break;
                 case 1:
-                    if (highBasketTimer.getElapsedTimeSeconds() > 0.6) {
+                    if (highBasketTimer.getElapsedTimeSeconds() > 0.4) {
                         outtakeSystem.setArmPos(Constants.Outtake.basketArm);
+                        robotState.whereAmI = PlacePosEnum.highBasket;
                         stateMachine.finishHighBasket();
                         highBasketState = -1;
                     }
@@ -405,8 +420,8 @@ public class Robot {
         if (stateMachine.doWall()) {
             switch (wallState) {
                 case -1:
-                    timeToWait = 0.423 * (outtakeSystem.getArmPos()*1.115);
-                    timeToWait += 0.25;
+                    timeToWait = 0.423 * (outtakeSystem.getArmPos() * 1.115);
+                    timeToWait += 0.15;
                     outtakeSystem.placePos(PlacePosEnum.wall);
                     outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.1);
                     if (!robotState.hasInOutake) {
@@ -417,6 +432,7 @@ public class Robot {
                     wallState = 0;
                     break;
                 case 0:
+                    outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallSlides);
                     if (wallTimer.getElapsedTimeSeconds() > timeToWait) {
                         outtakeSystem.placePos(PlacePosEnum.wall);
                         robotState.whereAmI = PlacePosEnum.wall;
@@ -459,14 +475,17 @@ public class Robot {
 
 
         if (doDriveShake) {
-            if (shakeTimer.getElapsedTimeSeconds() > 0.5) {
-                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 0.5) * 3) % 2 == 0 ){
+            if (shakeTimer.getElapsedTimeSeconds() > 1.1) {
+                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 1.1) * 3) % 2 == 0 ){
+                    telemetry.addLine("What is My 1 porpuse?");
                     follower.setTeleOpMovementVectors(0,0, -0.3);
                 } else {
+                    telemetry.addLine("What is My 2 porpuse?");
                     follower.setTeleOpMovementVectors(0,0, 0.3);
                 }
             }
         } else {
+            telemetry.addLine("What is My 3 porpuse?");
             shakeTimer.resetTimer();
         }
     }

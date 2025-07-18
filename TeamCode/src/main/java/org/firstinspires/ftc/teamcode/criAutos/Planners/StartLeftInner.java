@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
@@ -45,7 +46,7 @@ public class StartLeftInner {
 
         //Paths
         PathChain toOpen;
-        PathChain toNearBar;
+        Path toNearBar;
         PathChain sweepBar;
 
         @Override
@@ -60,11 +61,14 @@ public class StartLeftInner {
 
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barLeftInnerBelowAdded);
 
-            toNearBar = robot.follower.linearPathChainBuilder(barLeftInnerBelowAdded, barLeftInnerRightAdded);
+            toNearBar = robot.follower.linearPathBuilder(barLeftInnerBelowAdded, barLeftInnerRightAdded);
+            toNearBar.setZeroPowerAccelerationMultiplier(6);
 
             sweepBar = robot.follower.pathBuilder()
                     .addPath(robot.follower.linearPathBuilder(barLeftInnerRightAdded, barLeftInnerMidAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .addPath(robot.follower.linearPathBuilder(barLeftInnerMidAdded, barLeftInnerTopAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .build();
         }
 
@@ -81,7 +85,8 @@ public class StartLeftInner {
                         robot.stateMachine.goHighSpecimen(false, false);
                         robot.stateMachine.setAutoPresets(true);
                     } else {
-                        robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
+                        robot.stateMachine.goLowSpecimen(false);
+                        robot.stateMachine.setAutoPresets(true);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);

@@ -7,11 +7,12 @@ import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathBuilder;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
+import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.Robot;
 
 public class FromBarRightInner {
     public static class ToWall implements PathPlanner {
-        /// Option to push spike 0 is none, 1 is bottom, 2 is middle, 3 is top
+        /// Option to push spike 0 is none, 1 is bottom, 2 is middle, 3 is NOT WORKING
         /// Option to go left or right wall
         /// Expects robot.state.whereami to be correct
         /// Ends at left or right wall
@@ -21,7 +22,7 @@ public class FromBarRightInner {
         int pushSpike;
         Pose offset = new Pose();
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -68,7 +69,7 @@ public class FromBarRightInner {
         public void buildPaths(Pose offset) {
             this.offset.add(offset);
 
-            startPoseLeftAdded = new Pose(startPose.getX(), innerSpikeRightMid.getY(), Math.toRadians(-90)).addReturn(offset);
+            startPoseLeftAdded = new Pose(startPose.getX(), innerSpikeRightMid.getY(), Math.toRadians(-87)).addReturn(offset);
             innerSpikeRightBotAdded = innerSpikeRightBot.addReturn(offset);
             if (rightWall) {
                 wallAdded = pickupWallRight.addReturn(offset);
@@ -84,20 +85,30 @@ public class FromBarRightInner {
                 case 1:
                     targetPoseAdded = innerSpikeRightBot.addReturn(offset);
                     break;
+                case -1:
+                    targetPoseAdded = innerSpikeRightBot.addReturn(new Pose(0, 3)).addReturn(offset);
+                    break;
                 case 2:
                     targetPoseAdded = innerSpikeRightMid.addReturn(offset);
                     break;
-                case 3:
-                    targetPoseAdded = innerSpikeRightTop.addReturn(offset);
+                case -2:
+                    targetPoseAdded = innerSpikeRightMid.addReturn(new Pose(0, 3)).addReturn(offset);
                     break;
             }
+            targetPoseAdded.setHeading(Math.toRadians(-87));
+
             toWall = robot.follower.pathBuilder()
-                    .addPath(robot.follower.linearPathBuilder(startPoseLeftAdded, innerSpikeRightBotAdded));
+                    .addPath(robot.follower.linearPathBuilder(startPoseLeftAdded, targetPoseAdded));
+            if (pushSpike < 0) {
+                toWall.setZeroPowerAccelerationMultiplier(3);
+            }
             if (rightWall) {
-                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeRightBotAdded, wallAdded, 0.85));
+                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, wallAdded, 0.2))
+                        .setZeroPowerAccelerationMultiplier(6);
             } else {
-                toWall.addPath(robot.follower.linearPathBuilder(innerSpikeRightBotAdded, openAdded))
-                        .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded));
+                toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, openAdded, 0.2))
+                        .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded))
+                        .setZeroPowerAccelerationMultiplier(6);
             }
 
             toWallPath = toWall.build();
@@ -115,15 +126,34 @@ public class FromBarRightInner {
         @Override
         public boolean run() {
             switch (state) {
-                case 0:
-                    robot.follower.setMaxPower(0.9);
+                case -1:
+                    robot.follower.setMaxPower(0.8);
                     robot.follower.followPath(toWallPath);
-                    robot.stateMachine.goWall(false, false, false);
+                    if (robot.robotState.whereAmI != PlacePosEnum.lowSpecimen) {
+                        robot.stateMachine.goWall(false, false, false);
+                        robot.loop();
+                        robot.outtakeSystem.setVSlidePos(0);
+                    } else {
+                        robot.outtakeSystem.setWristPos(Constants.Outtake.minWrist);
+                    }
+
                     robot.outtakeSystem.setFlapsSpikeClear();
-                    setPathState(1);
+                    setPathState(0);
+                    break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.1) {
+                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
+                            robot.stateMachine.goWall(false, false, false);
+                        }
+                        setPathState(1);
+                    }
                     break;
                 case 1:
-                    if (robot.follower.getError(targetPoseAdded).getX() < 1) {
+                    if (robot.follower.getError(targetPoseAdded).getX() < 9) {
+                        robot.outtakeSystem.setVSlidePos(0);
+                        if (park) {
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArmAuto - 0.07);
+                        }
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(2);
                     }
@@ -131,14 +161,12 @@ public class FromBarRightInner {
                 case 2:
                     if (robot.follower.getError(openAdded).getX() < 1) {
                         robot.follower.setMaxPower(1);
-                        if (park) {
-                            robot.outtakeSystem.setArmPos(Constants.Outtake.upArm);
-                        }
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.intakeWallSlides);
                         setPathState(3);
                     }
                     break;
                 case 3:
-                    if (robot.outtakeSystem.seesWall() || pathTimer.getElapsedTimeSeconds() > 2) {
+                    if ((robot.outtakeSystem.seesWall() && robot.follower.getVelocity().getMagnitude() < 3) || pathTimer.getElapsedTimeSeconds() > 2) {
                         setPathState(4);
                     }
                     break;

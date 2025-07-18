@@ -211,7 +211,9 @@ public class FromBarLeftOuter {
                 case 7:
                     if (robot.follower.getError(pickupWallLeftAdded).getY() < 20) {
                         robot.intakeSystem.setIntakePower(0);
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        if (!park) {
+                            robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        }
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(8);
                     }
@@ -264,7 +266,7 @@ public class FromBarLeftOuter {
         Pose offset = new Pose();
         Pose2D visionResult;
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -320,20 +322,25 @@ public class FromBarLeftOuter {
         @Override
         public boolean run() {
             switch (state) {
+                case -1:
+                    robot.follower.setMaxPower(0.7);
+                    robot.follower.turn(Math.toRadians(90), false);
+                    setPathState(0);
                 case 0:
                     visionResult = robot.blockVision.getBlockPosition(true);
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
+                        robot.follower.setMaxPower(1);
                         robot.stateMachine.goStore();
                         robot.stateMachine.setBringSlidesIn(false);
+                        robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArm + 0.1);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robot.intakeSystem.setHSlidesInches(robot.follower.followYourHead(visionResult));
                         setPathState(1);
 
                     } else if (pathTimer.getElapsedTimeSeconds() > 1) {
-                        robot.outtakeSystem.placePos(PlacePosEnum.wall);
+                        robot.follower.setMaxPower(1);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robot.intakeSystem.storePos();
-                        robot.stateMachine.setBringSlidesIn(false);
                         robot.follower.followPath(toBasket);
                         setPathState(6);
                     }
@@ -341,9 +348,6 @@ public class FromBarLeftOuter {
                 case 1:
                     if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(robot.intakeSystem.getHSlideTargetPos() - robot.intakeSystem.getHSlidePos()) < 250 && robot.follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                        }
                         setPathState(2);
                     }
                     break;
@@ -351,14 +355,13 @@ public class FromBarLeftOuter {
                     if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.doDriveShake = true;
                         robot.follower.startTeleopDrive();
-                        robot.intakeSystem.intakeUntilColor();
+                        robot.intakeSystem.intakeUntil();
                         setPathState(3);
                     }
                     break;
                 case 3:
                     robot.intakeSystem.update();
-                    if (robot.intakeSystem.intakeUntilColor()) {
-
+                    if (robot.intakeSystem.intakeUntil()) {
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.unjamSpeed);
                         robot.doDriveShake = false;
@@ -368,7 +371,7 @@ public class FromBarLeftOuter {
                         robot.follower.followPath(toBasket);
                         setPathState(4);
 
-                    } else if (pathTimer.getElapsedTimeSeconds() > 2.5) {
+                    } else if (pathTimer.getElapsedTimeSeconds() > 4) {
                         robot.intakeSystem.storeOutPos();
                         robot.intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
                         robot.follower.breakFollowing();
@@ -394,11 +397,10 @@ public class FromBarLeftOuter {
                 //Failed pickup
                 case 6:
                     robot.follower.followPath(toBasket);
-                    robot.stateMachine.goWall(false, false, robot.robotState.whereAmI == PlacePosEnum.intake);
                     setPathState(7);
                     break;
                 case 7:
-                    if (robot.follower.getErrorDistance(basketAdded) < 1 && !robot.stateMachine.doHighBasket()) {
+                    if (robot.follower.getErrorDistance(basketAdded) < 1.5 && robot.robotState.whereAmI == PlacePosEnum.highBasket || pathTimer.getElapsedTimeSeconds() > 4) {
                         robot.intakeSystem.setIntakePower(0);
                         if (preExtend) {
                             robot.intakeSystem.setHSlidePos(Constants.Intake.autoPreExtendSlides - 100);
@@ -407,7 +409,7 @@ public class FromBarLeftOuter {
                     }
                     break;
                 case 8:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.45) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(9);
                     }

@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
@@ -45,7 +46,7 @@ public class StartRightInner {
 
         //Paths
         PathChain toOpen;
-        PathChain toNearBar;
+        Path toNearBar;
         PathChain sweepBar;
 
         @Override
@@ -60,11 +61,14 @@ public class StartRightInner {
 
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barRightInnerBelowAdded);
 
-            toNearBar = robot.follower.linearPathChainBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+            toNearBar = robot.follower.linearPathBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+            toNearBar.setZeroPowerAccelerationMultiplier(6);
 
             sweepBar = robot.follower.pathBuilder()
                     .addPath(robot.follower.linearPathBuilder(barRightInnerLeftAdded, barRightInnerMidAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .addPath(robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .build();
         }
 
@@ -81,7 +85,8 @@ public class StartRightInner {
                         robot.stateMachine.goHighSpecimen(false, false);
                         robot.stateMachine.setAutoPresets(true);
                     } else {
-                        robot.outtakeSystem.placePos(PlacePosEnum.preClipLowSpecimenAuto);
+                        robot.stateMachine.goLowSpecimen(false);
+                        robot.stateMachine.setAutoPresets(true);
                     }
                     robot.follower.followPath(toOpen);
                     setPathState(1);
@@ -105,7 +110,7 @@ public class StartRightInner {
                         } else {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                         }
-                        robot.outtakeSystem.setFlapsWall();
+                        robot.outtakeSystem.setFlapsSpikeClear();
                         setPathState(4);
                     }
                     break;

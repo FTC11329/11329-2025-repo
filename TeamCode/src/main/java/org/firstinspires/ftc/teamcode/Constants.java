@@ -63,8 +63,8 @@ public class Constants {
         public static double spitSpeed = -0.75;
         public static int unjamTicksShort = -150;
         public static int unjamTicksLong = -150;
-        public static double unjamTimeMillisTeleop = 110;
-        public static double unjamTimeMillisAuto = 130;
+        public static double unjamTimeMillisTeleop = 90;
+        public static double unjamTimeMillisAuto = 100;
         public static double intakeServoSpeedTime = 600;
         public static double transferToTrayMillis = 600;
     }
@@ -74,13 +74,13 @@ public class Constants {
         //Wrist
         public static double minWrist = 0.229;
         public static double maxWrist = 0.756;
-        public static double straightWrist = 0.486;
+        public static double straightWrist = 0.465;
 
         public static double initTeleopWrist = straightWrist;
         public static double initAutoUnderBarWrist = minWrist;
-        public static double initAutoNearWallWrist = 0.4955 ;
+        public static double initAutoNearWallWrist = 0.4955;
 
-        public static double highSpecimenWristAutoPre = 0.336;
+        public static double highSpecimenWristAutoPre = 0.317;
         public static double highSpecimenWristAutoPost = 0.37;
         public static double lowSpecimenWristAuto = 0.358;
         public static double lowSpecimenWristAutoPost = 0.59;
@@ -93,15 +93,15 @@ public class Constants {
 
         public static double basketWrist = 0.54;
 
-        public static double intakeWrist = 0.609;
+        public static double intakeWrist = 0.559;
 
-        public static double wallWrist = 0.345;
+        public static double wallWrist = 0.324;
         //                   Walrus?
 
         public static double manualWristSpeed = 0.01;
 
         //Claw
-        public static double grabClaw = 0.585;
+        public static double grabClaw = 0.55;
         public static double dropClaw = 0.25;
 
         //Arm
@@ -126,8 +126,8 @@ public class Constants {
         public static double safeHighSpecimenArm = 0.75 + 0.083;
         public static double postHighSpecimenArm = 0.7352 + 0.083;
 
-        public static double safeBasketArm = 0.31;
-        public static double basketArm = 0.306;
+        public static double safeBasketArm = 0.33;
+        public static double basketArm = 0.3;
         public static double frontBasketArm = 0.5661 + 0.083;
         public static double parkArm = 0.538 + 0.083;
 
@@ -135,15 +135,15 @@ public class Constants {
         public static int safeAtIntakeSlides = 343;
 
         public static int intakeSlides = 143;
-        public static int intakeWallSlides = 121;
-        public static int intakeWallAutoSlides = 67;
+        public static int intakeWallSlides = 90;
+        public static int intakeWallAutoSlides = 90;
 
         public static int safeFromWallSlides = 250;
         public static int safeFromClimberBar = 610;
         public static int safeFromSpecBar = 710;
 
         public static int highSpecimenSlidesAutoPre = 5;
-        public static int highSpecimenSlidesAutoPost = 315;
+        public static int highSpecimenSlidesAutoPost = 330;
         public static int lowSpecimenSlidesAutoPre = 286;
         public static int lowSpecimenSlidesAutoPost = 370;
 

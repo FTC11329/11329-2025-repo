@@ -186,7 +186,7 @@ public class StartLeftOuter {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 1.5) {
+                    if (robot.follower.getError(barLeftOuterMidAdded).getX() < 1.5 || pathTimer.getElapsedTimeSeconds() > 2) {
                         if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
@@ -196,7 +196,7 @@ public class StartLeftOuter {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(barLeftOuterTopAdded) < 1.5) {
+                    if (robot.follower.getErrorDistance(barLeftOuterTopAdded) < 1.5 || pathTimer.getElapsedTimeSeconds() > 1) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                     }

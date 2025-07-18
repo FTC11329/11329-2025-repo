@@ -89,17 +89,21 @@ public class FromWallRight {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barRightOuterMidAdded) < 2) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
+                    if (robot.follower.getErrorDistance(barRightOuterMidAdded) < 6) {
+                        robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                    }
+                    if (robot.follower.getErrorDistance(barRightOuterMidAdded) < 4) {
+                        if (highBar) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
                         } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimen);
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                            robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
                         }
                         setPathState(2);
                     }
                     break;
                 case 2:
-                    if (robot.follower.getError(barRightOuterTopAdded).getX() < 1.5) {
+                    if (robot.follower.getError(barRightOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                         isFinished = true;
@@ -163,7 +167,7 @@ public class FromWallRight {
 
         //Paths
         PathChain toOpen;
-        PathChain toNearBar;
+        Path toNearBar;
         PathChain sweepBar;
 
         @Override
@@ -178,11 +182,14 @@ public class FromWallRight {
 
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barRightInnerBelowAdded);
 
-            toNearBar = robot.follower.linearPathChainBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+            toNearBar = robot.follower.linearPathBuilder(barRightInnerBelowAdded, barRightInnerLeftAdded);
+            toNearBar.setZeroPowerAccelerationMultiplier(6);
 
             sweepBar = robot.follower.pathBuilder()
                     .addPath(robot.follower.linearPathBuilder(barRightInnerLeftAdded, barRightInnerMidAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .addPath(robot.follower.linearPathBuilder(barRightInnerMidAdded, barRightInnerTopAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .build();
         }
 
@@ -207,7 +214,7 @@ public class FromWallRight {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 0.75) {
+                    if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 3) {
                         setPathState(2);
                     }
                     break;
@@ -224,26 +231,30 @@ public class FromWallRight {
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
-                        if (highBar) {
+                    if (highBar) {
+                        if (robot.follower.getError(barRightInnerMidAdded).getY() < 1.5) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
-                        } else {
-                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                            robot.outtakeSystem.setFlapsSpikeClear();
+                            setPathState(5);
                         }
-                        robot.outtakeSystem.setFlapsWall();
-                        setPathState(5);
+                    } else {
+                        if (robot.follower.getError(barRightInnerMidAdded).getY() < 2.5) {
+                            robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                            setPathState(5);
+                        }
                     }
                     break;
                 case 5:
-                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 3.5) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
                         if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+                            robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
                         }
                         setPathState(6);
                     }
                     break;
                 case 6:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(7);
                         isFinished = true;

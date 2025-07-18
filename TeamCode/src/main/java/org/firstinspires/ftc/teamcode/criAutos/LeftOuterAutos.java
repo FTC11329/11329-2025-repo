@@ -39,9 +39,9 @@ public class LeftOuterAutos extends OpMode {
     // Outer Left High, Outer Left Low, Outer Left High, Park
     boolean auto1;
     // Outer Left High, Inner Left High, Inner Left Low, Outer Left Low
-    boolean auto2;
+    boolean auto2;// not tuned
     // Outer Left High, Basket Super repeat
-    boolean auto3;
+    boolean auto3;// not tuned
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -54,9 +54,9 @@ public class LeftOuterAutos extends OpMode {
         // Outer Left High, Outer Left Low, Outer Left High, Park
         auto1 = false;
         // Outer Left High, Inner Left High, Inner Left Low, Inner Left High
-        auto2 = false;
-        // Outer Left High, Inner Left High, Inner Right High, Inner Left High
-        auto3 = true; //todo
+        auto2 = true;
+        // Outer Left High, High Basket
+        auto3 = false; // not tuned
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -134,7 +134,7 @@ public class LeftOuterAutos extends OpMode {
 
             steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
             */
-            steps.add(new FromBarLeftOuter.ToBasket(robot, lastPose(), false));
+            steps.add(new FromBarLeftOuter.ToBasket(robot, lastPose(), true, new Pose(1, 3)));
 
 //            steps.add(new FromRedBasket.ToPickupAndPlaceSpike2(robot, lastPose(), true));
 
@@ -152,6 +152,11 @@ public class LeftOuterAutos extends OpMode {
 
             steps.add(new FromRedBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
 
+        }
+        if (auto3) {
+            blockVision.switchPipeline(0);
+        } else {
+            blockVision.switchPipeline(robotSide);
         }
     }
 

@@ -168,14 +168,14 @@ public class FromWallLeft {
 
         //Paths
         PathChain toOpen;
-        PathChain toNearBar;
+        Path toNearBar;
         PathChain sweepBar;
 
         @Override
         public void buildPaths(Pose offset) {
             this.offset.add(offset);
 
-            startPoseAdded = startPose.addReturn(offset);
+            startPoseAdded = startPose.addReturn(offset).addReturn(new Pose(2, 0));
             barLeftInnerBelowAdded = new Pose(-32, innerSpikeLeftMid.getY(), Math.toRadians(90)).addReturn(offset);
             barLeftInnerRightAdded = new Pose(barLeftInnerBot.getX(), innerSpikeLeftBot.getY(), Math.toRadians(90)).addReturn(offset);
             barLeftInnerMidAdded = barLeftInnerMid.addReturn(offset);
@@ -183,11 +183,14 @@ public class FromWallLeft {
 
             toOpen = robot.follower.linearPathChainBuilder(startPoseAdded, barLeftInnerBelowAdded);
 
-            toNearBar = robot.follower.linearPathChainBuilder(barLeftInnerBelowAdded, barLeftInnerRightAdded);
+            toNearBar = robot.follower.linearPathBuilder(barLeftInnerBelowAdded, barLeftInnerRightAdded);
+            toNearBar.setZeroPowerAccelerationMultiplier(6);
 
             sweepBar = robot.follower.pathBuilder()
                     .addPath(robot.follower.linearPathBuilder(barLeftInnerRightAdded, barLeftInnerMidAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .addPath(robot.follower.linearPathBuilder(barLeftInnerMidAdded, barLeftInnerTopAdded))
+                    .setZeroPowerAccelerationMultiplier(6)
                     .build();
         }
 
@@ -212,7 +215,7 @@ public class FromWallLeft {
                     setPathState(1);
                     break;
                 case 1:
-                    if (robot.follower.getErrorDistance(barLeftInnerBelowAdded) < 0.75) {
+                    if (robot.follower.getErrorDistance(barLeftInnerBelowAdded) < 3) {
                         setPathState(2);
                     }
                     break;
@@ -233,17 +236,17 @@ public class FromWallLeft {
                         if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1.5) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimenAuto);
                             robot.outtakeSystem.setFlapsSpikeClear();
-                            setPathState(5);
+                            setPathState(6);
                         }
                     } else {
-                        if (robot.follower.getError(barLeftInnerMidAdded).getY() < 2.5) {
+                        if (robot.follower.getError(barLeftInnerMidAdded).getY() < 1) {
                             robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
                             setPathState(5);
                         }
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.15) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.25) {
                         if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
                             robot.outtakeSystem.setVSlidePos(Constants.Outtake.lowSpecimenSlidesAutoPost);
@@ -252,7 +255,7 @@ public class FromWallLeft {
                     }
                     break;
                 case 6:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(7);
                         isFinished = true;

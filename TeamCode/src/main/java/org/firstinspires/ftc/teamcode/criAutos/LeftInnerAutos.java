@@ -44,7 +44,7 @@ public class LeftInnerAutos extends OpMode {
 
     // Inner Left High, Inner Left Low, Inner Right High, Inner Right Low, park
     boolean auto1;
-    // Inner Left High, Inner Left Low, Inner Left High, Inner Right High, park
+    // Inner Left High, Inner Left Low, Inner Left High, Inner Left High, Inner Left High, park
     boolean auto2;
     // Inner Left High, Inner Right High, Inner Right Low, Inner Right High, park
     boolean auto3;
@@ -60,9 +60,9 @@ public class LeftInnerAutos extends OpMode {
         // Inner Left High, Inner Left Low, Inner Right High, Inner Right Low, park
         auto1 = true;
         // Inner Left High, Inner Left Low, Inner Left High, Inner Right High, park
-        auto2 = false;
+        auto2 = false;// not tuned
         // Inner Left High, Inner Right High, Inner Right Low, Inner Right High, park
-        auto3 = false;
+        auto3 = false;// not tuned
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -87,42 +87,52 @@ public class LeftInnerAutos extends OpMode {
         // todo: Build step list
         steps = new ArrayList<>();
         //Inner Left High
-        steps.add(new StartLeftInner.ToLeftInnerBar(robot, lastPose(), true, new Pose(-1, 0.5)));
+        steps.add(new StartLeftInner.ToLeftInnerBar(robot, lastPose(), true, new Pose(-1, 0.75)));
 
         steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
 
         if (auto1) {
             //Inner Left Low
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false, new Pose(0.5, 0)));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, false, new Pose(0, 2)));
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, false, new Pose(1.5, 1.8)));
 
             //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 1.25)));
 
             steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
 
             //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false, new Pose(-1.5, 0.25)));
 
             steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
 
+            //Inner Right High
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 0, true, true));
+
 
         } else if (auto2) {
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true, new Pose(0, 1)));
-
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true, new Pose(0.5, 0)));
-
             //Inner Left Low
             steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true, new Pose(0.5, 0)));
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true));
 
-            //Outer Left Low
-            steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), false));
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
 
-            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, true));
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), -1, true));
+
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), -2, true));
+
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 0, true, true));
 
 
         } else if (auto3) {
