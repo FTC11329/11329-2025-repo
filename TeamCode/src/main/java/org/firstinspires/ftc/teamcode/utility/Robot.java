@@ -190,6 +190,9 @@ public class Robot {
                     } else {
                         outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
                     }
+                    if (!robotState.hasInIntake) {
+                        intakeSystem.setIntakePower(Constants.Intake.spitSpeed);
+                    }
                     intakeSystem.setIntakeServoPos(Constants.Intake.wristClear);
                     outtakeSystem.setArmPos(Constants.Outtake.downArm);
                     outtakeSystem.setWristPos(Constants.Outtake.straightWrist);
@@ -207,6 +210,7 @@ public class Robot {
                     break;
                 case 1:
                     if (unStoringTimer.getElapsedTimeSeconds() > 0.3) {
+                        intakeSystem.setIntakePower(0);
                         robotState.whereAmI = PlacePosEnum.clear;
                         stateMachine.finishUnStoreFromIntake();
                         unStoringState = -1;
@@ -423,7 +427,9 @@ public class Robot {
                     timeToWait = 0.423 * (outtakeSystem.getArmPos() * 1.115);
                     timeToWait += 0.15;
                     outtakeSystem.placePos(PlacePosEnum.wall);
-                    outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.1);
+                    if (robotState.whereAmI != PlacePosEnum.wall) {
+                        outtakeSystem.setArmPos(Constants.Outtake.intakeWallArm + 0.1);
+                    }
                     if (!robotState.hasInOutake) {
                         outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         robotState.clawToggle = false;
@@ -475,17 +481,14 @@ public class Robot {
 
 
         if (doDriveShake) {
-            if (shakeTimer.getElapsedTimeSeconds() > 1.1) {
-                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 1.1) * 3) % 2 == 0 ){
-                    telemetry.addLine("What is My 1 porpuse?");
+            if (shakeTimer.getElapsedTimeSeconds() > 0.6) {
+                if (Math.round((shakeTimer.getElapsedTimeSeconds() - 0.6) * 3) % 2 == 0 ){
                     follower.setTeleOpMovementVectors(0,0, -0.3);
                 } else {
-                    telemetry.addLine("What is My 2 porpuse?");
                     follower.setTeleOpMovementVectors(0,0, 0.3);
                 }
             }
         } else {
-            telemetry.addLine("What is My 3 porpuse?");
             shakeTimer.resetTimer();
         }
     }

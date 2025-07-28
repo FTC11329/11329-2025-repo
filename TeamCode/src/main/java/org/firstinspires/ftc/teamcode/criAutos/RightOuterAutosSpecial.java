@@ -1,20 +1,18 @@
 package org.firstinspires.ftc.teamcode.criAutos;
 
-import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
+import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.startRightOuter;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarLeftOuter;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallLeft;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBarRightOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.FromBlueBasket;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.FromWallRight;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.PathPlanner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftInner;
-import org.firstinspires.ftc.teamcode.criAutos.Planners.StartLeftOuter;
+import org.firstinspires.ftc.teamcode.criAutos.Planners.StartRightOuter;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
@@ -33,20 +31,21 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Left Inner Auto 1", group = " 2Comp", preselectTeleOp = "New Tele-op Red")
-public class LeftInnerAutos extends OpMode {
+@Autonomous(name = "CRI RED Right Outer SPEC 1 HIGH", group = "   Comp", preselectTeleOp = "Tele-op Red")
+public class RightOuterAutosSpecial extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
     //Wall or Low Spec
     PlacePosEnum startPos = PlacePosEnum.wall;
-    Pose startPose = startLeftInner;
+    Pose startPose = startRightOuter;
 
 
-    // Inner Left High, Inner Left Low, Inner Right High, Inner Right Low, park
+
+    // Outer Right High, Outer Right Low, Outer Right High, Park
     boolean auto1;
-    // Inner Left High, Inner Left Low, Inner Left High, Inner Left High, Inner Left High, park
+    // Outer Right High, Inner Right High, Inner Right Low, Inner Right High
     boolean auto2;
-    // Inner Left High, Inner Right High, Inner Right Low, Inner Right High, park
+    // Outer Right High, Inner Right High, Inner Left High, Inner Right High
     boolean auto3;
     Pose totalOffset = new Pose();
     private Robot robot;
@@ -57,12 +56,12 @@ public class LeftInnerAutos extends OpMode {
     public void init() {
         // Todo what auto you want to run
 
-        // Inner Left High, Inner Left Low, Inner Right High, Inner Right Low, park
-        auto1 = true;
-        // Inner Left High, Inner Left Low, Inner Left High, Inner Right High, park
-        auto2 = false;
-        // Inner Left High, Inner Right High, Inner Right Low, Inner Right High, park
-        auto3 = false;// not tuned
+        // Outer Right High, Outer Right Low, Outer Right High, Park
+        auto1 = false;
+        // Outer Right High, Inner Right High, Inner Right Low, Outer Right Low
+        auto2 = true;
+        // Outer Right High, Baskets
+        auto3 = false;
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -86,84 +85,72 @@ public class LeftInnerAutos extends OpMode {
 
         // todo: Build step list
         steps = new ArrayList<>();
-        //Inner Left High
-        steps.add(new StartLeftInner.ToLeftInnerBar(robot, lastPose(), true, new Pose(-1, 0.75)));
+        //Outer Right High
+        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true, new Pose(-1.5, 0)));
 
         Pose thisOffset;
         if (auto1) {
-            thisOffset = new Pose(0, -0.3);
+            thisOffset = new Pose(0, 1.5);
         } else {
-            thisOffset = new Pose(0, -0.8);
+            thisOffset = new Pose(0, 0);
+        }
+        if (!auto3) {
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, thisOffset));
         }
 
-        steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true, thisOffset));
         if (auto1) {
-            //Inner Left Low
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false, new Pose(0.5, 0)));
+            //Outer Right Low
+            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false, new Pose(-1.5, 0)));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, false, new Pose(1.5, 1.3)));
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
 
-            //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 1.25)));
+            //Outer Right High
+            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), true));
 
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
-
-            //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false, new Pose(-2, 0)));
-
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true));
-
-            //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
-
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 0, true, true));
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, true));
 
 
         } else if (auto2) {
-            //Inner Left Low
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+            //Inner Right Low
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false, new Pose(0, 1)));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true));
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true, new Pose(0, 1)));
 
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+            //Outer Right Low
+            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false, new Pose(0, -1)));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), -1, true));
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, new Pose(-1, 1.6)));
 
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+            //Inner Right Low
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), -2, true));
-
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
-
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 0, true, true));
-
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, true, true));
 
         } else if (auto3) {
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
-
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, false));
-
             //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true));
+            steps.add(new FromBarRightOuter.ToBasket(robot, lastPose(), false));
 
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, false));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
+            steps.add(new FromBlueBasket.ToPickupAndPlaceSubYellow(robot, lastPose()));
 
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
+        }
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
-
+        if (auto3) {
+            robot.blockVision.switchPipeline(0);
+        } else {
+            robot.blockVision.switchPipeline(robotSide);
         }
     }
 
+
     boolean secondInit = false;
     boolean buttonDebounce = false;
-    boolean visionWorks = false;
     int initState = 0;
+    boolean visionWorks = false;
 
     public void init_loop() {
         if (secondInit) {

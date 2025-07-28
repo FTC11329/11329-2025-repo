@@ -30,12 +30,12 @@ public class CommonPoses {
     public static Pose barLeftOuterMid  = new Pose(0, 78.5, Math.toRadians(-90));
     public static Pose barLeftOuterBot  = new Pose(-5.5, 78.5, Math.toRadians(-90));
 
-    public static Pose barLeftInnerTop  = new Pose(0,  15.5, Math.toRadians(90));
-    public static Pose barLeftInnerMid  = new Pose(-2,15.5, Math.toRadians(90));
+    public static Pose barLeftInnerTop  = new Pose(-3,  15.5, Math.toRadians(90));
+    public static Pose barLeftInnerMid  = new Pose(-3,15.5, Math.toRadians(90));
     public static Pose barLeftInnerBot  = new Pose(-5, 15.5, Math.toRadians(90));
 
-    public static Pose barRightInnerTop = new Pose(0,  -18, Math.toRadians(-90));
-    public static Pose barRightInnerMid = new Pose(-2,-18, Math.toRadians(-90));
+    public static Pose barRightInnerTop = new Pose(-3,  -18, Math.toRadians(-90));
+    public static Pose barRightInnerMid = new Pose(-3,-18, Math.toRadians(-90));
     public static Pose barRightInnerBot = new Pose(-5, -18, Math.toRadians(-90));
 
     public static Pose barRightOuterTop = new Pose(5.5,  -79.5, Math.toRadians(90));

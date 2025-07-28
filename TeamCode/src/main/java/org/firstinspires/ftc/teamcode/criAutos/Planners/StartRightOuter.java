@@ -138,6 +138,13 @@ public class StartRightOuter {
             this.startPose = startPose;
             this.highBar = highBar;
         }
+        public ToPlaceBarRightOuter(Robot robot, Pose startPose, boolean highBar, Pose offset) {
+            addToOffset(offset);
+            pathTimer = new Timer();
+            this.robot = robot;
+            this.startPose = startPose;
+            this.highBar = highBar;
+        }
         //Poses
         Pose controlPoint = new Pose(0, -96);
 
@@ -196,7 +203,7 @@ public class StartRightOuter {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getErrorDistance(barRightOuterTopAdded) < 1.5) {
+                    if (robot.follower.getErrorDistance(barRightOuterTopAdded) < 1.5 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                     }

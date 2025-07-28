@@ -21,7 +21,7 @@ public class FromWallLeft {
         Pose offset = new Pose();
 
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -63,9 +63,12 @@ public class FromWallLeft {
 
             toBar = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barLeftOuterMidAdded))))
+                    .setZeroPowerAccelerationMultiplier(5)
                     .setLinearHeadingInterpolation(startPoseAdded.getHeading(), barLeftOuterMidAdded.getHeading(), 0.3)
+                    .setZeroPowerAccelerationMultiplier(7)
                     .addPath(robot.follower.linearPathBuilder(barLeftOuterMidAdded, barLeftOuterTopAdded))
                     .setConstantHeadingInterpolation(barLeftOuterTopAdded.getHeading())
+                    .setZeroPowerAccelerationMultiplier(8)
                     .build();
         }
 
@@ -78,16 +81,20 @@ public class FromWallLeft {
         @Override
         public boolean run() {
             switch (state) {
-                case 0:
-                    if (highBar) {
-                        robot.stateMachine.goHighSpecimen(false, false);
-                    } else {
-                        robot.stateMachine.goLowSpecimen(false);
-                    }
+                case -1:
                     robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toBar);
-                    setPathState(1);
+                    setPathState(0);
                     break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        if (highBar) {
+                            robot.stateMachine.goHighSpecimen(false, false);
+                        } else {
+                            robot.stateMachine.goLowSpecimen(false);
+                        }
+                        setPathState(1);
+                    }
                 case 1:
                     if (robot.follower.getErrorDistance(barLeftOuterMidAdded) < 6) {
                         robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
@@ -103,7 +110,7 @@ public class FromWallLeft {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getError(barLeftOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if ((robot.follower.getError(barLeftOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) || pathTimer.getElapsedTimeSeconds() > 1.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                         isFinished = true;
@@ -140,7 +147,7 @@ public class FromWallLeft {
         boolean highBar;
         Pose offset = new Pose();
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -202,20 +209,25 @@ public class FromWallLeft {
         @Override
         public boolean run() {
             switch (state) {
-                case 0:
-                    if (highBar) {
-                        robot.stateMachine.goHighSpecimen(false, false);
-                        robot.stateMachine.setAutoPresets(true);
-                    } else {
-                        robot.stateMachine.goLowSpecimen(false);
-                        robot.stateMachine.setAutoPresets(true);
-                    }
+                case -1:
                     robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toOpen);
-                    setPathState(1);
+                    setPathState(0);
                     break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        if (highBar) {
+                            robot.stateMachine.goHighSpecimen(false, false);
+                            robot.stateMachine.setAutoPresets(true);
+                        } else {
+                            robot.stateMachine.goLowSpecimen(false);
+                            robot.stateMachine.setAutoPresets(true);
+                        }
+                        setPathState(1);
+                    }
                 case 1:
                     if (robot.follower.getErrorDistance(barLeftInnerBelowAdded) < 3) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.semiClaw);
                         setPathState(2);
                     }
                     break;
@@ -227,6 +239,7 @@ public class FromWallLeft {
                     break;
                 case 3:
                     if (robot.follower.getError(barLeftInnerRightAdded).getX() < 5) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         robot.follower.followPath(sweepBar);
                         setPathState(4);
                     }

@@ -63,9 +63,12 @@ public class FromWallRight {
 
             toBar = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(barRightOuterMidAdded))))
+                    .setZeroPowerAccelerationMultiplier(5)
                     .setLinearHeadingInterpolation(startPoseAdded.getHeading(), barRightOuterMidAdded.getHeading(), 0.3)
+                    .setZeroPowerAccelerationMultiplier(7)
                     .addPath(robot.follower.linearPathBuilder(barRightOuterMidAdded, barRightOuterTopAdded))
                     .setConstantHeadingInterpolation(barRightOuterTopAdded.getHeading())
+                    .setZeroPowerAccelerationMultiplier(8)
                     .build();
         }
 
@@ -103,7 +106,7 @@ public class FromWallRight {
                     }
                     break;
                 case 2:
-                    if (robot.follower.getError(barRightOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) {
+                    if ((robot.follower.getError(barRightOuterTopAdded).getX() < 2.5 && pathTimer.getElapsedTimeSeconds() > 0.5) || pathTimer.getElapsedTimeSeconds() > 1.5) {
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
                         setPathState(3);
                         isFinished = true;
@@ -139,7 +142,7 @@ public class FromWallRight {
         boolean highBar;
         Pose offset = new Pose();
         private Timer pathTimer;
-        private int state = 0;
+        private int state = -1;
         private boolean isFinished = false;
 
         // Pass-through Variables
@@ -201,20 +204,25 @@ public class FromWallRight {
         @Override
         public boolean run() {
             switch (state) {
-                case 0:
-                    if (highBar) {
-                        robot.stateMachine.goHighSpecimen(false, false);
-                        robot.stateMachine.setAutoPresets(true);
-                    } else {
-                        robot.stateMachine.goLowSpecimen(false);
-                        robot.stateMachine.setAutoPresets(true);
-                    }
+                case -1:
                     robot.outtakeSystem.setFlapsUp();
                     robot.follower.followPath(toOpen);
-                    setPathState(1);
+                    setPathState(0);
                     break;
+                case 0:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.5) {
+                        if (highBar) {
+                            robot.stateMachine.goHighSpecimen(false, false);
+                            robot.stateMachine.setAutoPresets(true);
+                        } else {
+                            robot.stateMachine.goLowSpecimen(false);
+                            robot.stateMachine.setAutoPresets(true);
+                        }
+                        setPathState(1);
+                    }
                 case 1:
                     if (robot.follower.getErrorDistance(barRightInnerBelowAdded) < 3) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.semiClaw);
                         setPathState(2);
                     }
                     break;
@@ -226,6 +234,7 @@ public class FromWallRight {
                     break;
                 case 3:
                     if (robot.follower.getError(barRightInnerLeftAdded).getX() < 5) {
+                        robot.outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         robot.follower.followPath(sweepBar);
                         setPathState(4);
                     }

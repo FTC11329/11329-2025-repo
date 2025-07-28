@@ -115,7 +115,7 @@ public class StartRightInner {
                     }
                     break;
                 case 4:
-                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 3.5) {
+                    if (robot.follower.getError(barRightInnerTopAdded).getX() < 3.5 || pathTimer.getElapsedTimeSeconds() > 0.75) {
                         if (!highBar) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
                         }

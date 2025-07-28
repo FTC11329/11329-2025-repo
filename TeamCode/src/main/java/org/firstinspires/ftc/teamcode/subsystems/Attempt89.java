@@ -280,6 +280,9 @@ public class Attempt89 {
     public Pose2D getBestSpecimen() {
         return getBestSpecimen(robotSideEnum);
     }
+    public void startLimelight() {
+        limelight.start();
+    }
 
     public Pose2D getBestSpecimen(RobotSideEnum robotSide) {
         if (robotSide == RobotSideEnum.Red) {

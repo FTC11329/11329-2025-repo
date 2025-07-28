@@ -104,11 +104,11 @@ public class FromBarRightInner {
             }
             if (rightWall) {
                 toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, wallAdded, 0.2))
-                        .setZeroPowerAccelerationMultiplier(6);
+                        .setZeroPowerAccelerationMultiplier(9);
             } else {
                 toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, openAdded, 0.2))
                         .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded))
-                        .setZeroPowerAccelerationMultiplier(6);
+                        .setZeroPowerAccelerationMultiplier(9);
             }
 
             toWallPath = toWall.build();
@@ -129,30 +129,22 @@ public class FromBarRightInner {
                 case -1:
                     robot.follower.setMaxPower(0.8);
                     robot.follower.followPath(toWallPath);
-                    if (robot.robotState.whereAmI != PlacePosEnum.lowSpecimen) {
-                        robot.stateMachine.goWall(false, false, false);
-                        robot.loop();
-                        robot.outtakeSystem.setVSlidePos(0);
-                    } else {
-                        robot.outtakeSystem.setWristPos(Constants.Outtake.minWrist);
-                    }
-
+                    robot.stateMachine.goWall(false, false, false);
+                    robot.loop();
+                    robot.outtakeSystem.setVSlidePos(0);
                     robot.outtakeSystem.setFlapsSpikeClear();
                     setPathState(0);
                     break;
                 case 0:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.1) {
-                        if (robot.robotState.whereAmI == PlacePosEnum.lowSpecimen) {
-                            robot.stateMachine.goWall(false, false, false);
-                        }
+                    if (pathTimer.getElapsedTimeSeconds() > 0) {
                         setPathState(1);
                     }
                     break;
                 case 1:
-                    if (robot.follower.getError(targetPoseAdded).getX() < 9) {
-                        robot.outtakeSystem.setVSlidePos(0);
+                    robot.outtakeSystem.setVSlidePos(0);
+                    if (robot.follower.getError(targetPoseAdded).getX() < 9.75) {
                         if (park) {
-                            robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArmAuto - 0.07);
+                            robot.outtakeSystem.setArmPos(Constants.Outtake.upArm);
                         }
                         robot.outtakeSystem.setFlapsWall();
                         setPathState(2);
@@ -177,9 +169,15 @@ public class FromBarRightInner {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        isFinished = true;
+                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides + 50);
                         setPathState(6);
+                    }
+                    break;
+                case 6:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        isFinished = true;
+                        setPathState(7);
                     }
                     break;
             }

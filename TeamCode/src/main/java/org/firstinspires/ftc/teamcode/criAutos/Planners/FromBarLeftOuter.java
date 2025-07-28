@@ -153,9 +153,6 @@ public class FromBarLeftOuter {
                 case 1:
                     if ((pathTimer.getElapsedTimeSeconds() > 0.2 && Math.abs(robot.intakeSystem.getHSlideTargetPos() - robot.intakeSystem.getHSlidePos()) < 250 && robot.follower.getHeadingError() < Math.toRadians(2)) || pathTimer.getElapsedTimeSeconds() > 0.5) {
                         robot.intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
-                        if (robot.robotState.whereAmI == PlacePosEnum.highSpecimen) {
-                            robot.outtakeSystem.setArmPos(Constants.Outtake.intakeArm);
-                        }
                         setPathState(2);
                     }
                     break;
@@ -198,7 +195,7 @@ public class FromBarLeftOuter {
                 case 5:
                     if (robot.intakeSystem.intakeUntil() || pathTimer.getElapsedTimeSeconds() > Constants.Intake.unjamTimeMillisAuto / 1000) {
                         robot.intakeSystem.setIntakePower(0);
-                        robot.stateMachine.goWall(true, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                        robot.stateMachine.goWall(!park, false, robot.robotState.whereAmI == PlacePosEnum.intake);
                         setPathState(7);
                     }
                     break;
@@ -230,11 +227,16 @@ public class FromBarLeftOuter {
                     }
                     break;
                 case 10:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        isFinished = true;
+                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                         setPathState(11);
                     }
                     break;
+                case 11:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        isFinished = true;
+                        setPathState(12);
+                    }
             }
 
             return isFinished;

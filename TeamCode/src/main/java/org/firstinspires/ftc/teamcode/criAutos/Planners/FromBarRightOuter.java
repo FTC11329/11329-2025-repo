@@ -88,10 +88,13 @@ public class FromBarRightOuter {
             midPointAdded = midPoint.addReturn(offset);
             pickupWallRightAdded = pickupWallRight.addReturn(offset);
             pickupWallLeftAdded = pickupWallLeft.addReturn(offset);
+            if (park) {
+                pickupWallRightAdded.setHeading(Math.toRadians(90));
+            }
 
             toWallBuilder = robot.follower.pathBuilder()
                     .addPath(new Path(new BezierCurve(new Point(startPoseAdded), new Point(controlPointAdded), new Point(midPointAdded))))
-                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), 0, 0.6);
+                    .setLinearHeadingInterpolation(startPoseAdded.getHeading(), pickupWallRightAdded.getHeading(), 0.6);
 
             if (rightWall) {
                 toWallBuilder.addPath(robot.follower.linearPathBuilder(midPointAdded, pickupWallRightAdded))
@@ -125,6 +128,8 @@ public class FromBarRightOuter {
                     if (visionResult.getHeading(AngleUnit.DEGREES) != -1) {
                         if (!park) {
                             robot.stateMachine.goStore();
+                        } else {
+                            robot.stateMachine.goWall(false, false, false);
                         }
                         robot.stateMachine.setBringSlidesIn(false);
                         robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
@@ -202,12 +207,11 @@ public class FromBarRightOuter {
                     break;
                 case 7:
                     if (robot.follower.getError(pickupWallRightAdded).getY() < 25) {
-                        if (park) {
-                            robot.stateMachine.goHighSpecimen(false, robot.robotState.whereAmI == PlacePosEnum.intake);
-                        }
                         robot.outtakeSystem.setFlapsWall();
                         robot.intakeSystem.setIntakePower(0);
-                        robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        if (!park) {
+                            robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                        }
                         setPathState(8);
                     }
                     break;
@@ -223,11 +227,16 @@ public class FromBarRightOuter {
                     }
                     break;
                 case 10:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        isFinished = true;
+                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides);
                         setPathState(11);
                     }
                     break;
+                case 11:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        isFinished = true;
+                        setPathState(12);
+                    }
             }
 
             return isFinished;

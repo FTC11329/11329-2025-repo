@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.criAutos.CommonPoses.*;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.criAutos.Planners.*;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
@@ -25,7 +26,7 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Right Outer Auto 1", group = " 1Comp", preselectTeleOp = "New Tele-op Red")
+@Autonomous(name = "CRI RED Right Outer SPEC 2 HIGH", group = "   Comp", preselectTeleOp = "Tele-op Red")
 public class RightOuterAutos extends OpMode {
     // todo How the robot is setup
     RobotSideEnum robotSide = RobotSideEnum.Red;
@@ -53,9 +54,9 @@ public class RightOuterAutos extends OpMode {
         // Outer Right High, Outer Right Low, Outer Right High, Park
         auto1 = false;
         // Outer Right High, Inner Right High, Inner Right Low, Outer Right Low
-        auto2 = false;
+        auto2 = true;
         // Outer Right High, Baskets
-        auto3 = true;
+        auto3 = false;
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -80,15 +81,21 @@ public class RightOuterAutos extends OpMode {
         // todo: Build step list
         steps = new ArrayList<>();
         //Outer Right High
-        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true));
+        steps.add(new StartRightOuter.ToPlaceBarRightOuter(robot, lastPose(), true, new Pose(-1.5, 0)));
 
+        Pose thisOffset;
+        if (auto1) {
+            thisOffset = new Pose(0, 1.5);
+        } else {
+            thisOffset = new Pose(0, 0);
+        }
         if (!auto3) {
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, thisOffset));
         }
 
         if (auto1) {
             //Outer Right Low
-            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false));
+            steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false, new Pose(-1.5, 0)));
 
             steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
 
@@ -100,14 +107,14 @@ public class RightOuterAutos extends OpMode {
 
         } else if (auto2) {
             //Inner Right High
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 2)));
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 1)));
 
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true, new Pose(0, 1)));
 
             //Outer Right Low
             steps.add(new FromWallRight.ToRightOuterBar(robot, lastPose(), false, new Pose(0, -1)));
 
-            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true));
+            steps.add(new FromBarRightOuter.ToWall(robot, lastPose(), true, true, new Pose(-1, 1.6)));
 
             //Inner Right Low
             steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
@@ -138,6 +145,7 @@ public class RightOuterAutos extends OpMode {
     boolean secondInit = false;
     boolean buttonDebounce = false;
     int initState = 0;
+    boolean visionWorks = false;
 
     public void init_loop() {
         if (secondInit) {
@@ -168,6 +176,10 @@ public class RightOuterAutos extends OpMode {
                 } else if (auto3) {
                     telemetry.addData("Auto Ran  ", "Auto3");
                 }
+                if (!visionWorks && robot.blockVision.getBlockPosition().getHeading(AngleUnit.DEGREES) != -1) {
+                    visionWorks = true;
+                }
+                telemetry.addData("Vision works", visionWorks);
                 break;
             case 1:
                 robot.follower.updatePose();

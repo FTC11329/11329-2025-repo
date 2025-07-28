@@ -105,11 +105,11 @@ public class FromBarLeftInner {
             }
             if (leftWall) {
                 toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, wallAdded, 0.2))
-                        .setZeroPowerAccelerationMultiplier(6);
+                        .setZeroPowerAccelerationMultiplier(9);
             } else {
                 toWall.addPath(robot.follower.linearPathBuilder(targetPoseAdded, openAdded, 0.2))
                         .addPath(robot.follower.linearPathBuilder(openAdded, wallAdded))
-                        .setZeroPowerAccelerationMultiplier(6);
+                        .setZeroPowerAccelerationMultiplier(9);
             }
 
 
@@ -148,7 +148,7 @@ public class FromBarLeftInner {
                     }
                     break;
                 case 1:
-                    if (robot.follower.getError(targetPoseAdded).getX() < 9) {
+                    if (robot.follower.getError(targetPoseAdded).getX() < 9.75) {
                         robot.outtakeSystem.setVSlidePos(0);
                         if (park) {
                             robot.outtakeSystem.setArmPos(Constants.Outtake.highSpecimenArmAuto - 0.07);
@@ -176,9 +176,15 @@ public class FromBarLeftInner {
                     }
                     break;
                 case 5:
-                    if (pathTimer.getElapsedTimeSeconds() > 0.3) {
-                        isFinished = true;
+                    if (pathTimer.getElapsedTimeSeconds() > 0.4) {
+                        robot.outtakeSystem.setVSlidePos(Constants.Outtake.safeFromWallSlides + 50);
                         setPathState(6);
+                    }
+                    break;
+                case 6:
+                    if (pathTimer.getElapsedTimeSeconds() > 0.2) {
+                        isFinished = true;
+                        setPathState(7);
                     }
                     break;
             }

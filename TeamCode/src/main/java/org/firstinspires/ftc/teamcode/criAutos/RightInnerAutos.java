@@ -85,25 +85,30 @@ public class RightInnerAutos extends OpMode {
         // todo: Build step list
         steps = new ArrayList<>();
         //Inner Right High
-        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 0.5)));
+        steps.add(new StartRightInner.ToRightInnerBar(robot, lastPose(), true, new Pose(0, 1.75)));
 
-        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true));
+        steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 1, true, new Pose(0, -0.75)));
 
         if (auto1) {
             //Inner Right Low
-            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false));
+            steps.add(new FromWallRight.ToRightInnerBar(robot, lastPose(), false, new Pose(0, 1.25)));
 
-            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, false));
+            steps.add(new FromBarRightInner.ToWall(robot, lastPose(), 2, false, new Pose(0.5, -1.25)));
+
+            //Inner Left High
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true, new Pose(-2, 0.75)));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
+
+            //Inner Left Low
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false, new Pose(-1, 0.75)));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true));
 
             //Inner Left High
             steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true));
-
-            //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
-
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true));
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 0, true));
 
 
         } else if (auto2) {

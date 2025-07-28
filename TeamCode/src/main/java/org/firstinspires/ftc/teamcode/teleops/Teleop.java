@@ -75,7 +75,9 @@ public class Teleop {
     boolean lowSpecimen;
     boolean highBasket;
     boolean lowBasket;
-    boolean frontBasket;
+    boolean goWallSpecialButton;
+    boolean goWallSpecial;
+    boolean goWallSpecialDebounce = false;
     boolean wallPreset;
     boolean wallPresetDebounce = false;
     boolean storePos;
@@ -121,6 +123,9 @@ public class Teleop {
     double grabbingOffWallTime = 2000000000;
     boolean droppingBasket = false;
     boolean droppingSpec = false;
+    boolean droppingLowSpec = false;
+    boolean droppingLowDebounce = false;
+    double droppingLowTime = 2000000000;
     double droppingBasketTime = 2000000000;
     double sideDepoTime = 2000000000;
     boolean sideDepoFirst = false;
@@ -212,8 +217,8 @@ public class Teleop {
             driveSpeed = DriveSpeedEnum.Slow;
         }
 
-        backFlapButton = gamepad1.right_stick_button;
 
+        backFlapButton = gamepad1.right_stick_button && !(robot.robotState.whereAmI == PlacePosEnum.wall);
         climbToggButton = gamepad1.back;
 
         if (!climberActive) {
@@ -277,7 +282,7 @@ public class Teleop {
         lowSpecimen = gamepad2.dpad_down && (robotState.whereAmI == PlacePosEnum.wall || robotState.whereAmI == PlacePosEnum.highSpecimen);
         highBasket = gamepad2.dpad_right;
         lowBasket = gamepad2.dpad_down && (robotState.whereAmI == PlacePosEnum.intake || robotState.whereAmI == PlacePosEnum.highBasket);
-        frontBasket = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
+        goWallSpecialButton = gamepad2.touchpad && gamepad2.touchpad_finger_1_x < 0;
         wallPreset = gamepad2.dpad_left;
         storePos = gamepad2.y;//triangle
         transfer = gamepad2.left_bumper;
@@ -296,10 +301,11 @@ public class Teleop {
             backFlapDebounce = true;
         }
         if (!backFlapButton && backFlapDebounce) {
-            outtakeSystem.setBackFlaps(prevFlapPos);
+            if (!(robotState.whereAmI == PlacePosEnum.wall)) {
+                outtakeSystem.setBackFlaps(prevFlapPos);
+            }
             backFlapDebounce = false;
         }
-
         if (!climberActive && !climbPause) {
             if (climbToggButton) {
                 climberActive = true;
@@ -491,13 +497,8 @@ public class Teleop {
             intakeing = false;
             stateMachine.goHighBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
         }
-        if (frontBasket) {
-            outtakeSystem.setFlapsUp();
-            intakeingColor = false;
-            intakeing = false;
-            stateMachine.goFrontBasket(robotState.hasInIntake, robotState.hasInOutake, robotState.whereAmI == PlacePosEnum.lowSpecimen, robotState.whereAmI == PlacePosEnum.intake);
-        }
         if (wallPreset && !wallPresetDebounce) {
+            goWallSpecial = false;
             outtakeSystem.setFlapsWall();
             intakeingColor = false;
             intakeing = false;  //Todo change v if you want to transfer
@@ -524,6 +525,13 @@ public class Teleop {
             stateMachine.goTransfer(robotState.whereAmI == PlacePosEnum.intake);
         }
 
+        if (goWallSpecialButton && !goWallSpecialDebounce) {
+            goWallSpecial = true;
+            goWallSpecialDebounce = true;
+        }
+        if (!goWallSpecialButton) {
+            goWallSpecialDebounce = false;
+        }
 
         //State Machine class to movement *******************************************************~SM
         robot.loop();
@@ -575,9 +583,17 @@ public class Teleop {
                 robot.outtakeSystem.placePos(PlacePosEnum.postClipHighSpecimen);
             } else {
                 robot.outtakeSystem.placePos(PlacePosEnum.postClipLowSpecimenAuto);
+                if (!droppingLowDebounce) {
+                    droppingLowSpec = true;
+                    droppingLowDebounce = true;
+                    droppingLowTime = elapsedTime.milliseconds();
+                }
             }
             if (!clawToggleButton) {
-                outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                robot.outtakeSystem.setClawPos(Constants.Outtake.dropClaw);
+                if (goWallSpecial && robot.robotState.whereAmI != PlacePosEnum.lowSpecimen) {
+                    robot.stateMachine.goStore();
+                }
                 droppingSpec = false;
             }
             if (clawCancel) {
@@ -590,9 +606,15 @@ public class Teleop {
                 robotState.clawToggle = true;
             }
         }
-
+        if (droppingLowSpec && elapsedTime.milliseconds() > droppingLowTime + 500) {
+            robot.outtakeSystem.setArmPos(Constants.Outtake.lowSpecimenArmAutoPost);
+            droppingLowSpec = false;
+        }
+        if (!droppingSpec) {
+            droppingLowDebounce = false;
+        }
         if (grabbingOffWall) {
-            if (highSpecimen || lowSpecimen || highBasket || lowBasket || frontBasket) {
+            if (highSpecimen || lowSpecimen || highBasket || lowBasket) {
                 grabbingOffWall = false;
             }
             if ((outtakeSystem.seesWall() || !clawToggleButton) && wallOnce) {
@@ -723,11 +745,14 @@ public class Teleop {
 
         if (afterIntakeingColor) {
             if (elapsedTime.milliseconds() > afterIntakeingColorTime + 200) {
-                if (robotState.whereAmI == PlacePosEnum.intake) {
-                    stateMachine.goWall(true, false, true);
+                if (robotState.whereAmI == PlacePosEnum.intake || robot.stateMachine.doGoToStore()) {
                     intakeSystem.storeOutPos();
                 } else {
                     intakeSystem.storePos();
+                }
+                if (goWallSpecial) {
+                    robot.stateMachine.goWall(true, false, robot.robotState.whereAmI == PlacePosEnum.intake);
+                    goWallSpecial = false;
                 }
                 gamepad1.rumble(1, 1, 300);
                 gamepad2.rumble(1, 1, 300);
@@ -739,7 +764,7 @@ public class Teleop {
             }
         }
         //makes the intake wrist not hit the robot while coming out
-        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !robotState.hasInOutake && downOnce) {
+        if (((intakeingColor && !intakeColor) || (intakeing && !intake)) && !robotState.hasInOutake && !clawToggleButton && downOnce) {
             intakeingDebounce = false;
             intakeSystem.setIntakeServoPos(Constants.Intake.wristDown);
             intakeWristTime = 2000000000;
@@ -772,12 +797,13 @@ public class Teleop {
             if (robotState.whereAmI != PlacePosEnum.wall) {
                 outtakeSystem.setVSlidePos(Constants.Outtake.safeFromClimberBar);
             }
-            if (elapsedTime.milliseconds() < sideDepoTime + 200 && sideDepoFirst) {
+            if (elapsedTime.milliseconds() < sideDepoTime + 700 && sideDepoFirst) {
                 intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
             }
-            if (elapsedTime.milliseconds() > sideDepoTime + 500 && !sideDepo && sideDepoFirst) {
+            if (elapsedTime.milliseconds() > sideDepoTime + 700 && !sideDepo && sideDepoFirst) {
                 sideDepoTime = elapsedTime.milliseconds();
                 intakeSystem.setIntakeServoPos(Constants.Intake.wristDepo);
+                intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                 sideDepoFirst = false;
             }
             if (elapsedTime.milliseconds() > sideDepoTime + 150 && elapsedTime.milliseconds() < sideDepoTime + 250 && !sideDepoFirst) {

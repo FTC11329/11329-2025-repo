@@ -102,6 +102,7 @@ public class Constants {
 
         //Claw
         public static double grabClaw = 0.55;
+        public static double semiClaw = 0.52;
         public static double dropClaw = 0.25;
 
         //Arm
@@ -110,7 +111,7 @@ public class Constants {
         public static double initAutoUnderBarArm = 0.786 + 0.083;
         public static double initAutoNearWallArm = 0.0302;
         public static double upArm = initTeleopArm;
-        public static double intakeWallArm = 0.039;
+        public static double intakeWallArm = 0.051;
         public static double manualArmSpeed = 0.01;
 
         public static double downArm = 0.94;
@@ -127,7 +128,7 @@ public class Constants {
         public static double postHighSpecimenArm = 0.7352 + 0.083;
 
         public static double safeBasketArm = 0.33;
-        public static double basketArm = 0.3;
+        public static double basketArm = 0.293;
         public static double frontBasketArm = 0.5661 + 0.083;
         public static double parkArm = 0.538 + 0.083;
 
@@ -164,8 +165,8 @@ public class Constants {
         public static int intakeWaitSlides = 450; //not used anymore
         public static int safeFromHSlides = 650; //not used anymore
         // Outtake Sensor
-        public static double seesWallDistanceBlue = 1.3;
-        public static double seesWallDistanceRed = 1.1;
+        public static double seesWallDistanceBlue = 1.55;
+        public static double seesWallDistanceRed = 1.55;
         public static double seesTransferDistance = 1.42;
         //Back Flaps
         public static double flapsUp = 0.044;

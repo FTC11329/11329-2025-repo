@@ -37,7 +37,8 @@ public class OTOSConstants {
 
     /** The linear scalar of the OTOS sensor
      * Default Value: 1.0 */
-    public static double linearScalar = 1.046658361;
+    public static double linearScalar = 1.046658361;// github.com/dairy-foundation/sloth
+    // 142 real 144.5 fake
 
     /** The angular scalar of the OTOS sensor
      * Default Value: 1.0 */

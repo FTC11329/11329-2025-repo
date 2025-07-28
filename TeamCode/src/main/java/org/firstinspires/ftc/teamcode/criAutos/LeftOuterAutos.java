@@ -27,10 +27,10 @@ import org.firstinspires.ftc.teamcode.utility.StateMachine;
 import java.util.ArrayList;
 import java.util.List;
 
-@Autonomous(name = "CRI Left Outer Auto 2", group = " 1Comp", preselectTeleOp = "New Tele-op Red")
+@Autonomous(name = "CRI BLUE Left Outer SPEC 2 HIGH", group = " 1Comp", preselectTeleOp = "Tele-op Blue")
 public class LeftOuterAutos extends OpMode {
     // todo How the robot is setup
-    RobotSideEnum robotSide = RobotSideEnum.Red;
+    RobotSideEnum robotSide = RobotSideEnum.Blue;
     //Wall or Low Spec
     PlacePosEnum startPos = PlacePosEnum.wall;
     Pose startPose = startLeftOuter;
@@ -39,9 +39,9 @@ public class LeftOuterAutos extends OpMode {
     // Outer Left High, Outer Left Low, Outer Left High, Park
     boolean auto1;
     // Outer Left High, Inner Left High, Inner Left Low, Outer Left Low
-    boolean auto2;// not tuned
+    boolean auto2;
     // Outer Left High, Basket Super repeat
-    boolean auto3;// not tuned
+    boolean auto3;
     Pose totalOffset = new Pose();
     private Robot robot;
     private List<PathPlanner> steps;
@@ -56,7 +56,7 @@ public class LeftOuterAutos extends OpMode {
         // Outer Left High, Inner Left High, Inner Left Low, Inner Left High
         auto2 = true;
         // Outer Left High, High Basket
-        auto3 = false; // not tuned
+        auto3 = false;
 
         // Initialize subsystems
         Climber climber = new Climber(hardwareMap);
@@ -81,17 +81,24 @@ public class LeftOuterAutos extends OpMode {
         // todo: Build step list
         steps = new ArrayList<>();
         //Outer Left High
-        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true, new Pose(-0.75, 0)));
+        steps.add(new StartLeftOuter.ToPlaceLeftOuterBar(robot, lastPose(), true, new Pose(-1.8, 1)));
+
+        Pose offset;
+        if (auto1) {
+            offset = new Pose(0, -2.75);
+        } else {
+            offset = new Pose(0, 0);
+        }
 
         if (!auto3) {
-            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, new Pose(0, 1.75)));
+            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, offset));
         }
 
         if (auto1) {
             //Outer Left Low
-            steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), false, new Pose(-0.75, 0)));
+            steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), false, new Pose(-1.5, 0)));
 
-            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, new Pose(0, 0.75)));
+            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, new Pose(0, 0)));
 
             //Outer Left High
             steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), true));
@@ -101,19 +108,19 @@ public class LeftOuterAutos extends OpMode {
 
         } else if (auto2) {
             //Inner Left High
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true, new Pose(0, 1)));
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), true, new Pose(0, 1.25)));
 
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true, new Pose(0.5, 0)));
-
-            //Inner Left Low
-            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
-
-            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true, new Pose(0.5, -1.8)));
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 1, true, new Pose(0.5, -4)));
 
             //Outer Left Low
             steps.add(new FromWallLeft.ToLeftOuterBar(robot, lastPose(), false));
 
-            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, true));
+            steps.add(new FromBarLeftOuter.ToWall(robot, lastPose(), true, true, new Pose(0, 3)));
+
+            //Inner Left Low
+            steps.add(new FromWallLeft.ToLeftInnerBar(robot, lastPose(), false));
+
+            steps.add(new FromBarLeftInner.ToWall(robot, lastPose(), 2, true, true));
 
 
         } else if (auto3) {
