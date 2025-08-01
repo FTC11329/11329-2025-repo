@@ -317,7 +317,7 @@ public class AutoReplayTeleop {
             backFlapDebounce = false;
         }
 
-        if (!climberActive && !climbPause && autoReplay.IsReplayOn()) {
+        if (!climberActive && !climbPause && !autoReplay.IsReplayOn()) {
             if (climbToggButton) {
                 climberActive = true;
                 climbDebounce = true;
@@ -955,7 +955,6 @@ public class AutoReplayTeleop {
             telemetry.addLine();
         }
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
-            telemetry.update();
         }
 
         if (false) {

@@ -50,6 +50,8 @@ import java.io.*;
 
 public class AutoReplay {
 
+    boolean anyVariableName = true;
+
     Follower follower;
     Telemetry telemetry;
     Gamepad gamepad1;
@@ -191,8 +193,12 @@ public class AutoReplay {
         if (pointerInput.endPress) savePointer();
 
         if(recording.startPress){
-            currentReplayStates = new StateEntryJson();
+            if (anyVariableName){
+                currentReplayStates = new StateEntryJson();
+                anyVariableName = false;
+            }
             lastTimer = 0;
+            follower.setStartingPose(new Pose(0, 0, 0));
             lastPose = follower.getPose();
             gamepadDelta1 = new GamepadStateEntry(gamepad1);
             gamepadDelta2 = new GamepadStateEntry(gamepad2);
@@ -239,8 +245,27 @@ public class AutoReplay {
         }
         if (replay.isOn){
             replayIndex = (int) follower.getCurrentPathNumber();
-            gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
-            gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
+//            while (true) {
+//                telemetry.addData("Gamepad", currentReplayStates.gamepad1List.size());
+//                telemetry.addData("Replay index", replayIndex);
+//                if (replayIndex < currentReplayStates.gamepad1List.size()) {
+//                    telemetry.addData("thingy", currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad());
+//                } else {
+//                    telemetry.addLine("NOT thingy");
+//                }
+//                telemetry.update();
+//
+//            }
+//            todo delete me plz
+            if (replayIndex < currentReplayStates.gamepad1List.size()) {
+                gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad(1);
+                gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad(2);
+            } else {
+                while (true) {
+                    telemetry.addLine("1 = 0");
+                    telemetry.update();
+                }
+            }
             follower.telemetryDebug(telemetry);
         }
         if (replay.endPress){
@@ -289,11 +314,16 @@ public class AutoReplay {
             this.right_trigger = g.right_trigger;
         }
 
-        public Gamepad convertToGamepad() {
+        public Gamepad convertToGamepad(int gamepadNum) {
             Gamepad g = new Gamepad();
 
             // Buttons
-            g.a = this.a;
+            if (gamepadNum == 1){
+                g.a = false;
+            }
+            if (gamepadNum == 2){
+                g.a = this.a;
+            }
             g.b = this.b;
             g.x = this.x;
             g.y = this.y;
@@ -320,21 +350,21 @@ public class AutoReplay {
         }
 
         public void mergeBooleans(GamepadStateEntry other) {
-            this.a &= other.a;
-            this.b &= other.b;
-            this.x &= other.x;
-            this.y &= other.y;
+            this.a |= other.a;
+            this.b |= other.b;
+            this.x |= other.x;
+            this.y |= other.y;
 
-            this.dpad_up &= other.dpad_up;
-            this.dpad_down &= other.dpad_down;
-            this.dpad_left &= other.dpad_left;
-            this.dpad_right &= other.dpad_right;
+            this.dpad_up |= other.dpad_up;
+            this.dpad_down |= other.dpad_down;
+            this.dpad_left |= other.dpad_left;
+            this.dpad_right |= other.dpad_right;
 
-            this.left_bumper &= other.left_bumper;
-            this.right_bumper &= other.right_bumper;
+            this.left_bumper |= other.left_bumper;
+            this.right_bumper |= other.right_bumper;
 
-            this.left_stick_button &= other.left_stick_button;
-            this.right_stick_button &= other.right_stick_button;
+            this.left_stick_button |= other.left_stick_button;
+            this.right_stick_button |= other.right_stick_button;
 
             // Floats remain unchanged
         }
@@ -356,6 +386,12 @@ public class AutoReplay {
         public List<PoseStateEntry> poseList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
+    }
+
+    public static class GamepadMarker {
+        public double Tvalue;
+        public  GamepadStateEntry gamepad1;
+        public  GamepadStateEntry gamepad2;
     }
 
     public static class PointerJson {
