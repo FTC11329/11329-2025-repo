@@ -1,54 +1,26 @@
 package org.firstinspires.ftc.teamcode.autos;
 
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
-import org.firstinspires.ftc.teamcode.pedropathing.follower.FollowerConstants;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Point;
-import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
-import org.firstinspires.ftc.teamcode.subsystems.Climber;
-import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
-import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
-import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
-import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.autos.PressHold;
-import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
-import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
-import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
-import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.FileWriter;
-import java.io.IOException;
-import android.os.Environment;
-
-import org.json.JSONTokener;
-
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.io.*;
 
-public class AutoReplay {
+public class AutoReplayAllenTest {
 
     Follower follower;
     Telemetry telemetry;
@@ -58,18 +30,25 @@ public class AutoReplay {
     PressHold recording;
     PressHold replay;
     PressHold pointerInput;
-    double lastTimer = 0;
     Pose lastPose = new Pose(0, 0, 0);
-    double deltaTime = 0.1;
+    double lastTime = 0;
+    double deltaTime = 0.25;
     double deltaError = 2;
     int replayIndex = 0;
+
+    int currentGamepadIndex = 0;
+    int currentPoseIndex = 0;
+
     StateEntryJson currentReplayStates;
     PathChain replayPath;
     GamepadStateEntry gamepadDelta1;
     GamepadStateEntry gamepadDelta2;
+
+    GamepadStateEntry lastGamePad1;
+    GamepadStateEntry lastGamePad2;
     int logPointer = 0;
 
-    public AutoReplay(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
+    public AutoReplayAllenTest(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         this.follower = follower;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
@@ -180,7 +159,7 @@ public class AutoReplay {
         telemetry.addData("Following Path: Replay Index: ", replayIndex);
 
         for (int i = 0; i < currentReplayStates.size; i++){
-            telemetry.addData("t", (currentReplayStates.timeList.get(i)));
+            telemetry.addData("t", (currentReplayStates.timeListPose.get(i)));
             telemetry.addData("pos-x", (currentReplayStates.poseList.get(i).x));
             telemetry.addData("pos-y", (currentReplayStates.poseList.get(i).y));
         }
@@ -190,57 +169,81 @@ public class AutoReplay {
         if (pointerInput.isOn) logPointer = (int) Math.floor(pointerInput.time.seconds());
         if (pointerInput.endPress) savePointer();
 
-        if(recording.startPress){
+        if (recording.startPress){
+            recording.resetTimer();
             currentReplayStates = new StateEntryJson();
-            lastTimer = 0;
             lastPose = follower.getPose();
             gamepadDelta1 = new GamepadStateEntry(gamepad1);
             gamepadDelta2 = new GamepadStateEntry(gamepad2);
         }
         if (recording.isOn) {
             telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
-            if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError) {
-                currentReplayStates.timeList.add(recording.time.seconds());
+            if (recording.time.seconds() - lastTime > deltaTime) {
+                currentReplayStates.timeListPose.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
                 currentReplayStates.gamepad1List.add(gamepadDelta1);
                 currentReplayStates.gamepad2List.add(gamepadDelta2);
                 currentReplayStates.size += 1;
                 lastPose = follower.getPose();
+                lastTime = recording.time.seconds();
                 gamepadDelta1 = new GamepadStateEntry(gamepad1);
                 gamepadDelta2 = new GamepadStateEntry(gamepad2);
-            }else{
+            } else {
                 gamepadDelta1.mergeBooleans(new GamepadStateEntry(gamepad1));
                 gamepadDelta2.mergeBooleans(new GamepadStateEntry(gamepad2));
+            }
+            if (!lastGamePad1.equals(new GamepadStateEntry(gamepad1)) || !lastGamePad2.equals(new GamepadStateEntry(gamepad2))) {
+                currentReplayStates.timeListGamepad.add(recording.time.seconds());
+                lastGamePad1 = new GamepadStateEntry(gamepad1);
+                lastGamePad2 = new GamepadStateEntry(gamepad2);
             }
         }
         if (recording.endPress){
             recordPositions();
         }
         if (replay.startPress){
+            replay.resetTimer();
             loadPoses();
             if (currentReplayStates.size > 1){
-                ArrayList<Path> path = new ArrayList<>();
+                ArrayList<Path> paths = new ArrayList<>();
                 Pose cPos = follower.getPose();
                 PoseStateEntry sPos = currentReplayStates.poseList.get(0);
-                path.add(follower.linearPathBuilder(
+                paths.add(follower.linearPathBuilder(
                         new Pose(cPos.getX(), cPos.getY(), cPos.getHeading()),
                         new Pose(sPos.x, sPos.y, sPos.heading)));
                 for (int i = 0; i < currentReplayStates.size - 1; i++){
                     PoseStateEntry pos1 = currentReplayStates.poseList.get(i);
                     PoseStateEntry pos2 = currentReplayStates.poseList.get(i + 1);
-                    path.add(follower.linearPathBuilder(
+                    paths.add(follower.linearPathBuilder(
                             new Pose(pos1.x, pos1.y, pos1.heading),
                             new Pose(pos2.x, pos2.y, pos2.heading)));
                     telemetry.addData("Pose " + i, "x: " + pos1.x + " y: " + pos1.y + " heading: " + pos1.heading);
                 }
-                replayPath = new PathChain(path);
-                follower.followPath(replayPath);
+                replayPath = new PathChain(paths);
+//                follower.followPath(replayPath);
             }
         }
         if (replay.isOn){
             replayIndex = (int) follower.getCurrentPathNumber();
             gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
             gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
+
+            double currentTime = replay.time.seconds();
+
+            // Advance gamepad index if it's time
+            if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
+                    currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
+                gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
+                gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
+                currentGamepadIndex++;
+            }
+
+            // Advance pose index if it's time
+            if (currentPoseIndex + 1 < currentReplayStates.timeListPose.size() &&
+                    currentReplayStates.timeListPose.get(currentPoseIndex + 1) <= currentTime) {
+                follower.holdPoint(currentReplayStates.poseList.get(currentPoseIndex).toPose());
+                currentPoseIndex++;
+            }
             follower.telemetryDebug(telemetry);
         }
         if (replay.endPress){
@@ -338,6 +341,32 @@ public class AutoReplay {
 
             // Floats remain unchanged
         }
+
+        //Auto generated function
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof GamepadStateEntry)) return false;
+            GamepadStateEntry that = (GamepadStateEntry) o;
+            return a == that.a &&
+                    b == that.b &&
+                    x == that.x &&
+                    y == that.y &&
+                    dpad_up == that.dpad_up &&
+                    dpad_down == that.dpad_down &&
+                    dpad_left == that.dpad_left &&
+                    dpad_right == that.dpad_right &&
+                    left_bumper == that.left_bumper &&
+                    right_bumper == that.right_bumper &&
+                    left_stick_button == that.left_stick_button &&
+                    right_stick_button == that.right_stick_button &&
+                    Float.compare(left_stick_x, that.left_stick_x) == 0 &&
+                    Float.compare(left_stick_y, that.left_stick_y) == 0 &&
+                    Float.compare(right_stick_x, that.right_stick_x) == 0 &&
+                    Float.compare(right_stick_y, that.right_stick_y) == 0 &&
+                    Float.compare(left_trigger, that.left_trigger) == 0 &&
+                    Float.compare(right_trigger, that.right_trigger) == 0;
+        }
     }
 
     public static class PoseStateEntry {
@@ -348,14 +377,21 @@ public class AutoReplay {
             this.y = pose.getY();
             this.heading = pose.getHeading();
         }
+
+        public Pose toPose() {
+            return new Pose(this.x, this.y, this.heading);
+        }
     }
 
     public static class StateEntryJson {
         public int size = 0;
-        public List<Double> timeList = new ArrayList<>();
+        public List<Double> timeListPose = new ArrayList<>();
+        public List<Double> timeListGamepad = new ArrayList<>();
         public List<PoseStateEntry> poseList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
+
+
     }
 
     public static class PointerJson {

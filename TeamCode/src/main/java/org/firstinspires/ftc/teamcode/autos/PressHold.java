@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.autos;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -53,6 +53,10 @@ public class PressHold {
         }
 
         isPressed = pressed;
+    }
+
+    public void resetTimer() {
+        time.reset();
     }
 
     public enum PressType{
