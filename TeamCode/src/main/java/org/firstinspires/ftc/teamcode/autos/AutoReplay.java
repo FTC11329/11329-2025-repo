@@ -64,6 +64,7 @@ public class AutoReplay {
     Pose lastPose = new Pose(0, 0, 0);
     double deltaTime = 0.1;
     double deltaError = 2;
+    double deltaHeading = Math.toRadians(10);
     int replayIndex = 0;
     StateEntryJson currentReplayStates;
     PathChain replayPath;
@@ -205,9 +206,11 @@ public class AutoReplay {
         }
         if (recording.isOn) {
             telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
-            if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError) {
+            if (MathFunctions.distance(lastPose, follower.getPose()) > deltaError ||
+                    Math.abs(lastPose.getHeading() - follower.getPose().getHeading()) > deltaHeading) {
                 currentReplayStates.timeList.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
+                currentReplayStates.motorPowers.add(follower.getVelocityMagnitude());
                 currentReplayStates.gamepad1List.add(gamepadDelta1);
                 currentReplayStates.gamepad2List.add(gamepadDelta2);
                 currentReplayStates.size += 1;
@@ -245,26 +248,9 @@ public class AutoReplay {
         }
         if (replay.isOn){
             replayIndex = (int) follower.getCurrentPathNumber();
-//            while (true) {
-//                telemetry.addData("Gamepad", currentReplayStates.gamepad1List.size());
-//                telemetry.addData("Replay index", replayIndex);
-//                if (replayIndex < currentReplayStates.gamepad1List.size()) {
-//                    telemetry.addData("thingy", currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad());
-//                } else {
-//                    telemetry.addLine("NOT thingy");
-//                }
-//                telemetry.update();
-//
-//            }
-//            todo delete me plz
             if (replayIndex < currentReplayStates.gamepad1List.size()) {
                 gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad(1);
                 gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad(2);
-            } else {
-                while (true) {
-                    telemetry.addLine("1 = 0");
-                    telemetry.update();
-                }
             }
             follower.telemetryDebug(telemetry);
         }
@@ -383,6 +369,7 @@ public class AutoReplay {
     public static class StateEntryJson {
         public int size = 0;
         public List<Double> timeList = new ArrayList<>();
+        public List<Double> motorPowers = new ArrayList<>();
         public List<PoseStateEntry> poseList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
