@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.autos.PressHold;
+import org.firstinspires.ftc.teamcode.utility.DoubleAdapter;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -72,8 +73,10 @@ public class AutoReplayAllenTest {
         File file = new File(dir, "movement" + logPointer + ".json");
         telemetry.addData("Recording, here: ", true);
         try (FileWriter writer = new FileWriter(file)) {
-            Gson gson = new GsonBuilder().create();
-
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new DoubleAdapter())
+                    .registerTypeAdapter(double.class, new DoubleAdapter()) // primitive double
+                    .create();
             writer.write(gson.toJson(currentReplayStates));
             writer.close();
 
@@ -173,29 +176,24 @@ public class AutoReplayAllenTest {
             recording.resetTimer();
             currentReplayStates = new StateEntryJson();
             lastPose = follower.getPose();
-            gamepadDelta1 = new GamepadStateEntry(gamepad1);
-            gamepadDelta2 = new GamepadStateEntry(gamepad2);
+            lastGamePad1 = new GamepadStateEntry(gamepad1);
+            lastGamePad2 = new GamepadStateEntry(gamepad2);
         }
         if (recording.isOn) {
             telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
             if (recording.time.seconds() - lastTime > deltaTime) {
                 currentReplayStates.timeListPose.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
-                currentReplayStates.gamepad1List.add(gamepadDelta1);
-                currentReplayStates.gamepad2List.add(gamepadDelta2);
                 currentReplayStates.size += 1;
                 lastPose = follower.getPose();
                 lastTime = recording.time.seconds();
-                gamepadDelta1 = new GamepadStateEntry(gamepad1);
-                gamepadDelta2 = new GamepadStateEntry(gamepad2);
-            } else {
-                gamepadDelta1.mergeBooleans(new GamepadStateEntry(gamepad1));
-                gamepadDelta2.mergeBooleans(new GamepadStateEntry(gamepad2));
             }
             if (!lastGamePad1.equals(new GamepadStateEntry(gamepad1)) || !lastGamePad2.equals(new GamepadStateEntry(gamepad2))) {
-                currentReplayStates.timeListGamepad.add(recording.time.seconds());
                 lastGamePad1 = new GamepadStateEntry(gamepad1);
                 lastGamePad2 = new GamepadStateEntry(gamepad2);
+                currentReplayStates.timeListGamepad.add(recording.time.seconds());
+                currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
+                currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
             }
         }
         if (recording.endPress){
@@ -224,10 +222,6 @@ public class AutoReplayAllenTest {
             }
         }
         if (replay.isOn){
-            replayIndex = (int) follower.getCurrentPathNumber();
-            gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
-            gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
-
             double currentTime = replay.time.seconds();
 
             // Advance gamepad index if it's time
@@ -345,6 +339,7 @@ public class AutoReplayAllenTest {
         //Auto generated function
         @Override
         public boolean equals(Object o) {
+            if (o == null) return false;
             if (this == o) return true;
             if (!(o instanceof GamepadStateEntry)) return false;
             GamepadStateEntry that = (GamepadStateEntry) o;

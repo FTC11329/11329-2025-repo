@@ -28,6 +28,7 @@ import org.firstinspires.ftc.teamcode.subsystems.IntakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.OuttakeSystem;
 import org.firstinspires.ftc.teamcode.subsystems.PowerTakeOff;
 import org.firstinspires.ftc.teamcode.autos.PressHold;
+import org.firstinspires.ftc.teamcode.utility.DoubleAdapter;
 import org.firstinspires.ftc.teamcode.utility.DriveSpeedEnum;
 import org.firstinspires.ftc.teamcode.utility.PlacePosEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
@@ -49,13 +50,13 @@ import java.util.List;
 import java.io.*;
 
 public class AutoReplay {
-
-    boolean anyVariableName = true;
-
     Follower follower;
     Telemetry telemetry;
     Gamepad gamepad1;
     Gamepad gamepad2;
+
+    Gamepad gamepadReplay1;
+    Gamepad gamepadReplay2;
 
     PressHold recording;
     PressHold replay;
@@ -96,7 +97,10 @@ public class AutoReplay {
         File file = new File(dir, "movement" + logPointer + ".json");
         telemetry.addData("Recording, here: ", true);
         try (FileWriter writer = new FileWriter(file)) {
-            Gson gson = new GsonBuilder().create();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new DoubleAdapter())
+                    .registerTypeAdapter(double.class, new DoubleAdapter()) // primitive double
+                    .create();
 
             writer.write(gson.toJson(currentReplayStates));
             writer.close();
@@ -194,12 +198,8 @@ public class AutoReplay {
         if (pointerInput.endPress) savePointer();
 
         if(recording.startPress){
-            if (anyVariableName){
-                currentReplayStates = new StateEntryJson();
-                anyVariableName = false;
-            }
+            currentReplayStates = new StateEntryJson();
             lastTimer = 0;
-            follower.setStartingPose(new Pose(0, 0, 0));
             lastPose = follower.getPose();
             gamepadDelta1 = new GamepadStateEntry(gamepad1);
             gamepadDelta2 = new GamepadStateEntry(gamepad2);
@@ -249,8 +249,8 @@ public class AutoReplay {
         if (replay.isOn){
             replayIndex = (int) follower.getCurrentPathNumber();
             if (replayIndex < currentReplayStates.gamepad1List.size()) {
-                gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad(1);
-                gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad(2);
+                gamepadReplay1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad(1);
+                gamepadReplay2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad(2);
             }
             follower.telemetryDebug(telemetry);
         }
@@ -264,10 +264,10 @@ public class AutoReplay {
     }
 
     public Gamepad getGamepad1(){
-        return gamepad1;
+        return gamepadReplay1;
     }
     public Gamepad getGamepad2(){
-        return gamepad2;
+        return gamepadReplay2;
     }
 
     public static class GamepadStateEntry {
