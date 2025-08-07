@@ -28,6 +28,9 @@ public class AutoReplayAllenTest {
     Gamepad gamepad1;
     Gamepad gamepad2;
 
+    Gamepad gamepadReplay1;
+    Gamepad gamepadReplay2;
+
     PressHold recording;
     PressHold replay;
     PressHold pointerInput;
@@ -172,7 +175,7 @@ public class AutoReplayAllenTest {
         if (pointerInput.isOn) logPointer = (int) Math.floor(pointerInput.time.seconds());
         if (pointerInput.endPress) savePointer();
 
-        if (recording.startPress){
+        if (recording.startPress) {
             recording.resetTimer();
             currentReplayStates = new StateEntryJson();
             lastPose = follower.getPose();
@@ -188,7 +191,7 @@ public class AutoReplayAllenTest {
                 lastPose = follower.getPose();
                 lastTime = recording.time.seconds();
             }
-            if (!lastGamePad1.equals(new GamepadStateEntry(gamepad1)) || !lastGamePad2.equals(new GamepadStateEntry(gamepad2))) {
+            if (!lastGamePad1.compareGamepad(new GamepadStateEntry(gamepad1)) || !lastGamePad2.compareGamepad(new GamepadStateEntry(gamepad2))) {
                 lastGamePad1 = new GamepadStateEntry(gamepad1);
                 lastGamePad2 = new GamepadStateEntry(gamepad2);
                 currentReplayStates.timeListGamepad.add(recording.time.seconds());
@@ -202,24 +205,7 @@ public class AutoReplayAllenTest {
         if (replay.startPress){
             replay.resetTimer();
             loadPoses();
-            if (currentReplayStates.size > 1){
-                ArrayList<Path> paths = new ArrayList<>();
-                Pose cPos = follower.getPose();
-                PoseStateEntry sPos = currentReplayStates.poseList.get(0);
-                paths.add(follower.linearPathBuilder(
-                        new Pose(cPos.getX(), cPos.getY(), cPos.getHeading()),
-                        new Pose(sPos.x, sPos.y, sPos.heading)));
-                for (int i = 0; i < currentReplayStates.size - 1; i++){
-                    PoseStateEntry pos1 = currentReplayStates.poseList.get(i);
-                    PoseStateEntry pos2 = currentReplayStates.poseList.get(i + 1);
-                    paths.add(follower.linearPathBuilder(
-                            new Pose(pos1.x, pos1.y, pos1.heading),
-                            new Pose(pos2.x, pos2.y, pos2.heading)));
-                    telemetry.addData("Pose " + i, "x: " + pos1.x + " y: " + pos1.y + " heading: " + pos1.heading);
-                }
-                replayPath = new PathChain(paths);
-//                follower.followPath(replayPath);
-            }
+            currentGamepadIndex = 0;
         }
         if (replay.isOn){
             double currentTime = replay.time.seconds();
@@ -227,10 +213,10 @@ public class AutoReplayAllenTest {
             // Advance gamepad index if it's time
             if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                     currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
-                gamepad1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
-                gamepad2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
                 currentGamepadIndex++;
             }
+            gamepadReplay1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
+            gamepadReplay2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
 
             // Advance pose index if it's time
             if (currentPoseIndex + 1 < currentReplayStates.timeListPose.size() &&
@@ -238,7 +224,6 @@ public class AutoReplayAllenTest {
                 follower.holdPoint(currentReplayStates.poseList.get(currentPoseIndex).toPose());
                 currentPoseIndex++;
             }
-            follower.telemetryDebug(telemetry);
         }
         if (replay.endPress){
             follower.breakFollowing();
@@ -250,10 +235,10 @@ public class AutoReplayAllenTest {
     }
 
     public Gamepad getGamepad1(){
-        return gamepad1;
+        return gamepadReplay1;
     }
     public Gamepad getGamepad2(){
-        return gamepad2;
+        return gamepadReplay2;
     }
 
     public static class GamepadStateEntry {
@@ -337,12 +322,7 @@ public class AutoReplayAllenTest {
         }
 
         //Auto generated function
-        @Override
-        public boolean equals(Object o) {
-            if (o == null) return false;
-            if (this == o) return true;
-            if (!(o instanceof GamepadStateEntry)) return false;
-            GamepadStateEntry that = (GamepadStateEntry) o;
+        public boolean compareGamepad(GamepadStateEntry that) {
             return a == that.a &&
                     b == that.b &&
                     x == that.x &&
@@ -355,12 +335,8 @@ public class AutoReplayAllenTest {
                     right_bumper == that.right_bumper &&
                     left_stick_button == that.left_stick_button &&
                     right_stick_button == that.right_stick_button &&
-                    Float.compare(left_stick_x, that.left_stick_x) == 0 &&
-                    Float.compare(left_stick_y, that.left_stick_y) == 0 &&
-                    Float.compare(right_stick_x, that.right_stick_x) == 0 &&
-                    Float.compare(right_stick_y, that.right_stick_y) == 0 &&
-                    Float.compare(left_trigger, that.left_trigger) == 0 &&
-                    Float.compare(right_trigger, that.right_trigger) == 0;
+                    Math.abs(left_trigger - that.left_trigger) < 0.00001 &&
+                    Math.abs(right_trigger - that.right_trigger) < 0.00001;
         }
     }
 

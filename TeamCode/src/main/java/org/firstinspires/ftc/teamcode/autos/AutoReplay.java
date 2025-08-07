@@ -197,7 +197,7 @@ public class AutoReplay {
         if (pointerInput.isOn) logPointer = (int) Math.floor(pointerInput.time.seconds());
         if (pointerInput.endPress) savePointer();
 
-        if(recording.startPress){
+        if (recording.startPress){
             currentReplayStates = new StateEntryJson();
             lastTimer = 0;
             lastPose = follower.getPose();
