@@ -4,6 +4,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.subsystems.ReplayPID;
+import org.firstinspires.ftc.teamcode.utility.splines.CubicSpline1D;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
@@ -13,13 +17,15 @@ import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
 import org.firstinspires.ftc.teamcode.autos.PressHold;
 import org.firstinspires.ftc.teamcode.utility.DoubleAdapter;
-
+import org.firstinspires.ftc.teamcode.utility.splines.TimePose;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Type;
+import com.google.gson.reflect.TypeToken;
 
 public class AutoReplayAllenTest {
 
@@ -28,6 +34,8 @@ public class AutoReplayAllenTest {
     Gamepad gamepad1;
     Gamepad gamepad2;
 
+    Drivetrain drivetrain;
+    ReplayPID replayPID;
     Gamepad gamepadReplay1;
     Gamepad gamepadReplay2;
 
@@ -36,14 +44,24 @@ public class AutoReplayAllenTest {
     PressHold pointerInput;
     Pose lastPose = new Pose(0, 0, 0);
     double lastTime = 0;
-    double deltaTime = 0.25;
+    double deltaTime = 0.1;
     double deltaError = 2;
     int replayIndex = 0;
 
+    private CubicSpline1D xSpline;
+    private CubicSpline1D ySpline;
+    private CubicSpline1D thetaSpline;
+
+    boolean loaded;
+    boolean calculated;
     int currentGamepadIndex = 0;
     int currentPoseIndex = 0;
 
     StateEntryJson currentReplayStates;
+    List<TimePose> splineReplayStates;
+
+    CubicSpline1D cubicSpline1D;
+
     PathChain replayPath;
     GamepadStateEntry gamepadDelta1;
     GamepadStateEntry gamepadDelta2;
@@ -150,7 +168,37 @@ public class AutoReplayAllenTest {
         logPointer = gson.fromJson(jsonString, PointerJson.class).pointer;
     }
 
+    public void loadTimePoses() {
+        File dir = AppUtil.getInstance().getSettingsFile("TeamCodeLogs").getParentFile();
+        File file = new File(dir, "movement" + logPointer + ".json");
+
+        if (!file.exists()) return;
+
+        StringBuilder jsonBuilder = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonBuilder.append(line);
+            }
+        } catch (Exception e) {
+            telemetry.addData("Failed to Load", e.getMessage());
+            return;
+        }
+
+        String jsonString = jsonBuilder.toString();
+
+        Gson gson = new GsonBuilder().create();
+
+        Type listType = new TypeToken<List<TimePose>>(){}.getType();
+        List<TimePose> loadedPoses = gson.fromJson(jsonString, listType);
+
+        // Store in your replay variable
+        splineReplayStates = loadedPoses;
+    }
+
     public void update(){
+        // if gamepad a is recording
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
         pointerInput.checkStatus(gamepad1.left_bumper);
@@ -176,6 +224,8 @@ public class AutoReplayAllenTest {
         if (pointerInput.endPress) savePointer();
 
         if (recording.startPress) {
+            boolean loaded = false;
+            boolean calculated = false;
             recording.resetTimer();
             currentReplayStates = new StateEntryJson();
             lastPose = follower.getPose();
@@ -184,11 +234,18 @@ public class AutoReplayAllenTest {
         }
         if (recording.isOn) {
             telemetry.addData("Error Mag: ", MathFunctions.distance(lastPose, follower.getPose()));
-            if (recording.time.seconds() - lastTime > deltaTime) {
+
+            // once enough time has passed add these values
+            double elapsedTime = recording.time.seconds() - lastTime;
+            if (elapsedTime > deltaTime) {
+                Pose currentPose = follower.getPose();
                 currentReplayStates.timeListPose.add(recording.time.seconds());
-                currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
+                currentReplayStates.poseList.add(new PoseStateEntry(currentPose));
+                currentReplayStates.velocityListX.add((currentPose.getX() - lastPose.getX())/elapsedTime);
+                currentReplayStates.velocityListY.add((currentPose.getY() - lastPose.getY())/elapsedTime);
+                currentReplayStates.velocityListHeading.add((currentPose.getHeading() - lastPose.getHeading())/elapsedTime);
                 currentReplayStates.size += 1;
-                lastPose = follower.getPose();
+                lastPose = currentPose;
                 lastTime = recording.time.seconds();
             }
             if (!lastGamePad1.compareGamepad(new GamepadStateEntry(gamepad1)) || !lastGamePad2.compareGamepad(new GamepadStateEntry(gamepad2))) {
@@ -207,12 +264,16 @@ public class AutoReplayAllenTest {
         }
         if (replay.startPress){
             replay.resetTimer();
-            loadPoses();
             currentGamepadIndex = 0;
         }
         if (replay.isOn){
             double currentTime = replay.time.seconds();
 
+            double[] motorValues = replayPID.replayPIDMotorValues(currentTime, follower.getPose()); //fl, fr, bl, br
+            drivetrain.leftFront.setPower(0);
+            drivetrain.rightFront.setPower(1);
+            drivetrain.leftBack.setPower(2);
+            drivetrain.rightBack.setPower(3);
             // Advance gamepad index if it's time
             if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                     currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
@@ -221,15 +282,9 @@ public class AutoReplayAllenTest {
             gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad(1);
             gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad(2);
 
-            // Advance pose index if it's time
-            if (currentPoseIndex + 1 < currentReplayStates.timeListPose.size() &&
-                    currentReplayStates.timeListPose.get(currentPoseIndex + 1) <= currentTime) {
-                follower.holdPoint(currentReplayStates.poseList.get(currentPoseIndex).toPose());
-                currentPoseIndex++;
-            }
         }
         if (replay.endPress){
-            follower.breakFollowing();
+            drivetrain.killSwitch();
         }
     }
 
@@ -244,6 +299,41 @@ public class AutoReplayAllenTest {
         return gamepadReplay2;
     }
 
+    public void buildCubicSpline(){
+        if (!loaded) {loadTimePoses(); loaded = true;}
+        CubicSpline1D xSpline = new CubicSpline1D(splineReplayStates, pose -> pose.x);
+        CubicSpline1D ySpline = new CubicSpline1D(splineReplayStates, pose -> pose.y);
+        CubicSpline1D thetaSpline = new CubicSpline1D(splineReplayStates, pose -> pose.theta);
+    }
+
+    public double[] getTargets(double runtime){
+        if (!calculated) {buildCubicSpline(); calculated = true;}
+        double tNow = runtime;
+        double xTarget = xSpline.evaluate(tNow);
+        double yTarget = ySpline.evaluate(tNow);
+        double headingTarget = thetaSpline.evaluate(tNow);
+
+        double vxTarget = xSpline.derivative(tNow);
+        double vyTarget = ySpline.derivative(tNow);
+        double omegaTarget = thetaSpline.derivative(tNow);
+        double alphaTarget = thetaSpline.secondDerivative(tNow);
+        double ayTarget = ySpline.secondDerivative(tNow);
+        double axTarget = xSpline.secondDerivative(tNow);
+        return new double[]{xTarget, yTarget, headingTarget, vxTarget, vyTarget, omegaTarget, axTarget, ayTarget, alphaTarget};
+    }
+
+    public double[] getError(double runtime, Pose currentPose){
+        if (!calculated) {buildCubicSpline(); calculated = true;}
+        double tNow = runtime;
+        double xError = xSpline.evaluate(tNow) - currentPose.getX();
+        double yError = ySpline.evaluate(tNow) - currentPose.getY();
+        double headingError = thetaSpline.evaluate(tNow) - currentPose.getHeading();
+
+        double vxError = xSpline.derivative(tNow) - follower.getVelocity().getXComponent();
+        double vyError = ySpline.derivative(tNow)- follower.getVelocity().getYComponent();
+        double omegaError = thetaSpline.derivative(tNow) - follower.getVelocity().getTheta();
+        return new double[]{xError, yError, headingError, vxError, vyError, omegaError};
+    }
     public static class GamepadStateEntry {
         public boolean a, b, x, y;
         public boolean dpad_up, dpad_down, dpad_left, dpad_right;
@@ -366,6 +456,9 @@ public class AutoReplayAllenTest {
         public int size = 0;
         public List<Double> timeListPose = new ArrayList<>();
         public List<Double> timeListGamepad = new ArrayList<>();
+        public List<Double> velocityListX = new ArrayList<>();
+        public List<Double> velocityListY = new ArrayList<>();
+        public List<Double> velocityListHeading = new ArrayList<>();
         public List<PoseStateEntry> poseList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();

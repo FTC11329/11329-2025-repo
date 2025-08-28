@@ -92,6 +92,13 @@ public class Drivetrain {
         leftBack.setPower(pidControl.update(leftFront.getCurrentPosition(), feedForward));
     }
 
+    public void killSwitch() {
+        rightFront.setPower(0);
+        rightBack.setPower(0);
+        leftFront.setPower(0);
+        leftBack.setPower(0);
+    }
+
     public void moveBackWheels() {
         rightBack.setPower(0.7);
         leftBack.setPower(0.7);

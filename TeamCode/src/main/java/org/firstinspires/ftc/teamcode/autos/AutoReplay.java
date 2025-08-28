@@ -172,6 +172,7 @@ public class AutoReplay {
         logPointer = gson.fromJson(jsonString, PointerJson.class).pointer;
     }
 
+
     public void update(){
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
