@@ -32,6 +32,7 @@ import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.acmerobotics.roadrunner.Vector2d;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -42,6 +43,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.MotionDetection;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
@@ -729,6 +731,60 @@ public class Follower {
     public void setTeleOpMovementVectors(double forwardDrive, double lateralDrive, double heading) {
         setTeleOpMovementVectors(forwardDrive, lateralDrive, heading, true);
     }
+
+    /**
+     * Compute velocity v(t) from cubic trajectory that matches
+     * position and velocity at times t0 and t1.
+     *
+     * @param p0 initial position vector at t0
+     * @param v0 initial velocity vector at t0
+     * @param p1 final position vector at t1
+     * @param v1 final velocity vector at t1
+     * @param t0 start time
+     * @param t1 end time
+     * @param t  query time
+     * @return velocity vector at time t
+     */
+    public static Vector interpolateVelocity(Vector p0, Vector v0,
+                                             Vector p1, Vector v1,
+                                             double t0, double t1, double t) {
+        double h = t1 - t0;
+        if (h == 0) {
+            throw new IllegalArgumentException("t0 and t1 must differ.");
+        }
+
+        double tau = t - t0;
+
+        // Delta_p = (p1 - p0) - v0 * h
+        Vector deltaP = MathFunctions.addVectors(
+                MathFunctions.subtractVectors(p1, p0),
+                MathFunctions.scalarMultiplyVector(v0, -h)
+        );
+
+        // Delta_v = v1 - v0
+        Vector deltaV = MathFunctions.subtractVectors(v1, v0);
+
+        // gamma = (3*DeltaP - h*DeltaV) / (h^2)
+        Vector gamma = MathFunctions.scalarMultiplyVector(MathFunctions.addVectors(
+                MathFunctions.scalarMultiplyVector(deltaP,3.0),
+                MathFunctions.scalarMultiplyVector(deltaV,-h)
+        ),1.0 / (h * h));
+
+        // delta = (-2*DeltaP + h*DeltaV) / (h^3)
+        Vector delta = MathFunctions.scalarMultiplyVector(MathFunctions.addVectors(
+                MathFunctions.scalarMultiplyVector(deltaP,-2.0),
+                MathFunctions.scalarMultiplyVector(deltaV,h)
+        ),1.0 / (h * h * h));
+
+        // v(t) = v0 + gamma*2*tau + delta*3*tau^2
+        Vector v = MathFunctions.addVectors(MathFunctions.addVectors(
+                v0,
+                MathFunctions.scalarMultiplyVector(gamma,(2.0 * tau))),
+                MathFunctions.scalarMultiplyVector(delta,(3.0 * tau * tau))
+                );
+        return v;
+    }
+
 
     /**
      * This sets the teleop drive vectors.

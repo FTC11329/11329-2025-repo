@@ -192,14 +192,11 @@ public class AutoReplayAllenTest {
                 lastTime = recording.time.seconds();
             }
             if (!lastGamePad1.compareGamepad(new GamepadStateEntry(gamepad1)) || !lastGamePad2.compareGamepad(new GamepadStateEntry(gamepad2))) {
-                telemetry.addData("compareGamepad: ", true);
                 lastGamePad1 = new GamepadStateEntry(gamepad1);
                 lastGamePad2 = new GamepadStateEntry(gamepad2);
                 currentReplayStates.timeListGamepad.add(recording.time.seconds());
                 currentReplayStates.gamepad1List.add(new GamepadStateEntry(gamepad1));
                 currentReplayStates.gamepad2List.add(new GamepadStateEntry(gamepad2));
-            } else {
-                telemetry.addData("compareGamepad: ", false);
             }
         }
         if (recording.endPress){
@@ -218,8 +215,8 @@ public class AutoReplayAllenTest {
                     currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
                 currentGamepadIndex++;
             }
-            gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad(1);
-            gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad(2);
+            gamepadReplay1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
+            gamepadReplay2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
 
             // Advance pose index if it's time
             if (currentPoseIndex + 1 < currentReplayStates.timeListPose.size() &&
@@ -274,16 +271,11 @@ public class AutoReplayAllenTest {
             this.right_trigger = g.right_trigger;
         }
 
-        public Gamepad convertToGamepad(int gamepadNum) {
+        public Gamepad convertToGamepad() {
             Gamepad g = new Gamepad();
 
             // Buttons
-            if (gamepadNum == 1){
-                g.a = false;
-            }
-            if (gamepadNum == 2){
-                g.a = this.a;
-            }
+            g.a = this.a;
             g.b = this.b;
             g.x = this.x;
             g.y = this.y;
