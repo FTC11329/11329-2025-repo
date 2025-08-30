@@ -25,7 +25,7 @@ public class ReplayPID {
 
         double controlX = ffX +pidX;
         double controlY = ffY +pidY;
-        double controlTheta = ffX +pidTheta;
+        double controlTheta = ffTheta +pidTheta;
 
         double cosH = Math.cos(currentPose.getHeading());
         double sinH = Math.sin(currentPose.getHeading());

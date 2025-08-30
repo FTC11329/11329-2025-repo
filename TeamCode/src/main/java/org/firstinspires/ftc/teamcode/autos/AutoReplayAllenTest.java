@@ -270,10 +270,10 @@ public class AutoReplayAllenTest {
             double currentTime = replay.time.seconds();
 
             double[] motorValues = replayPID.replayPIDMotorValues(currentTime, follower.getPose()); //fl, fr, bl, br
-            drivetrain.leftFront.setPower(0);
-            drivetrain.rightFront.setPower(1);
-            drivetrain.leftBack.setPower(2);
-            drivetrain.rightBack.setPower(3);
+            drivetrain.leftFront.setPower(motorValues[0]);
+            drivetrain.rightFront.setPower(motorValues[1]);
+            drivetrain.leftBack.setPower(motorValues[2]);
+            drivetrain.rightBack.setPower(motorValues[3]);
             // Advance gamepad index if it's time
             if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                     currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
