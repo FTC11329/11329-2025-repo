@@ -7,11 +7,12 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.utility.PathSpline;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
-import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Path;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.PathChain;
-import org.firstinspires.ftc.teamcode.autos.PressHold;
+import org.firstinspires.ftc.teamcode.pedropathing.pathgen.Vector;
+import org.firstinspires.ftc.teamcode.utility.CubicSpline1D;
 import org.firstinspires.ftc.teamcode.utility.DoubleAdapter;
 
 import java.io.BufferedReader;
@@ -21,7 +22,7 @@ import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AutoReplayAllenTest {
+public class AutoReplayTime {
 
     Follower follower;
     Telemetry telemetry;
@@ -50,9 +51,10 @@ public class AutoReplayAllenTest {
 
     GamepadStateEntry lastGamePad1;
     GamepadStateEntry lastGamePad2;
+    PathSpline splinePath;
     int logPointer = 0;
 
-    public AutoReplayAllenTest(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
+    public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
         this.follower = follower;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
@@ -187,6 +189,7 @@ public class AutoReplayAllenTest {
             if (recording.time.seconds() - lastTime > deltaTime) {
                 currentReplayStates.timeListPose.add(recording.time.seconds());
                 currentReplayStates.poseList.add(new PoseStateEntry(follower.getPose()));
+                currentReplayStates.velocityList.add(new VelocityStateEntry(follower.getVelocity()));
                 currentReplayStates.size += 1;
                 lastPose = follower.getPose();
                 lastTime = recording.time.seconds();
@@ -205,7 +208,9 @@ public class AutoReplayAllenTest {
         if (replay.startPress){
             replay.resetTimer();
             loadPoses();
+            createPathSpline();
             currentGamepadIndex = 0;
+            follower.followSpline(splinePath);
         }
         if (replay.isOn){
             double currentTime = replay.time.seconds();
@@ -217,17 +222,30 @@ public class AutoReplayAllenTest {
             }
             gamepadReplay1 = currentReplayStates.gamepad1List.get(replayIndex).convertToGamepad();
             gamepadReplay2 = currentReplayStates.gamepad2List.get(replayIndex).convertToGamepad();
-
-            // Advance pose index if it's time
-            if (currentPoseIndex + 1 < currentReplayStates.timeListPose.size() &&
-                    currentReplayStates.timeListPose.get(currentPoseIndex + 1) <= currentTime) {
-                follower.holdPoint(currentReplayStates.poseList.get(currentPoseIndex).toPose());
-                currentPoseIndex++;
-            }
         }
         if (replay.endPress){
             follower.breakFollowing();
         }
+    }
+
+    public void createPathSpline(){
+        int n = currentReplayStates.size;
+        double[] t = new double[n];
+        double[] x = new double[n];
+        double[] vx = new double[n];
+        double[] y = new double[n];
+        double[] vy = new double[n];
+
+        for (int i = 0; i < n; i += 1){
+            t[i] = currentReplayStates.timeListPose.get(i);
+            x[i] = currentReplayStates.poseList.get(i).x;
+            vx[i] = currentReplayStates.velocityList.get(i).x;
+            y[i] = currentReplayStates.poseList.get(i).y;
+            vy[i] = currentReplayStates.velocityList.get(i).y;
+        }
+
+        splinePath.xSpline = new CubicSpline1D(t, x, vx);
+        splinePath.ySpline = new CubicSpline1D(t, y, vy);
     }
 
     public boolean IsReplayOn(){
@@ -354,11 +372,27 @@ public class AutoReplayAllenTest {
         }
     }
 
+    public static class VelocityStateEntry {
+        public double x, y;
+
+        public VelocityStateEntry(Vector velocity) {
+            this.x = velocity.getXComponent();
+            this.y = velocity.getYComponent();
+        }
+
+        public Vector toVector() {
+            Vector v = new Vector();
+            v.setOrthogonalComponents(x,y);
+            return v;
+        }
+    }
+
     public static class StateEntryJson {
         public int size = 0;
         public List<Double> timeListPose = new ArrayList<>();
         public List<Double> timeListGamepad = new ArrayList<>();
         public List<PoseStateEntry> poseList = new ArrayList<>();
+        public List<VelocityStateEntry> velocityList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
 

@@ -62,6 +62,8 @@ import org.firstinspires.ftc.teamcode.pedropathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedropathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedropathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedropathing.util.PIDFController;
+import org.firstinspires.ftc.teamcode.utility.PathSpline;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
@@ -95,6 +97,8 @@ public class Follower {
     private Pose closestPose;
 
     private Path currentPath;
+    private PathSpline currentSpline;
+    private ElapsedTime pathTimer;
 
     private PathChain currentPathChain;
 
@@ -107,6 +111,7 @@ public class Follower {
 
     private boolean followingPathChain;
     private boolean holdingPosition;
+    private  boolean splineFollow;
     private boolean isBusy;
     private boolean reachedParametricPathEnd;
     private boolean holdPositionAtEnd;
@@ -495,6 +500,7 @@ public class Follower {
         holdPositionAtEnd = holdEnd;
         isBusy = true;
         followingPathChain = false;
+        currentSpline = null;
         currentPath = path;
         closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
     }
@@ -547,9 +553,29 @@ public class Follower {
         chainIndex = 0;
         currentPathChain = pathChain;
         currentPath = pathChain.getPath(chainIndex);
+        currentSpline = null;
         closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
         currentPathChain.resetCallbacks();
     }
+
+    /**
+     * This follows a Path.
+     * This also makes the Follower hold the last Point on the Path.
+     *
+     * @param path the Path to follow.
+     */
+    public void followSpline(PathSpline path) {
+        driveVectorScaler.setMaxPowerScaling(globalMaxPower);
+        breakFollowing();
+        followingPathChain = false;
+        currentSpline = path;
+        currentPath = null;
+        closestPose = currentSpline.evaluate(0);
+        pathTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+        pathTimer.reset();
+    }
+
+
 
     /**
      * Resumes pathing
@@ -592,7 +618,7 @@ public class Follower {
         updatePose();
 
         if (!teleopDrive) {
-            if (currentPath != null) {
+            if (currentPath != null || currentSpline != null) {
                 if (poseUpdater.getVelocity().getMagnitude() < 1 && robotStuckTimer == null && getTranslationalError() != null && getTranslationalError().getMagnitude() > 1) {
                     robotStuckTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
                 } else if (getTranslationalError() != null && !(poseUpdater.getVelocity().getMagnitude() < 1) || !(getTranslationalError().getMagnitude() > 1)) {
@@ -621,6 +647,22 @@ public class Follower {
                         if (followingPathChain) updateCallbacks();
 
                         drivePowers = driveVectorScaler.getDrivePowers(getCorrectiveVector(), getHeadingVector(), getDriveVector(), poseUpdater.getPose().getHeading());
+
+                        for (int i = 0; i < motors.size(); i++) {
+                            if (Math.abs(motors.get(i).getPower() - drivePowers[i]) > FollowerConstants.motorCachingThreshold) {
+                                double voltageNormalized = getVoltageNormalized();
+
+                                if (useVoltageCompensationInAuto) {
+                                    motors.get(i).setPower(drivePowers[i] * voltageNormalized);
+                                } else {
+                                    motors.get(i).setPower(drivePowers[i]);
+                                }
+                            }
+                        }
+                    } else if (splineFollow){
+                        closestPose = currentSpline.evaluate(pathTimer.time());
+
+                        drivePowers = driveVectorScaler.getDrivePowers(getCorrectiveVector(), getHeadingVector(), currentSpline.velocity(pathTimer.time()), poseUpdater.getPose().getHeading());
 
                         for (int i = 0; i < motors.size(); i++) {
                             if (Math.abs(motors.get(i).getPower() - drivePowers[i]) > FollowerConstants.motorCachingThreshold) {

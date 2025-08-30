@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
 import org.firstinspires.ftc.teamcode.autos.AutoReplay;
-import org.firstinspires.ftc.teamcode.autos.AutoReplayAllenTest;
+import org.firstinspires.ftc.teamcode.autos.AutoReplayTime;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
@@ -162,7 +162,7 @@ public class AutoReplayTeleopTimeBased {
     Gamepad gamepadInfo1;
     Gamepad gamepadInfo2;
     RobotSideEnum robotSide;
-    AutoReplayAllenTest autoReplay;
+    AutoReplayTime autoReplay;
 
     public AutoReplayTeleopTimeBased(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
         this.hardwareMap = hardwareMap;
@@ -192,7 +192,7 @@ public class AutoReplayTeleopTimeBased {
         driveTrain = new Drivetrain(hardwareMap);
         stateMachine = new StateMachine();
         robotState = new RobotStateVariables(PlacePosEnum.clear, robotSide);
-        autoReplay = new AutoReplayAllenTest(follower, telemetry, gamepadInfo1, gamepadInfo2);
+        autoReplay = new AutoReplayTime(follower, telemetry, gamepadInfo1, gamepadInfo2);
         follower.setStartingPose(new Pose(0, 0, 0));
 
         autoReplay.init();
