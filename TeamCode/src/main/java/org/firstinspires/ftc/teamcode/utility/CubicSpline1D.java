@@ -27,6 +27,11 @@ public class CubicSpline1D {
             double dt = t - t0;
             return a1 + 2 * a2 * dt + 3 * a3 * dt * dt;
         }
+
+        public double acceleration(double t) {
+            double dt = t - t0;
+            return 2 * a2 + 6 * a3 * dt;
+        }
     }
 
     private CubicSegment[] segments;
@@ -76,6 +81,15 @@ public class CubicSpline1D {
 
         if (t < segments[0].t0) return segments[0].velocity(segments[0].t0);
         return segments[segments.length - 1].velocity(segments[segments.length - 1].t1);
+    }
+
+    // Evaluate acceleration at time t
+    public double acceleration(double t) {
+        CubicSegment s = segment(t);
+        if (s != null){ return s.velocity(t); }
+
+        if (t < segments[0].t0) return segments[0].acceleration(segments[0].t0);
+        return segments[segments.length - 1].acceleration(segments[segments.length - 1].t1);
     }
 
     public CubicSegment segment(double t){
