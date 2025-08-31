@@ -568,8 +568,9 @@ public class Follower {
         driveVectorScaler.setMaxPowerScaling(globalMaxPower);
         breakFollowing();
         followingPathChain = false;
+        isBusy = false;
+        splineFollow = true;
         currentSpline = path;
-        currentPath = null;
         closestPose = currentSpline.evaluate(0);
         pathTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
         pathTimer.reset();
@@ -913,6 +914,7 @@ public class Follower {
         setMotorsToFloat();
         holdingPosition = false;
         isBusy = false;
+        splineFollow = false;
         reachedParametricPathEnd = false;
         secondaryDrivePIDF.reset();
         drivePIDF.reset();
@@ -1060,8 +1062,8 @@ public class Follower {
     public Vector getHeadingVector() {
         if (!useHeading) return new Vector();
         double headingGoal = 0;
-        if (currentPath != null) { headingGoal = currentPath.getClosestPointHeadingGoal(); }
-        else if (currentSpline != null) { headingGoal = currentSpline.heading(pathTimer.time());}
+        if (isBusy) { headingGoal = currentPath.getClosestPointHeadingGoal(); }
+        else if (splineFollow) { headingGoal = currentSpline.heading(pathTimer.time());}
         headingError = MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), headingGoal) * MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), headingGoal);
         if (Math.abs(headingError) < headingPIDFSwitch && useSecondaryHeadingPID) {
 //            if(logDebug) {
@@ -1115,7 +1117,7 @@ public class Follower {
         double y = closestPose.getY() - poseUpdater.getPose().getY();
         translationalVector.setOrthogonalComponents(x, y);
 
-        if (currentPath != null){
+        if (isBusy){
             if (!(currentPath.isAtParametricEnd() || currentPath.isAtParametricStart())) {
                 translationalVector = MathFunctions.subtractVectors(translationalVector, new Vector(MathFunctions.dotProduct(translationalVector, MathFunctions.normalizeVector(currentPath.getClosestPointTangentVector())), currentPath.getClosestPointTangentVector().getTheta()));
 
@@ -1175,8 +1177,8 @@ public class Follower {
         double curvature;
         if (!teleopDrive) {
             curvature = 0;
-            if (currentPath != null){ curvature = currentPath.getClosestPointCurvature(); }
-            else if (currentSpline != null) { curvature = currentSpline.curvature(pathTimer.time()); }
+            if (isBusy){ curvature = currentPath.getClosestPointCurvature(); }
+            else if (splineFollow) { curvature = currentSpline.curvature(pathTimer.time()); }
         } else {
             double yPrime = averageVelocity.getYComponent() / averageVelocity.getXComponent();
             double yDoublePrime = averageAcceleration.getYComponent() / averageVelocity.getXComponent();
@@ -1184,9 +1186,9 @@ public class Follower {
         }
         if (Double.isNaN(curvature)) return new Vector();
         Vector centripetalVector = new Vector();
-        if (currentPath != null) {
+        if (isBusy) {
             centripetalVector = new Vector(MathFunctions.clamp(centripetalScaling * FollowerConstants.mass * Math.pow(MathFunctions.dotProduct(poseUpdater.getVelocity(), MathFunctions.normalizeVector(currentPath.getClosestPointTangentVector())), 2) * curvature, -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), currentPath.getClosestPointTangentVector().getTheta() + Math.PI / 2 * MathFunctions.getSign(currentPath.getClosestPointNormalVector().getTheta()));
-        } else if (currentSpline != null) {
+        } else if (splineFollow) {
             centripetalVector = new Vector(MathFunctions.clamp(centripetalScaling * FollowerConstants.mass * Math.pow(MathFunctions.dotProduct(poseUpdater.getVelocity(), MathFunctions.normalizeVector(currentSpline.velocity(pathTimer.time()))), 2) * curvature, -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), currentSpline.velocity(pathTimer.time()).getTheta() + Math.PI / 2 * MathFunctions.getSign(currentSpline.acceleration(pathTimer.time()).getTheta()));
         }
         return centripetalVector;

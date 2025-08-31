@@ -235,6 +235,8 @@ public class AutoReplayTime {
         double[] vx = new double[n];
         double[] y = new double[n];
         double[] vy = new double[n];
+        double[] theta = new double[n];
+        double[] dtheta = new double[n];
 
         for (int i = 0; i < n; i += 1){
             t[i] = currentReplayStates.timeListPose.get(i);
@@ -242,10 +244,17 @@ public class AutoReplayTime {
             vx[i] = currentReplayStates.velocityList.get(i).x;
             y[i] = currentReplayStates.poseList.get(i).y;
             vy[i] = currentReplayStates.velocityList.get(i).y;
+            theta[i] = currentReplayStates.poseList.get(i).heading;
         }
+
+        for (int i = 1; i < n - 1; i += 1){
+            dtheta[i] = (theta[i - 1] - theta[i + 1]) / (t[i - 1] - t[i + 1]);
+        }
+        dtheta[0] = 0; dtheta[n - 1] = 0;
 
         splinePath.xSpline = new CubicSpline1D(t, x, vx);
         splinePath.ySpline = new CubicSpline1D(t, y, vy);
+        splinePath.headingSpline = new CubicSpline1D(t, theta, dtheta);
     }
 
     public boolean IsReplayOn(){
