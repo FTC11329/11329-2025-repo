@@ -660,6 +660,66 @@ public class Follower {
                                 }
                             }
                         }
+
+                        // try to fix the robot stop near the end issue
+                        // if robot is almost reach the end and velocity is close to zero
+                        // then, break the following if other criteria meet
+                        if (poseUpdater.getVelocity().getMagnitude() < 1.0 && currentPath.getClosestPointTValue() > 0.8
+                                && zeroVelocityDetectedTimer == null && isBusy) {
+                            zeroVelocityDetectedTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+                            Log.d("Follower_logger", "!!!! Robot stuck !!!!");
+
+                            debugLog();
+                        }
+
+                        if (currentPath.isAtParametricEnd() ||
+                                (zeroVelocityDetectedTimer != null && zeroVelocityDetectedTimer.milliseconds() > 500.0)) {
+                            if (followingPathChain && chainIndex < currentPathChain.size() - 1) {
+
+                                if (logDebug) {
+                                    Log.d("Follower_logger", "chainIndex: " + chainIndex + " | Pose: " + getPose());
+                                }
+                                // Not at last path, keep going
+                                breakFollowing();
+                                pathStartTimes[chainIndex] = System.currentTimeMillis();
+                                isBusy = true;
+                                followingPathChain = true;
+                                chainIndex++;
+                                currentPath = currentPathChain.getPath(chainIndex);
+                                closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
+                            } else {
+                                // At last path, run some end detection stuff
+                                // set isBusy to false if at end
+                                if (!reachedParametricPathEnd) {
+                                    reachedParametricPathEnd = true;
+                                    reachedParametricPathEndTime = System.currentTimeMillis();
+                                }
+
+                                if ((System.currentTimeMillis() - reachedParametricPathEndTime > currentPath.getPathEndTimeoutConstraint()) ||
+                                        (poseUpdater.getVelocity().getMagnitude() < currentPath.getPathEndVelocityConstraint()
+                                                && MathFunctions.distance(poseUpdater.getPose(), closestPose) < currentPath.getPathEndTranslationalConstraint() &&
+                                                MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()) < currentPath.getPathEndHeadingConstraint())) {
+                                    if (holdPositionAtEnd) {
+                                        holdPositionAtEnd = false;
+                                        holdPoint(new BezierPoint(currentPath.getLastControlPoint()), currentPath.getHeadingGoal(1));
+                                    } else {
+                                        if (logDebug && isBusy) {
+                                            Log.d("Follower_final_logger::", "isAtParametricEnd:" + currentPath.isAtParametricEnd()
+                                                    + " | isBusy: " + isBusy
+                                                    + " | closestPose:" + closestPose
+                                                    + " | Pose: " + getPose()
+                                                    + " | t-value: " + String.format("%3.5f", currentPath.getClosestPointTValue())
+                                                    + " | velocity: " + String.format("%3.2f", poseUpdater.getVelocity().getMagnitude())
+                                                    + " | distance: " + String.format("%3.2f", MathFunctions.distance(poseUpdater.getPose(), closestPose))
+                                                    + " | heading (degree): " + String.format("%3.2f", Math.toDegrees(MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal())))
+                                            );
+                                        }
+
+                                        breakFollowing();
+                                    }
+                                }
+                            }
+                        }
                     } else if (splineFollow){
                         closestPose = currentSpline.evaluate(pathTimer.time());
 
@@ -673,66 +733,6 @@ public class Follower {
                                     motors.get(i).setPower(drivePowers[i] * voltageNormalized);
                                 } else {
                                     motors.get(i).setPower(drivePowers[i]);
-                                }
-                            }
-                        }
-                    }
-
-                    // try to fix the robot stop near the end issue
-                    // if robot is almost reach the end and velocity is close to zero
-                    // then, break the following if other criteria meet
-                    if (poseUpdater.getVelocity().getMagnitude() < 1.0 && currentPath.getClosestPointTValue() > 0.8
-                            && zeroVelocityDetectedTimer == null && isBusy) {
-                        zeroVelocityDetectedTimer = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
-                        Log.d("Follower_logger", "!!!! Robot stuck !!!!");
-
-                        debugLog();
-                    }
-
-                    if (currentPath.isAtParametricEnd() ||
-                            (zeroVelocityDetectedTimer != null && zeroVelocityDetectedTimer.milliseconds() > 500.0)) {
-                        if (followingPathChain && chainIndex < currentPathChain.size() - 1) {
-
-                            if (logDebug) {
-                                Log.d("Follower_logger", "chainIndex: " + chainIndex + " | Pose: " + getPose());
-                            }
-                            // Not at last path, keep going
-                            breakFollowing();
-                            pathStartTimes[chainIndex] = System.currentTimeMillis();
-                            isBusy = true;
-                            followingPathChain = true;
-                            chainIndex++;
-                            currentPath = currentPathChain.getPath(chainIndex);
-                            closestPose = currentPath.getClosestPoint(poseUpdater.getPose(), BEZIER_CURVE_SEARCH_LIMIT);
-                        } else {
-                            // At last path, run some end detection stuff
-                            // set isBusy to false if at end
-                            if (!reachedParametricPathEnd) {
-                                reachedParametricPathEnd = true;
-                                reachedParametricPathEndTime = System.currentTimeMillis();
-                            }
-
-                            if ((System.currentTimeMillis() - reachedParametricPathEndTime > currentPath.getPathEndTimeoutConstraint()) ||
-                                    (poseUpdater.getVelocity().getMagnitude() < currentPath.getPathEndVelocityConstraint()
-                                            && MathFunctions.distance(poseUpdater.getPose(), closestPose) < currentPath.getPathEndTranslationalConstraint() &&
-                                            MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()) < currentPath.getPathEndHeadingConstraint())) {
-                                if (holdPositionAtEnd) {
-                                    holdPositionAtEnd = false;
-                                    holdPoint(new BezierPoint(currentPath.getLastControlPoint()), currentPath.getHeadingGoal(1));
-                                } else {
-                                    if (logDebug && isBusy) {
-                                        Log.d("Follower_final_logger::", "isAtParametricEnd:" + currentPath.isAtParametricEnd()
-                                                + " | isBusy: " + isBusy
-                                                + " | closestPose:" + closestPose
-                                                + " | Pose: " + getPose()
-                                                + " | t-value: " + String.format("%3.5f", currentPath.getClosestPointTValue())
-                                                + " | velocity: " + String.format("%3.2f", poseUpdater.getVelocity().getMagnitude())
-                                                + " | distance: " + String.format("%3.2f", MathFunctions.distance(poseUpdater.getPose(), closestPose))
-                                                + " | heading (degree): " + String.format("%3.2f", Math.toDegrees(MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal())))
-                                        );
-                                    }
-
-                                    breakFollowing();
                                 }
                             }
                         }

@@ -252,6 +252,8 @@ public class AutoReplayTime {
         }
         dtheta[0] = 0; dtheta[n - 1] = 0;
 
+        splinePath = new PathSpline();
+
         splinePath.xSpline = new CubicSpline1D(t, x, vx);
         splinePath.ySpline = new CubicSpline1D(t, y, vy);
         splinePath.headingSpline = new CubicSpline1D(t, theta, dtheta);
