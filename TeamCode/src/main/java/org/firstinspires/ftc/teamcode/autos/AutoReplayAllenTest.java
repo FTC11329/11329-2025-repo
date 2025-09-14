@@ -306,6 +306,13 @@ public class AutoReplayAllenTest {
     }
 
     public void buildCubicSpline(){
+        splineReplayStates = new ArrayList<>();
+        for (int i = 0; i < currentReplayStates.size; i++){
+            splineReplayStates.add(new TimePose(currentReplayStates.poseList.get(i).x,
+                    currentReplayStates.poseList.get(i).y,
+                    currentReplayStates.timeListPose.get(i),
+                    currentReplayStates.poseList.get(i).heading));
+        }
         xSpline = new CubicSpline1D(splineReplayStates, pose -> pose.x);
         ySpline = new CubicSpline1D(splineReplayStates, pose -> pose.y);
         thetaSpline = new CubicSpline1D(splineReplayStates, pose -> pose.theta);
