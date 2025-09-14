@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Localizer;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.PoseUpdater;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.ReplayPID;
 import org.firstinspires.ftc.teamcode.utility.splines.CubicSpline1D;
@@ -29,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class AutoReplayAllenTest {
 
+    Localizer localizer;
     Follower follower;
     Telemetry telemetry;
     Gamepad gamepad1;
@@ -198,6 +200,8 @@ public class AutoReplayAllenTest {
     }
 
     public void update(){
+        follower.update();
+
         // if gamepad a is recording
         recording.checkStatus(gamepad1.a);
         replay.checkStatus(gamepad1.b);
@@ -268,8 +272,8 @@ public class AutoReplayAllenTest {
         }
         if (replay.isOn){
             double currentTime = replay.time.seconds();
-
-            double[] motorValues = replayPID.replayPIDMotorValues(currentTime, follower.getPose()); //fl, fr, bl, br
+            Pose currentPose = follower.getPose();
+            double[] motorValues = replayPID.replayPIDMotorValues(currentTime, currentPose); //fl, fr, bl, br
             drivetrain.leftFront.setPower(motorValues[0]);
             drivetrain.rightFront.setPower(motorValues[1]);
             drivetrain.leftBack.setPower(motorValues[2]);

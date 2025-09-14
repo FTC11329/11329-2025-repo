@@ -248,6 +248,10 @@ public class PoseUpdater {
             return currentPose;
         }
     }
+    public Pose getMyPose() {
+        localizer.update();
+        return currentPose = localizer.getPose();
+    }
 
     /**
      * This sets the current pose without using resettable offsets.

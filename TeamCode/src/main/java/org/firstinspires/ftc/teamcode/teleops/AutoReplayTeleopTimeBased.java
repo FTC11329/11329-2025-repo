@@ -887,6 +887,7 @@ public class AutoReplayTeleopTimeBased {
             telemetry.addData("H Slide Pos", intakeSystem.getHSlidePos());
             telemetry.addData("Arm Pos", outtakeSystem.getArmPos());
             telemetry.addData("Wrist Pos", outtakeSystem.getWristPos());
+            telemetry.addData("Position", follower.getPose());
             telemetry.addLine();
         }
         if (debugColor || debugAll) {
