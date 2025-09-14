@@ -83,7 +83,7 @@ public class AutoReplayAllenTest {
         recording = new PressHold(PressHold.PressType.DoublePress);
         replay = new PressHold(PressHold.PressType.DoublePress);
         pointerInput = new PressHold(PressHold.PressType.LongPress);
-
+        replayPID = new ReplayPID(this);
         currentReplayStates = new StateEntryJson();
 
         loadPointer();
@@ -267,6 +267,8 @@ public class AutoReplayAllenTest {
             recordPositions();
         }
         if (replay.startPress){
+            loadPoses();
+            buildCubicSpline();
             replay.resetTimer();
             currentGamepadIndex = 0;
         }
@@ -304,10 +306,9 @@ public class AutoReplayAllenTest {
     }
 
     public void buildCubicSpline(){
-        if (!loaded) {loadTimePoses(); loaded = true;}
-        CubicSpline1D xSpline = new CubicSpline1D(splineReplayStates, pose -> pose.x);
-        CubicSpline1D ySpline = new CubicSpline1D(splineReplayStates, pose -> pose.y);
-        CubicSpline1D thetaSpline = new CubicSpline1D(splineReplayStates, pose -> pose.theta);
+        xSpline = new CubicSpline1D(splineReplayStates, pose -> pose.x);
+        ySpline = new CubicSpline1D(splineReplayStates, pose -> pose.y);
+        thetaSpline = new CubicSpline1D(splineReplayStates, pose -> pose.theta);
     }
 
     public double[] getTargets(double runtime){

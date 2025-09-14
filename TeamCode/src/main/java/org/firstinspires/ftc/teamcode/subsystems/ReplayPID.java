@@ -6,14 +6,17 @@ import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 public class ReplayPID {
     AutoReplayAllenTest autoReplay;
 
+
     double integralHistoryX, integralHistoryY, integralHistoryTheta, previousTime;
+
+    public ReplayPID(AutoReplayAllenTest autoReplay){
+        this.autoReplay = autoReplay;
+    }
+
     public double[] replayPIDMotorValues(double currentTime, Pose currentPose){
         double[] targetList;
-        try {
-            targetList = autoReplay.getTargets(currentTime); //xTarget 0, yTarget 1, headingTarget 2, vxTarget 3, vyTarget 4, omegaTargeta 5, xTarget 6, ayTarget 7, alphaTarget 8\
-        } catch (Exception e){
-            throw new RuntimeException("target list error");
-        }
+        targetList = autoReplay.getTargets(currentTime); //xTarget 0, yTarget 1, headingTarget 2, vxTarget 3, vyTarget 4, omegaTargeta 5, xTarget 6, ayTarget 7, alphaTarget 8\
+
         // first for the feed forward system that will predict motor powers to reach target acceleration and velocity
         double kVxy = .015; //random needs tuning
         double kAxy = 0; //acceleration
