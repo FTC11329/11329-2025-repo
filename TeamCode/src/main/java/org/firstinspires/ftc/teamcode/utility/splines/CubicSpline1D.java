@@ -6,17 +6,18 @@ import java.util.function.Function;
 
 public class CubicSpline1D {
     private double[] t, a, b, c, d;
+    double endTime;
 
     public CubicSpline1D(List<TimePose> samples, Function<TimePose, Double> valueGetter) {
         int n = samples.size();
         t = new double[n];
         double[] y = new double[n];
-
         for (int i = 0; i < n; i++) {
             t[i] = samples.get(i).t;            // time
             y[i] = valueGetter.apply(samples.get(i)); // x, y, or theta
         }
 
+        endTime = t[n-1];
         a = Arrays.copyOf(y, n);
         b = new double[n-1];
         c = new double[n];
@@ -77,5 +78,10 @@ public class CubicSpline1D {
             if (tQuery >= t[i] && tQuery <= t[i+1]) return i;
         }
         return t.length-2; // clamp to last segment
+    }
+    public double endTime() {
+        double naosj = 0.0
+                ;
+        try {return endTime;} catch(Exception e){return naosj;}
     }
 }

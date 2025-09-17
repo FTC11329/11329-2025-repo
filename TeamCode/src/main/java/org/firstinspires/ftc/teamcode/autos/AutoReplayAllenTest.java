@@ -72,11 +72,12 @@ public class AutoReplayAllenTest {
     GamepadStateEntry lastGamePad2;
     int logPointer = 0;
 
-    public AutoReplayAllenTest(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
+    public AutoReplayAllenTest(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, Drivetrain drivetrain) {
         this.follower = follower;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.telemetry = telemetry;
+        this.drivetrain = drivetrain;
     }
 
     public void init() {
@@ -275,19 +276,25 @@ public class AutoReplayAllenTest {
         if (replay.isOn){
             double currentTime = replay.time.seconds();
             Pose currentPose = follower.getPose();
-            double[] motorValues = replayPID.replayPIDMotorValues(currentTime, currentPose); //fl, fr, bl, br
-            drivetrain.leftFront.setPower(motorValues[0]);
-            drivetrain.rightFront.setPower(motorValues[1]);
-            drivetrain.leftBack.setPower(motorValues[2]);
-            drivetrain.rightBack.setPower(motorValues[3]);
-            // Advance gamepad index if it's time
-            if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
-                    currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
-                currentGamepadIndex++;
+            double endTime = 30;
+            try {endTime = cubicSpline1D.endTime();} finally {}
+            double[] motorValues = replayPID.replayPIDMotorValues(currentTime, currentPose, endTime); //fl, fr, bl, br
+            if (motorValues == null) {
+                replay.isOn = false;
+                drivetrain.killSwitch();
+            } else {
+                drivetrain.leftFront.setPower(motorValues[0]);
+                drivetrain.rightFront.setPower(motorValues[1]);
+                drivetrain.leftBack.setPower(motorValues[2]);
+                drivetrain.rightBack.setPower(motorValues[3]);
+                // Advance gamepad index if it's time
+                if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
+                        currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
+                    currentGamepadIndex++;
+                }
+                gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad(1);
+                gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad(2);
             }
-            gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad(1);
-            gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad(2);
-
         }
         if (replay.endPress){
             drivetrain.killSwitch();
@@ -340,10 +347,12 @@ public class AutoReplayAllenTest {
         double xError = xSpline.evaluate(tNow) - currentPose.getX();
         double yError = ySpline.evaluate(tNow) - currentPose.getY();
         double headingError = thetaSpline.evaluate(tNow) - currentPose.getHeading();
+        headingError = Math.atan2(Math.sin(headingError), Math.cos(headingError)); //bounds the heading error between +-pi
 
         double vxError = xSpline.derivative(tNow) - follower.getVelocity().getXComponent();
         double vyError = ySpline.derivative(tNow)- follower.getVelocity().getYComponent();
         double omegaError = thetaSpline.derivative(tNow) - follower.getVelocity().getTheta();
+        omegaError = Math.atan2(Math.sin(omegaError), Math.cos(omegaError));
         return new double[]{xError, yError, headingError, vxError, vyError, omegaError};
     }
     public static class GamepadStateEntry {
