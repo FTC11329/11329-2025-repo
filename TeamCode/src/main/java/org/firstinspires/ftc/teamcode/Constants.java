@@ -41,8 +41,8 @@ public class Constants {
         public static int minWhileDownPos = 375;
         public static int autoHSlides = 1050;
         public static int autoPreExtendSlides = 900;
-        public static int intakeSlidePos = 1325;
-        public static int maxSlidePos = 1450;
+        public static int intakeSlidePos = 1450;
+        public static int maxSlidePos = 1950;
         public static double inchToTick = 1532.0 / 19.0;
         public static double tickToInch = 19.0 / 1532.0;
         public static double manualSlideSpeed = 75;
@@ -98,7 +98,7 @@ public class Constants {
         public static double wallWrist = 0.324;
         //                   Walrus?
 
-        public static double manualWristSpeed = 0.01;
+        public static double manualWristSpeed = 0.015;
 
         //Claw
         public static double grabClaw = 0.55;
@@ -133,7 +133,7 @@ public class Constants {
         public static double parkArm = 0.538 + 0.083;
 
         //VSlides
-        public static int safeAtIntakeSlides = 343;
+        public static int safeAtIntakeSlides = 350;
 
         public static int intakeSlides = 143;
         public static int intakeWallSlides = 90;
@@ -155,7 +155,7 @@ public class Constants {
         public static int postClipHighSpecimenSlides = 800;
         public static int safeHighSpecimenSlides = 650;
         public static int lowBasketSlides = 228;
-        public static int highBasketSlides = 840;
+        public static int highBasketSlides = 750;
 
         public static int maxSlides = 840;
         public static int climbSlides = 840;
@@ -182,6 +182,8 @@ public class Constants {
         public static double[] yellow = {0.0123, 0.0189, 0.0046, 0.903};
         public static double[] yellowEdge = {0.0207, 0.0277, 0.007, 0.0957};
         public static double[] empty = {0.0004, 0.0013, 0.002, 0.0863};
+
+        public static double hasInIntakeDistance = 0.9;
 
         public static double hasDistance = 0.75; //1.27 0.605 0.495 0.463
     }

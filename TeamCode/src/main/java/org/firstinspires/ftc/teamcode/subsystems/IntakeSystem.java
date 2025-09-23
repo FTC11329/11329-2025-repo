@@ -191,6 +191,20 @@ public class IntakeSystem {
         }
     }
 
+    public boolean intakeUntilDemo() {
+        if (!jammed) {
+            setIntakePower(Constants.Intake.intakeSpeed);
+            if (intakeSensor.getDistance(DistanceUnit.INCH) < Constants.Color.hasInIntakeDistance) {
+                setIntakePower(0);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public boolean intakeUntilYellow() {
         NormalizedRGBA currentColor = intakeSensor.getNormalizedColors();
         if (!jammed) {

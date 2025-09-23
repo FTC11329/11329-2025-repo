@@ -40,8 +40,8 @@ public class Teleop {
     boolean debugAll = false;
     boolean debugState = false;
     boolean debugStateMachine = false;
-    boolean debugPos = true;
-    boolean debugColor = false;
+    boolean debugPos = false;
+    boolean debugColor = true;
     boolean debugClimber = false;
     boolean debugPower = false;
     //Requires ^ uncommenting things
@@ -972,13 +972,13 @@ public class Teleop {
             //TODO add more Things here
             telemetry.addLine();
         }
-        if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
-            telemetry.update();
-        }
 
-        if (false) {
+        if (true) {
             telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
             lastTime = elapsedTime.milliseconds();
+        }
+        if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
+            telemetry.update();
         }
     }
 
