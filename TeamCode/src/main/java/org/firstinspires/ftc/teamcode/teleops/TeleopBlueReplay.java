@@ -7,10 +7,10 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @TeleOp(name = "Tele-op Blue Replay", group = "   Comp mode")
 public class TeleopBlueReplay extends OpMode {
-    AutoReplayTeleop teleop;
+    AdriansAutoReplay teleop;
     @Override
     public void init() {
-        teleop = new AutoReplayTeleop(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
+        teleop = new AdriansAutoReplay(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
         teleop.init();
     }
 

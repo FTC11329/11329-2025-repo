@@ -8,6 +8,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Constants;
+import org.firstinspires.ftc.teamcode.autos.AutoReplayAllenTest;
+import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.util.Timer;
 import org.firstinspires.ftc.teamcode.subsystems.Climber;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -21,7 +24,7 @@ import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 import org.firstinspires.ftc.teamcode.utility.RobotStateVariables;
 import org.firstinspires.ftc.teamcode.utility.StateMachine;
 
-public class Teleop {
+public class AdriansAutoReplay {
     //comment me out V
 //    DcMotorEx motor1, motor2, motor3, motor4, motor5, motor6, motor7, motor8;
     Robot robot;
@@ -40,8 +43,8 @@ public class Teleop {
     boolean debugAll = false;
     boolean debugState = false;
     boolean debugStateMachine = false;
-    boolean debugPos = false;
-    boolean debugColor = true;
+    boolean debugPos = true;
+    boolean debugColor = false;
     boolean debugClimber = false;
     boolean debugPower = false;
     //Requires ^ uncommenting things
@@ -153,15 +156,20 @@ public class Teleop {
     double prevFlapPos = 0;
     boolean backFlapDebounce = false;
 
+    Gamepad gamepad1;
+    Gamepad gamepad2;
 
     //this is here because I have to have a teleop blue and teleop red
     HardwareMap hardwareMap;
+    Follower follower;
     Telemetry telemetry;
-    Gamepad gamepad1;
-    Gamepad gamepad2;
+    Gamepad gamepadInfo1;
+    Gamepad gamepadInfo2;
     RobotSideEnum robotSide;
+    AutoReplayAllenTest autoReplay;
 
-    public Teleop(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
+
+    public AdriansAutoReplay(HardwareMap hardwareMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, RobotSideEnum robotSide) {
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;
         this.gamepad1 = gamepad1;
@@ -188,7 +196,12 @@ public class Teleop {
         driveTrain = new Drivetrain(hardwareMap);
         stateMachine = new StateMachine();
         robotState = new RobotStateVariables(PlacePosEnum.clear, robotSide);
+        autoReplay = new AutoReplayAllenTest(follower, telemetry, gamepadInfo1, gamepadInfo2, driveTrain);
+        follower.setStartingPose(new Pose(0, 0, 0));
+
+        autoReplay.init();
     }
+
 
     public void start() {
         elapsedTime.reset();
@@ -204,6 +217,8 @@ public class Teleop {
 
 
     public void loop() {
+        follower.update();
+
         // Inputs
         gamepad1B = gamepad1.b;
 
@@ -211,6 +226,16 @@ public class Teleop {
         driveForward = -gamepad1.left_stick_y;
         driveStrafe = -gamepad1.left_stick_x;
         driveRotation = -gamepad1.right_stick_x;
+
+        autoReplay.update();
+        if (autoReplay.IsReplayOn()){
+            gamepad1 = autoReplay.getGamepad1();
+            gamepad2 = autoReplay.getGamepad2();
+        } else {
+            gamepad1 = gamepadInfo1;
+            gamepad2 = gamepadInfo2;
+    }
+
         if (gamepad1.right_bumper) {
             driveSpeed = DriveSpeedEnum.Fast;
         } else {
@@ -972,13 +997,13 @@ public class Teleop {
             //TODO add more Things here
             telemetry.addLine();
         }
-
-        if (true) {
-            telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
-            lastTime = elapsedTime.milliseconds();
-        }
         if (debugAll || debugClimber || debugMisc || debugPos || debugStateMachine || debugState || debugPower || debugColor) {
             telemetry.update();
+        }
+
+        if (false) {
+            telemetry.addData("Loop Times ms", elapsedTime.milliseconds() - lastTime);
+            lastTime = elapsedTime.milliseconds();
         }
     }
 
