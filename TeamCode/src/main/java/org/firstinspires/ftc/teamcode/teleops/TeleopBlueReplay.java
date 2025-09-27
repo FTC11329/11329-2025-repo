@@ -3,14 +3,15 @@ package org.firstinspires.ftc.teamcode.teleops;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.autos.AutoReplayTime;
 import org.firstinspires.ftc.teamcode.utility.RobotSideEnum;
 
 @TeleOp(name = "Tele-op Blue Replay", group = "   Comp mode")
 public class TeleopBlueReplay extends OpMode {
-    AdriansAutoReplay teleop;
+    AutoReplayTeleopTimeBased teleop;
     @Override
     public void init() {
-        teleop = new AdriansAutoReplay(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
+        teleop = new AutoReplayTeleopTimeBased(hardwareMap, telemetry, gamepad1, gamepad2, RobotSideEnum.Blue);
         teleop.init();
     }
 
