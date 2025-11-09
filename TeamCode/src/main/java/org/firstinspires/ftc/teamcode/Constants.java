@@ -57,7 +57,7 @@ public class Constants {
         public static double depoStore = 0.075;
         public static double depoDepo = 0.444;
 
-        public static double intakeSpeed = 0.9;
+        public static double intakeSpeed = 0.7;
         public static double transferSpeed = 1;
         public static double unjamSpeed = -0.9;
         public static double spitSpeed = -0.75;
@@ -135,7 +135,7 @@ public class Constants {
         //VSlides
         public static int safeAtIntakeSlides = 350;
 
-        public static int intakeSlides = 143;
+        public static int intakeSlides = 166;
         public static int intakeWallSlides = 90;
         public static int intakeWallAutoSlides = 90;
 
@@ -176,12 +176,12 @@ public class Constants {
     }
     @Config
     public static class Color {
-        public static double[] blue = {0.0016, 0.0041, 0.0114, 0.6806};
-        public static double[] red = {0.0067, 0.0042, 0.0025, 0.5654};
-        public static double[] redEdge = {0.016, 0.0122, 0.0055, 0.886};
-        public static double[] yellow = {0.0123, 0.0189, 0.0046, 0.903};
-        public static double[] yellowEdge = {0.0207, 0.0277, 0.007, 0.0957};
-        public static double[] empty = {0.0004, 0.0013, 0.002, 0.0863};
+        public static double[] blue = {0.0013, 0.0025, 0.0074, 0.4767};
+        public static double[] red = {0.0051, 0.0023, 0.0015, 0.368};
+        public static double[] redEdge = {0.0076, 0.0035, 0.0029, 0.588};
+        public static double[] yellow = {0.0082, 0.0103, 0.0028, 0.769};
+        public static double[] yellowEdge = {0.0109, 0.0132, 0.0039, 0.848};
+        public static double[] empty = {0.0003, 0.0007, 0.0011, 0.0306};
 
         public static double hasInIntakeDistance = 0.9;
 

@@ -155,14 +155,16 @@ public class Robot {
                     break;
                 case 1:
                     if (intakeSystem.readyToTransfer(false) && outtakeSystem.readyToTransfer(false)) {
-                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+//                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                         transferTimer.resetTimer();
                         transferState = 2;
                     }
                     break;
                 case 2:
-                    intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
                     if (transferTimer.getElapsedTimeSeconds() > 0.2) {
+                        intakeSystem.setIntakePower(Constants.Intake.transferSpeed);
+                    }
+                    if (transferTimer.getElapsedTimeSeconds() > 0.5) {
                         outtakeSystem.setClawPos(Constants.Outtake.grabClaw);
                         transferTimer.resetTimer();
                         transferState = 3;

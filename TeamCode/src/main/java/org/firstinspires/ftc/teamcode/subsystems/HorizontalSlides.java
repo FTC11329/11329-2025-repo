@@ -30,7 +30,7 @@ public class HorizontalSlides {
 
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slideMotor.setTargetPosition(0);
-        slideMotor.setPower(1);
+        slideMotor.setPower(0.9);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -99,7 +99,7 @@ public class HorizontalSlides {
 
     public void reEnable(int slidePos) {
         setPos(slidePos);
-        slideMotor.setPower(1);
+        slideMotor.setPower(0.8);
         slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         disabled = false;
     }
