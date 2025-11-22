@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.pedropathing.follower.Follower;
+import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
+import org.firstinspires.ftc.teamcode.utility.ColumnEnum;
 import org.firstinspires.ftc.teamcode.utility.PathSpline;
 import org.firstinspires.ftc.teamcode.pedropathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedropathing.pathgen.MathFunctions;
@@ -26,6 +28,7 @@ public class AutoReplayTime {
 
     Follower follower;
     Telemetry telemetry;
+    Drivetrain drivetrain;
     Gamepad gamepad1;
     Gamepad gamepad2;
 
@@ -54,11 +57,12 @@ public class AutoReplayTime {
     PathSpline splinePath;
     int logPointer = 0;
 
-    public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
+    public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, Drivetrain drivetrain) {
         this.follower = follower;
         this.gamepad1 = gamepad1;
         this.gamepad2 = gamepad2;
         this.telemetry = telemetry;
+        this.drivetrain = drivetrain;
     }
 
     public void init() {
@@ -193,6 +197,10 @@ public class AutoReplayTime {
                 currentReplayStates.size += 1;
                 lastPose = follower.getPose();
                 lastTime = recording.time.seconds();
+                currentReplayStates.motorVelocityList[ColumnEnum.fr.index].add(drivetrain.rightFront.getVelocity());
+                currentReplayStates.motorVelocityList[ColumnEnum.fl.index].add(drivetrain.leftFront.getVelocity());
+                currentReplayStates.motorVelocityList[ColumnEnum.bl.index].add(drivetrain.leftBack.getVelocity());
+                currentReplayStates.motorVelocityList[ColumnEnum.br.index].add(drivetrain.rightBack.getVelocity());
             }
             if (!lastGamePad1.compareGamepad(new GamepadStateEntry(gamepad1)) || !lastGamePad2.compareGamepad(new GamepadStateEntry(gamepad2))) {
                 lastGamePad1 = new GamepadStateEntry(gamepad1);
@@ -413,6 +421,7 @@ public class AutoReplayTime {
         public List<VelocityStateEntry> velocityList = new ArrayList<>();
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
+        public ArrayList<Double>[] motorVelocityList = new ArrayList[ColumnEnum.values().length];
 
 
     }

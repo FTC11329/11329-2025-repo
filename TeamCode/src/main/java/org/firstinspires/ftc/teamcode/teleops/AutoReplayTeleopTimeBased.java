@@ -192,7 +192,7 @@ public class AutoReplayTeleopTimeBased {
         driveTrain = new Drivetrain(hardwareMap);
         stateMachine = new StateMachine();
         robotState = new RobotStateVariables(PlacePosEnum.clear, robotSide);
-        autoReplay = new AutoReplayTime(follower, telemetry, gamepadInfo1, gamepadInfo2);
+        autoReplay = new AutoReplayTime(follower, telemetry, gamepadInfo1, gamepadInfo2, driveTrain);
         follower.setStartingPose(new Pose(0, 0, 0));
 
         autoReplay.init();
