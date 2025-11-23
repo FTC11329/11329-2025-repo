@@ -40,7 +40,7 @@ public class AutoReplayTime {
     PressHold pointerInput;
     Pose lastPose = new Pose(0, 0, 0);
     double lastTime = 0;
-    double deltaTime = 0.25;
+    double deltaTime = 0.1;
     double deltaError = 2;
     int replayIndex = 0;
 
@@ -157,25 +157,25 @@ public class AutoReplayTime {
     }
 
     public void update(){
-        recording.checkStatus(gamepad1.a);
-        replay.checkStatus(gamepad1.b);
-        pointerInput.checkStatus(gamepad1.left_bumper);
+//        recording.checkStatus(gamepad1.a);
+//        replay.checkStatus(gamepad1.b);
+//        pointerInput.checkStatus(gamepad1.left_bumper);
+//
+//        telemetry.addData("LOG POINTER", logPointer);
+//
+//        telemetry.addData("Follower Busy", follower.isBusy());
+//        telemetry.addData("Replay Path Null", currentReplayStates == null);
+//        telemetry.addData("recording is on", recording.isOn);
+//        telemetry.addData("replay is on", replay.isOn);
+//        telemetry.addData("replay start", replay.startPress);
+//        telemetry.addData("Following Path: Replay Index: ", currentGamepadIndex);
 
-        telemetry.addData("LOG POINTER", logPointer);
-
-        telemetry.addData("Follower Busy", follower.isBusy());
-        telemetry.addData("Replay Path Null", currentReplayStates == null);
-        telemetry.addData("recording is on", recording.isOn);
-        telemetry.addData("replay is on", replay.isOn);
-        telemetry.addData("replay start", replay.startPress);
-        telemetry.addData("Following Path: Replay Index: ", currentGamepadIndex);
-
-        for (int i = 0; i < currentReplayStates.size; i++){
-            telemetry.addData("t", (currentReplayStates.timeListPose.get(i)));
-            telemetry.addData("pos-x", (currentReplayStates.poseList.get(i).x));
-            telemetry.addData("pos-y", (currentReplayStates.poseList.get(i).y));
-        }
-        telemetry.addData("Size of List: ", currentReplayStates.size);
+//        for (int i = 0; i < currentReplayStates.size; i++){
+//            telemetry.addData("t", (currentReplayStates.timeListPose.get(i)));
+//            telemetry.addData("pos-x", (currentReplayStates.poseList.get(i).x));
+//            telemetry.addData("pos-y", (currentReplayStates.poseList.get(i).y));
+//        }
+//        telemetry.addData("Size of List: ", currentReplayStates.size);
 
         if (pointerInput.startPress) logPointer = 0;
         if (pointerInput.isOn) logPointer = (int) Math.floor(pointerInput.time.seconds());
@@ -217,18 +217,16 @@ public class AutoReplayTime {
             if (replay.startPress){
                 replay.resetTimer();
                 loadPoses();
-                createPathSpline();
                 currentGamepadIndex = 0;
-                follower.followSpline(splinePath);
             }
             if (replay.isOn){
                 double currentTime = replay.time.seconds();
-
                 // Advance gamepad index if it's time
                 if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                         currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
                     currentGamepadIndex++;
                 }
+                double motorPowerFl = currentReplayStates.motorVelocityList[ColumnEnum.fl.index].get(currentPoseIndex);
                 gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad();
                 gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad();
             }
@@ -237,43 +235,9 @@ public class AutoReplayTime {
             }
         }
     }
+    public double createWheelVelocityPath(Double time, ColumnEnum wheelIndex) {
 
-    public void createPathSpline(){
-        int n = currentReplayStates.size;
-        double[] t = new double[n];
-        double[] x = new double[n];
-        double[] vx = new double[n];
-        double[] y = new double[n];
-        double[] vy = new double[n];
-        double[] theta = new double[n];
-        double[] dtheta = new double[n];
-
-        for (int i = 0; i < n; i += 1){
-            t[i] = currentReplayStates.timeListPose.get(i);
-            x[i] = currentReplayStates.poseList.get(i).x;
-            vx[i] = currentReplayStates.velocityList.get(i).x;
-            y[i] = currentReplayStates.poseList.get(i).y;
-            vy[i] = currentReplayStates.velocityList.get(i).y;
-            theta[i] = currentReplayStates.poseList.get(i).heading;
-        }
-
-        for (int i = 1; i < n; i += 1){
-            double dt = t[i - 1] - t[i];
-            dtheta[i] = (theta[i - 1] - theta[i]) / dt;
-            vx[i] = (x[i - 1] - x[i]) / dt;
-            vy[i] = (y[i - 1] - y[i]) / dt;
-        }
-        dtheta[0] = 0;
-        vx[0] = 0;
-        vy[0] = 0;
-
-        splinePath = new PathSpline();
-
-        splinePath.xSpline = new CubicSpline1D(t, x, vx);
-        splinePath.ySpline = new CubicSpline1D(t, y, vy);
-        splinePath.headingSpline = new CubicSpline1D(t, theta, dtheta);
     }
-
     public boolean IsReplayOn(){
         return replay.isOn;
     }
