@@ -1,112 +1,113 @@
 package org.firstinspires.ftc.teamcode.utility;
 
+import java.util.List;
+
 public class CubicSpline1D {
 
-    // Class to hold coefficients of one cubic segment
-    public static class CubicSegment {
-        public double a0, a1, a2, a3;
-        public double t0, t1;
-
-        public CubicSegment(double a0, double a1, double a2, double a3, double t0, double t1) {
-            this.a0 = a0;
-            this.a1 = a1;
-            this.a2 = a2;
-            this.a3 = a3;
+    private static class Segment {
+        double a, b, c, d, t0, t1;
+        Segment(double a, double b, double c, double d, double t0, double t1) {
+            this.a = a;
+            this.b = b;
+            this.c = c;
+            this.d = d;
             this.t0 = t0;
             this.t1 = t1;
         }
-
-        // Evaluate position at time t
-        public double evaluate(double t) {
-            double dt = t - t0;
-            return a0 + a1 * dt + a2 * dt * dt + a3 * dt * dt * dt;
-        }
-
-        // Evaluate velocity at time t
-        public double velocity(double t) {
-            double dt = t - t0;
-            return a1 + 2 * a2 * dt + 3 * a3 * dt * dt;
-        }
-
-        public double acceleration(double t) {
-            double dt = t - t0;
-            return 2 * a2 + 6 * a3 * dt;
-        }
     }
 
-    private CubicSegment[] segments;
+    private Segment[] segments;
 
-    /**
-     * Constructor to generate cubic spline.
-     * @param t times of points (length n+1)
-     * @param x positions (length n+1)
-     * @param v velocities (length n+1)
-     */
-    public CubicSpline1D(double[] t, double[] x, double[] v) {
-        int n = t.length - 1;  // number of segments
-        segments = new CubicSegment[n];
+    public CubicSpline1D(List<Double> tList, List<Double> yList) {
+        int n = tList.size();
+
+        if (n != yList.size() || n < 2) {
+            throw new IllegalArgumentException("Time and value lists must be same length and >= 2");
+        }
+
+        double[] t = new double[n];
+        double[] y = new double[n];
 
         for (int i = 0; i < n; i++) {
-            double t0 = t[i];
-            double t1 = t[i + 1];
-            double x0 = x[i];
-            double x1 = x[i + 1];
-            double v0 = v[i];
-            double v1 = v[i + 1];
-            double dt = t1 - t0;
+            t[i] = tList.get(i);
+            y[i] = yList.get(i);
+        }
 
-            // Solve for coefficients using boundary conditions
-            double a0 = x0;
-            double a1 = v0;
-            double a2 = (3*(x1 - x0)/dt - 2*v0 - v1) / dt;
-            double a3 = (2*(x0 - x1)/dt + v0 + v1) / (dt*dt);
+        int m = n - 1; // number of segments
+        segments = new Segment[m];
 
-            segments[i] = new CubicSegment(a0, a1, a2, a3, t0, t1);
+        double[] h = new double[m];
+        for (int i = 0; i < m; i++) {
+            h[i] = t[i + 1] - t[i];
+        }
+
+        // Step 1: Solve for second derivatives (natural spline)
+        double[] alpha = new double[m];
+        for (int i = 1; i < m; i++) {
+            alpha[i] = (3/h[i]) * (y[i+1] - y[i]) - (3/h[i-1]) * (y[i] - y[i-1]);
+        }
+
+        double[] l = new double[n];
+        double[] mu = new double[n];
+        double[] z = new double[n];
+
+        l[0] = 1;
+        mu[0] = 0;
+        z[0] = 0;
+
+        for (int i = 1; i < m; i++) {
+            l[i] = 2*(t[i+1] - t[i-1]) - h[i-1]*mu[i-1];
+            mu[i] = h[i] / l[i];
+            z[i] = (alpha[i] - h[i-1]*z[i-1]) / l[i];
+        }
+
+        l[n-1] = 1;
+        z[n-1] = 0;
+
+        double[] c = new double[n];
+        double[] b = new double[m];
+        double[] d = new double[m];
+
+        c[n-1] = 0;
+
+        // Step 2: Back substitution for c, b, d
+        for (int j = m - 1; j >= 0; j--) {
+            c[j] = z[j] - mu[j] * c[j+1];
+            b[j] = (y[j+1] - y[j]) / h[j] - h[j] * (c[j+1] + 2*c[j]) / 3;
+            d[j] = (c[j+1] - c[j]) / (3 * h[j]);
+        }
+
+        // Step 3: Build segments
+        for (int i = 0; i < m; i++) {
+            segments[i] = new Segment(
+                    y[i],      // a
+                    b[i],      // b
+                    c[i],      // c
+                    d[i],      // d
+                    t[i], t[i+1]
+            );
         }
     }
 
-    // Evaluate the spline at time t
-    public double evaluate(double t) {
-        CubicSegment s = segment(t);
-        if (s != null){ return s.evaluate(t); }
-        // If t is outside the range, return nearest endpoint
-        if (t < segments[0].t0) return segments[0].evaluate(segments[0].t0);
-        return segments[segments.length - 1].evaluate(segments[segments.length - 1].t1);
-    }
+    /** Evaluate spline at time T */
+    public double eval(double T) {
+        Segment seg = null;
 
-    // Evaluate velocity at time t
-    public double velocity(double t) {
-        CubicSegment s = segment(t);
-        if (s != null){ return s.velocity(t); }
-
-        if (t < segments[0].t0) return segments[0].velocity(segments[0].t0);
-        return segments[segments.length - 1].velocity(segments[segments.length - 1].t1);
-    }
-
-    // Evaluate acceleration at time t
-    public double acceleration(double t) {
-        CubicSegment s = segment(t);
-        if (s != null){ return s.velocity(t); }
-
-        if (t < segments[0].t0) return segments[0].acceleration(segments[0].t0);
-        return segments[segments.length - 1].acceleration(segments[segments.length - 1].t1);
-    }
-
-    public CubicSegment segment(double t){
-        for (CubicSegment s : segments) {
-            if (t >= s.t0 && t <= s.t1) {
-                return s;
+        // Find segment containing T
+        for (Segment s : segments) {
+            if (T >= s.t0 && T <= s.t1) {
+                seg = s;
+                break;
             }
         }
-        return null;
-    }
 
-    // For debugging: print all segment coefficients
-    public void printCoefficients() {
-        for (int i = 0; i < segments.length; i++) {
-            CubicSegment s = segments[i];
-            System.out.printf("Segment %d: a0=%.4f, a1=%.4f, a2=%.4f, a3=%.4f\n",
-                    i, s.a0, s.a1, s.a2, s.a3);
+        // Clamp to nearest segment if out of bounds
+        if (seg == null) {
+            if (T < segments[0].t0) seg = segments[0];
+            else seg = segments[segments.length - 1];
         }
+
+        double dt = T - seg.t0;
+        return seg.a + seg.b * dt + seg.c * dt * dt + seg.d * dt * dt * dt;
     }
 }

@@ -56,6 +56,12 @@ public class AutoReplayTime {
     GamepadStateEntry lastGamePad2;
     PathSpline splinePath;
     int logPointer = 0;
+    boolean loaded = false;
+    CubicSpline1D frSpline;
+    CubicSpline1D flSpline;
+    CubicSpline1D brSpline;
+    CubicSpline1D blSpline;
+
 
     public AutoReplayTime(Follower follower, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2, Drivetrain drivetrain) {
         this.follower = follower;
@@ -221,23 +227,41 @@ public class AutoReplayTime {
             }
             if (replay.isOn){
                 double currentTime = replay.time.seconds();
+                if (!loaded) {createWheelVelocityPath();}
                 // Advance gamepad index if it's time
                 if (currentGamepadIndex + 1 < currentReplayStates.timeListGamepad.size() &&
                         currentReplayStates.timeListGamepad.get(currentGamepadIndex + 1) <= currentTime) {
                     currentGamepadIndex++;
                 }
-                double motorPowerFl = currentReplayStates.motorVelocityList[ColumnEnum.fl.index].get(currentPoseIndex);
+
                 gamepadReplay1 = currentReplayStates.gamepad1List.get(currentGamepadIndex).convertToGamepad();
                 gamepadReplay2 = currentReplayStates.gamepad2List.get(currentGamepadIndex).convertToGamepad();
             }
             if (replay.endPress){
                 follower.breakFollowing();
+                loaded = false;
             }
         }
     }
-    public double createWheelVelocityPath(Double time, ColumnEnum wheelIndex) {
+
+
+    public void createWheelVelocityPath() {
+        if (!loaded) {loadPointer(); loaded = true;}
+        flSpline = new CubicSpline1D(currentReplayStates.timeListPose, currentReplayStates.motorVelocityList[ColumnEnum.fl.index]);
+        frSpline = new CubicSpline1D(currentReplayStates.timeListPose, currentReplayStates.motorVelocityList[ColumnEnum.fr.index]);
+        blSpline = new CubicSpline1D(currentReplayStates.timeListPose, currentReplayStates.motorVelocityList[ColumnEnum.bl.index]);
+        brSpline = new CubicSpline1D(currentReplayStates.timeListPose, currentReplayStates.motorVelocityList[ColumnEnum.br.index]);
+    }
+    
+
+    public void getTimes(){
+        Pose currentPose = follower.getPose();
 
     }
+    public void buildCubicSpline(){
+
+    }
+
     public boolean IsReplayOn(){
         return replay.isOn;
     }
@@ -386,7 +410,6 @@ public class AutoReplayTime {
         public List<GamepadStateEntry> gamepad1List = new ArrayList<>();
         public List<GamepadStateEntry> gamepad2List = new ArrayList<>();
         public ArrayList<Double>[] motorVelocityList = new ArrayList[ColumnEnum.values().length];
-
 
     }
 
